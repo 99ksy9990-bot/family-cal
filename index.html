@@ -271,6 +271,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   to{transform:scaleX(1);opacity:1}
 }
 
+
+/* 날짜/시간 입력 잘림 방지 */
+.modal-sheet .mi-2{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:10px !important;
+}
+.modal-sheet input[type="date"],
+.modal-sheet input[type="time"]{
+  width:100% !important;
+  min-width:0 !important;
+  font-size:13px !important;
+  line-height:1.2 !important;
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -342,31 +359,6 @@ const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
-function oldAutoShiftForKey(key){
-  const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];
-  const [yy,mm,dd]=key.split('-').map(Number);
-  let i=0;
-  for(let y=TY;y<=TY+1;y++){
-    for(let m=0;m<12;m++){
-      const dn=new Date(y,m+1,0).getDate();
-      for(let d=1;d<=dn;d++){
-        const k=dk(y,m,d);
-        if(k===key)return p[i%p.length];
-        i++;
-      }
-    }
-  }
-  return null;
-}
-function cleanOldAutoShifts(obj){
-  const out={};
-  Object.keys(obj||{}).forEach(k=>{
-    const old=oldAutoShiftForKey(k);
-    // 예전 자동 패턴과 같은 값은 "수정 안 한 값"으로 보고 삭제 → 달력에서는 OFF로 표시
-    if(old===null || obj[k]!==old)out[k]=obj[k];
-  });
-  return out;
-}
 
 let notes=[],family=[],requests=[],shiftData={};
 let roomId = getRoomId();
@@ -413,7 +405,19 @@ function normalizeData(d){
   notes=Array.isArray(d.notes)?d.notes:base.notes;
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   family=Array.isArray(d.family)?d.family:base.family;
-  shiftData=cleanOldAutoShifts(d.shiftData||{});
+  shiftData=d.shiftData||{};
+  if(Object.keys(shiftData).length===0){
+    const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];let i=0;
+    for(let y=TY;y<=TY+1;y++){
+      for(let m=0;m<12;m++){
+        const dn=new Date(y,m+1,0).getDate();
+        for(let dd=1;dd<=dn;dd++){
+          shiftData[dk(y,m,dd)]=p[i%p.length];
+          i++;
+        }
+      }
+    }
+  }
 }
 function currentData(){return {notes,family,requests,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
