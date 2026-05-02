@@ -125,7 +125,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .chip-w{background:var(--blue-bg);color:var(--blue-t)}
 .chip-f{background:var(--green-bg);color:var(--green-t)}
 .chip-g{background:var(--bg);color:var(--t2);font-weight:600}
-.c-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:4px}
+.c-right{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-left:4px;min-width:46px}
 .small-link{font-size:11px;color:var(--t3);border:none;background:transparent;cursor:pointer;font-family:inherit}
 .comment-pill{margin-top:7px;background:var(--blue-bg);color:var(--blue-t);font-size:11px;padding:6px 10px;border-radius:10px;cursor:pointer;border:none;font-family:inherit;text-align:left;font-style:italic;width:100%;display:block}
 .div{height:1px;background:var(--border);margin:14px 16px}
@@ -415,20 +415,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   opacity:.45;
   transform:scale(.98);
 }
-.drag-handle{
-  width:24px;
-  height:24px;
-  border-radius:8px;
-  border:none;
-  background:var(--bg);
-  color:var(--t3);
-  font-size:14px;
-  font-weight:900;
-  cursor:grab;
-  font-family:inherit;
-  margin-bottom:2px;
-}
-.drag-handle:active{cursor:grabbing}
 
 
 /* 검색 */
@@ -448,6 +434,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 }
 .search-input:focus{border-color:var(--blue)}
 
+
+/* 수정/삭제 위치 보정 */
+.c-right{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-left:4px;min-width:46px}
+.c-right .small-link{display:block;text-align:left}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -456,8 +447,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 
 <div class="splash" id="splash">
   <div class="splash-box">
-    <img class="splash-icon" src="icon.png" alt="패쓰 아이콘" />
-    <div class="splash-title">패쓰</div>
+    <img class="splash-icon" src="icon.png" alt="패스 아이콘" />
+    <div class="splash-title">패스</div>
     <div class="splash-sub">Family Scheduler</div>
     <div class="splash-loader"></div>
   </div>
@@ -466,7 +457,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 <div class="app" id="app">
   <div class="topbar">
     <div>
-      <div class="app-name">패쓰</div>
+      <div class="app-name">패스</div>
       <div class="app-sub">Family Scheduler</div>
     </div>
     <div class="top-right" id="top-right">
@@ -816,8 +807,7 @@ function makeCard(n){
         ${done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
       </div>
       <div class="c-right">
-        <button class="drag-handle" title="드래그해서 순서 변경">↕</button>
-        <button class="small-link" onclick="openEditNote('${n.id}')">수정</button>
+<button class="small-link" onclick="openEditNote('${n.id}')">수정</button>
         <button class="small-link" onclick="delNote('${n.id}')">삭제</button>
       </div>
     </div>
@@ -1012,8 +1002,7 @@ function makeReqCard(r){
         ${r.comment?`<button class="comment-pill" onclick="openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:''}
       </div>
       <div class="c-right">
-        <button class="drag-handle" title="드래그해서 순서 변경">↕</button>
-        <button class="small-link" onclick="openEditReq('${r.id}')">수정</button>
+<button class="small-link" onclick="openEditReq('${r.id}')">수정</button>
         <button class="small-link" onclick="delReq('${r.id}')">삭제</button>
       </div>
     </div>
@@ -1107,7 +1096,7 @@ function openMemoryModal(id){
       <div class="ml">대상 이름</div>
       <input class="mi" id="mem-name" placeholder="예: 도미 생일, 엄마 생일" value="${x?escapeAttr(x.name):''}"/>
       <div class="ml">생년월일</div>
-      <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'생년월일 선택'}" onclick="openDatePicker('mem-birth')"/>
+      <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'생년월일 선택'}" onclick="openBirthPicker('mem-birth')"/>
       <div class="ml">메모</div>
       <textarea class="ta" id="mem-memo" placeholder="선물, 좋아하는 것, 참고할 내용">${x?escapeHtml(x.memo||''):''}</textarea>
       <button class="primary-btn" onclick="saveMemory('${x?x.id:''}')">저장</button>
@@ -1206,13 +1195,10 @@ function setMain(t){
 
 
 function renderHomeWidgets(){
+  if(main!=='s')return '';
   const todayKey=dk(TY,TM,TD);
-  const tomorrowKey=addDaysStr(todayKey,1);
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey));
-  const tomorrowList=notes.filter(n=>!isDone(n)&&occursOn(n,tomorrowKey));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
-  const nextMem=[...memories].sort((a,b)=>nextBirthInfo(a.birth).date.localeCompare(nextBirthInfo(b.birth).date))[0];
-  const nb=nextMem?nextBirthInfo(nextMem.birth):null;
   return `<div class="widget-wrap">
     <div class="widget-card">
       <div class="widget-title">오늘은?</div>
@@ -1220,19 +1206,9 @@ function renderHomeWidgets(){
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
     </div>
     <div class="widget-card">
-      <div class="widget-title">내일</div>
-      <div class="widget-main">${tomorrowList.length}개</div>
-      <div class="widget-sub">${tomorrowList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'내일 일정 없음'}</div>
-    </div>
-    <div class="widget-card">
       <div class="widget-title">조르기</div>
       <div class="widget-main">${reqCnt}개</div>
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
-    </div>
-    <div class="widget-card">
-      <div class="widget-title">다음 기억</div>
-      <div class="widget-main">${nextMem?nb.dday:'-'}</div>
-      <div class="widget-sub">${nextMem?escapeHtml(nextMem.name):'등록된 대상 없음'}</div>
     </div>
   </div>`;
 }
@@ -1435,6 +1411,46 @@ function closePicker(){
   const p=document.getElementById('picker');
   if(p)p.innerHTML='';
 }
+
+function openBirthPicker(id){
+  const cur=getPickerVal(id)||'2000-01-01';
+  const [cy,cm,cd]=cur.split('-').map(Number);
+  const century=cy<2000?19:20;
+  const yy=cy%100===0?100:cy%100;
+  const opts=(arr,sel,fmt=x=>x)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${fmt(v)}</option>`).join('');
+  pickerRoot().innerHTML=`
+  <div class="picker-bg" onclick="closePicker()">
+    <div class="picker-sheet" onclick="event.stopPropagation()">
+      <div class="picker-title">생년월일 선택</div>
+      <div class="picker-grid" style="grid-template-columns:0.8fr 1fr 1fr 1fr">
+        <select class="picker-select" id="bp-c">
+          <option value="19" ${century===19?'selected':''}>19</option>
+          <option value="20" ${century===20?'selected':''}>20</option>
+        </select>
+        <select class="picker-select" id="bp-y">${opts(Array.from({length:99},(_,i)=>i+1),yy,v=>`${String(v).padStart(2,'0')}년`)}</select>
+        <select class="picker-select" id="bp-m">${opts(Array.from({length:12},(_,i)=>i+1),cm,v=>`${v}월`)}</select>
+        <select class="picker-select" id="bp-d">${opts(Array.from({length:31},(_,i)=>i+1),cd,v=>`${v}일`)}</select>
+      </div>
+      <div class="picker-actions">
+        <button class="picker-cancel" onclick="setPickerField('${id}','','','생년월일 선택');closePicker()">비우기</button>
+        <button class="picker-save" onclick="saveBirthPicker('${id}')">선택</button>
+      </div>
+    </div>
+  </div>`;
+}
+function saveBirthPicker(id){
+  const c=+document.getElementById('bp-c').value;
+  const yy=+document.getElementById('bp-y').value;
+  const m=+document.getElementById('bp-m').value;
+  let d=+document.getElementById('bp-d').value;
+  const y=c*100+yy;
+  const max=new Date(y,m,0).getDate();
+  if(d>max)d=max;
+  const val=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  setPickerField(id,val,dateLabel(val),'생년월일 선택');
+  closePicker();
+}
+
 function openDatePicker(id){
   const cur=getPickerVal(id)||new Date().toISOString().slice(0,10);
   const [cy,cm,cd]=cur.split('-').map(Number);
