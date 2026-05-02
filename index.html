@@ -18,12 +18,12 @@
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const FIREBASE_CONFIG = {
-    apiKey: "여기에_apiKey",
-    authDomain: "여기에_authDomain",
-    projectId: "여기에_projectId",
-    storageBucket: "여기에_storageBucket",
-    messagingSenderId: "여기에_messagingSenderId",
-    appId: "여기에_appId"
+    apiKey: "AIzaSyAetOk4YV9OTl7fjQOJAVcapWXmFHETLeQ",
+    authDomain: "family-calendar-d8fe4.firebaseapp.com",
+    projectId: "family-calendar-d8fe4",
+    storageBucket: "family-calendar-d8fe4.firebasestorage.app",
+    messagingSenderId: "1032921993484",
+    appId: "1:1032921993484:web:eab16c0de22853126e3929"
   };
 
   const hasFirebaseConfig = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.includes("여기에");
@@ -215,10 +215,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   justify-content:center;
   transition:opacity .45s ease, visibility .45s ease;
 }
-.splash.hide{
-  opacity:0;
-  visibility:hidden;
-}
+.splash.hide{opacity:0;visibility:hidden}
 .splash-box{
   display:flex;
   flex-direction:column;
@@ -235,17 +232,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   object-fit:cover;
   background:#fff;
 }
-.splash-title{
-  font-size:24px;
-  font-weight:900;
-  color:var(--blue);
-  letter-spacing:-.5px;
-}
-.splash-sub{
-  font-size:13px;
-  font-weight:700;
-  color:var(--t3);
-}
+.splash-title{font-size:24px;font-weight:900;color:var(--blue);letter-spacing:-.5px}
+.splash-sub{font-size:13px;font-weight:700;color:var(--t3)}
 .splash-loader{
   margin-top:4px;
   width:36px;
@@ -361,7 +349,7 @@ function getRoomId(){
     r='family-'+makeId();
     localStorage.setItem(SK.room,r);
   }
-  // room 값이 주소에 없으면 자동으로 붙여서, 복사한 주소가 곧 가족 공유 링크가 되게 함
+  // 주소에 room이 없으면 자동으로 붙여서, 주소창 링크가 곧 가족 공유 링크가 되게 함
   if(!url.searchParams.get('room')){
     url.searchParams.set('room', r);
     history.replaceState(null, '', url.toString());
