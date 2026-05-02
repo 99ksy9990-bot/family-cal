@@ -357,7 +357,15 @@ function makeId(){
 function getRoomId(){
   const url=new URL(location.href);
   let r=url.searchParams.get('room')||localStorage.getItem(SK.room);
-  if(!r){r='family-'+makeId();localStorage.setItem(SK.room,r);}
+  if(!r){
+    r='family-'+makeId();
+    localStorage.setItem(SK.room,r);
+  }
+  // room 값이 주소에 없으면 자동으로 붙여서, 복사한 주소가 곧 가족 공유 링크가 되게 함
+  if(!url.searchParams.get('room')){
+    url.searchParams.set('room', r);
+    history.replaceState(null, '', url.toString());
+  }
   return r;
 }
 function normalizeData(d){
