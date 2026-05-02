@@ -3,26 +3,28 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>가족 일정 공유 캘린더</title>
+<title>가족 일정 공유 캘린더 v8</title>
 
-<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
-<link rel="icon" href="icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="가족캘린더">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-
+<!--
+[중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
+1) Firebase 콘솔 > 프로젝트 생성
+2) Firestore Database 생성
+3) 웹 앱 추가 후 firebaseConfig 복사
+4) 아래 const FIREBASE_CONFIG = { ... } 부분 교체
+5) GitHub Pages에 index.html로 업로드
+-->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAetOk4YV9OTl7fjQOJAVcapWXmFHETLeQ",
-  authDomain: "family-calendar-d8fe4.firebaseapp.com",
-  projectId: "family-calendar-d8fe4",
-  storageBucket: "family-calendar-d8fe4.firebasestorage.app",
-  messagingSenderId: "1032921993484",
-  appId: "1:1032921993484:web:eab16c0de22853126e3929"
-};
+    apiKey: "여기에_apiKey",
+    authDomain: "여기에_authDomain",
+    projectId: "여기에_projectId",
+    storageBucket: "여기에_storageBucket",
+    messagingSenderId: "여기에_messagingSenderId",
+    appId: "여기에_appId"
+  };
 
   const hasFirebaseConfig = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.includes("여기에");
 
@@ -71,6 +73,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .tab-c.on{background:var(--green);color:#fff}
 .tab-i{background:var(--purple-bg);color:var(--purple-t)}
 .tab-i.on{background:var(--purple);color:#fff}
+.tab-r{background:var(--orange-bg);color:var(--orange-t)}
+.tab-r.on{background:var(--orange);color:#fff}
 
 .share-banner{margin:14px 16px 0;background:var(--orange-bg);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);gap:10px}
 .share-txt{font-size:13px;font-weight:800;color:var(--orange-t)}
@@ -219,6 +223,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
     <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
     <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
+    <button class="tab tab-r" id="tab-r" onclick="setMain('r')">조르기</button>
   </div>
 
   <div id="body"></div>
@@ -232,6 +237,9 @@ const DEFAULT_DATA={
     {id:1,title:'첫째 태권도',type:'family',start:'2026-05-04',end:'',sT:'17:00',eT:'18:00',done:false,comment:''},
     {id:2,title:'팀 주간 보고서',type:'work',start:'2026-05-05',end:'2026-05-06',sT:'09:00',eT:'18:00',done:false,comment:''},
     {id:3,title:'부모님께 연락',type:'personal',start:'2026-05-08',end:'',sT:'20:00',eT:'',done:false,comment:''}
+  ],
+  requests:[
+    {id:101,title:'엄마한테 준비물 확인 부탁',writer:'첫째',done:false,comment:''}
   ],
   family:[
     {id:1,name:'첫째',grade:'초등',year:'2',cls:'3',num:'15',cats:[
@@ -256,7 +264,7 @@ const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
-let notes=[],family=[],shiftData={};
+let notes=[],family=[],requests=[],shiftData={};
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -284,6 +292,7 @@ function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
   notes=Array.isArray(d.notes)?d.notes:base.notes;
+  requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   family=Array.isArray(d.family)?d.family:base.family;
   shiftData=d.shiftData||{};
   if(Object.keys(shiftData).length===0){
@@ -291,7 +300,7 @@ function normalizeData(d){
     for(let y=TY;y<=TY+1;y++){for(let m=0;m<12;m++){const dn=new Date(y,m+1,0).getDate();for(let dd=1;dd<=dn;dd++){shiftData[dk(y,m,dd)]=p[i%p.length];i++;}}}
   }
 }
-function currentData(){return {notes,family,shiftData,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 function saveAll(){
@@ -354,8 +363,7 @@ function doneAfter(){
 }
 function notesOnDate(y,m,d){
   const k=dk(y,m,d);
-  // 완료된 일정은 달력 점/일정 목록에서 제외
-  return notes.filter(n=>!n.done && n.start && n.start<=k && (!n.end || n.end>=k));
+  return notes.filter(n=>n.start&&n.start<=k&&(!n.end||n.end>=k));
 }
 
 function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
@@ -398,9 +406,9 @@ function renderS(){
   return`
     <div class="filter-row">
       <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="setSub('all')">전체</button>
+      <button class="chip-btn cb-f${subF==='family'?' on':''}" onclick="setSub('family')">가족</button>
       <button class="chip-btn cb-p${subF==='personal'?' on':''}" onclick="setSub('personal')">개인</button>
       <button class="chip-btn cb-w${subF==='work'?' on':''}" onclick="setSub('work')">회사</button>
-      <button class="chip-btn cb-f${subF==='family'?' on':''}" onclick="setSub('family')">가족</button>
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
@@ -408,9 +416,9 @@ function renderS(){
     <div class="sec">완료</div>
     <div class="filter-row">
       <button class="chip-btn cb-all${doneF==='all'?' on':''}" onclick="setDoneF('all')">전체</button>
+      <button class="chip-btn cb-f${doneF==='family'?' on':''}" onclick="setDoneF('family')">가족</button>
       <button class="chip-btn cb-p${doneF==='personal'?' on':''}" onclick="setDoneF('personal')">개인</button>
       <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
-      <button class="chip-btn cb-f${doneF==='family'?' on':''}" onclick="setDoneF('family')">가족</button>
     </div>
     <div class="period-row">
       <span class="period-lbl">기간</span>
@@ -475,13 +483,13 @@ function renderC(){
       </div>
       <div class="cal-grid">${g}</div>
       <div class="cal-legend">
-        <div class="leg"><span class="leg-chip s-d">D</span>주간</div>
-        <div class="leg"><span class="leg-chip s-e">E</span>저녁</div>
-        <div class="leg"><span class="leg-chip s-n">N</span>야간</div>
-        <div class="leg"><span class="leg-chip s-off">OFF</span>휴무</div>
+        <div class="leg"><span class="leg-chip s-d">D</span></div>
+        <div class="leg"><span class="leg-chip s-e">E</span></div>
+        <div class="leg"><span class="leg-chip s-n">N</span></div>
+        <div class="leg"><span class="leg-chip s-off">OFF</span></div>
+        <div class="leg"><span class="leg-dot" style="background:var(--green)"></span>가족</div>
         <div class="leg"><span class="leg-dot" style="background:var(--pink)"></span>개인</div>
         <div class="leg"><span class="leg-dot" style="background:var(--blue)"></span>회사</div>
-        <div class="leg"><span class="leg-dot" style="background:var(--green)"></span>가족</div>
       </div>
     </div>
     ${evHtml}
@@ -524,7 +532,14 @@ function renderI(){
     });
     h+=`</div>`;
   });
-  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 아이 추가</button></div>`;
+  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 아이 추가</button>
+    <div class="share-banner" style="margin:12px 0 0">
+      <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+      <button class="share-btn" onclick="copyShareLink()">복사</button>
+    </div>
+    <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
+  </div>`;
   return h;
 }
 function toggleDay(ki,ci,ii,di){const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
@@ -534,16 +549,88 @@ function delRow(ki,ci,ii){family[ki].cats[ci].items.splice(ii,1);saveAll();rende
 function delCat(ki,ci){family[ki].cats.splice(ci,1);saveAll();render()}
 function delKid(i){family.splice(i,1);saveAll();render()}
 
+
+function toggleReq(id){const r=requests.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;saveAll();render()}}
+function delReq(id){requests=requests.filter(x=>String(x.id)!==String(id));saveAll();render()}
+
+function makeReqCard(r){
+  return`<div class="card">
+    <div class="c-row">
+      <div class="chk${r.done?' on':''}" onclick="toggleReq('${r.id}')">
+        <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="c-body">
+        <div class="c-title${r.done?' done':''}">${escapeHtml(r.title)}</div>
+        <div class="c-meta">
+          ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
+          <span class="chip chip-g">조르기</span>
+        </div>
+        ${r.comment?`<button class="comment-pill" onclick="openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:''}
+      </div>
+      <div class="c-right">
+        <button class="small-link" onclick="openEditReq('${r.id}')">수정</button>
+        <button class="small-link" onclick="delReq('${r.id}')">삭제</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderR(){
+  const active=requests.filter(r=>!r.done);
+  const done=requests.filter(r=>r.done);
+  return`
+    <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span></div>
+    <div class="card-wrap">${active.length?active.map(makeReqCard).join(''):'<div class="empty">부탁할 일이 없어요</div>'}</div>
+    <div class="div"></div>
+    <div class="sec">완료 <span class="sec-cnt">${done.length}</span></div>
+    <div class="card-wrap">${done.length?done.map(makeReqCard).join(''):'<div class="empty">완료된 부탁이 없어요</div>'}</div>
+  `;
+}
+
+function openReqModal(id){
+  const r=id?requests.find(x=>String(x.id)===String(id)):null;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${r?'조르기 수정':'조르기 추가'}</div>
+      <div class="ml">부탁할 일</div>
+      <input class="mi" id="rq-ti" placeholder="예: 준비물 챙겨줘, 학원 데려다줘" value="${r?escapeAttr(r.title):''}"/>
+      <div class="ml">작성자</div>
+      <input class="mi" id="rq-wr" placeholder="예: 첫째, 둘째, 엄마" value="${r?escapeAttr(r.writer||''):''}"/>
+      <div class="ml">메모</div>
+      <textarea class="ta" id="rq-cm" placeholder="필요한 내용을 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
+      <button class="primary-btn" onclick="saveReq('${r?r.id:''}')">저장</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+function openEditReq(id){openReqModal(id)}
+function saveReq(id){
+  const title=(document.getElementById('rq-ti')||{}).value||'';
+  if(!title.trim())return;
+  const writer=(document.getElementById('rq-wr')||{}).value||'';
+  const comment=(document.getElementById('rq-cm')||{}).value||'';
+  if(id){
+    const r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
+    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment;
+  }else{
+    requests.push({id:Date.now(),title:title.trim(),writer:writer.trim(),done:false,comment});
+  }
+  saveAll();closeM();render();
+}
+
 function setMain(t){
   main=t;
-  ['s','c','i'].forEach(k=>{
+  ['s','c','i','r'].forEach(k=>{
     const el=document.getElementById('tab-'+k);
-    const cls=k==='s'?'tab-s':k==='c'?'tab-c':'tab-i';
+    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='i'?'tab-i':'tab-r';
     el.className=`tab ${cls}${k===t?' on':''}`;
   });
   const tr=document.getElementById('top-right');
   if(t==='s'){tr.innerHTML=`<button class="toss-btn" onclick="openExport()">내보내기</button><button class="toss-btn primary" onclick="openAddModal()">+ 추가</button>`;}
   else if(t==='i'){tr.innerHTML=`<button class="toss-btn purple" onclick="addKid()">+ 아이 추가</button>`;}
+  else if(t==='r'){tr.innerHTML=`<button class="toss-btn primary" onclick="openReqModal()">+ 추가</button>`;}
   else{tr.innerHTML='';}
   render();
 }
@@ -553,14 +640,8 @@ function render(){
   if(main==='s')h=renderS();
   else if(main==='c')h=renderC();
   else if(main==='i')h=renderI();
-
-  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
-  const banner=`<div class="share-banner">
-    <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
-    <button class="share-btn" onclick="copyShareLink()">복사</button>
-  </div>
-  <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>`;
-  document.getElementById('body').innerHTML=banner+h;
+  else if(main==='r')h=renderR();
+  document.getElementById('body').innerHTML=h;
 }
 
 function copyShareLink(){
@@ -581,9 +662,9 @@ function openAddModal(dateVal){
       <input class="mi" id="m-ti" placeholder="가족 일정, 학교 행사, 병원, 학원 등"/>
       <div class="ml">구분</div>
       <div class="type-sel">
+        <button class="type-btn tf" id="btn-f" onclick="selT('family')">가족</button>
         <button class="type-btn" id="btn-p" onclick="selT('personal')">개인</button>
         <button class="type-btn" id="btn-w" onclick="selT('work')">회사</button>
-        <button class="type-btn tf" id="btn-f" onclick="selT('family')">가족</button>
       </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
@@ -624,9 +705,9 @@ function openEditNote(id){
       <div class="ml">제목</div><input class="mi" id="e-ti" value="${escapeAttr(n.title)}"/>
       <div class="ml">구분</div>
       <div class="type-sel">
+        <button class="type-btn${_mType==='family'?' tf':''}" id="btn-f" onclick="selT('family')">가족</button>
         <button class="type-btn${_mType==='personal'?' tp':''}" id="btn-p" onclick="selT('personal')">개인</button>
         <button class="type-btn${_mType==='work'?' tw':''}" id="btn-w" onclick="selT('work')">회사</button>
-        <button class="type-btn${_mType==='family'?' tf':''}" id="btn-f" onclick="selT('family')">가족</button>
       </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
