@@ -272,20 +272,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 }
 
 
-/* 날짜/시간 입력 잘림 방지 */
+
+/* 날짜/시간 2열 컴팩트 레이아웃 */
 .modal-sheet .mi-2{
   display:grid !important;
-  grid-template-columns:1fr !important;
-  gap:10px !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  gap:8px !important;
+  width:100% !important;
+}
+.modal-sheet .mi-2 > div{
+  min-width:0 !important;
 }
 .modal-sheet input[type="date"],
 .modal-sheet input[type="time"]{
   width:100% !important;
   min-width:0 !important;
-  font-size:13px !important;
-  line-height:1.2 !important;
-  padding-left:10px !important;
-  padding-right:10px !important;
+  height:48px !important;
+  font-size:12px !important;
+  line-height:1.1 !important;
+  padding:6px 4px !important;
+  text-align:center !important;
+  letter-spacing:-0.7px !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+.modal-sheet .sublabel{
+  font-size:9px !important;
+  margin-bottom:4px !important;
 }
 
 </style>
@@ -406,15 +419,14 @@ function normalizeData(d){
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   family=Array.isArray(d.family)?d.family:base.family;
   shiftData=d.shiftData||{};
-  if(Object.keys(shiftData).length===0){
-    const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];let i=0;
-    for(let y=TY;y<=TY+1;y++){
-      for(let m=0;m<12;m++){
-        const dn=new Date(y,m+1,0).getDate();
-        for(let dd=1;dd<=dn;dd++){
-          shiftData[dk(y,m,dd)]=p[i%p.length];
-          i++;
-        }
+  // 사용자가 입력해둔 근무 값은 유지하고, 비어 있는 날짜만 랜덤으로 채움
+  const randShift=['D','E','N','OFF'];
+  for(let y=TY;y<=TY+1;y++){
+    for(let m=0;m<12;m++){
+      const dn=new Date(y,m+1,0).getDate();
+      for(let dd=1;dd<=dn;dd++){
+        const k=dk(y,m,dd);
+        if(!shiftData[k]) shiftData[k]=randShift[Math.floor(Math.random()*randShift.length)];
       }
     }
   }
