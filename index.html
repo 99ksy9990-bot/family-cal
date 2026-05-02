@@ -11,13 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="가족캘린더">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 !--
-[중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
-1) Firebase 콘솔 > 프로젝트 생성
-2) Firestore Database 생성
-3) 웹 앱 추가 후 firebaseConfig 복사
-4) 아래 const FIREBASE_CONFIG = { ... } 부분 교체
-5) GitHub Pages에 index.html로 업로드
--->
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
