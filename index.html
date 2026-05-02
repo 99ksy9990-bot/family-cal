@@ -439,6 +439,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .c-right{display:flex;flex-direction:column;align-items:flex-start;gap:14px;margin-left:4px;min-width:46px}
 .c-right .small-link{display:block;text-align:left}
 
+
+/* 검색 하이라이트 */
+.hl{
+  background:#FFF3B0;
+  color:inherit;
+  border-radius:5px;
+  padding:0 2px;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -507,7 +516,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',donePer='1m',searchQ='';
+let main='s',subF='all',doneF='all',donePer='1m',searchQ='',isComposing=false;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
@@ -629,6 +638,7 @@ function addMonthsStr(dateStr,months){
 }
 function occursOn(n,key){
   if(!n.start) return false;
+  if(n.repeatEnd && key>n.repeatEnd) return false;
   if(!n.repeat){
     if(!n.sT && !n.eT && (!n.end || n.end===n.start)) return n.start===key;
     return n.start<=key && (!n.end || n.end>=key);
@@ -787,6 +797,15 @@ function notesOnDate(y,m,d){
 function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
 function delNote(id){if(!confirmDelete('이 일정을 삭제할까요?'))return;notes=notes.filter(x=>String(x.id)!==String(id));saveAll();render()}
 
+
+function highlightText(s){
+  const safe=escapeHtml(s||'');
+  const q=String(searchQ||'').trim();
+  if(!q)return safe;
+  const esc=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return safe.replace(new RegExp(esc,'gi'),m=>`<mark class="hl">${m}</mark>`);
+}
+
 function makeCard(n){
   const dts=dateTimeRange(n);
   const done=isDone(n);
@@ -796,7 +815,7 @@ function makeCard(n){
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${done?' done':''}">${escapeHtml(n.title)}</div>
+        <div class="c-title${done?' done':''}">${highlightText(n.title)}</div>
         <div class="c-meta">
           <span class="chip ${typeChip(n.type)}">${typeName(n.type)}</span>
           <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
@@ -896,7 +915,7 @@ function renderC(){
       ${evs.length||mems.length?[
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
-          return`<div class="ev-item"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${escapeHtml(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div></div></div>`;
+          return`<div class="ev-item"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div></div></div>`;
         }),
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
@@ -994,7 +1013,7 @@ function makeReqCard(r){
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${isDone(r)?' done':''}">${escapeHtml(r.title)}</div>
+        <div class="c-title${isDone(r)?' done':''}">${highlightText(r.title)}</div>
         <div class="c-meta">
           ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
           <span class="chip chip-g">조르기</span>
@@ -1171,11 +1190,14 @@ function matchSearchReq(r){
 function renderSearchBox(){
   if(main!=='s' && main!=='r')return '';
   return `<div class="search-wrap">
-    <input class="search-input" value="${escapeAttr(searchQ)}" placeholder="${main==='s'?'일정 검색':'조르기 검색'}" oninput="searchQ=this.value;render()"/>
+    <input class="search-input" value="${escapeAttr(searchQ)}" placeholder="${main==='s'?'일정 검색':'조르기 검색'}"
+      oncompositionstart="isComposing=true"
+      oncompositionend="isComposing=false;searchQ=this.value;render()"
+      oninput="if(!isComposing){searchQ=this.value;render()}"/>
   </div>`;
 }
 
-function setMain(t){
+function setMain(t){filterToday=false;
   if(main!==t)searchQ='';
   main=t;
   ['s','c','i','r','m'].forEach(k=>{
@@ -1200,12 +1222,12 @@ function renderHomeWidgets(){
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
   return `<div class="widget-wrap">
-    <div class="widget-card">
+    <div class="widget-card" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
     </div>
-    <div class="widget-card">
+    <div class="widget-card" onclick="onWidgetClick(this)">
       <div class="widget-title">조르기</div>
       <div class="widget-main">${reqCnt}개</div>
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
@@ -1257,7 +1279,9 @@ function openAddModal(dateVal){
         <option value="weekly">매주</option>
         <option value="monthly">매월</option>
       </select>
-      <div class="ml">날짜</div>
+      <div class="ml">반복 종료일</div>
+    <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+    <div class="ml">날짜</div>
       <div class="mi-2">
         <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${today}" value="${dateLabel(today)}" onclick="openDatePicker('m-sd')"/></div>
         <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
@@ -1290,7 +1314,7 @@ function selWho(w){
 function saveNote(){
   const ti=(document.getElementById('m-ti')||{}).value||'';
   if(!ti.trim())return;
-  notes.push({id:Date.now(),title:ti.trim(),who:_mWho,type:_mType,repeat:(document.getElementById('m-rp')||{}).value||'',start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,comment:''});
+  notes.push({id:Date.now(),title:ti.trim(),who:_mWho,type:_mType,repeat:(document.getElementById('m-rp')||{}).value||'',repeatEnd:getPickerVal('m-re'),start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,comment:''});
   saveAll();closeM();render();
 }
 
@@ -1321,7 +1345,9 @@ function openEditNote(id){
         <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
         <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
       </select>
-      <div class="ml">날짜</div>
+      <div class="ml">반복 종료일</div>
+    <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+    <div class="ml">날짜</div>
       <div class="mi-2">
         <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
         <div><div class="sublabel">종료일</div><input class="picker-field${n.end?'':' empty'}" id="e-ed" readonly data-val="${n.end||''}" value="${n.end?dateLabel(n.end):'종료일 없음'}" onclick="openDatePicker('e-ed')"/></div>
