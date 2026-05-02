@@ -301,6 +301,82 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   margin-bottom:4px !important;
 }
 
+
+/* 커스텀 날짜/시간 입력 */
+.picker-field{
+  width:100%;
+  height:48px;
+  padding:0 10px;
+  border-radius:12px;
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  color:var(--t1);
+  font-size:13px;
+  font-family:inherit;
+  font-weight:800;
+  text-align:center;
+  outline:none;
+  cursor:pointer;
+  letter-spacing:-.4px;
+}
+.picker-field.empty{color:var(--t3);font-weight:700}
+.picker-bg{
+  position:fixed;
+  inset:0;
+  z-index:220;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  align-items:flex-end;
+}
+.picker-sheet{
+  width:100%;
+  background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:18px 20px 26px;
+  box-shadow:0 -8px 28px rgba(0,0,0,.12);
+}
+.picker-title{
+  font-size:17px;
+  font-weight:900;
+  margin-bottom:14px;
+}
+.picker-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+.picker-grid.time{
+  grid-template-columns:1fr 1fr;
+}
+.picker-select{
+  width:100%;
+  height:46px;
+  border-radius:14px;
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  font-size:15px;
+  font-weight:800;
+  text-align:center;
+  font-family:inherit;
+  padding:0 8px;
+}
+.picker-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:14px;
+}
+.picker-actions button{
+  height:46px;
+  border-radius:16px;
+  border:none;
+  font-size:14px;
+  font-weight:900;
+  font-family:inherit;
+}
+.picker-cancel{background:var(--bg);color:var(--t2)}
+.picker-save{background:var(--blue);color:#fff}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -799,13 +875,13 @@ function openAddModal(dateVal){
       </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="mi" type="date" id="m-sd" value="${today}"/></div>
-        <div><div class="sublabel">종료일</div><input class="mi" type="date" id="m-ed"/></div>
+        <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${today}" value="${dateLabel(today)}" onclick="openDatePicker('m-sd')"/></div>
+        <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
       </div>
       <div class="ml">시간</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작</div><input class="mi" type="time" id="m-st"/></div>
-        <div><div class="sublabel">종료</div><input class="mi" type="time" id="m-et"/></div>
+        <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
+        <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
       </div>
       <button class="primary-btn" onclick="saveNote()">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
@@ -821,7 +897,7 @@ function selT(t){
 function saveNote(){
   const ti=(document.getElementById('m-ti')||{}).value||'';
   if(!ti.trim())return;
-  notes.push({id:Date.now(),title:ti.trim(),type:_mType,start:document.getElementById('m-sd').value,end:document.getElementById('m-ed').value,sT:document.getElementById('m-st').value,eT:document.getElementById('m-et').value,done:false,comment:''});
+  notes.push({id:Date.now(),title:ti.trim(),type:_mType,start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,comment:''});
   saveAll();closeM();render();
 }
 
@@ -842,13 +918,13 @@ function openEditNote(id){
       </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="mi" type="date" id="e-sd" value="${n.start||''}"/></div>
-        <div><div class="sublabel">종료일</div><input class="mi" type="date" id="e-ed" value="${n.end||''}"/></div>
+        <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
+        <div><div class="sublabel">종료일</div><input class="picker-field${n.end?'':' empty'}" id="e-ed" readonly data-val="${n.end||''}" value="${n.end?dateLabel(n.end):'종료일 없음'}" onclick="openDatePicker('e-ed')"/></div>
       </div>
       <div class="ml">시간</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작</div><input class="mi" type="time" id="e-st" value="${n.sT||''}"/></div>
-        <div><div class="sublabel">종료</div><input class="mi" type="time" id="e-et" value="${n.eT||''}"/></div>
+        <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
+        <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
       </div>
       <div class="ml">코멘트</div>
       <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
@@ -861,10 +937,10 @@ function saveEditNote(id){
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
   n.title=document.getElementById('e-ti').value;
   n.type=_mType;
-  n.start=document.getElementById('e-sd').value;
-  n.end=document.getElementById('e-ed').value;
-  n.sT=document.getElementById('e-st').value;
-  n.eT=document.getElementById('e-et').value;
+  n.start=getPickerVal('e-sd');
+  n.end=getPickerVal('e-ed');
+  n.sT=getPickerVal('e-st');
+  n.eT=getPickerVal('e-et');
   n.comment=document.getElementById('e-cm').value;
   saveAll();closeM();render();
 }
@@ -891,6 +967,104 @@ function editKid(i){
 }
 function addKid(){family.push({id:Date.now(),name:'새 아이',grade:'',year:'',cls:'',num:'',cats:[{label:'하교 시간',items:[]},{label:'학원',items:[]},{label:'기타',items:[]}]});saveAll();editKid(family.length-1)}
 function saveKid(i){family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
+
+function getPickerVal(id){
+  const el=document.getElementById(id);
+  return el ? (el.dataset.val||'') : '';
+}
+function dateLabel(v){
+  if(!v)return '';
+  const p=v.split('-');
+  return `${+p[0]}. ${+p[1]}. ${+p[2]}.`;
+}
+function timeLabel(v){
+  if(!v)return '';
+  const [h,m]=v.split(':').map(Number);
+  const ap=h<12?'오전':'오후';
+  const hh=h%12===0?12:h%12;
+  return `${ap} ${hh}:${String(m).padStart(2,'0')}`;
+}
+function setPickerField(id,val,label,emptyText){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.dataset.val=val||'';
+  el.value=val?label:emptyText;
+  el.classList.toggle('empty',!val);
+}
+function pickerRoot(){
+  let p=document.getElementById('picker');
+  if(!p){
+    p=document.createElement('div');
+    p.id='picker';
+    document.body.appendChild(p);
+  }
+  return p;
+}
+function closePicker(){
+  const p=document.getElementById('picker');
+  if(p)p.innerHTML='';
+}
+function openDatePicker(id){
+  const cur=getPickerVal(id)||new Date().toISOString().slice(0,10);
+  const [cy,cm,cd]=cur.split('-').map(Number);
+  const years=[];
+  for(let y=TY-1;y<=TY+2;y++)years.push(y);
+  const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
+  pickerRoot().innerHTML=`
+  <div class="picker-bg" onclick="closePicker()">
+    <div class="picker-sheet" onclick="event.stopPropagation()">
+      <div class="picker-title">날짜 선택</div>
+      <div class="picker-grid">
+        <select class="picker-select" id="pk-y">${opts(years,cy)}</select>
+        <select class="picker-select" id="pk-m">${opts(Array.from({length:12},(_,i)=>i+1),cm)}</select>
+        <select class="picker-select" id="pk-d">${opts(Array.from({length:31},(_,i)=>i+1),cd)}</select>
+      </div>
+      <div class="picker-actions">
+        <button class="picker-cancel" onclick="setPickerField('${id}','','${''}','날짜 없음');closePicker()">비우기</button>
+        <button class="picker-save" onclick="saveDatePicker('${id}')">선택</button>
+      </div>
+    </div>
+  </div>`;
+}
+function saveDatePicker(id){
+  const y=+document.getElementById('pk-y').value;
+  const m=+document.getElementById('pk-m').value;
+  let d=+document.getElementById('pk-d').value;
+  const max=new Date(y,m,0).getDate();
+  if(d>max)d=max;
+  const val=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  setPickerField(id,val,dateLabel(val),'날짜 없음');
+  closePicker();
+}
+function openTimePicker(id){
+  const cur=getPickerVal(id)||'09:00';
+  const [ch,cm]=cur.split(':').map(Number);
+  const hours=Array.from({length:24},(_,i)=>i);
+  const mins=Array.from({length:12},(_,i)=>i*5);
+  const opts=(arr,sel,fmt=x=>x)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${fmt(v)}</option>`).join('');
+  pickerRoot().innerHTML=`
+  <div class="picker-bg" onclick="closePicker()">
+    <div class="picker-sheet" onclick="event.stopPropagation()">
+      <div class="picker-title">시간 선택</div>
+      <div class="picker-grid time">
+        <select class="picker-select" id="pk-h">${opts(hours,ch,h=>`${h<12?'오전':'오후'} ${h%12===0?12:h%12}시`)}</select>
+        <select class="picker-select" id="pk-min">${opts(mins,Math.round(cm/5)*5,m=>`${String(m).padStart(2,'0')}분`)}</select>
+      </div>
+      <div class="picker-actions">
+        <button class="picker-cancel" onclick="setPickerField('${id}','','${''}','시간 없음');closePicker()">비우기</button>
+        <button class="picker-save" onclick="saveTimePicker('${id}')">선택</button>
+      </div>
+    </div>
+  </div>`;
+}
+function saveTimePicker(id){
+  const h=+document.getElementById('pk-h').value;
+  const m=+document.getElementById('pk-min').value;
+  const val=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  setPickerField(id,val,timeLabel(val),'시간 없음');
+  closePicker();
+}
+
 function closeM(e){if(!e||e.target.classList.contains('modal-bg'))document.getElementById('modal').innerHTML=''}
 function openExport(){
   const now=new Date();
