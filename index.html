@@ -354,7 +354,8 @@ function doneAfter(){
 }
 function notesOnDate(y,m,d){
   const k=dk(y,m,d);
-  return notes.filter(n=>n.start&&n.start<=k&&(!n.end||n.end>=k));
+  // 완료된 일정은 달력 점/일정 목록에서 제외
+  return notes.filter(n=>!n.done && n.start && n.start<=k && (!n.end || n.end>=k));
 }
 
 function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
