@@ -218,6 +218,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .sublabel{font-size:10px;color:var(--t3);margin-bottom:4px}
 @media (min-width:700px){.app{max-width:430px}}
 
+@media (max-width:430px){
+  .modal-sheet .mi-2{grid-template-columns:1fr;gap:10px}
+  .modal-sheet .mi{font-size:13px}
+}
+
+
 /* SPLASH */
 .splash{
   position:fixed;
@@ -336,6 +342,31 @@ const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
+function oldAutoShiftForKey(key){
+  const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];
+  const [yy,mm,dd]=key.split('-').map(Number);
+  let i=0;
+  for(let y=TY;y<=TY+1;y++){
+    for(let m=0;m<12;m++){
+      const dn=new Date(y,m+1,0).getDate();
+      for(let d=1;d<=dn;d++){
+        const k=dk(y,m,d);
+        if(k===key)return p[i%p.length];
+        i++;
+      }
+    }
+  }
+  return null;
+}
+function cleanOldAutoShifts(obj){
+  const out={};
+  Object.keys(obj||{}).forEach(k=>{
+    const old=oldAutoShiftForKey(k);
+    // 예전 자동 패턴과 같은 값은 "수정 안 한 값"으로 보고 삭제 → 달력에서는 OFF로 표시
+    if(old===null || obj[k]!==old)out[k]=obj[k];
+  });
+  return out;
+}
 
 let notes=[],family=[],requests=[],shiftData={};
 let roomId = getRoomId();
@@ -347,6 +378,12 @@ let hydrated=false;
 function deepCopy(o){return JSON.parse(JSON.stringify(o))}
 function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function fmtD(s){if(!s)return'';const p=s.split('-');return`${+p[1]}/${+p[2]}`}
+function dateTimeRange(n){
+  const st=[fmtD(n.start),n.sT].filter(Boolean).join(' ');
+  const ed=[fmtD(n.end||n.start),n.eT].filter(Boolean).join(' ');
+  if(st&&ed)return `${st} ~ ${ed}`;
+  return st||ed||'';
+}
 function daysFmt(arr){if(!arr||!arr.length)return'매일';return arr.map(i=>DAYS[i]).join('·')}
 function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
 function typeChip(t){return t==='work'?'chip-w':t==='family'?'chip-f':'chip-p'}
@@ -376,11 +413,7 @@ function normalizeData(d){
   notes=Array.isArray(d.notes)?d.notes:base.notes;
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   family=Array.isArray(d.family)?d.family:base.family;
-  shiftData=d.shiftData||{};
-  if(Object.keys(shiftData).length===0){
-    const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];let i=0;
-    for(let y=TY;y<=TY+1;y++){for(let m=0;m<12;m++){const dn=new Date(y,m+1,0).getDate();for(let dd=1;dd<=dn;dd++){shiftData[dk(y,m,dd)]=p[i%p.length];i++;}}}
-  }
+  shiftData=cleanOldAutoShifts(d.shiftData||{});
 }
 function currentData(){return {notes,family,requests,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
@@ -453,9 +486,8 @@ function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n
 function delNote(id){notes=notes.filter(x=>String(x.id)!==String(id));saveAll();render()}
 
 function makeCard(n){
-  const ds=n.start?(fmtD(n.start)+(n.end?` ~ ${fmtD(n.end)}`:'')):'';
+  const dts=dateTimeRange(n);
   const done=isDone(n);
-  const ts=(n.sT||n.eT)?`${n.sT||''}${n.sT&&n.eT?' ~ ':''}${n.eT||''}`:'';
   return`<div class="card">
     <div class="c-row">
       <div class="chk${done?' on':''}" onclick="toggleNote('${n.id}')">
@@ -465,8 +497,7 @@ function makeCard(n){
         <div class="c-title${done?' done':''}">${escapeHtml(n.title)}</div>
         <div class="c-meta">
           <span class="chip ${typeChip(n.type)}">${typeName(n.type)}</span>
-          ${ds?`<span class="chip chip-g">${ds}</span>`:''}
-          ${ts?`<span class="chip chip-g">${ts}</span>`:''}
+          ${dts?`<span class="chip chip-g">${dts}</span>`:''}
         </div>
         ${done&&n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
         ${done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
