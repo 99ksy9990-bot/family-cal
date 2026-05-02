@@ -278,6 +278,7 @@ function daysFmt(arr){if(!arr||!arr.length)return'매일';return arr.map(i=>DAYS
 function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
 function typeChip(t){return t==='work'?'chip-w':t==='family'?'chip-f':'chip-p'}
 function dotCls(t){return t==='work'?'dw':t==='family'?'df':'dp'}
+function isDone(x){return x.done===true || x.done==='true' || x.done===1 || x.done==='1'}
 
 function makeId(){
   return Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
@@ -363,7 +364,8 @@ function doneAfter(){
 }
 function notesOnDate(y,m,d){
   const k=dk(y,m,d);
-  return notes.filter(n=>n.start&&n.start<=k&&(!n.end||n.end>=k));
+  // 완료된 일정은 달력 점/일정 목록에서 완전히 제외
+  return notes.filter(n=>!isDone(n) && n.start && n.start<=k && (!n.end || n.end>=k));
 }
 
 function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
@@ -371,21 +373,22 @@ function delNote(id){notes=notes.filter(x=>String(x.id)!==String(id));saveAll();
 
 function makeCard(n){
   const ds=n.start?(fmtD(n.start)+(n.end?` ~ ${fmtD(n.end)}`:'')):'';
+  const done=isDone(n);
   const ts=(n.sT||n.eT)?`${n.sT||''}${n.sT&&n.eT?' ~ ':''}${n.eT||''}`:'';
   return`<div class="card">
     <div class="c-row">
-      <div class="chk${n.done?' on':''}" onclick="toggleNote('${n.id}')">
+      <div class="chk${done?' on':''}" onclick="toggleNote('${n.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${n.done?' done':''}">${escapeHtml(n.title)}</div>
+        <div class="c-title${done?' done':''}">${escapeHtml(n.title)}</div>
         <div class="c-meta">
           <span class="chip ${typeChip(n.type)}">${typeName(n.type)}</span>
           ${ds?`<span class="chip chip-g">${ds}</span>`:''}
           ${ts?`<span class="chip chip-g">${ts}</span>`:''}
         </div>
-        ${n.done&&n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
-        ${n.done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
+        ${done&&n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
+        ${done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
       </div>
       <div class="c-right">
         <button class="small-link" onclick="openEditNote('${n.id}')">수정</button>
@@ -396,9 +399,9 @@ function makeCard(n){
 }
 
 function renderS(){
-  let active=notes.filter(n=>!n.done&&(subF==='all'||n.type===subF));
+  let active=notes.filter(n=>!isDone(n)&&(subF==='all'||n.type===subF));
   let doneFilt=notes.filter(n=>{
-    if(!n.done)return false;
+    if(!isDone(n))return false;
     if(doneF!=='all'&&n.type!==doneF)return false;
     if(!n.start)return true;
     return new Date(n.start)>=doneAfter();
@@ -556,11 +559,11 @@ function delReq(id){requests=requests.filter(x=>String(x.id)!==String(id));saveA
 function makeReqCard(r){
   return`<div class="card">
     <div class="c-row">
-      <div class="chk${r.done?' on':''}" onclick="toggleReq('${r.id}')">
+      <div class="chk${isDone(r)?' on':''}" onclick="toggleReq('${r.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${r.done?' done':''}">${escapeHtml(r.title)}</div>
+        <div class="c-title${isDone(r)?' done':''}">${escapeHtml(r.title)}</div>
         <div class="c-meta">
           ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
           <span class="chip chip-g">조르기</span>
@@ -576,8 +579,8 @@ function makeReqCard(r){
 }
 
 function renderR(){
-  const active=requests.filter(r=>!r.done);
-  const done=requests.filter(r=>r.done);
+  const active=requests.filter(r=>!isDone(r));
+  const done=requests.filter(r=>isDone(r));
   return`
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span></div>
     <div class="card-wrap">${active.length?active.map(makeReqCard).join(''):'<div class="empty">부탁할 일이 없어요</div>'}</div>
