@@ -1,7 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>가족 일정 공유 캘린더 v8</title>
+
+<!--
+[중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
+1) Firebase 콘솔 > 프로젝트 생성
+2) Firestore Database 생성
+3) 웹 앱 추가 후 firebaseConfig 복사
+4) 아래 const FIREBASE_CONFIG = { ... } 부분 교체
+5) GitHub Pages에 index.html로 업로드
+-->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const FIREBASE_CONFIG = {
+    apiKey: "여기에_apiKey",
+    authDomain: "여기에_authDomain",
+    projectId: "여기에_projectId",
+    storageBucket: "여기에_storageBucket",
+    messagingSenderId: "여기에_messagingSenderId",
+    appId: "여기에_appId"
+  };
+
+  const hasFirebaseConfig = FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.includes("여기에");
+
+  window.__firebaseReady = false;
+  window.__firebaseAPI = null;
+
+  if (hasFirebaseConfig) {
+    try {
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db = getFirestore(app);
+      window.__firebaseReady = true;
+      window.__firebaseAPI = { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp };
+    } catch (e) {
+      console.warn("Firebase 초기화 실패. 로컬 저장으로 동작합니다.", e);
+    }
+  }
+</script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -12,23 +53,20 @@
   --green:#34C759;--green-bg:#EDFAF2;--green-t:#1A7A36;
   --purple:#7C3AED;--purple-bg:#F2EEFF;--purple-t:#4C1D95;
   --orange:#FF9500;--orange-bg:#FFF4E5;--orange-t:#7A3800;
-  --r:14px;
+  --yellow:#FFCC00;--yellow-bg:#FFF8D9;--yellow-t:#7A5A00;
+  --r:18px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--t1);font-size:15px}
-.app{max-width:390px;margin:0 auto;min-height:100vh;padding-bottom:80px;position:relative}
-
-/* TOP BAR */
-.topbar{padding:16px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;background:var(--bg)}
-.app-name{font-size:15px;font-weight:700;color:var(--blue);letter-spacing:-0.3px}
-.app-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.app{width:100%;max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px;position:relative;overflow:hidden}
+.topbar{padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;background:var(--bg)}
+.app-name{font-size:18px;font-weight:800;color:var(--blue);letter-spacing:-0.5px}
+.app-sub{font-size:12px;color:var(--t3);margin-top:2px}
 .top-right{display:flex;gap:8px;align-items:center}
-.toss-btn{height:34px;padding:0 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;color:var(--t1);cursor:pointer;font-family:inherit;white-space:nowrap}
+.toss-btn{height:36px;padding:0 14px;border-radius:22px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer;font-family:inherit;white-space:nowrap}
 .toss-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
 .toss-btn.purple{background:var(--purple);border-color:var(--purple);color:#fff}
-
-/* TABS */
-.tab-bar{display:flex;gap:8px;padding:12px 20px 0}
-.tab{flex:1;padding:9px 0;border-radius:22px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s;text-align:center;letter-spacing:-0.1px}
+.tab-bar{display:flex;gap:8px;padding:14px 20px 0}
+.tab{flex:1;padding:12px 0;border-radius:24px;border:none;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .18s;text-align:center}
 .tab-s{background:var(--blue-bg);color:var(--blue-t)}
 .tab-s.on{background:var(--blue);color:#fff}
 .tab-c{background:var(--green-bg);color:var(--green-t)}
@@ -36,223 +74,276 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .tab-i{background:var(--purple-bg);color:var(--purple-t)}
 .tab-i.on{background:var(--purple);color:#fff}
 
-/* CHIP FILTER — compact, rounded like reference */
-.filter-row{display:flex;gap:6px;padding:12px 20px 0;flex-wrap:wrap}
-.chip-btn{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s;gap:4px}
-.cb-all{background:var(--bg);color:var(--t2)}
+.share-banner{margin:14px 16px 0;background:var(--orange-bg);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);gap:10px}
+.share-txt{font-size:13px;font-weight:800;color:var(--orange-t)}
+.share-sub{font-size:11px;color:var(--orange-t);opacity:.75;margin-top:2px;word-break:break-all}
+.share-btn{font-size:12px;font-weight:800;padding:8px 14px;border-radius:20px;background:var(--orange);color:#fff;border:none;cursor:pointer;font-family:inherit;flex-shrink:0}
+.sync-pill{margin:8px 16px 0;padding:8px 12px;border-radius:12px;font-size:11px;color:var(--t2);background:#fff;border:1px solid var(--border)}
+
+.filter-row{display:flex;gap:8px;padding:14px 20px 0;flex-wrap:wrap}
+.chip-btn{display:inline-flex;align-items:center;height:34px;padding:0 15px;border-radius:22px;border:none;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .12s;gap:4px}
+.cb-all{background:var(--card);color:var(--t2)}
 .cb-all.on{background:var(--t1);color:#fff}
 .cb-p{background:var(--pink-bg);color:var(--pink-t)}
 .cb-p.on{background:var(--pink);color:#fff}
 .cb-w{background:var(--blue-bg);color:var(--blue-t)}
 .cb-w.on{background:var(--blue);color:#fff}
+.cb-f{background:var(--green-bg);color:var(--green-t)}
+.cb-f.on{background:var(--green);color:#fff}
 
-/* SECTION */
-.sec{padding:16px 20px 8px;font-size:12px;font-weight:700;color:var(--t2);letter-spacing:.03em;display:flex;align-items:center;gap:8px}
-.sec-cnt{background:var(--bg);color:var(--t3);font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px}
-
-/* CARDS */
-.card-wrap{padding:0 16px;display:flex;flex-direction:column;gap:8px}
-.card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07);transition:box-shadow .15s}
-.card.drag-over{box-shadow:0 0 0 2px var(--blue)}
-.card.dragging{opacity:.38}
-.c-row{display:flex;align-items:flex-start;gap:10px}
-.chk{width:22px;height:22px;min-width:22px;border:2px solid var(--border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;margin-top:1px}
+.sec{padding:16px 20px 8px;font-size:12px;font-weight:800;color:var(--t2);letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+.sec-cnt{background:var(--card);color:var(--t3);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.card-wrap{padding:0 16px;display:flex;flex-direction:column;gap:9px}
+.card{background:var(--card);border-radius:var(--r);padding:15px 16px;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.c-row{display:flex;align-items:flex-start;gap:11px}
+.chk{width:23px;height:23px;min-width:23px;border:2px solid var(--border);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;margin-top:1px}
 .chk.on{border-color:#cc0000}
 .chk svg{display:none}
 .chk.on svg{display:block}
 .c-body{flex:1;min-width:0}
-.c-title{font-size:15px;font-weight:500;line-height:1.4}
+.c-title{font-size:15px;font-weight:700;line-height:1.4}
 .c-title.done{text-decoration:line-through;color:var(--t3)}
-.c-meta{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
-.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:20px;font-size:11px;font-weight:600}
+.c-meta{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;height:23px;padding:0 9px;border-radius:20px;font-size:11px;font-weight:800}
 .chip-p{background:var(--pink-bg);color:var(--pink-t)}
 .chip-w{background:var(--blue-bg);color:var(--blue-t)}
-.chip-g{background:var(--bg);color:var(--t2);font-weight:400}
+.chip-f{background:var(--green-bg);color:var(--green-t)}
+.chip-g{background:var(--bg);color:var(--t2);font-weight:600}
 .c-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-left:4px}
-.drag-dots{display:flex;flex-direction:column;gap:2.5px;cursor:grab;padding:2px}
-.drag-dots span{display:block;width:15px;height:1.5px;background:var(--border);border-radius:1px}
-.del-link{font-size:11px;color:var(--t3);border:none;background:transparent;cursor:pointer;font-family:inherit}
-.comment-pill{margin-top:6px;background:var(--blue-bg);color:var(--blue-t);font-size:11px;padding:5px 10px;border-radius:8px;cursor:pointer;border:none;font-family:inherit;text-align:left;font-style:italic;width:100%;display:block}
-.add-comment{margin-top:4px;font-size:11px;color:var(--blue);border:none;background:transparent;cursor:pointer;font-family:inherit;padding:0}
-
-/* DIVIDER */
-.div{height:1px;background:var(--border);margin:12px 16px}
-
-/* PERIOD */
+.small-link{font-size:11px;color:var(--t3);border:none;background:transparent;cursor:pointer;font-family:inherit}
+.comment-pill{margin-top:7px;background:var(--blue-bg);color:var(--blue-t);font-size:11px;padding:6px 10px;border-radius:10px;cursor:pointer;border:none;font-family:inherit;text-align:left;font-style:italic;width:100%;display:block}
+.div{height:1px;background:var(--border);margin:14px 16px}
 .period-row{display:flex;gap:6px;padding:8px 20px 0;align-items:center}
-.period-lbl{font-size:12px;color:var(--t2);font-weight:600}
-.period-chip{height:26px;padding:0 10px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--card);color:var(--t2);cursor:pointer;font-family:inherit}
+.period-lbl{font-size:12px;color:var(--t2);font-weight:700}
+.period-chip{height:28px;padding:0 10px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:var(--card);color:var(--t2);cursor:pointer;font-family:inherit}
 .period-chip.on{border-color:var(--blue);background:var(--blue-bg);color:var(--blue-t)}
+.empty{text-align:center;padding:34px 20px;color:var(--t3);font-size:13px}
 
-/* EMPTY */
-.empty{text-align:center;padding:32px 20px;color:var(--t3);font-size:13px}
-
-/* CAL */
-.cal-outer{padding:0 16px;margin-top:12px;display:flex;flex-direction:column;gap:10px}
-.cal-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.cal-nav-title{font-size:15px;font-weight:700}
-.cal-nav-btn{width:32px;height:32px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:17px;color:var(--t2);display:flex;align-items:center;justify-content:center;font-family:inherit}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-.cal-dname{text-align:center;font-size:9px;font-weight:700;color:var(--t3);padding-bottom:6px;letter-spacing:.04em}
-.cal-cell{text-align:center;padding:3px 1px;border-radius:6px;cursor:pointer;transition:background .1s}
+.cal-outer{padding:0 14px;margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.cal-card{background:var(--card);border-radius:24px;padding:16px 14px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav-title{font-size:18px;font-weight:900;letter-spacing:-0.5px}
+.cal-nav-btn{width:42px;height:42px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:22px;color:var(--t2);display:flex;align-items:center;justify-content:center;font-family:inherit}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;width:100%}
+.cal-dname{text-align:center;font-size:10px;font-weight:800;color:var(--t3);padding:6px 0;letter-spacing:.04em}
+.cal-cell{min-height:58px;text-align:center;padding:4px 1px;border-radius:12px;cursor:pointer;transition:background .1s;overflow:hidden}
 .cal-cell:hover{background:var(--bg)}
-.cal-cell.sel{background:var(--green-bg)}
-.cal-num{font-size:11px;color:var(--t2);line-height:1.4;margin-bottom:1px}
-.cal-num.today-n{font-weight:700;color:#fff;background:var(--blue);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 1px}
-.shift-row{display:flex;gap:2px;justify-content:center;margin-top:2px}
-.s-pill{font-size:7px;font-weight:700;padding:1px 2px;border-radius:3px;cursor:pointer;border:1.5px solid transparent;transition:all .1s;line-height:1.4}
+.cal-cell.sel{background:var(--green-bg);outline:2px solid var(--green)}
+.cal-num{font-size:12px;color:var(--t2);line-height:1.4;margin:0 auto 4px}
+.cal-num.today-n{font-weight:900;color:#fff;background:var(--blue);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
+.shift-one{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:20px;padding:0 5px;border-radius:7px;font-size:10px;font-weight:900;line-height:1}
 .s-d{background:#DCFCE7;color:#166534}
 .s-e{background:#FEF9C3;color:#854D0E}
 .s-n{background:#EDE9FE;color:#4C1D95}
-.s-off{background:var(--bg);color:var(--t3);border-color:var(--border)}
-.s-pill.act{filter:brightness(.82);border-color:currentColor}
-.cal-dots{display:flex;gap:2px;justify-content:center;min-height:5px;margin-top:2px}
-.cal-dot{width:4px;height:4px;border-radius:50%}
+.s-off{background:#F2F2F7;color:#8E8E93;border:1px solid #E5E5EA}
+.cal-dots{display:flex;gap:3px;justify-content:center;min-height:6px;margin-top:4px;flex-wrap:wrap}
+.cal-dot{width:5px;height:5px;border-radius:50%}
 .dp{background:var(--pink)}
 .dw{background:var(--blue)}
-
-.cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:10px 0 0;border-top:1px solid var(--bg);margin-top:8px}
-.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t2)}
-.leg-chip{font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px}
+.df{background:var(--green)}
+.cal-legend{display:flex;gap:10px;flex-wrap:wrap;padding:12px 0 0;border-top:1px solid var(--bg);margin-top:12px}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2)}
+.leg-chip{font-size:10px;font-weight:900;padding:4px 7px;border-radius:6px}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-
-.ev-card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.ev-hd{font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px}
-.ev-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--bg);align-items:flex-start}
+.ev-card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.ev-hd{font-size:14px;font-weight:900;color:var(--t1);margin-bottom:10px}
+.shift-picker{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:10px;border-radius:14px;background:var(--bg)}
+.shift-picker-title{font-size:12px;font-weight:900;color:var(--t2);margin-right:2px}
+.shift-btn{height:32px;min-width:44px;border:none;border-radius:12px;font-size:12px;font-weight:900;cursor:pointer;font-family:inherit}
+.shift-btn.on{outline:3px solid rgba(0,122,255,.25)}
+.ev-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg);align-items:flex-start}
 .ev-item:last-child{border-bottom:none}
-.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.ev-title{font-size:13px;font-weight:600}
+.ev-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ev-title{font-size:13px;font-weight:800}
 .ev-sub{font-size:11px;color:var(--t3);margin-top:2px}
 
-/* INFO */
-.fi-outer{padding:0 16px;margin-top:12px;display:flex;flex-direction:column;gap:10px}
-.fi-card{background:var(--card);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.fi-outer{padding:0 16px;margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.fi-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:0 1px 5px rgba(0,0,0,.08)}
 .fi-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.fi-name{font-size:15px;font-weight:700}
+.fi-name{font-size:16px;font-weight:900}
 .fi-hd-btns{display:flex;gap:6px}
-.fi-btn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;border:none;cursor:pointer;font-family:inherit}
+.fi-btn{font-size:11px;font-weight:800;padding:5px 10px;border-radius:20px;border:none;cursor:pointer;font-family:inherit}
 .fi-btn-e{background:var(--blue-bg);color:var(--blue)}
 .fi-btn-d{background:var(--pink-bg);color:var(--pink)}
-.fi-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bg)}
+.fi-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bg)}
 .fi-row:last-child{border-bottom:none}
 .fi-key{font-size:12px;color:var(--t2);flex-shrink:0;min-width:76px}
-.fi-input{font-size:12px;font-weight:600;color:var(--t1);text-align:right;border:none;background:transparent;font-family:inherit;width:100%;outline:none;max-width:200px}
-.fi-input:focus{background:var(--bg);border-radius:6px;padding:2px 6px}
-.cat-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px;border-top:1px solid var(--bg);margin-top:4px}
-.cat-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+.fi-input{font-size:13px;font-weight:700;color:var(--t1);text-align:right;border:none;background:transparent;font-family:inherit;width:100%;outline:none;max-width:220px}
+.fi-input:focus{background:var(--bg);border-radius:8px;padding:4px 7px}
+.cat-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 0 5px;border-top:1px solid var(--bg);margin-top:4px}
+.cat-lbl{font-size:11px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
 .cat-hd-r{display:flex;gap:5px}
-.cat-add{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:none;cursor:pointer;font-family:inherit}
-.cat-del{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--pink-bg);color:var(--pink);border:none;cursor:pointer;font-family:inherit}
-.row-del{font-size:10px;color:var(--t3);border:none;background:transparent;cursor:pointer;font-family:inherit;padding:0 2px;flex-shrink:0}
-.day-sel{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
-.day-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:all .12s}
+.cat-add{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:var(--blue-bg);color:var(--blue);border:none;cursor:pointer;font-family:inherit}
+.cat-del{font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;background:var(--pink-bg);color:var(--pink);border:none;cursor:pointer;font-family:inherit}
+.row-del{font-size:11px;color:var(--t3);border:none;background:transparent;cursor:pointer;font-family:inherit;padding:0 2px;flex-shrink:0}
+.day-sel{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.day-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--t2);display:flex;align-items:center;justify-content:center;transition:all .12s}
 .day-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
 
-/* SHARE BANNER */
-.share-banner{margin:10px 16px 0;background:var(--orange-bg);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-.share-txt{font-size:12px;font-weight:600;color:var(--orange-t)}
-.share-sub{font-size:11px;color:var(--orange-t);opacity:.7;margin-top:2px}
-.share-btn{font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;background:var(--orange);color:#fff;border:none;cursor:pointer;font-family:inherit;flex-shrink:0}
-
-/* MODAL */
-.modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:100}
-.modal-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:20px 20px 32px;width:100%;max-height:90vh;overflow-y:auto}
-.modal-ind{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
-.modal-hd{font-size:16px;font-weight:700;margin-bottom:14px}
-.ml{font-size:11px;font-weight:700;color:var(--blue);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;z-index:100}
+.modal-sheet{background:var(--card);border-radius:24px 24px 0 0;padding:20px 20px 32px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-ind{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-hd{font-size:17px;font-weight:900;margin-bottom:14px}
+.ml{font-size:11px;font-weight:900;color:var(--blue);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em}
 .ml:first-of-type{margin-top:0}
-.mi{width:100%;padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--t1);font-size:14px;font-family:inherit;outline:none;transition:border .15s}
+.mi{width:100%;padding:11px 13px;border-radius:12px;border:1.5px solid var(--border);background:var(--bg);color:var(--t1);font-size:14px;font-family:inherit;outline:none;transition:border .15s}
 .mi:focus{border-color:var(--blue);background:#fff}
 .mi-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mi-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .type-sel{display:flex;gap:8px}
-.type-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--t2);transition:all .12s}
+.type-btn{flex:1;padding:11px 4px;border-radius:12px;border:1.5px solid var(--border);background:transparent;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;color:var(--t2);transition:all .12s}
 .type-btn.tp{background:var(--pink-bg);color:var(--pink-t);border-color:var(--pink)}
 .type-btn.tw{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue)}
-.primary-btn{width:100%;padding:14px;border-radius:var(--r);border:none;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:16px}
+.type-btn.tf{background:var(--green-bg);color:var(--green-t);border-color:var(--green)}
+.primary-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--blue);color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:16px}
 .cancel-link{width:100%;padding:10px;border:none;background:transparent;color:var(--t3);font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px}
 .ta{width:100%;padding:10px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--t1);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:72px}
 .ta:focus{border-color:var(--blue);background:#fff}
 .sublabel{font-size:10px;color:var(--t3);margin-bottom:4px}
+@media (min-width:700px){.app{max-width:430px}}
 </style>
 </head>
+
 <body>
 <div class="app" id="app">
-
-<div class="topbar">
-  <div>
-    <div class="app-name">가족 일정</div>
-    <div class="app-sub">공유 캘린더</div>
+  <div class="topbar">
+    <div>
+      <div class="app-name">가족 일정</div>
+      <div class="app-sub">실시간 공유 캘린더</div>
+    </div>
+    <div class="top-right" id="top-right">
+      <button class="toss-btn" onclick="openExport()">내보내기</button>
+      <button class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
+    </div>
   </div>
-  <div class="top-right" id="top-right">
-    <button class="toss-btn" onclick="openExport()">내보내기</button>
-    <button class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
+
+  <div class="tab-bar">
+    <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
+    <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
+    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
   </div>
-</div>
 
-<div class="tab-bar">
-  <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
-  <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
-  <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
-</div>
-
-<div id="body"></div>
-<div id="modal"></div>
+  <div id="body"></div>
+  <div id="modal"></div>
 </div>
 
 <script>
-// ── STORAGE ──
-const SK={notes:'fam_notes',family:'fam_family',shift:'fam_shift',shareId:'fam_shareId'};
-function save(k,v){try{window.storage&&window.storage.set(k,JSON.stringify(v),true)}catch(e){}}
-function load(k,def){try{if(!window.storage)return def;const r=window.storage.get(k,true);return r&&r.value?JSON.parse(r.value):def}catch(e){return def}}
+const SK={data:'fam_shared_v8_data',room:'fam_shared_v8_room'};
+const DEFAULT_DATA={
+  notes:[
+    {id:1,title:'첫째 태권도',type:'family',start:'2026-05-04',end:'',sT:'17:00',eT:'18:00',done:false,comment:''},
+    {id:2,title:'팀 주간 보고서',type:'work',start:'2026-05-05',end:'2026-05-06',sT:'09:00',eT:'18:00',done:false,comment:''},
+    {id:3,title:'부모님께 연락',type:'personal',start:'2026-05-08',end:'',sT:'20:00',eT:'',done:false,comment:''}
+  ],
+  family:[
+    {id:1,name:'첫째',grade:'초등',year:'2',cls:'3',num:'15',cats:[
+      {label:'하교 시간',items:[{days:[1,2,4],val:'15:30'},{days:[3],val:'13:30'}]},
+      {label:'학원',items:[{days:[1,3],val:'태권도 17:00'},{days:[2,4],val:'피아노 16:00'}]},
+      {label:'기타',items:[{days:[],val:'비상연락처 010-0000-0000'}]}
+    ]},
+    {id:2,name:'둘째',grade:'초등',year:'',cls:'',num:'',cats:[
+      {label:'하교 시간',items:[]},{label:'학원',items:[]},{label:'기타',items:[]}
+    ]}
+  ],
+  shiftData:{}
+};
 
-// ── INITIAL DATA ──
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-
-let main='s',subF='all',doneF='all',donePer='1w';
-let calY=2026,calM=4,selDate=null;
-let _mType='personal';
+let main='s',subF='all',doneF='all',donePer='1m';
+let calY=TY,calM=TM,selDate=null;
+let _mType='family';
 const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
+const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
-let notes=[
-  {id:1,title:'팀 주간 보고서',type:'work',start:'2026-05-01',end:'2026-05-06',sT:'09:00',eT:'18:00',done:false,comment:''},
-  {id:2,title:'운동 루틴 만들기',type:'personal',start:'2026-05-02',end:'2026-05-31',sT:'',eT:'',done:false,comment:''},
-  {id:3,title:'기획안 검토',type:'work',start:'2026-05-03',end:'2026-05-05',sT:'10:00',eT:'12:00',done:false,comment:''},
-  {id:4,title:'부모님께 연락',type:'personal',start:'2026-04-28',end:'',sT:'',eT:'',done:true,comment:'저녁에 전화함'},
-  {id:5,title:'헬스장 등록',type:'personal',start:'2026-05-01',end:'',sT:'14:00',eT:'15:00',done:true,comment:''},
-];
-let family=[
-  {id:1,name:'첫째',grade:'초등',year:'2',cls:'3',num:'15',cats:[
-    {label:'하교 시간',items:[{days:[1,2,4],val:'15:30'},{days:[3],val:'13:30'}]},
-    {label:'학원',items:[{days:[1,3],val:'태권도 17:00'},{days:[2,4],val:'피아노 16:00'}]},
-    {label:'기타',items:[{days:[],val:'비상연락처 010-0000-0000'}]},
-  ]},
-  {id:2,name:'둘째',grade:'유치원',year:'',cls:'햇살반',num:'7',cats:[
-    {label:'하교 시간',items:[{days:[1,2,3,4,5],val:'14:00'}]},
-    {label:'학원',items:[{days:[1,3,5],val:'영어 15:30'}]},
-    {label:'기타',items:[]},
-  ]},
-];
-let shiftData={};
-(function(){const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];let i=0;for(let m=0;m<12;m++){const dn=new Date(2026,m+1,0).getDate();for(let d=1;d<=dn;d++){shiftData[dk(2026,m,d)]=p[i%p.length];i++;}}})();
+let notes=[],family=[],shiftData={};
+let roomId = getRoomId();
+let unsubscribe=null;
+let remoteReady=false;
+let savingRemote=false;
+let hydrated=false;
 
-// Try loading from storage
-(function init(){
-  const sn=load(SK.notes,null);if(sn)notes=sn;
-  const sf=load(SK.family,null);if(sf)family=sf;
-  const ss=load(SK.shift,null);if(ss)shiftData=ss;
-})();
-
-function saveAll(){save(SK.notes,notes);save(SK.family,family);save(SK.shift,shiftData)}
-
+function deepCopy(o){return JSON.parse(JSON.stringify(o))}
 function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function fmtD(s){if(!s)return'';const p=s.split('-');return`${+p[1]}/${+p[2]}`}
 function daysFmt(arr){if(!arr||!arr.length)return'매일';return arr.map(i=>DAYS[i]).join('·')}
-function notesOnDate(y,m,d){const k=dk(y,m,d);return notes.filter(n=>n.start&&n.start<=k&&(!n.end||n.end>=k))}
+function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
+function typeChip(t){return t==='work'?'chip-w':t==='family'?'chip-f':'chip-p'}
+function dotCls(t){return t==='work'?'dw':t==='family'?'df':'dp'}
+
+function makeId(){
+  return Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+}
+function getRoomId(){
+  const url=new URL(location.href);
+  let r=url.searchParams.get('room')||localStorage.getItem(SK.room);
+  if(!r){r='family-'+makeId();localStorage.setItem(SK.room,r);}
+  return r;
+}
+function normalizeData(d){
+  const base=deepCopy(DEFAULT_DATA);
+  d=d||base;
+  notes=Array.isArray(d.notes)?d.notes:base.notes;
+  family=Array.isArray(d.family)?d.family:base.family;
+  shiftData=d.shiftData||{};
+  if(Object.keys(shiftData).length===0){
+    const p=['D','E','N','OFF','D','D','E','N','OFF','OFF'];let i=0;
+    for(let y=TY;y<=TY+1;y++){for(let m=0;m<12;m++){const dn=new Date(y,m+1,0).getDate();for(let dd=1;dd<=dn;dd++){shiftData[dk(y,m,dd)]=p[i%p.length];i++;}}}
+  }
+}
+function currentData(){return {notes,family,shiftData,updatedAt:Date.now()}}
+function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
+function saveAll(){
+  saveLocal();
+  if(remoteReady && window.__firebaseAPI && hydrated){
+    savingRemote=true;
+    const api=window.__firebaseAPI;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {...currentData(), updatedAt:api.serverTimestamp()}, {merge:true})
+      .catch(e=>{console.warn(e);updateSyncPill('Firebase 저장 실패: 로컬에만 저장됨');})
+      .finally(()=>{savingRemote=false;});
+  }
+}
+
+async function initData(){
+  normalizeData(loadLocal()||DEFAULT_DATA);
+  render();
+  await waitFirebase();
+  if(window.__firebaseReady && window.__firebaseAPI){
+    remoteReady=true;
+    updateSyncPill('실시간 공유 연결 중...');
+    const api=window.__firebaseAPI;
+    const ref=api.doc(api.db,'familyCalendars',roomId);
+    const snap=await api.getDoc(ref);
+    if(!snap.exists()){
+      await api.setDoc(ref,{...currentData(),createdAt:api.serverTimestamp(),updatedAt:api.serverTimestamp()});
+    }
+    unsubscribe=api.onSnapshot(ref,(s)=>{
+      if(!s.exists()||savingRemote)return;
+      normalizeData(s.data());
+      saveLocal();
+      hydrated=true;
+      render();
+      updateSyncPill('실시간 공유 연결됨');
+    },(e)=>{
+      console.warn(e);
+      updateSyncPill('공유 연결 실패: Firebase 설정/권한 확인 필요');
+    });
+  }else{
+    hydrated=true;
+    updateSyncPill('현재 로컬 저장 모드 · Firebase 설정 전에는 가족 간 실시간 공유가 안 됩니다');
+  }
+}
+function waitFirebase(){
+  return new Promise(resolve=>setTimeout(resolve,500));
+}
+
+function updateSyncPill(txt){
+  const el=document.getElementById('sync-status');
+  if(el)el.textContent=txt;
+}
 
 function doneAfter(){
   const n=new Date();
@@ -263,39 +354,35 @@ function doneAfter(){
   else if(donePer==='1m')d.setMonth(d.getMonth()-1);
   return d;
 }
+function notesOnDate(y,m,d){
+  const k=dk(y,m,d);
+  return notes.filter(n=>n.start&&n.start<=k&&(!n.end||n.end>=k));
+}
 
-let dragId=null;
-function dragS(id){dragId=id;setTimeout(()=>{const el=document.getElementById('c'+id);if(el)el.classList.add('dragging')},0)}
-function dragE(){dragId=null;document.querySelectorAll('.card').forEach(c=>c.classList.remove('dragging','drag-over'))}
-function dragO(e,id){e.preventDefault();if(dragId===id)return;document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));const el=document.getElementById('c'+id);if(el)el.classList.add('drag-over')}
-function drop(e,tid){e.preventDefault();if(dragId===null||dragId===tid)return;const fi=notes.findIndex(x=>x.id===dragId),ti=notes.findIndex(x=>x.id===tid);if(fi<0||ti<0)return;const mv=notes.splice(fi,1)[0];notes.splice(ti,0,mv);dragE();saveAll();render()}
-
-function toggleNote(id){const n=notes.find(x=>x.id===id);if(n){n.done=!n.done;saveAll();render()}}
-function delNote(id){notes=notes.filter(x=>x.id!==id);saveAll();render()}
+function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
+function delNote(id){notes=notes.filter(x=>String(x.id)!==String(id));saveAll();render()}
 
 function makeCard(n){
-  const isW=n.type==='work';
   const ds=n.start?(fmtD(n.start)+(n.end?` ~ ${fmtD(n.end)}`:'')):'';
   const ts=(n.sT||n.eT)?`${n.sT||''}${n.sT&&n.eT?' ~ ':''}${n.eT||''}`:'';
-  return`<div class="card" id="c${n.id}" draggable="true"
-    ondragstart="dragS(${n.id})" ondragover="dragO(event,${n.id})" ondrop="drop(event,${n.id})" ondragend="dragE()">
+  return`<div class="card">
     <div class="c-row">
-      <div class="chk${n.done?' on':''}" onclick="toggleNote(${n.id})">
+      <div class="chk${n.done?' on':''}" onclick="toggleNote('${n.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${n.done?' done':''}">${n.title}</div>
+        <div class="c-title${n.done?' done':''}">${escapeHtml(n.title)}</div>
         <div class="c-meta">
-          <span class="chip ${isW?'chip-w':'chip-p'}">${isW?'회사':'개인'}</span>
+          <span class="chip ${typeChip(n.type)}">${typeName(n.type)}</span>
           ${ds?`<span class="chip chip-g">${ds}</span>`:''}
           ${ts?`<span class="chip chip-g">${ts}</span>`:''}
         </div>
-        ${n.done&&n.comment?`<button class="comment-pill" onclick="openEditDone(${n.id})">"${n.comment}"</button>`:''}
-        ${n.done&&!n.comment?`<button class="add-comment" onclick="openEditDone(${n.id})">+ 코멘트 달기</button>`:''}
+        ${n.done&&n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
+        ${n.done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
       </div>
       <div class="c-right">
-        <div class="drag-dots"><span></span><span></span><span></span></div>
-        <button class="del-link" onclick="delNote(${n.id})">삭제</button>
+        <button class="small-link" onclick="openEditNote('${n.id}')">수정</button>
+        <button class="small-link" onclick="delNote('${n.id}')">삭제</button>
       </div>
     </div>
   </div>`;
@@ -303,8 +390,8 @@ function makeCard(n){
 
 function renderS(){
   let active=notes.filter(n=>!n.done&&(subF==='all'||n.type===subF));
-  let doneAll=notes.filter(n=>n.done);
-  let doneFilt=doneAll.filter(n=>{
+  let doneFilt=notes.filter(n=>{
+    if(!n.done)return false;
     if(doneF!=='all'&&n.type!==doneF)return false;
     if(!n.start)return true;
     return new Date(n.start)>=doneAfter();
@@ -314,6 +401,7 @@ function renderS(){
       <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="setSub('all')">전체</button>
       <button class="chip-btn cb-p${subF==='personal'?' on':''}" onclick="setSub('personal')">개인</button>
       <button class="chip-btn cb-w${subF==='work'?' on':''}" onclick="setSub('work')">회사</button>
+      <button class="chip-btn cb-f${subF==='family'?' on':''}" onclick="setSub('family')">가족</button>
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
@@ -323,6 +411,7 @@ function renderS(){
       <button class="chip-btn cb-all${doneF==='all'?' on':''}" onclick="setDoneF('all')">전체</button>
       <button class="chip-btn cb-p${doneF==='personal'?' on':''}" onclick="setDoneF('personal')">개인</button>
       <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
+      <button class="chip-btn cb-f${doneF==='family'?' on':''}" onclick="setDoneF('family')">가족</button>
     </div>
     <div class="period-row">
       <span class="period-lbl">기간</span>
@@ -334,7 +423,6 @@ function renderS(){
     <div class="card-wrap" style="margin-top:10px">${doneFilt.length?doneFilt.map(makeCard).join(''):'<div class="empty">완료된 일정이 없어요</div>'}</div>
   `;
 }
-
 function setSub(t){subF=t;render()}
 function setDoneF(t){doneF=t;render()}
 function setPer(t){donePer=t;render()}
@@ -352,11 +440,10 @@ function renderC(){
     const isSel=selDate===key;
     const evs=notesOnDate(y,m,d);
     const cur=shiftData[key]||'OFF';
-    const dots=evs.map(n=>`<div class="cal-dot ${n.type==='work'?'dw':'dp'}"></div>`).join('');
-    const pills=SHIFTS.map(s=>`<span class="s-pill ${SCLS[s]}${cur===s?' act':''}" onclick="setShift('${key}','${s}',event)">${s}</span>`).join('');
+    const dots=evs.slice(0,5).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`).join('');
     g+=`<div class="cal-cell${isSel?' sel':''}" onclick="selCal('${key}')">
       <div class="cal-num${isToday?' today-n':''}">${d}</div>
-      <div class="shift-row">${pills}</div>
+      <div><span class="shift-one ${SCLS[cur]}">${cur}</span></div>
       <div class="cal-dots">${dots}</div>
     </div>`;
   }
@@ -364,13 +451,19 @@ function renderC(){
   let evHtml='';
   if(selDate){
     const sp=selDate.split('-');
+    const cur=shiftData[selDate]||'OFF';
     const evs=notesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     evHtml=`<div class="ev-card">
       <div class="ev-hd">${+sp[1]}/${+sp[2]} 일정</div>
+      <div class="shift-picker">
+        <span class="shift-picker-title">근무</span>
+        ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
+      </div>
       ${evs.length?evs.map(n=>{
         const ts=(n.sT||n.eT)?`${n.sT||''}${n.sT&&n.eT?' ~ ':''}${n.eT||''}`:'시간 미정';
-        return`<div class="ev-item"><div class="ev-dot ${n.type==='work'?'dw':'dp'}"></div><div><div class="ev-title">${n.title}</div><div class="ev-sub">${ts} · ${n.type==='work'?'회사':'개인'}</div></div></div>`;
+        return`<div class="ev-item"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${escapeHtml(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div></div></div>`;
       }).join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
+      <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
     </div>`;
   }
 
@@ -389,30 +482,31 @@ function renderC(){
         <div class="leg"><span class="leg-chip s-off">OFF</span>휴무</div>
         <div class="leg"><span class="leg-dot" style="background:var(--pink)"></span>개인</div>
         <div class="leg"><span class="leg-dot" style="background:var(--blue)"></span>회사</div>
+        <div class="leg"><span class="leg-dot" style="background:var(--green)"></span>가족</div>
       </div>
     </div>
     ${evHtml}
   </div>`;
 }
-function setShift(k,t,e){e.stopPropagation();shiftData[k]=t;saveAll();render()}
+function setShift(k,t){shiftData[k]=t;saveAll();render()}
 function selCal(k){selDate=selDate===k?null:k;const sp=k.split('-');calY=+sp[0];calM=+sp[1]-1;render()}
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
 
 function renderI(){
   let h=`<div class="fi-outer">`;
   family.forEach((kid,ki)=>{
-    const gs=kid.grade+(kid.year?` ${kid.year}학년`:'')+(kid.cls?` ${kid.cls}반`:'')+(kid.num?` ${kid.num}번`:'');
+    const gs=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' ');
     h+=`<div class="fi-card">
-      <div class="fi-hd"><div class="fi-name">${kid.name}</div>
+      <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name)}</div>
         <div class="fi-hd-btns">
           <button class="fi-btn fi-btn-e" onclick="editKid(${ki})">수정</button>
           <button class="fi-btn fi-btn-d" onclick="delKid(${ki})">삭제</button>
         </div>
       </div>
-      <div class="fi-row"><span class="fi-key">학년·반·번호</span><span style="font-size:12px;font-weight:600">${gs||'미입력'}</span></div>`;
+      <div class="fi-row"><span class="fi-key">학년·반·번호</span><span style="font-size:12px;font-weight:700">${escapeHtml(gs||'미입력')}</span></div>`;
     kid.cats.forEach((cat,ci)=>{
       const isEtc=cat.label==='기타';
-      h+=`<div class="cat-hd"><span class="cat-lbl">${cat.label}</span>
+      h+=`<div class="cat-hd"><span class="cat-lbl">${escapeHtml(cat.label)}</span>
         <div class="cat-hd-r">
           <button class="cat-add" onclick="addRow(${ki},${ci})">+ 추가</button>
           <button class="cat-del" onclick="delCat(${ki},${ci})">삭제</button>
@@ -424,14 +518,14 @@ function renderI(){
             <button class="row-del" onclick="delRow(${ki},${ci},${ii})">✕</button>
           </div>
           ${!isEtc?`<div class="day-sel">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleDay(${ki},${ci},${ii},${di})">${d}</button>`).join('')}</div>`:''}
-          <input class="fi-input" style="text-align:left;max-width:100%" value="${item.val}" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
+          <input class="fi-input" style="text-align:left;max-width:100%" value="${escapeAttr(item.val)}" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
         </div>`;
       });
       if(!cat.items.length)h+=`<div style="font-size:11px;color:var(--t3);padding:6px 0">항목 없음</div>`;
     });
     h+=`</div>`;
   });
-  h+=`<button style="width:100%;padding:13px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit" onclick="addKid()">+ 아이 추가</button></div>`;
+  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 아이 추가</button></div>`;
   return h;
 }
 function toggleDay(ki,ci,ii,di){const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
@@ -460,34 +554,37 @@ function render(){
   if(main==='s')h=renderS();
   else if(main==='c')h=renderC();
   else if(main==='i')h=renderI();
-  // share banner always visible
+
+  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   const banner=`<div class="share-banner">
-    <div><div class="share-txt">📎 공유 링크로 함께 사용</div><div class="share-sub">링크를 복사해서 가족과 공유하세요</div></div>
-    <button class="share-btn" onclick="copyShareLink()">링크 복사</button>
-  </div>`;
+    <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+    <button class="share-btn" onclick="copyShareLink()">복사</button>
+  </div>
+  <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>`;
   document.getElementById('body').innerHTML=banner+h;
 }
 
 function copyShareLink(){
-  const url=window.location.href;
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>alert('링크가 복사됐어요!\n가족에게 공유해 주세요 😊'));}
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>alert('가족 공유 링크가 복사됐어요.'));}
   else{alert('주소창의 URL을 복사해서 가족에게 보내주세요:\n'+url);}
 }
 
-function openAddModal(){
-  _mType='personal';
-  const today=new Date().toISOString().slice(0,10);
+function openAddModal(dateVal){
+  _mType='family';
+  const today=dateVal || new Date().toISOString().slice(0,10);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">새 일정 추가</div>
       <div class="ml">제목</div>
-      <input class="mi" id="m-ti" placeholder="할 일 입력"/>
+      <input class="mi" id="m-ti" placeholder="가족 일정, 학교 행사, 병원, 학원 등"/>
       <div class="ml">구분</div>
       <div class="type-sel">
-        <button class="type-btn tp" id="btn-p" onclick="selT('personal')">개인</button>
+        <button class="type-btn" id="btn-p" onclick="selT('personal')">개인</button>
         <button class="type-btn" id="btn-w" onclick="selT('work')">회사</button>
+        <button class="type-btn tf" id="btn-f" onclick="selT('family')">가족</button>
       </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
@@ -504,7 +601,12 @@ function openAddModal(){
     </div>
   </div>`;
 }
-function selT(t){_mType=t;document.getElementById('btn-p').className='type-btn'+(t==='personal'?' tp':'');document.getElementById('btn-w').className='type-btn'+(t==='work'?' tw':'');}
+function selT(t){
+  _mType=t;
+  document.getElementById('btn-p').className='type-btn'+(t==='personal'?' tp':'');
+  document.getElementById('btn-w').className='type-btn'+(t==='work'?' tw':'');
+  document.getElementById('btn-f').className='type-btn'+(t==='family'?' tf':'');
+}
 function saveNote(){
   const ti=(document.getElementById('m-ti')||{}).value||'';
   if(!ti.trim())return;
@@ -512,34 +614,42 @@ function saveNote(){
   saveAll();closeM();render();
 }
 
-function openEditDone(id){
-  const n=notes.find(x=>x.id===id);if(!n)return;
+function openEditNote(id){
+  const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
+  _mType=n.type||'family';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">완료 항목 수정</div>
-      <div class="ml">제목</div><input class="mi" id="e-ti" value="${n.title}"/>
+      <div class="modal-hd">일정 수정</div>
+      <div class="ml">제목</div><input class="mi" id="e-ti" value="${escapeAttr(n.title)}"/>
+      <div class="ml">구분</div>
+      <div class="type-sel">
+        <button class="type-btn${_mType==='personal'?' tp':''}" id="btn-p" onclick="selT('personal')">개인</button>
+        <button class="type-btn${_mType==='work'?' tw':''}" id="btn-w" onclick="selT('work')">회사</button>
+        <button class="type-btn${_mType==='family'?' tf':''}" id="btn-f" onclick="selT('family')">가족</button>
+      </div>
       <div class="ml">날짜</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="mi" type="date" id="e-sd" value="${n.start}"/></div>
-        <div><div class="sublabel">종료일</div><input class="mi" type="date" id="e-ed" value="${n.end}"/></div>
+        <div><div class="sublabel">시작일</div><input class="mi" type="date" id="e-sd" value="${n.start||''}"/></div>
+        <div><div class="sublabel">종료일</div><input class="mi" type="date" id="e-ed" value="${n.end||''}"/></div>
       </div>
       <div class="ml">시간</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작</div><input class="mi" type="time" id="e-st" value="${n.sT}"/></div>
-        <div><div class="sublabel">종료</div><input class="mi" type="time" id="e-et" value="${n.eT}"/></div>
+        <div><div class="sublabel">시작</div><input class="mi" type="time" id="e-st" value="${n.sT||''}"/></div>
+        <div><div class="sublabel">종료</div><input class="mi" type="time" id="e-et" value="${n.eT||''}"/></div>
       </div>
       <div class="ml">코멘트</div>
-      <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${n.comment||''}</textarea>
-      <button class="primary-btn" onclick="saveDone(${id})">저장</button>
+      <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
+      <button class="primary-btn" onclick="saveEditNote('${id}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
   </div>`;
 }
-function saveDone(id){
-  const n=notes.find(x=>x.id===id);if(!n)return;
+function saveEditNote(id){
+  const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
   n.title=document.getElementById('e-ti').value;
+  n.type=_mType;
   n.start=document.getElementById('e-sd').value;
   n.end=document.getElementById('e-ed').value;
   n.sT=document.getElementById('e-st').value;
@@ -555,13 +665,13 @@ function editKid(i){
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">아이 정보 수정</div>
-      <div class="ml">이름</div><input class="mi" id="k-n" value="${k.name}"/>
-      <div class="ml">학교 과정</div><input class="mi" id="k-g" value="${k.grade}" placeholder="초등, 유치원 등"/>
+      <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
+      <div class="ml">학교 과정</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="초등, 유치원 등"/>
       <div class="ml">학년 · 반 · 번호</div>
       <div class="mi-3">
-        <input class="mi" id="k-y" value="${k.year}" placeholder="학년"/>
-        <input class="mi" id="k-c" value="${k.cls}" placeholder="반"/>
-        <input class="mi" id="k-u" value="${k.num}" placeholder="번호"/>
+        <input class="mi" id="k-y" value="${escapeAttr(k.year)}" placeholder="학년"/>
+        <input class="mi" id="k-c" value="${escapeAttr(k.cls)}" placeholder="반"/>
+        <input class="mi" id="k-u" value="${escapeAttr(k.num)}" placeholder="번호"/>
       </div>
       <button class="primary-btn" onclick="saveKid(${i})">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
@@ -572,22 +682,14 @@ function addKid(){family.push({id:Date.now(),name:'새 아이',grade:'',year:'',
 function saveKid(i){family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
 function closeM(e){if(!e||e.target.classList.contains('modal-bg'))document.getElementById('modal').innerHTML=''}
 function openExport(){
-  const lines=notes.map(n=>`[${n.done?'✓':'·'}][${n.type==='work'?'회사':'개인'}] ${n.title}${n.start?' ('+fmtD(n.start)+(n.end?` ~ ${fmtD(n.end)}`:'')+(n.sT?' '+n.sT:'')+(n.eT?` ~ ${n.eT}`:'')+')':''}`);
+  const lines=notes.map(n=>`[${n.done?'✓':'·'}][${typeName(n.type)}] ${n.title}${n.start?' ('+fmtD(n.start)+(n.end?` ~ ${fmtD(n.end)}`:'')+(n.sT?' '+n.sT:'')+(n.eT?` ~ ${n.eT}`:'')+')':''}`);
   if(navigator.clipboard)navigator.clipboard.writeText(lines.join('\n'));
-  alert('클립보드에 복사됐어요!\n\n'+lines.join('\n'));
+  alert('클립보드에 복사됐어요.\n\n'+lines.join('\n'));
 }
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function escapeAttr(s){return escapeHtml(s).replace(/"/g,'&quot;')}
 
-// Init with storage async
-(async function(){
-  if(window.storage){
-    try{
-      const sn=await window.storage.get(SK.notes,true);if(sn&&sn.value)notes=JSON.parse(sn.value);
-      const sf=await window.storage.get(SK.family,true);if(sf&&sf.value)family=JSON.parse(sf.value);
-      const ss=await window.storage.get(SK.shift,true);if(ss&&ss.value)shiftData=JSON.parse(ss.value);
-    }catch(e){}
-  }
-  setMain('s');
-})();
+initData();
 </script>
 </body>
 </html>
