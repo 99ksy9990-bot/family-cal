@@ -4,8 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-<link rel="apple-touch-icon" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
-<link rel="icon" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
+
+<link rel="apple-touch-icon" sizes="180x180" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
+<link rel="icon" type="image/png" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#007AFF">
 
 <title>가족 일정 공유 캘린더 - 패스</title>
 <!-- 링크 미리보기 -->
@@ -589,15 +592,56 @@ body{
   border-radius:20px !important;
 }
 
+
+/* 최종 출시용 보강 */
+.notice-banner{
+  margin:12px 16px 0;
+  padding:13px 15px;
+  border-radius:18px;
+  background:#EAF3FF;
+  color:#0055B3;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 6px 16px rgba(0,122,255,.10);
+}
+.week-wrap{padding:0 16px;display:flex;flex-direction:column;gap:9px}
+.week-day{background:#fff;border-radius:18px;padding:13px 14px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+.week-hd{font-size:13px;font-weight:900;color:#6B6B6F;margin-bottom:8px}
+.week-item{font-size:13px;font-weight:800;margin-top:5px}
+.detail-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg);font-size:13px}
+.detail-key{color:var(--t2);font-weight:800}
+.detail-val{font-weight:900;text-align:right}
+.drop-target{outline:3px solid rgba(0,122,255,.22)}
+.dragging{opacity:.55;transform:scale(.985)}
+.qr-box{display:flex;justify-content:center;margin:12px 0}
+.qr-box canvas,.qr-box img{border-radius:14px;background:#fff}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<script>
+(function(){
+  function setIcon(){
+    const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let link = document.querySelector('link[rel="icon"]');
+    if(link) link.href = dark ? 'https://99ksy9990-bot.github.io/family-cal/icon-dark.png' : 'https://99ksy9990-bot.github.io/family-cal/icon.png';
+  }
+  setIcon();
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', setIcon);
+  }
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 
 <body>
 
 <div class="splash" id="splash">
   <div class="splash-box">
-    <img class="splash-icon" src="icon.png" alt="패스 아이콘" />
+    <img class="splash-icon" src="https://99ksy9990-bot.github.io/family-cal/icon.png" alt="패스 아이콘" />
     <div class="splash-title">패스</div>
     <div class="splash-sub">Family Scheduler</div>
     <div class="splash-loader"></div>
@@ -949,9 +993,9 @@ function highlightText(s){
 function makeCard(n){
   const dts=dateTimeRange(n);
   const done=isDone(n);
-  return`<div class="card" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
+  return`<div class="card" onclick="openDetailNote('${n.id}')" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
     <div class="c-row">
-      <div class="chk${done?' on':''}" onclick="toggleNote('${n.id}')">
+      <div class="chk${done?' on':''}" onclick="event.stopPropagation();toggleNote('${n.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
@@ -962,12 +1006,12 @@ function makeCard(n){
           ${n.repeat?`<span class="chip repeat-chip">${repeatName(n.repeat)}</span>`:''}
           ${dts?`<span class="chip chip-g">${dts}</span>`:''}
         </div>
-        ${done&&n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
-        ${done&&!n.comment?`<button class="comment-pill" onclick="openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
+        ${done&&n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
+        ${done&&!n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
       </div>
       <div class="c-right">
-<button class="small-link" onclick="openEditNote('${n.id}')">수정</button>
-        <button class="small-link" onclick="delNote('${n.id}')">삭제</button>
+<button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
+        <button class="small-link" onclick="event.stopPropagation();delNote('${n.id}')">삭제</button>
       </div>
     </div>
   </div>`;
@@ -1136,6 +1180,12 @@ function renderI(){
   });
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button>
+    <div class="action-grid" style="margin:12px 0">
+      <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
+      <button class="toss-btn" onclick="openRestore()">백업 복구</button>
+      <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
+      <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
+    </div>
     <div class="share-banner" style="margin:12px 0 0">
       <div><div class="share-txt"><button class="toss-btn" style="margin-bottom:10px" onclick="openExport()">내보내기</button>
       📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
@@ -1168,11 +1218,11 @@ function makeReqCard(r){
           ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
           <span class="chip chip-g">부탁</span>
         </div>
-        ${r.comment?`<button class="comment-pill" onclick="openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:''}
+        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:''}
       </div>
       <div class="c-right">
-<button class="small-link" onclick="openEditReq('${r.id}')">수정</button>
-        <button class="small-link" onclick="delReq('${r.id}')">삭제</button>
+<button class="small-link" onclick="event.stopPropagation();openEditReq('${r.id}')">수정</button>
+        <button class="small-link" onclick="event.stopPropagation();delReq('${r.id}')">삭제</button>
       </div>
     </div>
   </div>`;
@@ -1300,14 +1350,17 @@ function dragStart(e, listName, id){
 }
 function dragOver(e){
   e.preventDefault();
+  if(e.currentTarget)e.currentTarget.classList.add('drop-target');
   if(e.dataTransfer)e.dataTransfer.dropEffect='move';
 }
 function dragEnd(e){
   e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
   dragInfo=null;
 }
 function dropItem(e, listName, targetId){
   e.preventDefault();
+  if(e.currentTarget)e.currentTarget.classList.remove('drop-target');
   if(!dragInfo || dragInfo.listName!==listName || String(dragInfo.id)===String(targetId)) return;
 
   const arr = listName==='notes' ? notes : requests;
@@ -1429,6 +1482,129 @@ function renderHomeWidgets(){
   </div>`;
 }
 
+
+function todayKey(){return dk(TY,TM,TD)}
+function tomorrowKey(){return addDaysStr(todayKey(),1)}
+function renderNoticeBanner(){
+  const td=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
+  const req=requests.filter(r=>!isDone(r));
+  if(!td.length && !req.length)return '';
+  const parts=[];
+  if(td.length)parts.push(`오늘 일정 ${td.length}개`);
+  if(req.length)parts.push(`부탁 ${req.length}개`);
+  return `<div class="notice-banner">🔔 ${parts.join(' · ')} 확인해 주세요</div>`;
+}
+function downloadBackup(){
+  const data=currentData();
+  data.backupAt=new Date().toISOString();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`패스_백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function openRestore(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">백업 복구</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.5">백업 JSON 파일을 선택하면 현재 데이터가 백업 내용으로 교체됩니다.</div>
+      <div class="ml">백업 파일</div>
+      <input class="mi" type="file" id="restore-file" accept="application/json,.json"/>
+      <button class="primary-btn" onclick="restoreBackup()">복구하기</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+function restoreBackup(){
+  const f=document.getElementById('restore-file')?.files?.[0];
+  if(!f)return alert('파일을 선택해 주세요.');
+  if(!confirm('현재 데이터를 백업 파일 내용으로 교체할까요?'))return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result);
+      normalizeData(d);
+      saveAll();
+      closeM();
+      render();
+      alert('복구 완료');
+    }catch(e){
+      alert('백업 파일을 읽을 수 없습니다.');
+    }
+  };
+  reader.readAsText(f);
+}
+function openShareTools(){
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">공유하기</div>
+      <div class="share-banner" style="margin:0">
+        <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${url}</div></div>
+        <button class="share-btn" onclick="copyShareLink()">복사</button>
+      </div>
+      <div class="qr-box"><canvas id="qr-canvas"></canvas></div>
+      <div class="action-grid">
+        <button class="toss-btn primary" onclick="shareNative()">공유</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    if(window.QRCode){
+      QRCode.toCanvas(document.getElementById('qr-canvas'),url,{width:180,margin:1});
+    }
+  },50);
+}
+function shareNative(){
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  if(navigator.share){
+    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
+  }else{
+    copyShareLink();
+  }
+}
+function openDetailNote(id){
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const dts=dateTimeRange(n)||'날짜 없음';
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(n.title)}</div>
+      <div class="detail-row"><span class="detail-key">구분</span><span class="detail-val">${typeName(n.type)}</span></div>
+      <div class="detail-row"><span class="detail-key">대상</span><span class="detail-val">${escapeHtml(n.who||'공통')}</span></div>
+      <div class="detail-row"><span class="detail-key">일시</span><span class="detail-val">${dts}</span></div>
+      <div class="detail-row"><span class="detail-key">반복</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
+      ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">반복 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
+      ${n.comment?`<div class="detail-row"><span class="detail-key">메모</span><span class="detail-val">${escapeHtml(n.comment)}</span></div>`:''}
+      <div class="action-grid">
+        <button class="toss-btn primary" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+}
+function renderWeekView(){
+  const start=new Date(todayKey()+'T00:00:00');
+  const days=[];
+  for(let i=0;i<7;i++){
+    const k=addDaysStr(todayKey(),i);
+    const d=new Date(k+'T00:00:00');
+    const list=notes.filter(n=>!isDone(n)&&occursOn(n,k));
+    days.push(`<div class="week-day">
+      <div class="week-hd">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})</div>
+      ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
+    </div>`);
+  }
+  return `<div class="sec">이번 주</div><div class="week-wrap">${days.join('')}</div>`;
+}
+
 function render(){
   let h='';
   if(main==='s')h=renderS();
@@ -1436,7 +1612,7 @@ function render(){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderHomeWidgets()+renderSearchBox()+h;
+  document.getElementById('body').innerHTML=renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h+(main==='s'?renderWeekView():'');
 }
 
 function copyShareLink(){
@@ -1564,6 +1740,7 @@ function saveEditNote(id){
   n.type=_mType;
   n.who=_mWho;
   n.repeat=(document.getElementById('e-rp')||{}).value||'';
+  n.repeatEnd=getPickerVal('e-re');
   n.start=getPickerVal('e-sd');
   n.end=getPickerVal('e-ed');
   n.sT=getPickerVal('e-st');
