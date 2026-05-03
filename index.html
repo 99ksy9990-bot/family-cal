@@ -916,6 +916,7 @@ function doneAfter(){
   if(donePer==='1w')d.setDate(d.getDate()-7);
   else if(donePer==='2w')d.setDate(d.getDate()-14);
   else if(donePer==='1m')d.setMonth(d.getMonth()-1);
+  else if(donePer==='3m')d.setMonth(d.getMonth()-3);
   return d;
 }
 function notesOnDate(y,m,d){
@@ -1008,10 +1009,10 @@ function renderS(){
       <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
     </div>
     <div class="period-row">
-      <span class="period-lbl">기간</span>
+      <span class="period-lbl">기간
       <button class="period-chip${donePer==='1w'?' on':''}" onclick="setPer('1w')">1주</button>
-      <button class="period-chip${donePer==='2w'?' on':''}" onclick="setPer('2w')">2주</button>
       <button class="period-chip${donePer==='1m'?' on':''}" onclick="setPer('1m')">1개월</button>
+      <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
       <button class="period-chip${donePer==='all'?' on':''}" onclick="setPer('all')">전체</button>
     </div>
     <div class="card-wrap" style="margin-top:10px">${doneOpen ? (doneFilt.length?doneFilt.map(makeCard).join(''):'<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
@@ -1136,7 +1137,8 @@ function renderI(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button>
     <div class="share-banner" style="margin:12px 0 0">
-      <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+      <div><div class="share-txt"><button class="toss-btn" style="margin-bottom:10px" onclick="openExport()">내보내기</button>
+      📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
       <button class="share-btn" onclick="copyShareLink()">복사</button>
     </div>
     <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
