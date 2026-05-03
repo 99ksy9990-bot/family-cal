@@ -927,6 +927,7 @@ function openSecurityGuide(){
 }
 
 const SK={data:'fam_shared_v8_data',room:'fam_shared_v8_room'};
+const DEFAULT_ROOM_ID='family-dmm8oydaq6';
 const DEFAULT_DATA={
   notes:[
     {id:1,title:'첫째 태권도',type:'family',start:'2026-05-04',end:'',sT:'17:00',eT:'18:00',done:false,comment:''},
@@ -1066,16 +1067,15 @@ function makeId(){
 }
 function getRoomId(){
   const url=new URL(location.href);
-  let r=url.searchParams.get('room')||localStorage.getItem(SK.room);
-  if(!r){
-    r='family-'+makeId();
-    localStorage.setItem(SK.room,r);
-  }
-  // 주소에 room이 없으면 자동으로 붙여서, 주소창 링크가 곧 가족 공유 링크가 되게 함
+  let r=url.searchParams.get('room') || DEFAULT_ROOM_ID;
+
+  // 홈화면 바로가기/manifest 때문에 room이 빠져도 항상 기존 가족 방으로 복구
   if(!url.searchParams.get('room')){
     url.searchParams.set('room', r);
     history.replaceState(null, '', url.toString());
   }
+
+  localStorage.setItem(SK.room, r);
   return r;
 }
 
