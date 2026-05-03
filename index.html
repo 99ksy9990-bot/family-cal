@@ -480,6 +480,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   font-family:inherit;
 }
 
+
+/* 미선택 탭 글자 검은색 */
+.tab:not(.on){color:var(--t1) !important}
+
+
+/* 달력 범례 한 줄 보정 */
+.cal-legend{
+  flex-wrap:nowrap !important;
+  gap:5px !important;
+  overflow-x:auto;
+  padding-bottom:2px;
+}
+.leg{
+  flex-shrink:0;
+  gap:3px !important;
+  font-size:10px !important;
+  white-space:nowrap;
+}
+.leg-chip{
+  font-size:9px !important;
+  padding:3px 5px !important;
+}
+.leg-dot{
+  width:7px !important;
+  height:7px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -503,7 +530,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
     </div>
     <div class="top-right" id="top-right">
       <button class="toss-btn" onclick="openExport()">내보내기</button>
-      <button class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
+      <button class="toss-btn primary" onclick="openAddModal()">+ 일정 추가</button>
     </div>
   </div>
 
@@ -1265,7 +1292,7 @@ function updateTabUI(){
   });
   const tr=document.getElementById('top-right');
   if(!tr)return;
-  if(main==='s'){tr.innerHTML=`<button class="toss-btn" onclick="openExport()">내보내기</button><button class="toss-btn primary" onclick="openAddModal()">+ 추가</button>`;}
+  if(main==='s'){tr.innerHTML=`<button class="toss-btn" onclick="openExport()">내보내기</button><button class="toss-btn primary" onclick="openAddModal()">+ 일정 추가</button>`;}
   else if(main==='i'){tr.innerHTML=`<button class="toss-btn purple" onclick="addKid()">+ 아이 추가</button>`;}
   else if(main==='r'){tr.innerHTML=`<button class="toss-btn primary" onclick="openReqModal()">+ 추가</button>`;}
   else if(main==='m'){tr.innerHTML=`<button class="toss-btn primary" onclick="openMemoryModal()">+ 대상 추가</button>`;}
@@ -1288,12 +1315,12 @@ function renderHomeWidgets(){
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
   return `<div class="widget-wrap">
-    <div class="widget-card" onclick="onWidgetClick(this)">
+    <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
     </div>
-    <div class="widget-card" onclick="onWidgetClick(this)">
+    <div class="widget-card" data-action="request" onclick="onWidgetClick(this)">
       <div class="widget-title">부탁</div>
       <div class="widget-main">${reqCnt}개</div>
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
