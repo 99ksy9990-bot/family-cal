@@ -879,6 +879,30 @@ body{
   padding-right:10px !important;
 }
 
+
+/* 2026-2027 대한민국 공휴일/주말 색상 */
+.cal-dname.sun-dname{color:var(--pink) !important}
+.cal-dname.sat-dname{color:var(--blue) !important}
+.cal-num.sat-n{color:var(--blue) !important;font-weight:800}
+.cal-num.holiday-n{color:var(--pink) !important;font-weight:900}
+.cal-num.today-n{color:#fff !important;background:var(--blue) !important}
+
+/* 달력 대상 필터 한 줄 고정 */
+.cal-filter{display:flex !important;flex-wrap:nowrap !important;gap:4px !important;padding:10px 10px 0 !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cal-filter::-webkit-scrollbar{display:none}
+.cal-filter .chip-btn{flex:0 0 auto !important;height:30px !important;padding:0 9px !important;font-size:11px !important;line-height:1 !important;white-space:nowrap !important}
+
+/* 달력 범례 한 줄 고정 */
+.cal-legend{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:4px !important;overflow-x:auto !important;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px !important}
+.cal-legend::-webkit-scrollbar{display:none}
+.cal-legend .leg{flex:0 0 auto !important;gap:2px !important;font-size:9px !important;line-height:1 !important;white-space:nowrap !important}
+.cal-legend .leg-chip{font-size:8px !important;min-width:20px !important;height:18px !important;padding:2px 4px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;border-radius:6px !important}
+.cal-legend .leg-dot{width:6px !important;height:6px !important}
+
+/* 상단 탭 한 줄 안정화 */
+.tab-bar{display:grid !important;grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:6px !important;padding:14px 14px 4px !important}
+.tab{min-width:0 !important;height:44px !important;font-size:13px !important;padding:0 !important;white-space:nowrap !important}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1061,6 +1085,52 @@ function getPersons(){
   });
   return names;
 }
+
+
+const KR_HOLIDAYS={
+  '2026-01-01':'신정',
+  '2026-02-16':'설날 연휴',
+  '2026-02-17':'설날',
+  '2026-02-18':'설날 연휴',
+  '2026-03-01':'삼일절',
+  '2026-03-02':'삼일절 대체공휴일',
+  '2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날',
+  '2026-05-25':'부처님오신날 대체공휴일',
+  '2026-06-03':'전국동시지방선거일',
+  '2026-06-06':'현충일',
+  '2026-08-15':'광복절',
+  '2026-08-17':'광복절 대체공휴일',
+  '2026-09-24':'추석 연휴',
+  '2026-09-25':'추석',
+  '2026-09-26':'추석 연휴',
+  '2026-10-03':'개천절',
+  '2026-10-05':'개천절 대체공휴일',
+  '2026-10-09':'한글날',
+  '2026-12-25':'기독탄신일',
+  '2027-01-01':'신정',
+  '2027-02-06':'설날 연휴',
+  '2027-02-07':'설날',
+  '2027-02-08':'설날 연휴',
+  '2027-02-09':'설날 대체공휴일',
+  '2027-03-01':'삼일절',
+  '2027-05-05':'어린이날',
+  '2027-05-13':'부처님오신날',
+  '2027-06-06':'현충일',
+  '2027-08-15':'광복절',
+  '2027-08-16':'광복절 대체공휴일',
+  '2027-09-14':'추석 연휴',
+  '2027-09-15':'추석',
+  '2027-09-16':'추석 연휴',
+  '2027-10-03':'개천절',
+  '2027-10-04':'개천절 대체공휴일',
+  '2027-10-09':'한글날',
+  '2027-10-11':'한글날 대체공휴일',
+  '2027-12-25':'기독탄신일',
+  '2027-12-27':'기독탄신일 대체공휴일'
+};
+function holidayName(k){return KR_HOLIDAYS[k]||''}
+function isHolidayKey(k){return !!KR_HOLIDAYS[k]}
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
@@ -1489,24 +1559,27 @@ function renderC(){
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
   let g='';
-  DAYS.forEach(d=>{g+=`<div class="cal-dname">${d}</div>`});
+  DAYS.forEach((d,i)=>{g+=`<div class="cal-dname ${i===0?'sun-dname':i===6?'sat-dname':''}">${d}</div>`});
   for(let i=0;i<firstDay;i++)g+=`<div></div>`;
   for(let d=1;d<=dInM;d++){
     const key=dk(y,m,d);
+    const dow=new Date(y,m,d).getDay();
+    const hName=holidayName(key);
     const isToday=y===TY&&m===TM&&d===TD;
+    const numClass=isToday?'today-n':(hName||dow===0)?'holiday-n':(dow===6?'sat-n':'');
     const isSel=selDate===key;
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
     const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
-    g+=`<div class="cal-cell${isSel?' sel':''}"
+    g+=`<div class="cal-cell${isSel?' sel':''}" title="${hName?escapeAttr(hName):''}"
       onclick="selCal('${key}')"
       onmousedown="startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
       onmouseleave="cancelLongAdd()"
       ontouchstart="startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()">
-      <div class="cal-num${isToday?' today-n':''}">${d}</div>
+      <div class="cal-num ${numClass}">${d}</div>
       <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
       <div class="cal-dots">${dots}</div>
     </div>`;
@@ -1515,11 +1588,12 @@ function renderC(){
   let evHtml='';
   if(selDate){
     const sp=selDate.split('-');
+    const selHoliday=holidayName(selDate);
     const cur=shiftData[selDate]||'';
     const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
     const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     evHtml=`<div class="ev-card">
-      <div class="ev-hd">${+sp[1]}/${+sp[2]} 일정</div>
+      <div class="ev-hd">${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="chip chip-p" style="margin-left:6px">${escapeHtml(selHoliday)}</span>`:''}</div>
       <div class="shift-picker">
         <span class="shift-picker-title">근무</span>
         <button class="shift-btn${!cur?' on':''}" style="background:#fff;color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
