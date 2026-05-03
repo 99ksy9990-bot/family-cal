@@ -2,7 +2,7 @@
   "name": "가족 캘린더",
   "short_name": "패스",
   "description": "Family Scheduler",
-  "start_url": "./",
+  "start_url": "./?room=family-dmm8oydaq6",
   "display": "standalone",
   "background_color": "#F5F5F7",
   "theme_color": "#007AFF",
@@ -25,5 +25,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "./"
 }
