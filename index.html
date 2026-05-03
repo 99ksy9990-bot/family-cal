@@ -760,6 +760,29 @@ body{
   }
 }
 
+
+/* 오늘/T+1/T+2 근무 위젯 */
+.shift-widget-3{
+  grid-template-columns:1fr 1fr 1fr !important;
+  gap:8px !important;
+}
+.shift-widget-3 .widget-card{
+  min-height:92px !important;
+  padding:12px 10px !important;
+}
+.shift-widget-3 .widget-title{
+  font-size:10px !important;
+  margin-bottom:7px !important;
+}
+.shift-widget-3 .widget-main{
+  font-size:14px !important;
+  line-height:1.2 !important;
+}
+.shift-widget-3 .widget-sub{
+  font-size:10px !important;
+  margin-top:6px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1037,9 +1060,10 @@ function saveShiftOnly(k,t){
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    const payload = { updatedAt: api.serverTimestamp() };
-    if(k) payload[`shiftData.${k}`] = t;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), payload, {merge:true})
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
+      shiftData,
+      updatedAt:api.serverTimestamp()
+    }, {merge:true})
     .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
     .finally(()=>{savingRemote=false;});
   }
@@ -1235,7 +1259,7 @@ function renderS(){
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openAddModal()">+ 추가</button></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
-    ${typeof renderWeekView === 'function' ? renderWeekView() : ''}
+    ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
     <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ${doneOpen?'▲':'▼'}</div>
     ${doneSection}
@@ -1645,14 +1669,30 @@ function onWidgetClick(el){
 }
 
 
+
+function renderNoticeBanner(){
+  const td=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
+  const req=requests.filter(r=>!isDone(r));
+  if(!td.length && !req.length)return '';
+  const parts=[];
+  if(td.length)parts.push(`오늘 일정 ${td.length}개`);
+  if(req.length)parts.push(`부탁 ${req.length}개`);
+  return `<div class="notice-banner">🔔 ${parts.join(' · ')} 확인해 주세요</div>`;
+}
+
 function renderShiftWidget(){
-  const s=shiftData[todayKey()]||'OFF';
-  return `<div class="widget-wrap" style="grid-template-columns:1fr">
-    <div class="widget-card">
-      <div class="widget-title">오늘 근무</div>
-      <div class="widget-main"><span class="shift-one ${SCLS[s]}">${s}</span></div>
-      <div class="widget-sub">${STXT[s]||'근무 정보'}</div>
-    </div>
+  const labels=['TODAY','T+1','T+2'];
+  const keys=[todayKey(),addDaysStr(todayKey(),1),addDaysStr(todayKey(),2)];
+  return `<div class="widget-wrap shift-widget-3">
+    ${keys.map((k,i)=>{
+      const s=shiftData[k]||'OFF';
+      const d=new Date(k+'T00:00:00');
+      return `<div class="widget-card">
+        <div class="widget-title">${labels[i]} · ${d.getMonth()+1}/${d.getDate()}</div>
+        <div class="widget-main"><span class="shift-one ${SCLS[s]}">${s}</span></div>
+        <div class="widget-sub">${STXT[s]||'근무 정보'}</div>
+      </div>`;
+    }).join('')}
   </div>`;
 }
 
@@ -1672,10 +1712,6 @@ function renderHomeWidgets(){
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
     </div>
   </div>`;
-}
-
-function renderNoticeBanner(){
-  return '';
 }
 
 function renderManualNotice(){
