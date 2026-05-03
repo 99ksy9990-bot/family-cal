@@ -1037,9 +1037,10 @@ function saveShiftOnly(k,t){
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    const payload={updatedAt:api.serverTimestamp()};
-    if(k) payload[`shiftData.${k}`]=t;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), payload, {merge:true})
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
+      shiftData,
+      updatedAt:api.serverTimestamp()
+    }, {merge:true})
     .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
     .finally(()=>{savingRemote=false;});
   }
@@ -1198,19 +1199,14 @@ function makeCard(n){
   </div>`;
 }
 
-function renderDoneFilters(){
-  if(!doneOpen)return '';
-  return `${renderDoneFilters()}`;
-}
+
 function renderS(){
   let active=notes.filter(n=>{
-      if(isDone(n)) return false;
-      if(!matchSearchNote(n)) return false;
-      if(filterToday){
-        return occursOn(n,todayKey());
-      }
-      return (subF==='all'||n.type===subF);
-    });
+    if(isDone(n)) return false;
+    if(!matchSearchNote(n)) return false;
+    if(filterToday) return occursOn(n,todayKey());
+    return (subF==='all'||n.type===subF||n.who===subF);
+  });
   let doneFilt=notes.filter(n=>{
     if(!isDone(n))return false;
     if(!matchSearchNote(n))return false;
@@ -1218,6 +1214,18 @@ function renderS(){
     if(!n.start)return true;
     return new Date(n.start)>=doneAfter();
   });
+
+  const doneSection = doneOpen ? `
+    <div class="period-row">
+      <span class="period-lbl">기간</span>
+      <button class="period-chip${donePer==='1w'?' on':''}" onclick="setPer('1w')">1주</button>
+      <button class="period-chip${donePer==='1m'?' on':''}" onclick="setPer('1m')">1개월</button>
+      <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
+      <button class="period-chip${donePer==='all'?' on':''}" onclick="setPer('all')">전체</button>
+    </div>
+    <div class="card-wrap" style="margin-top:10px">${doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>'}</div>
+  ` : '';
+
   return`
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     <div class="filter-row">
@@ -1228,16 +1236,10 @@ function renderS(){
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openAddModal()">+ 추가</button></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
-    ${renderWeekView()}
+    ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
-    <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ▼</div>
-    <div class="filter-row">
-      <button class="chip-btn cb-all${doneF==='all'?' on':''}" onclick="setDoneF('all')">전체</button>
-      <button class="chip-btn cb-f${doneF==='family'?' on':''}" onclick="setDoneF('family')">가족</button>
-      <button class="chip-btn cb-p${doneF==='personal'?' on':''}" onclick="setDoneF('personal')">개인</button>
-      <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
-    </div>
-    ${renderDoneFilters()}${doneOpen ? (doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
+    <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ${doneOpen?'▲':'▼'}</div>
+    ${doneSection}
   `;
 }
 
@@ -1647,6 +1649,11 @@ function onWidgetClick(el){
 function renderShiftWidget(){
   const s=shiftData[todayKey()]||'OFF';
   return `<div class="widget-wrap" style="grid-template-columns:1fr">
+    <div class="widget-card">
+      <div class="widget-title">오늘 근무</div>
+      <div class="widget-main"><span class="shift-one ${SCLS[s]}">${s}</span></div>
+      <div class="widget-sub">${STXT[s]||'근무 정보'}</div>
+    </div>
   </div>`;
 }
 
@@ -1654,17 +1661,11 @@ function renderHomeWidgets(){
   if(main!=='s')return '';
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
-  const todayShift=shiftData[todayKey]||'OFF';
   return `<div class="widget-wrap">
     <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
-    </div>
-    <div class="widget-card">
-      <div class="widget-title">오늘 근무</div>
-      <div class="widget-main"><span class="shift-one ${SCLS[todayShift]}">${todayShift}</span></div>
-      <div class="widget-sub">${STXT[todayShift]||'근무 정보'}</div>
     </div>
     <div class="widget-card" data-action="request" onclick="onWidgetClick(this)">
       <div class="widget-title">부탁</div>
@@ -1673,6 +1674,201 @@ function renderHomeWidgets(){
     </div>
   </div>`;
 }
+
+function renderManualNotice(){
+  const list=(notices||[]).filter(n=>!n.read).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!list.length)return '';
+  const n=list[0];
+  return `<div class="notice-manual" onclick="openNoticeList()" style="cursor:pointer">
+    <div class="nt-title">📌 ${escapeHtml(n.title||'가족 공지')}</div>
+    <div class="nt-body">${escapeHtml(n.body||'')}</div>
+    ${list.length>1?`<div class="nt-body" style="margin-top:4px">외 ${list.length-1}개 공지</div>`:''}
+  </div>`;
+}
+
+function openNoticeList(){
+  const list=[...(notices||[])].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">가족 공지</div>
+      ${list.length?list.map(n=>`<div class="card" style="margin-bottom:8px">
+        <div class="c-title">${escapeHtml(n.title||'가족 공지')}</div>
+        <div class="c-meta"><span class="chip chip-g">${n.read?'읽음':'새 공지'}</span></div>
+        <div style="font-size:13px;color:var(--t2);line-height:1.45;margin-top:8px">${escapeHtml(n.body||'')}</div>
+        <div class="action-grid">
+          <button class="toss-btn" onclick="markNoticeRead('${n.id}')">읽음</button>
+          <button class="toss-btn primary" onclick="openNoticeModal('${n.id}')">수정</button>
+        </div>
+      </div>`).join(''):'<div class="empty">등록된 공지가 없어요</div>'}
+      <button class="primary-btn" onclick="openNoticeModal()">+ 공지 추가</button>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+
+function markNoticeRead(id){
+  const n=(notices||[]).find(x=>String(x.id)===String(id));
+  if(n){n.read=true;saveAll();render();}
+}
+
+function openNoticeModal(id){
+  const n=id?(notices||[]).find(x=>String(x.id)===String(id)):null;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${n?'공지 수정':'공지 추가'}</div>
+      <div class="ml">제목</div>
+      <input class="mi" id="nt-title" placeholder="예: 이번 주 금요일 조기하교" value="${n?escapeAttr(n.title):''}"/>
+      <div class="ml">내용</div>
+      <textarea class="ta" id="nt-body" placeholder="가족에게 공유할 내용을 적어주세요">${n?escapeHtml(n.body||''):''}</textarea>
+      <button class="primary-btn" onclick="saveNotice('${n?n.id:''}')">저장</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+
+function saveNotice(id){
+  const title=(document.getElementById('nt-title')||{}).value||'';
+  const body=(document.getElementById('nt-body')||{}).value||'';
+  if(!title.trim())return;
+  if(id){
+    const n=(notices||[]).find(x=>String(x.id)===String(id)); if(!n)return;
+    n.title=title.trim(); n.body=body; n.read=false;
+  }else{
+    notices.unshift({id:Date.now(),title:title.trim(),body,read:false,createdAt:Date.now()});
+  }
+  saveAll();closeM();render();
+}
+
+function monthlyStats(){
+  const y=calY,m=calM;
+  const first=dk(y,m,1), last=dk(y,m,new Date(y,m+1,0).getDate());
+  const monthNotes=notes.filter(n=>n.start && n.start>=first && n.start<=last);
+  const done=monthNotes.filter(n=>isDone(n)).length;
+  const doneRate=monthNotes.length?Math.round(done/monthNotes.length*100):0;
+  const reqTotal=requests.length;
+  const reqDone=requests.filter(r=>isDone(r)).length;
+  const reqRate=reqTotal?Math.round(reqDone/reqTotal*100):0;
+  const shiftCount=getShiftCount(y,m);
+  return {total:monthNotes.length,done,doneRate,reqTotal,reqDone,reqRate,shiftCount};
+}
+
+function renderStatsCard(){
+  const s=monthlyStats();
+  return `<div class="stat-grid">
+    <div class="stat-card"><div class="stat-k">이번 달 완료</div><div class="stat-v">${s.done}/${s.total}</div></div>
+    <div class="stat-card"><div class="stat-k">일정 완료율</div><div class="stat-v">${s.doneRate}%</div></div>
+    <div class="stat-card"><div class="stat-k">부탁 처리율</div><div class="stat-v">${s.reqRate}%</div></div>
+    <div class="stat-card"><div class="stat-k">근무 분포</div><div class="stat-v" style="font-size:14px;line-height:1.7">D ${s.shiftCount.D} · E ${s.shiftCount.E}<br>N ${s.shiftCount.N} · OFF ${s.shiftCount.OFF}</div></div>
+  </div>`;
+}
+
+function openDetailNote(id){
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const dts=dateTimeRange(n)||'날짜 없음';
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(n.title)}</div>
+      <div class="detail-row"><span class="detail-key">구분</span><span class="detail-val">${typeName(n.type)}</span></div>
+      <div class="detail-row"><span class="detail-key">대상</span><span class="detail-val">${escapeHtml(n.who||'공통')}</span></div>
+      <div class="detail-row"><span class="detail-key">일시</span><span class="detail-val">${dts}</span></div>
+      <div class="detail-row"><span class="detail-key">반복</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
+      ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">반복 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
+      ${n.alertMemo?`<div class="detail-row"><span class="detail-key">알림 메모</span><span class="detail-val">${escapeHtml(n.alertMemo)}</span></div>`:''}
+      ${n.comment?`<div class="detail-row"><span class="detail-key">메모</span><span class="detail-val">${escapeHtml(n.comment)}</span></div>`:''}
+      <div class="action-grid">
+        <button class="toss-btn primary" onclick="openEditNote('${n.id}')">수정</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function downloadBackup(){
+  const data=currentData();
+  data.backupAt=new Date().toISOString();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`패스_백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function openRestore(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">백업 복구</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.5">백업 JSON 파일을 선택하면 현재 데이터가 백업 내용으로 교체됩니다.</div>
+      <div class="ml">백업 파일</div>
+      <input class="mi" type="file" id="restore-file" accept="application/json,.json"/>
+      <button class="primary-btn" onclick="restoreBackup()">복구하기</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+
+function restoreBackup(){
+  const f=document.getElementById('restore-file')?.files?.[0];
+  if(!f)return alert('파일을 선택해 주세요.');
+  if(!confirm('현재 데이터를 백업 파일 내용으로 교체할까요?'))return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const d=JSON.parse(reader.result);
+      normalizeData(d);
+      saveAll();
+      closeM();
+      render();
+      alert('복구 완료');
+    }catch(e){
+      alert('백업 파일을 읽을 수 없습니다.');
+    }
+  };
+  reader.readAsText(f);
+}
+
+function openShareTools(){
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">공유하기</div>
+      <div class="share-banner" style="margin:0">
+        <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${url}</div></div>
+        <button class="share-btn" onclick="copyShareLink()">복사</button>
+      </div>
+      <div class="qr-box"><canvas id="qr-canvas"></canvas></div>
+      <div class="action-grid">
+        <button class="toss-btn primary" onclick="shareNative()">공유</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    if(window.QRCode){
+      QRCode.toCanvas(document.getElementById('qr-canvas'),url,{width:180,margin:1});
+    }
+  },50);
+}
+
+function shareNative(){
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  if(navigator.share){
+    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
+  }else{
+    copyShareLink();
+  }
+}
+
 function render(){
   let h='';
   if(main==='s')h=renderS();
