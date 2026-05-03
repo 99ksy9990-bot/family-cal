@@ -969,6 +969,64 @@ body{
   .holiday-title{background:#4A0F1E;color:#FF6685}
 }
 
+
+/* 최종 보완: 일정 정렬/선택패널 스크롤/근무 위젯 탭 제한 */
+.sec-action-row{
+  justify-content:flex-start !important;
+  gap:8px !important;
+}
+.mini-toggle-btn{
+  margin-left:auto;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:11px;
+  font-weight:900;
+  font-family:inherit;
+}
+.compact-shift-widget .widget-sub{display:none !important}
+
+
+/* 근무 일괄 선택 / 진단 보강 */
+.shift-bulk-bar{
+  margin:8px 10px 0;
+  padding:10px;
+  border-radius:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.shift-bulk-count{
+  font-size:11px;
+  font-weight:900;
+  color:var(--t2);
+  margin-right:2px;
+}
+.shift-bulk-chip{
+  height:28px;
+  min-width:36px;
+  padding:0 8px;
+  border:none;
+  border-radius:10px;
+  font-size:11px;
+  font-weight:900;
+  font-family:inherit;
+}
+.shift-bulk-chip.clear{background:var(--bg);color:var(--t2)}
+.cal-cell.bulk-sel{
+  outline:3px solid rgba(0,122,255,.35) !important;
+  background:var(--blue-bg) !important;
+}
+@media (prefers-color-scheme: dark){
+  .shift-bulk-bar{background:var(--card);border-color:var(--border)}
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1123,7 +1181,8 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all';
+let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
+let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
@@ -1220,11 +1279,11 @@ function annualHolidayName(k){
   return '';
 }
 
-function holidayName(k){return KR_HOLIDAYS[k]||annualHolidayName(k)||''}
+function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return (c&&c.name)||KR_HOLIDAYS[k]||annualHolidayName(k)||''}
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],shiftData={};
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],shiftData={};
 let shiftKeepOnlyMay2026Done_v3=false;
 let shiftKeepOnlyMay2026NeedsSave=false;
 let roomId = getRoomId();
@@ -1398,7 +1457,9 @@ function normalizeData(d){
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
+  customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
   family=Array.isArray(d.family)?d.family:base.family;
+  customHolidays.forEach(h=>{if(!h.id)h.id=Date.now()+Math.random(); if(!h.name)h.name='공휴일';});
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
   purgeOldTrash(false);
   shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
@@ -1406,7 +1467,7 @@ function normalizeData(d){
   shiftData=d.shiftData||{};
   applyMay2026ShiftMigration();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -1632,6 +1693,20 @@ function renderWeekView(){
     </div><div class="week-wrap">${days.join('')}</div>`;
 }
 
+
+function scheduleSortKey(n){
+  const k=n.repeat?nextOccurrence(n,todayKey()):(n.start||'9999-12-31');
+  return `${k}|${n.sT||'99:99'}|${String(n.id||'')}`;
+}
+function toggleScheduleSort(){
+  scheduleSort=scheduleSort==='date'?'manual':'date';
+  render();
+}
+function sortScheduleList(arr){
+  if(scheduleSort!=='date')return arr;
+  return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
+}
+
 function renderS(){
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
@@ -1639,6 +1714,7 @@ function renderS(){
     if(filterToday) return occursOn(n,todayKey());
     return (subF==='all'||n.type===subF||n.who===subF);
   });
+  active=sortScheduleList(active);
   let doneFilt=notes.filter(n=>{
     if(!isDone(n))return false;
     if(!matchSearchNote(n))return false;
@@ -1646,6 +1722,7 @@ function renderS(){
     if(!n.start)return true;
     return new Date(n.start)>=doneAfter();
   });
+  doneFilt=sortScheduleList(doneFilt);
 
   const doneSection = doneOpen ? `
     <div class="period-row">
@@ -1666,7 +1743,12 @@ function renderS(){
       <button class="chip-btn cb-p${subF==='personal'?' on':''}" onclick="filterToday=false;setSub('personal')">개인</button>
       <button class="chip-btn cb-w${subF==='work'?' on':''}" onclick="filterToday=false;setSub('work')">회사</button>
     </div>
-    <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openAddModal()">+ 추가</button></div>
+    <div class="sec sec-action-row">
+      <span>진행 중</span>
+      <span class="sec-cnt">${active.length}</span>
+      <button class="mini-toggle-btn" onclick="toggleScheduleSort()">${scheduleSort==='date'?'날짜순':'입력순'}</button>
+      <button style="margin-left:6px" class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
+    </div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
     ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
@@ -1699,18 +1781,19 @@ function renderC(){
     const hName=holidayName(key);
     const isToday=y===TY&&m===TM&&d===TD;
     const isSel=selDate===key;
+    const isBulk=shiftSelectedDates.includes(key);
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
     const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
-    g+=`<div class="cal-cell${isSel?' sel':''}"
-      onclick="selCal('${key}')"
-      onmousedown="startLongAdd(event,'${key}')"
+    g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
+      onclick="${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
+      onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
       onmouseleave="cancelLongAdd()"
-      ontouchstart="startLongAdd(event,'${key}')"
+      ontouchstart="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
       <div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div>
@@ -1720,13 +1803,13 @@ function renderC(){
   }
 
   let evHtml='';
-  if(selDate){
+  if(selDate && !shiftSelectMode){
     const sp=selDate.split('-');
     const cur=shiftData[selDate]||'';
     const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
     const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     const selHoliday=holidayName(selDate);
-    evHtml=`<div class="ev-card">
+    evHtml=`<div class="ev-card" id="selected-day-panel">
       <div class="ev-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
         <button class="small-link cal-edit-link" onclick="openAddModal('${selDate}')">+ 일정 추가</button>
@@ -1768,6 +1851,7 @@ function renderC(){
       <button class="chip-btn cb-all${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
       ${getPersons().map(p=>`<button class="chip-btn cb-f${calWhoF===p?' on':''}" onclick="calWhoF='${p}';render()">${escapeHtml(p)}</button>`).join('')}
     </div>
+    ${renderShiftBulkBar()}
     <div class="cal-card">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="chCal(-1)">‹</button>
@@ -1792,7 +1876,19 @@ function renderC(){
 function setShift(k,t){
   if(!requireEditMode())return;
 shiftData[k]=t||'';saveShiftOnly(k,t||'');render()}
-function selCal(k){selDate=selDate===k?null:k;const sp=k.split('-');calY=+sp[0];calM=+sp[1]-1;render()}
+function selCal(k){
+  selDate=selDate===k?null:k;
+  const sp=k.split('-');
+  calY=+sp[0];
+  calM=+sp[1]-1;
+  render();
+  if(selDate){
+    setTimeout(()=>{
+      const el=document.getElementById('selected-day-panel');
+      if(el && el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'});
+    },60);
+  }
+}
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
 
 function renderI(){
@@ -1838,6 +1934,12 @@ function renderI(){
     <div class="action-grid" style="margin:12px 0">
       <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
       <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+      <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
+      <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
+      <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
+      <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
+      <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
+      <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
       <button class="toss-btn" onclick="openTrash()">휴지통</button>
       <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
       <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
@@ -2167,6 +2269,8 @@ function deleteTrashForever(id){
   saveAll();openTrash();
 }
 function emptyTrash(){
+  autoBackupBefore('휴지통 비우기 전');
+
   if(!requireEditMode())return;
 
   if(!confirm('휴지통을 모두 비울까요?'))return;
@@ -2174,6 +2278,8 @@ function emptyTrash(){
   saveAll();openTrash();
 }
 function repairData(){
+  autoBackupBefore('데이터 점검 전');
+
   if(!requireEditMode())return;
   const validTypes=['family','personal','work'];
   const validRepeats=['','daily','weekly','monthly'];
@@ -2289,6 +2395,227 @@ function restoreRepeatException(id,k){
 
 
 
+
+
+function clearShiftData(){
+  autoBackupBefore('근무표 전체 초기화 전');
+
+  if(!requireEditMode())return;
+  const cnt=Object.keys(shiftData||{}).filter(k=>shiftData[k]).length;
+  if(!cnt){
+    alert('초기화할 근무 데이터가 없어요.');
+    return;
+  }
+  if(!confirm(`근무표 데이터 ${cnt}개를 모두 미입력으로 초기화할까요?`))return;
+  shiftData={};
+  // 기존 2026년 5월 1회 정리 플래그가 있더라도 이후 입력은 그대로 저장되도록 유지
+  if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
+  saveAll();
+  render();
+  alert('근무표 전체 초기화 완료');
+}
+
+function prunePastShiftData(){
+  autoBackupBefore('과거 근무 정리 전');
+
+  if(!requireEditMode())return;
+  const today=todayKey();
+  const keys=Object.keys(shiftData||{}).filter(k=>k<today && shiftData[k]);
+  if(!keys.length){
+    alert('정리할 과거 근무 데이터가 없어요.');
+    return;
+  }
+  if(!confirm(`오늘 이전 근무 데이터 ${keys.length}개를 미입력으로 정리할까요?`))return;
+  keys.forEach(k=>delete shiftData[k]);
+  saveAll();
+  render();
+  alert('과거 근무 데이터 정리 완료');
+}
+
+
+function autoBackupBefore(label){
+  try{
+    const key=SK.data+'_auto_backups';
+    const list=JSON.parse(localStorage.getItem(key)||'[]');
+    list.unshift({label,time:new Date().toISOString(),data:currentData()});
+    localStorage.setItem(key,JSON.stringify(list.slice(0,5)));
+  }catch(e){console.warn(e)}
+}
+function openAutoBackups(){
+  let list=[];
+  try{list=JSON.parse(localStorage.getItem(SK.data+'_auto_backups')||'[]')}catch(e){}
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">자동 백업</div>
+      ${list.length?list.map((b,i)=>`<div class="trash-item">
+        <div class="trash-title">${escapeHtml(b.label||'백업')}</div>
+        <div class="trash-sub">${new Date(b.time||Date.now()).toLocaleString()}</div>
+        <div class="action-grid"><button class="toss-btn primary" onclick="restoreAutoBackup(${i})">복구</button></div>
+      </div>`).join(''):'<div class="empty">자동 백업이 없어요</div>'}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function restoreAutoBackup(i){
+  if(!requireEditMode())return;
+  let list=[];
+  try{list=JSON.parse(localStorage.getItem(SK.data+'_auto_backups')||'[]')}catch(e){}
+  const b=list[i]; if(!b||!b.data)return;
+  if(!confirm('이 자동 백업으로 복구할까요?'))return;
+  normalizeData(b.data);
+  saveAll();closeM();render();
+}
+
+function openDiagnostics(){
+  const dataStr=JSON.stringify(currentData());
+  const sw=('serviceWorker' in navigator)?(navigator.serviceWorker.controller?'등록됨':'지원됨/대기중'):'미지원';
+  const localSize=(dataStr.length/1024).toFixed(1)+' KB';
+  const shiftCnt=Object.keys(shiftData||{}).filter(k=>shiftData[k]).length;
+  const last=currentData().updatedAt?new Date(currentData().updatedAt).toLocaleString():'-';
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">앱 진단</div>
+      <div class="detail-row"><span class="detail-key">현재 방</span><span class="detail-val">${escapeHtml(roomId)}</span></div>
+      <div class="detail-row"><span class="detail-key">Firebase</span><span class="detail-val">${remoteReady?'연결됨':(window.__firebaseReady?'준비됨':'로컬 모드')}</span></div>
+      <div class="detail-row"><span class="detail-key">편집 모드</span><span class="detail-val">${isEditMode()?'켜짐':'꺼짐'}</span></div>
+      <div class="detail-row"><span class="detail-key">Service Worker</span><span class="detail-val">${sw}</span></div>
+      <div class="detail-row"><span class="detail-key">앱 버전</span><span class="detail-val">${APP_VERSION}</span></div>
+      <div class="detail-row"><span class="detail-key">로컬 데이터</span><span class="detail-val">${localSize}</span></div>
+      <div class="detail-row"><span class="detail-key">근무 데이터</span><span class="detail-val">${shiftCnt}개</span></div>
+      <div class="detail-row"><span class="detail-key">마지막 저장</span><span class="detail-val">${last}</span></div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+async function clearAppCache(){
+  if(!confirm('앱 캐시를 초기화하고 새로고침할까요?'))return;
+  try{
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+    if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+  }catch(e){console.warn(e)}
+  location.reload();
+}
+
+function toggleShiftSelectMode(){
+  shiftSelectMode=!shiftSelectMode;
+  shiftSelectedDates=[];
+  selDate=null;
+  render();
+}
+function toggleShiftDate(k){
+  const idx=shiftSelectedDates.indexOf(k);
+  if(idx>=0)shiftSelectedDates.splice(idx,1);
+  else shiftSelectedDates.push(k);
+  shiftSelectedDates.sort();
+  render();
+}
+function clearShiftSelected(){
+  shiftSelectedDates=[];
+  render();
+}
+function applyBulkShift(t){
+  if(!requireEditMode())return;
+  if(!shiftSelectedDates.length){
+    alert('근무를 입력할 날짜를 선택해 주세요.');
+    return;
+  }
+  const label=t||'미입력';
+  if(!confirm(`선택한 날짜 ${shiftSelectedDates.length}개를 ${label}(으)로 변경할까요?`))return;
+  autoBackupBefore('근무 일괄 입력 전');
+  shiftSelectedDates.forEach(k=>{
+    if(t)shiftData[k]=t;
+    else delete shiftData[k];
+  });
+  saveAll();
+  render();
+}
+function renderShiftBulkBar(){
+  return `<div class="shift-bulk-bar">
+    <button class="toss-btn ${shiftSelectMode?'primary':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'근무 일괄 선택'}</button>
+    ${shiftSelectMode?`<span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
+      <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
+      <button class="shift-bulk-chip s-e" onclick="applyBulkShift('E')">E</button>
+      <button class="shift-bulk-chip s-n" onclick="applyBulkShift('N')">N</button>
+      <button class="shift-bulk-chip s-off" onclick="applyBulkShift('OFF')">OFF</button>
+      <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
+      <button class="shift-bulk-chip clear" onclick="clearShiftSelected()">선택 해제</button>`:''}
+  </div>`;
+}
+
+function openHolidayManager(){
+  const list=[...(customHolidays||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">공휴일 관리</div>
+      <div class="ml">날짜</div>
+      <input class="picker-field empty" id="hol-date" readonly data-val="" value="날짜 선택" onclick="openDatePicker('hol-date')"/>
+      <div class="ml">공휴일 이름</div>
+      <input class="mi" id="hol-name" placeholder="예: 우리 가족 기념일"/>
+      <button class="primary-btn" onclick="saveCustomHoliday()">추가</button>
+      <div class="div"></div>
+      ${list.length?list.map(h=>`<div class="trash-item">
+        <div class="trash-title">${dateLabel(h.date)} · ${escapeHtml(h.name)}</div>
+        <div class="action-grid"><button class="toss-btn" onclick="delCustomHoliday('${h.id}')">삭제</button></div>
+      </div>`).join(''):'<div class="empty">추가한 공휴일이 없어요</div>'}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function saveCustomHoliday(){
+  if(!requireEditMode())return;
+  const date=getPickerVal('hol-date');
+  const name=(document.getElementById('hol-name')||{}).value||'';
+  if(!date||!name.trim())return alert('날짜와 이름을 입력해 주세요.');
+  customHolidays.push({id:Date.now(),date,name:name.trim()});
+  saveAll();openHolidayManager();render();
+}
+function delCustomHoliday(id){
+  if(!requireEditMode())return;
+  if(!confirm('이 공휴일을 삭제할까요?'))return;
+  customHolidays=customHolidays.filter(h=>String(h.id)!==String(id));
+  saveAll();openHolidayManager();render();
+}
+
+function copyNoteWithDate(id){
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const def=n.start||todayKey();
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">복사 후 날짜 변경</div>
+      <div class="ml">새 날짜</div>
+      <input class="picker-field" id="copy-date" readonly data-val="${def}" value="${dateLabel(def)}" onclick="openDatePicker('copy-date')"/>
+      <button class="primary-btn" onclick="saveCopyNoteWithDate('${id}')">복사하기</button>
+      <button class="cancel-link" onclick="openDetailNote('${id}')">취소</button>
+    </div>
+  </div>`;
+}
+function saveCopyNoteWithDate(id){
+  if(!requireEditMode())return;
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const date=getPickerVal('copy-date')||todayKey();
+  const c=deepCopy(n);
+  c.id=Date.now();
+  c.title=(c.title||'일정')+' 복사';
+  c.start=date;
+  c.end='';
+  c.done=false;
+  notes.push(c);
+  saveAll();closeM();render();
+}
 
 function setMain(t){
   if(main!==t){searchQ='';searchDraft='';}
@@ -2496,6 +2823,7 @@ function openDetailNote(id){
       <div class="action-grid">
         <button class="toss-btn primary" onclick="openEditNote('${n.id}')">수정</button>
         <button class="toss-btn" onclick="copyNote('${n.id}')">복사</button>
+        <button class="toss-btn" onclick="copyNoteWithDate('${n.id}')">날짜 변경 복사</button>
         ${n.repeat?`<button class="toss-btn" onclick="openRepeatExceptions('${n.id}')">예외 보기</button>`:''}
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
@@ -2530,6 +2858,8 @@ function openRestore(){
 }
 
 function restoreBackup(){
+  autoBackupBefore('백업 복구 전');
+
   if(!requireEditMode())return;
 
   const f=document.getElementById('restore-file')?.files?.[0];
