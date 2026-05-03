@@ -507,6 +507,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   height:7px !important;
 }
 
+
+/* 위젯 클릭 보정 */
+.widget-card{cursor:pointer}
+.widget-card:active{transform:scale(.98)}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -911,11 +916,12 @@ function renderS(){
     return new Date(n.start)>=doneAfter();
   });
   return`
+    ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     <div class="filter-row">
-      <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="setSub('all')">전체</button>
-      <button class="chip-btn cb-f${subF==='family'?' on':''}" onclick="setSub('family')">가족</button>
-      <button class="chip-btn cb-p${subF==='personal'?' on':''}" onclick="setSub('personal')">개인</button>
-      <button class="chip-btn cb-w${subF==='work'?' on':''}" onclick="setSub('work')">회사</button>
+      <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="filterToday=false;setSub('all')">전체</button>
+      <button class="chip-btn cb-f${subF==='family'?' on':''}" onclick="filterToday=false;setSub('family')">가족</button>
+      <button class="chip-btn cb-p${subF==='personal'?' on':''}" onclick="filterToday=false;setSub('personal')">개인</button>
+      <button class="chip-btn cb-w${subF==='work'?' on':''}" onclick="filterToday=false;setSub('work')">회사</button>
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
@@ -1308,6 +1314,25 @@ function setMain(t){
 }
 
 
+
+
+function onWidgetClick(el){
+  const action = el?.dataset?.action || '';
+  if(action==='today'){
+    main='s';
+    subF='all';
+    searchQ='';
+    searchDraft='';
+    filterToday=true;
+    updateTabUI();
+    render();
+    return;
+  }
+  if(action==='request'){
+    setMain('r');
+    return;
+  }
+}
 
 function renderHomeWidgets(){
   if(main!=='s')return '';
