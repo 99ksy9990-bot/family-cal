@@ -968,6 +968,10 @@ function getRoomId(){
 
 
 
+
+function todayKey(){return dk(TY,TM,TD)}
+function tomorrowKey(){return addDaysStr(todayKey(),1)}
+
 function addDaysStr(dateStr,days){
   const d=new Date(dateStr+'T00:00:00');
   d.setDate(d.getDate()+days);
@@ -1023,36 +1027,23 @@ function normalizeData(d){
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   family=Array.isArray(d.family)?d.family:base.family;
   shiftData=d.shiftData||{};
-  // 사용자가 입력해둔 근무 값은 유지하고, 비어 있는 날짜만 랜덤으로 채움
-  const randShift=['D','E','N','OFF'];
-  for(let y=TY;y<=TY+1;y++){
-    for(let m=0;m<12;m++){
-      const dn=new Date(y,m+1,0).getDate();
-      for(let dd=1;dd<=dn;dd++){
-        const k=dk(y,m,dd);
-        if(!shiftData[k]) shiftData[k]=randShift[Math.floor(Math.random()*randShift.length)];
-      }
-    }
-  }
 }
 function currentData(){return {notes,family,requests,memories,notices,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
-function saveShiftOnly(){
+function saveShiftOnly(k,t){
   saveLocal();
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
-      shiftData,
-      updatedAt:api.serverTimestamp()
-    }, {merge:true})
+    const payload={updatedAt:api.serverTimestamp()};
+    if(k) payload[`shiftData.${k}`]=t;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), payload, {merge:true})
     .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
     .finally(()=>{savingRemote=false;});
   }
 }
-
 function saveAll(){
   saveLocal();
   if(remoteReady && window.__firebaseAPI && hydrated){
@@ -1207,13 +1198,16 @@ function makeCard(n){
   </div>`;
 }
 
+function renderDoneFilters(){
+  if(!doneOpen)return '';
+  return `${renderDoneFilters()}`;
+}
 function renderS(){
   let active=notes.filter(n=>{
       if(isDone(n)) return false;
       if(!matchSearchNote(n)) return false;
       if(filterToday){
-        const todayKey=dk(TY,TM,TD);
-        return occursOn(n,todayKey);
+        return occursOn(n,todayKey());
       }
       return (subF==='all'||n.type===subF);
     });
@@ -1243,14 +1237,7 @@ function renderS(){
       <button class="chip-btn cb-p${doneF==='personal'?' on':''}" onclick="setDoneF('personal')">개인</button>
       <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
     </div>
-    <div class="period-row">
-      <span class="period-lbl">기간</span>
-      <button class="period-chip${donePer==='1w'?' on':''}" onclick="setPer('1w')">1주</button>
-      <button class="period-chip${donePer==='1m'?' on':''}" onclick="setPer('1m')">1개월</button>
-      <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
-      <button class="period-chip${donePer==='all'?' on':''}" onclick="setPer('all')">전체</button>
-    </div>
-    <div class="card-wrap" style="margin-top:10px">${doneOpen ? (doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
+    ${renderDoneFilters()}${doneOpen ? (doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
   `;
 }
 
@@ -1332,7 +1319,7 @@ function renderC(){
     ${evHtml}
   </div>`;
 }
-function setShift(k,t){shiftData[k]=t;saveShiftOnly();render()}
+function setShift(k,t){shiftData[k]=t;saveShiftOnly(k,t);render()}
 function selCal(k){selDate=selDate===k?null:k;const sp=k.split('-');calY=+sp[0];calM=+sp[1]-1;render()}
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
 
@@ -1656,10 +1643,16 @@ function onWidgetClick(el){
   }
 }
 
+
+function renderShiftWidget(){
+  const s=shiftData[todayKey()]||'OFF';
+  return `<div class="widget-wrap" style="grid-template-columns:1fr">
+  </div>`;
+}
+
 function renderHomeWidgets(){
   if(main!=='s')return '';
-  const todayKey=dk(TY,TM,TD);
-  const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey));
+  const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
   const todayShift=shiftData[todayKey]||'OFF';
   return `<div class="widget-wrap">
@@ -1687,7 +1680,7 @@ function render(){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h;
+  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderShiftWidget()+renderHomeWidgets()+renderSearchBox()+h;
 }
 
 function copyShareLink(){
@@ -1736,6 +1729,8 @@ function openAddModal(dateVal){
         <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
         <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
       </div>
+      <div class="ml">알림 메모</div>
+      <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인, 당일 챙기기"/>
       <button class="primary-btn" onclick="saveNote()">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -1759,7 +1754,7 @@ function selWho(w){
 function saveNote(){
   const ti=(document.getElementById('m-ti')||{}).value||'';
   if(!ti.trim())return;
-  notes.push({id:Date.now(),title:ti.trim(),who:_mWho,type:_mType,repeat:(document.getElementById('m-rp')||{}).value||'',repeatEnd:getPickerVal('m-re'),start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,comment:''});
+  notes.push({id:Date.now(),title:ti.trim(),who:_mWho,type:_mType,repeat:(document.getElementById('m-rp')||{}).value||'',repeatEnd:getPickerVal('m-re'),start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,alertMemo:(document.getElementById('m-alert')||{}).value||'',comment:''});
   saveAll();closeM();render();
 }
 
@@ -1791,7 +1786,7 @@ function openEditNote(id){
         <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
       </select>
       <div class="ml">반복 종료일</div>
-    <input class="picker-field empty" id="e-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+    <input class="picker-field empty" id="e-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('e-re')"/>
     <div class="ml">날짜</div>
       <div class="mi-2">
         <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
@@ -1802,6 +1797,8 @@ function openEditNote(id){
         <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
         <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
       </div>
+      <div class="ml">알림 메모</div>
+      <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
       <div class="ml">코멘트</div>
       <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
       <button class="primary-btn" onclick="saveEditNote('${id}')">저장</button>
@@ -1820,6 +1817,7 @@ function saveEditNote(id){
   n.end=getPickerVal('e-ed');
   n.sT=getPickerVal('e-st');
   n.eT=getPickerVal('e-et');
+  n.alertMemo=(document.getElementById('e-alert')||{}).value||'';
   n.comment=document.getElementById('e-cm').value;
   saveAll();closeM();render();
 }
