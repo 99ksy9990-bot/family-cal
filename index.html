@@ -947,6 +947,28 @@ body{
   height:8px !important;
 }
 
+
+/* 근무표 초기화/공휴일/주말 표시 보정 */
+.cal-dname.sun-dname{color:#ff3b30 !important}
+.cal-dname.sat-dname{color:#007aff !important}
+.cal-num.sat-n{color:#007aff !important;font-weight:900}
+.cal-num.holiday-n{color:#ff3b30 !important;font-weight:900}
+.cal-num.today-n{color:#fff !important;background:var(--blue) !important}
+.holiday-title{
+  display:inline-flex;
+  margin-left:5px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:#FFF0F3;
+  color:#C0002C;
+  font-size:10px;
+  font-weight:900;
+  vertical-align:middle;
+}
+@media (prefers-color-scheme: dark){
+  .holiday-title{background:#4A0F1E;color:#FF6685}
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1132,7 +1154,79 @@ function getPersons(){
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
+const KR_HOLIDAYS={
+  '2026-01-01':'신정',
+  '2026-02-16':'설날 연휴',
+  '2026-02-17':'설날',
+  '2026-02-18':'설날 연휴',
+  '2026-03-01':'삼일절',
+  '2026-03-02':'삼일절 대체공휴일',
+  '2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날',
+  '2026-05-25':'부처님오신날 대체공휴일',
+  '2026-06-03':'전국동시지방선거일',
+  '2026-06-06':'현충일',
+  '2026-08-15':'광복절',
+  '2026-08-17':'광복절 대체공휴일',
+  '2026-09-24':'추석 연휴',
+  '2026-09-25':'추석',
+  '2026-09-26':'추석 연휴',
+  '2026-10-03':'개천절',
+  '2026-10-05':'개천절 대체공휴일',
+  '2026-10-09':'한글날',
+  '2026-12-25':'크리스마스',
+  '2027-01-01':'신정',
+  '2027-02-06':'설날 연휴',
+  '2027-02-07':'설날',
+  '2027-02-08':'설날 연휴',
+  '2027-02-09':'설날 대체공휴일',
+  '2027-03-01':'삼일절',
+  '2027-05-05':'어린이날',
+  '2027-05-13':'부처님오신날',
+  '2027-06-06':'현충일',
+  '2027-08-15':'광복절',
+  '2027-08-16':'광복절 대체공휴일',
+  '2027-09-14':'추석 연휴',
+  '2027-09-15':'추석',
+  '2027-09-16':'추석 연휴',
+  '2027-10-03':'개천절',
+  '2027-10-04':'개천절 대체공휴일',
+  '2027-10-09':'한글날',
+  '2027-10-11':'한글날 대체공휴일',
+  '2027-12-25':'크리스마스',
+  '2027-12-27':'크리스마스 대체공휴일'
+};
+
+const KR_ANNUAL_HOLIDAYS={
+  '05-01':'노동절',
+  '07-17':'제헌절'
+};
+function annualHolidayName(k){
+  const md=k.slice(5);
+  if(KR_ANNUAL_HOLIDAYS[md])return KR_ANNUAL_HOLIDAYS[md];
+
+  const [yy]=k.split('-').map(Number);
+  for(const mdKey of Object.keys(KR_ANNUAL_HOLIDAYS)){
+    const [mm,dd]=mdKey.split('-').map(Number);
+    const base=new Date(yy,mm-1,dd);
+    const day=base.getDay();
+    let sub=null;
+    if(day===6)sub=new Date(yy,mm-1,dd+2);
+    else if(day===0)sub=new Date(yy,mm-1,dd+1);
+    if(sub && dk(sub.getFullYear(),sub.getMonth(),sub.getDate())===k){
+      return KR_ANNUAL_HOLIDAYS[mdKey]+' 대체공휴일';
+    }
+  }
+  return '';
+}
+
+function holidayName(k){return KR_HOLIDAYS[k]||annualHolidayName(k)||''}
+function isHolidayKey(k){return !!holidayName(k)}
+
+
 let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],shiftData={};
+let shiftCleanupMay2026Done=false;
+let shiftCleanupMay2026NeedsSave=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -1273,6 +1367,84 @@ function notesOnDateAll(y,m,d){
   });
 }
 
+
+function keepOnlyMay2026Shifts(){
+  let changed=false;
+  Object.keys(shiftData||{}).forEach(k=>{
+    if(!k.startsWith('2026-05-')){
+      delete shiftData[k];
+      changed=true;
+    }
+  });
+  return changed;
+}
+function applyInitialMay2026ShiftCleanup(){
+  if(shiftCleanupMay2026Done)return false;
+  const changed=keepOnlyMay2026Shifts();
+  shiftCleanupMay2026Done=true;
+  if(changed)shiftCleanupMay2026NeedsSave=true;
+  return changed;
+}
+function openShiftResetModal(){
+  const years=[];
+  const curY=new Date().getFullYear();
+  for(let y=curY-1;y<=curY+3;y++)years.push(y);
+  const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">근무표 초기화</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.5">
+        선택한 년/월의 근무 데이터를 미입력으로 초기화합니다.
+      </div>
+      <div class="ml">년도 · 월 선택</div>
+      <div class="mi-2">
+        <select class="mi" id="shift-clear-year">${opts(years,curY)}</select>
+        <select class="mi" id="shift-clear-month">${opts(Array.from({length:12},(_,i)=>i+1),new Date().getMonth()+1)}</select>
+      </div>
+      <button class="primary-btn" onclick="clearShiftMonthFromModal()">선택한 월 초기화</button>
+      <button class="toss-btn" style="width:100%;margin-top:8px" onclick="keepOnlyMay2026FromModal()">2026년 5월만 유지</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+function clearShiftMonthFromModal(){
+  if(!requireEditMode())return;
+  const y=String((document.getElementById('shift-clear-year')||{}).value||'');
+  const m=String((document.getElementById('shift-clear-month')||{}).value||'').padStart(2,'0');
+  if(!y||!m)return;
+  const prefix=`${y}-${m}-`;
+  const keys=Object.keys(shiftData||{}).filter(k=>k.startsWith(prefix)&&shiftData[k]);
+  if(!keys.length){
+    alert(`${y}년 ${Number(m)}월에 초기화할 근무 데이터가 없어요.`);
+    return;
+  }
+  if(!confirm(`${y}년 ${Number(m)}월 근무 데이터 ${keys.length}개를 미입력으로 초기화할까요?`))return;
+  keys.forEach(k=>delete shiftData[k]);
+  saveAll();
+  closeM();
+  render();
+  alert('근무표 초기화 완료');
+}
+function keepOnlyMay2026FromModal(){
+  if(!requireEditMode())return;
+  const keys=Object.keys(shiftData||{}).filter(k=>!k.startsWith('2026-05-')&&shiftData[k]);
+  if(!keys.length){
+    shiftCleanupMay2026Done=true;
+    saveAll();
+    alert('이미 2026년 5월 외 근무 데이터가 없어요.');
+    return;
+  }
+  if(!confirm(`2026년 5월만 남기고 나머지 근무 데이터 ${keys.length}개를 미입력으로 바꿀까요?`))return;
+  keepOnlyMay2026Shifts();
+  shiftCleanupMay2026Done=true;
+  saveAll();
+  closeM();
+  render();
+  alert('2026년 5월만 유지 완료');
+}
+
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
@@ -1285,9 +1457,12 @@ function normalizeData(d){
   family=Array.isArray(d.family)?d.family:base.family;
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
   purgeOldTrash(false);
+  shiftCleanupMay2026Done=d.shiftCleanupMay2026Done===true;
+  shiftCleanupMay2026NeedsSave=false;
   shiftData=d.shiftData||{};
+  applyInitialMay2026ShiftCleanup();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,shiftCleanupMay2026Done,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -1327,6 +1502,7 @@ function saveAll(){
 async function initData(){
   try{
     normalizeData(loadLocal()||DEFAULT_DATA);
+    if(shiftCleanupMay2026NeedsSave){saveLocal();}
     hydrated=true;
     render();
 
@@ -1358,6 +1534,10 @@ async function initData(){
       }else{
         normalizeData(snap.data());
         saveLocal();
+        if(shiftCleanupMay2026NeedsSave){
+          shiftCleanupMay2026NeedsSave=false;
+          await api.setDoc(ref,{shiftData,shiftCleanupMay2026Done:true,updatedAt:api.serverTimestamp()},{merge:true});
+        }
         render();
       }
 
@@ -1562,16 +1742,19 @@ function renderC(){
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
   let g='';
-  DAYS.forEach(d=>{g+=`<div class="cal-dname">${d}</div>`});
+  DAYS.forEach((d,idx)=>{g+=`<div class="cal-dname${idx===0?' sun-dname':idx===6?' sat-dname':''}">${d}</div>`});
   for(let i=0;i<firstDay;i++)g+=`<div></div>`;
   for(let d=1;d<=dInM;d++){
     const key=dk(y,m,d);
+    const dayOfWeek=new Date(y,m,d).getDay();
+    const hName=holidayName(key);
     const isToday=y===TY&&m===TM&&d===TD;
     const isSel=selDate===key;
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
     const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
+    const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isSel?' sel':''}"
       onclick="selCal('${key}')"
@@ -1581,7 +1764,7 @@ function renderC(){
       ontouchstart="startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
-      <div class="cal-num${isToday?' today-n':''}">${d}</div>
+      <div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div>
       <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
       <div class="cal-dots">${dots}</div>
     </div>`;
@@ -1593,9 +1776,10 @@ function renderC(){
     const cur=shiftData[selDate]||'';
     const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
     const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
+    const selHoliday=holidayName(selDate);
     evHtml=`<div class="ev-card">
       <div class="ev-hd">
-        <span>${+sp[1]}/${+sp[2]} 일정</span>
+        <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
         <button class="small-link cal-edit-link" onclick="openAddModal('${selDate}')">+ 일정 추가</button>
       </div>
       <div class="shift-picker">
@@ -1702,10 +1886,10 @@ function renderI(){
       <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
       <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
     </div>`}
-    ${renderStatsCard()}
     <div class="action-grid" style="margin:12px 0">
       <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
       <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+      <button class="toss-btn" onclick="clearFutureShifts()">근무표 초기화</button>
       <button class="toss-btn" onclick="openTrash()">휴지통</button>
       <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
       <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
@@ -2155,6 +2339,9 @@ function restoreRepeatException(id,k){
   saveAll();openRepeatExceptions(id);render();
 }
 
+
+function clearFutureShifts(){openShiftResetModal();}
+
 function setMain(t){
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
@@ -2197,6 +2384,7 @@ function renderNoticeBanner(){
 }
 
 function renderShiftWidget(){
+  if(main!=='s')return '';
   const labels=['오늘','내일','모레'];
   const keys=[todayKey(),addDaysStr(todayKey(),1),addDaysStr(todayKey(),2)];
   return `<div class="widget-wrap shift-widget-3 compact-shift-widget">
