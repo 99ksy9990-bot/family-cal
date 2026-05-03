@@ -448,6 +448,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   padding:0 2px;
 }
 
+
+/* 탭 디자인: 선택 전 실선 텍스트 상자, 선택 시 채움 */
+.tab-bar{gap:7px}
+.tab{
+  background:#fff !important;
+  border:1.5px solid var(--border) !important;
+  box-shadow:none !important;
+}
+.tab-s{color:var(--blue-t)}
+.tab-c{color:var(--green-t)}
+.tab-r{color:var(--orange-t)}
+.tab-m{color:var(--pink-t)}
+.tab-i{color:var(--purple-t)}
+.tab-s.on{background:var(--blue) !important;border-color:var(--blue) !important;color:#fff !important}
+.tab-c.on{background:var(--green) !important;border-color:var(--green) !important;color:#fff !important}
+.tab-r.on{background:var(--orange) !important;border-color:var(--orange) !important;color:#fff !important}
+.tab-m.on{background:var(--pink) !important;border-color:var(--pink) !important;color:#fff !important}
+.tab-i.on{background:var(--purple) !important;border-color:var(--purple) !important;color:#fff !important}
+
+
+.search-line{display:flex;gap:8px}
+.search-apply{
+  width:58px;
+  border-radius:16px;
+  border:none;
+  background:var(--blue);
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  font-family:inherit;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
@@ -478,9 +510,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
   <div class="tab-bar">
     <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
-    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
     <button class="tab tab-r" id="tab-r" onclick="setMain('r')">부탁</button>
     <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기억</button>
+    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
   </div>
 
   <div id="body"></div>
@@ -516,7 +548,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',donePer='1m',searchQ='',isComposing=false;
+let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false;
 let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
@@ -1197,45 +1229,29 @@ function matchSearchReq(r){
   return [r.title,r.writer,r.comment].some(v=>normText(v).includes(q));
 }
 
-let searchTimer=null;
-function onSearchInput(el){
-  searchQ=el.value;
-  if(isComposing)return;
-  clearTimeout(searchTimer);
-  searchTimer=setTimeout(()=>{
-    render();
-    setTimeout(()=>{
-      const input=document.getElementById('search-input');
-      if(input){
-        input.focus();
-        const len=input.value.length;
-        try{input.setSelectionRange(len,len)}catch(e){}
-      }
-    },0);
-  },120);
-}
-function onSearchCompositionEnd(el){
-  isComposing=false;
-  searchQ=el.value;
-  clearTimeout(searchTimer);
+function applySearch(){
+  searchQ=searchDraft.trim();
   render();
-  setTimeout(()=>{
-    const input=document.getElementById('search-input');
-    if(input){
-      input.focus();
-      const len=input.value.length;
-      try{input.setSelectionRange(len,len)}catch(e){}
-    }
-  },0);
 }
-
+function clearSearch(){
+  searchQ='';
+  searchDraft='';
+  render();
+}
 function renderSearchBox(){
   if(main!=='s' && main!=='r')return '';
+  const ph=main==='s'?'일정 검색':'부탁 검색';
+  const cur=searchDraft||searchQ;
   return `<div class="search-wrap">
-    <input id="search-input" class="search-input" value="${escapeAttr(searchQ)}" placeholder="${main==='s'?'일정 검색':'부탁 검색'}"
-      oncompositionstart="isComposing=true"
-      oncompositionend="onSearchCompositionEnd(this)"
-      oninput="onSearchInput(this)"/>
+    <div class="search-line">
+      <input id="search-input" class="search-input" value="${escapeAttr(cur)}" placeholder="${ph}"
+        oncompositionstart="isComposing=true"
+        oncompositionend="isComposing=false;searchDraft=this.value"
+        oninput="searchDraft=this.value"
+        onkeydown="if(event.key==='Enter'){applySearch()}"/>
+      <button class="search-apply" onclick="applySearch()">검색</button>
+    </div>
+    ${searchQ?`<button class="cancel-link" style="margin-top:6px;padding:4px 0" onclick="clearSearch()">검색 초기화</button>`:''}
   </div>`;
 }
 
@@ -1257,7 +1273,7 @@ function updateTabUI(){
 }
 
 function setMain(t){
-  if(main!==t)searchQ='';
+  if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
   main=t;
   updateTabUI();
