@@ -1027,6 +1027,116 @@ body{
   .shift-bulk-bar{background:var(--card);border-color:var(--border)}
 }
 
+
+/* 관리 센터 / 일괄 선택 / 자동 가족정보 */
+.topbar{position:relative}
+.manage-btn{
+  position:absolute;
+  right:18px;
+  top:24px;
+  height:32px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  font-size:12px;
+  font-weight:900;
+  font-family:inherit;
+  box-shadow:0 4px 12px rgba(15,23,42,.07);
+}
+.shift-bulk-bar{
+  margin:8px 10px 0;
+  padding:8px 9px;
+  border-radius:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.shift-count-row{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  flex:1 1 auto;
+  min-width:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.shift-count-row::-webkit-scrollbar{display:none}
+.shift-count-item{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  font-size:11px;
+  font-weight:900;
+  color:var(--t2);
+}
+.shift-count-item .leg-chip{
+  min-width:26px;
+  height:21px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.shift-bulk-main-btn{
+  flex:0 0 auto;
+  height:32px !important;
+  padding:0 12px !important;
+  font-size:12px !important;
+}
+.shift-bulk-actions{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding-top:6px;
+}
+.shift-bulk-count{
+  font-size:11px;
+  font-weight:900;
+  color:var(--t2);
+}
+.shift-bulk-chip{
+  height:28px;
+  min-width:36px;
+  padding:0 8px;
+  border:none;
+  border-radius:10px;
+  font-size:11px;
+  font-weight:900;
+  font-family:inherit;
+}
+.shift-bulk-chip.clear{background:var(--bg);color:var(--t2)}
+.cal-cell.bulk-sel{
+  outline:3px solid rgba(0,122,255,.35) !important;
+  background:var(--blue-bg) !important;
+}
+.cal-legend.family-only-legend{
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto;
+}
+.cal-legend.family-only-legend .leg{
+  font-size:12px !important;
+  gap:5px !important;
+}
+.cal-legend.family-only-legend .leg-dot{
+  width:9px !important;
+  height:9px !important;
+}
+.auto-info-chip{background:#F2EEFF;color:#4C1D95;font-weight:900}
+.auto-info-card{border-style:dashed !important}
+.manage-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.manage-section-title{font-size:12px;color:var(--t3);font-weight:900;margin:16px 0 6px}
+@media (prefers-color-scheme: dark){
+  .manage-btn,.shift-bulk-bar{background:var(--card);border-color:var(--border)}
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1064,6 +1174,7 @@ body{
       <div class="app-name">패스</div>
       <div class="app-sub">Family Scheduler</div>
     </div>
+    <button class="manage-btn" onclick="openManageCenter()">관리</button>
     
   </div>
 
@@ -1420,10 +1531,11 @@ function nextOccurrence(n,fromKey=dk(TY,TM,TD)){
 }
 function notesOnDateAll(y,m,d){
   const k=dk(y,m,d);
-  return notes.filter(n=>!isDone(n)&&occursOn(n,k)).map(n=>{
+  const normal=notes.filter(n=>!isDone(n)&&occursOn(n,k)).map(n=>{
     if(n.repeat) return {...n,start:k,end:k,_repeatInstance:true};
     return n;
   });
+  return [...normal,...familyInfoEventsOnDate(y,m,d)];
 }
 
 
@@ -1447,6 +1559,62 @@ function applyMay2026ShiftMigration(){
 
 
 
+
+
+function parseTimeFromText(v){
+  const s=String(v||'');
+  let m=s.match(/([01]?\d|2[0-3])[:시]\s*([0-5]\d)?/);
+  if(!m)return '';
+  const h=String(Number(m[1])).padStart(2,'0');
+  const mm=String(m[2]!==undefined?Number(m[2]):0).padStart(2,'0');
+  return `${h}:${mm}`;
+}
+function familyInfoEventsOnDate(y,m,d){
+  const dow=new Date(y,m,d).getDay();
+  const date=dk(y,m,d);
+  const out=[];
+  (family||[]).forEach(kid=>{
+    (kid.cats||[]).forEach((cat,ci)=>{
+      (cat.items||[]).forEach((item,ii)=>{
+        const val=String(item.val||'').trim();
+        const days=Array.isArray(item.days)?item.days:[];
+        if(!val || !days.includes(dow))return;
+        out.push({
+          id:`auto-${kid.id||kid.name}-${ci}-${ii}-${date}`,
+          title:`${kid.name||'아이'} ${cat.label}: ${val}`,
+          type:'family',
+          who:kid.name||'공통',
+          start:date,
+          end:'',
+          sT:parseTimeFromText(val),
+          eT:'',
+          repeat:'weekly',
+          done:false,
+          comment:'',
+          alertMemo:'',
+          _autoFamilyInfo:true,
+          _cat:cat.label,
+          _raw:val
+        });
+      });
+    });
+  });
+  return out;
+}
+function familyInfoUpcomingEvents(days=30){
+  const arr=[];
+  for(let i=0;i<days;i++){
+    const k=addDaysStr(todayKey(),i);
+    const [y,m,d]=k.split('-').map(Number);
+    arr.push(...familyInfoEventsOnDate(y,m-1,d));
+  }
+  return arr;
+}
+function autoInfoMatchesFilter(n){
+  if(subF==='all')return true;
+  if(subF==='family')return true;
+  return (n.who||'공통')===subF;
+}
 
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
@@ -1636,6 +1804,27 @@ function highlightText(s){
 }
 
 function makeCard(n){
+  if(n._autoFamilyInfo){
+    const dts=dateTimeRange(n);
+    return`<div class="card auto-info-card">
+      <div class="c-row">
+        <div class="ev-dot df" style="margin-top:8px"></div>
+        <div class="c-body">
+          <div class="c-title">${highlightText(n.title)}</div>
+          <div class="c-meta">
+            <span class="chip chip-f">가족</span>
+            <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
+            <span class="chip auto-info-chip">정보 자동</span>
+            ${dts?`<span class="chip chip-g">${dts}</span>`:''}
+          </div>
+        </div>
+        <div class="c-right">
+          <button class="small-link" onclick="setMain('i')">정보</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
   const dts=dateTimeRange(n);
   const done=isDone(n);
   return`<div class="card" onclick="openDetailNote('${n.id}')" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
@@ -1656,7 +1845,8 @@ function makeCard(n){
         ${done&&!n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
       </div>
       <div class="c-right">
-<button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
+        <button class="small-link" onclick="event.stopPropagation();copyNoteWithDate?copyNoteWithDate('${n.id}'):copyNote('${n.id}')">복사</button>
+        <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
         <button class="small-link" onclick="event.stopPropagation();delNote('${n.id}')">삭제</button>
       </div>
     </div>
@@ -1668,6 +1858,49 @@ function makeCard(n){
 function toggleWeek(){
   weekOpen=!weekOpen;
   render();
+}
+function openManageCenter(){
+  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">관리 센터</div>
+      <div class="version-card">
+        <div class="version-title">패스 ${APP_VERSION}</div>
+        <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
+        <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
+      </div>
+
+      <div class="manage-section-title">공유</div>
+      <div class="share-banner" style="margin:0">
+        <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+        <button class="share-btn" onclick="copyShareLink()">복사</button>
+      </div>
+      <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
+
+      <div class="manage-section-title">관리</div>
+      <div class="manage-grid">
+        <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
+        <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+        <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
+        <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
+        <button class="toss-btn" onclick="openTrash()">휴지통</button>
+        <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
+        <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
+        <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
+        <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
+        <button class="toss-btn" onclick="openRestore()">백업 복구</button>
+        <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
+        <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
+        <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
+        <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
+        <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
+        <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
 }
 function renderWeekView(){
   if(main!=='s')return '';
@@ -1714,6 +1947,14 @@ function renderS(){
     if(filterToday) return occursOn(n,todayKey());
     return (subF==='all'||n.type===subF||n.who===subF);
   });
+
+  const autoActive=familyInfoUpcomingEvents(filterToday?1:30).filter(n=>{
+    if(!autoInfoMatchesFilter(n))return false;
+    if(!matchSearchNote(n))return false;
+    if(filterToday)return occursOn(n,todayKey());
+    return true;
+  });
+  active=[...active,...autoActive];
   active=sortScheduleList(active);
   let doneFilt=notes.filter(n=>{
     if(!isDone(n))return false;
@@ -1822,6 +2063,9 @@ function renderC(){
       ${evs.length||mems.length?[
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
+          if(n._autoFamilyInfo){
+            return`<div class="ev-item"><div class="ev-dot df"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">정보 자동 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">정보에서 수정</button></div></div></div>`;
+          }
           return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
             <div class="ev-dot ${dotCls(n.type)}"></div>
             <div style="min-width:0;flex:1">
@@ -1859,11 +2103,7 @@ function renderC(){
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
-      <div class="cal-legend">
-        <div class="leg"><span class="leg-chip s-d">D</span>${sc.D}</div>
-        <div class="leg"><span class="leg-chip s-e">E</span>${sc.E}</div>
-        <div class="leg"><span class="leg-chip s-n">N</span>${sc.N}</div>
-        <div class="leg"><span class="leg-chip s-off">OFF</span>${sc.OFF}</div>
+      <div class="cal-legend family-only-legend">
         <div class="leg"><span class="leg-dot" style="background:var(--green)"></span>가족</div>
         <div class="leg"><span class="leg-dot" style="background:var(--pink)"></span>개인</div>
         <div class="leg"><span class="leg-dot" style="background:var(--blue)"></span>회사</div>
@@ -1904,7 +2144,6 @@ function renderI(){
       </div>
       <div class="fi-row"><span class="fi-key">학년·반·번호</span><span style="font-size:12px;font-weight:700">${escapeHtml(gs||'미입력')}</span></div>`;
     kid.cats.forEach((cat,ci)=>{
-      const isEtc=cat.label==='기타';
       h+=`<div class="cat-hd"><span class="cat-lbl">${escapeHtml(cat.label)}</span>
         <div class="cat-hd-r">
           <button class="cat-add" onclick="addRow(${ki},${ci})">+ 추가</button>
@@ -1913,10 +2152,10 @@ function renderI(){
       cat.items.forEach((item,ii)=>{
         h+=`<div class="fi-row" style="flex-direction:column;align-items:flex-start;gap:4px">
           <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
-            <span class="fi-key">${isEtc?'내용':daysFmt(item.days)}</span>
+            <span class="fi-key">${daysFmt(item.days)}</span>
             <button class="row-del" onclick="delRow(${ki},${ci},${ii})">✕</button>
           </div>
-          ${!isEtc?`<div class="day-sel">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleDay(${ki},${ci},${ii},${di})">${d}</button>`).join('')}</div>`:''}
+          <div class="day-sel">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleDay(${ki},${ci},${ii},${di})">${d}</button>`).join('')}</div>
           <input class="fi-input" style="text-align:left;max-width:100%" value="${escapeAttr(item.val)}" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
         </div>`;
       });
@@ -1924,37 +2163,7 @@ function renderI(){
     });
     h+=`</div>`;
   });
-  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
-  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button>
-    ${`<div class="version-card">
-      <div class="version-title">패스 ${APP_VERSION}</div>
-      <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
-      <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
-    </div>`}
-    <div class="action-grid" style="margin:12px 0">
-      <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
-      <button class="toss-btn" onclick="repairData()">데이터 점검</button>
-      <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
-      <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
-      <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
-      <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
-      <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
-      <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
-      <button class="toss-btn" onclick="openTrash()">휴지통</button>
-      <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
-      <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
-      <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
-      <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
-      <button class="toss-btn" onclick="openRestore()">백업 복구</button>
-      <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
-      <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
-    </div>
-    <div class="share-banner" style="margin:12px 0 0">
-      <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
-      <button class="share-btn" onclick="copyShareLink()">복사</button>
-    </div>
-    <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
-  </div>`;
+  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button></div>`;
   return h;
 }
 function toggleDay(ki,ci,ii,di){
@@ -2506,6 +2715,10 @@ async function clearAppCache(){
   location.reload();
 }
 
+
+
+
+
 function toggleShiftSelectMode(){
   shiftSelectMode=!shiftSelectMode;
   shiftSelectedDates=[];
@@ -2536,19 +2749,29 @@ function applyBulkShift(t){
     if(t)shiftData[k]=t;
     else delete shiftData[k];
   });
+  if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
   saveAll();
   render();
 }
 function renderShiftBulkBar(){
+  const sc=getShiftCount(calY,calM);
   return `<div class="shift-bulk-bar">
-    <button class="toss-btn ${shiftSelectMode?'primary':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'근무 일괄 선택'}</button>
-    ${shiftSelectMode?`<span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
+    <div class="shift-count-row">
+      <span class="shift-count-item"><span class="leg-chip s-d">D</span>${sc.D}</span>
+      <span class="shift-count-item"><span class="leg-chip s-e">E</span>${sc.E}</span>
+      <span class="shift-count-item"><span class="leg-chip s-n">N</span>${sc.N}</span>
+      <span class="shift-count-item"><span class="leg-chip s-off">OFF</span>${sc.OFF}</span>
+    </div>
+    <button class="toss-btn shift-bulk-main-btn ${shiftSelectMode?'primary':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
+    ${shiftSelectMode?`<div class="shift-bulk-actions">
+      <span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
       <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
       <button class="shift-bulk-chip s-e" onclick="applyBulkShift('E')">E</button>
       <button class="shift-bulk-chip s-n" onclick="applyBulkShift('N')">N</button>
       <button class="shift-bulk-chip s-off" onclick="applyBulkShift('OFF')">OFF</button>
       <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
-      <button class="shift-bulk-chip clear" onclick="clearShiftSelected()">선택 해제</button>`:''}
+      <button class="shift-bulk-chip clear" onclick="clearShiftSelected()">선택 해제</button>
+    </div>`:''}
   </div>`;
 }
 
