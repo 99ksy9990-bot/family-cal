@@ -32,7 +32,7 @@
 -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAetOk4YV9OTl7fjQOJAVcapWXmFHETLeQ",
@@ -53,7 +53,7 @@
       const app = initializeApp(FIREBASE_CONFIG);
       const db = getFirestore(app);
       window.__firebaseReady = true;
-      window.__firebaseAPI = { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp };
+      window.__firebaseAPI = { db, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp };
     } catch (e) {
       console.warn("Firebase 초기화 실패. 로컬 저장으로 동작합니다.", e);
     }
@@ -783,6 +783,28 @@ body{
   margin-top:6px !important;
 }
 
+
+/* 안정성/편의 기능 */
+.trash-item{background:#fff;border-radius:16px;padding:12px;margin-bottom:8px;box-shadow:0 3px 10px rgba(15,23,42,.06)}
+.trash-title{font-size:13px;font-weight:900}
+.trash-sub{font-size:11px;color:var(--t3);margin-top:4px}
+.imp-chip{background:#FFF4E5;color:#7A3800;font-weight:900}
+.cal-filter{padding:0 0 8px !important}
+.quick-actions{display:flex;gap:6px;margin-top:8px}
+.quick-actions button{border:none;border-radius:12px;padding:6px 8px;font-size:11px;font-weight:900;font-family:inherit;background:#EAF3FF;color:#0055B3}
+.notice-manual.important{background:#FFF4E5;color:#7A3800}
+.longpress-hint{font-size:10px;color:var(--t3);text-align:center;margin-top:4px}
+
+
+/* 버전/편집 잠금 */
+.version-card{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:0 4px 14px rgba(15,23,42,.06);margin:12px 0}
+.version-title{font-size:14px;font-weight:950}
+.version-sub{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.45}
+.edit-pill{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:99px;font-size:11px;font-weight:900}
+.edit-on{background:#EDFAF2;color:#1A7A36}
+.edit-off{background:#FFF0F3;color:#C0002C}
+.log-list{font-size:13px;line-height:1.6;color:var(--t2)}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -836,6 +858,74 @@ body{
 </div>
 
 <script>
+
+const APP_VERSION='v1.0.0';
+const APP_UPDATED='2026-05-03';
+const UPDATE_LOG=[
+  '편집 모드 / 보기 모드 추가',
+  '버전 표시 / 업데이트 내역 추가',
+  '데이터 점검 강화',
+  '중복 일정 방지',
+  '근무표 저장 최적화',
+  '공지 / 휴지통 / 백업 / QR 공유 기능 정리'
+];
+let editUnlocked=false;
+try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
+function isEditMode(){return editUnlocked}
+function requireEditMode(){
+  if(editUnlocked)return true;
+  if(confirm('편집 모드로 전환할까요?')){
+    editUnlocked=true;
+    try{sessionStorage.setItem('pass_edit_unlocked','1')}catch(e){}
+    render();
+    return true;
+  }
+  return false;
+}
+function lockEditMode(){
+  editUnlocked=false;
+  try{sessionStorage.removeItem('pass_edit_unlocked')}catch(e){}
+  render();
+}
+function toggleEditMode(){
+  if(isEditMode()) lockEditMode();
+  else{
+    editUnlocked=true;
+    try{sessionStorage.setItem('pass_edit_unlocked','1')}catch(e){}
+    render();
+  }
+}
+function openUpdateLog(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">업데이트 내역</div>
+      <div class="version-card">
+        <div class="version-title">패스 ${APP_VERSION}</div>
+        <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
+      </div>
+      <div class="log-list">${UPDATE_LOG.map(x=>`• ${escapeHtml(x)}`).join('<br>')}</div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function openSecurityGuide(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">보안 안내</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.55">
+        현재 보기/편집 모드는 앱 안에서 실수 수정을 막는 장치입니다.<br><br>
+        Firebase 규칙이 <b>allow read, write: if true</b>이면 링크를 아는 사람은 직접 데이터에 접근할 수 있어요.<br><br>
+        더 강한 보안은 Firebase Authentication 또는 서버 권한 설정이 필요합니다.
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+
 const SK={data:'fam_shared_v8_data',room:'fam_shared_v8_room'};
 const DEFAULT_DATA={
   notes:[
@@ -862,12 +952,13 @@ const DEFAULT_DATA={
       {label:'하교 시간',items:[]},{label:'학원',items:[]},{label:'기타',items:[]}
     ]}
   ],
-  shiftData:{}
+  shiftData:{},
+  deletedItems:[]
 };
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false;
+let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all';
 let weekOpen=false;
 let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
@@ -898,7 +989,7 @@ function getPersons(){
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
-let notes=[],family=[],requests=[],memories=[],notices=[],shiftData={};
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],shiftData={};
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -935,7 +1026,7 @@ function getShiftCount(y,m){
   const counts={D:0,E:0,N:0,OFF:0};
   const days=new Date(y,m+1,0).getDate();
   for(let d=1;d<=days;d++){
-    const s=shiftData[dk(y,m,d)]||'OFF';
+    const s=shiftData[dk(y,m,d)];
     if(counts[s]!==undefined)counts[s]++;
   }
   return counts;
@@ -996,16 +1087,16 @@ function todayKey(){return dk(TY,TM,TD)}
 function tomorrowKey(){return addDaysStr(todayKey(),1)}
 
 function addDaysStr(dateStr,days){
-  const d=new Date(dateStr+'T00:00:00');
-  d.setDate(d.getDate()+days);
-  return d.toISOString().slice(0,10);
+  const [y,m,d]=dateStr.split('-').map(Number);
+  const nd=new Date(y,m-1,d+days);
+  return dk(nd.getFullYear(),nd.getMonth(),nd.getDate());
 }
 function addMonthsStr(dateStr,months){
   const [y,m,d]=dateStr.split('-').map(Number);
   const nd=new Date(y,m-1+months,1);
   const last=new Date(nd.getFullYear(),nd.getMonth()+1,0).getDate();
   nd.setDate(Math.min(d,last));
-  return nd.toISOString().slice(0,10);
+  return dk(nd.getFullYear(),nd.getMonth(),nd.getDate());
 }
 function occursOn(n,key){
   if(!n.start) return false;
@@ -1048,10 +1139,13 @@ function normalizeData(d){
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
+  deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   family=Array.isArray(d.family)?d.family:base.family;
+  notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
+  purgeOldTrash(false);
   shiftData=d.shiftData||{};
 }
-function currentData(){return {notes,family,requests,memories,notices,shiftData,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -1060,12 +1154,21 @@ function saveShiftOnly(k,t){
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
-      shiftData,
-      updatedAt:api.serverTimestamp()
-    }, {merge:true})
-    .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
-    .finally(()=>{savingRemote=false;});
+    const ref=api.doc(api.db,'familyCalendars',roomId);
+    const finish=()=>{savingRemote=false};
+    if(k && api.updateDoc && api.FieldPath){
+      api.updateDoc(ref, new api.FieldPath('shiftData', k), t, 'updatedAt', api.serverTimestamp())
+        .catch(e=>{
+          console.warn(e);
+          return api.setDoc(ref,{shiftData,updatedAt:api.serverTimestamp()},{merge:true});
+        })
+        .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
+        .finally(finish);
+    }else{
+      api.setDoc(ref,{shiftData,updatedAt:api.serverTimestamp()},{merge:true})
+        .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
+        .finally(finish);
+    }
   }
 }
 function saveAll(){
@@ -1171,9 +1274,13 @@ function notesOnDate(y,m,d){
   });
 }
 
-function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
+function toggleNote(id){
+  if(!requireEditMode())return;
+const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
 
 function skipRepeatInstance(id,dateKey){
+  if(!requireEditMode())return;
+
   const n=notes.find(x=>String(x.id)===String(id));
   if(!n || !n.repeat)return;
   if(!confirm('이번 회차만 삭제할까요?'))return;
@@ -1183,7 +1290,9 @@ function skipRepeatInstance(id,dateKey){
   render();
 }
 
-function delNote(id){if(!confirmDelete('이 일정을 삭제할까요?'))return;notes=notes.filter(x=>String(x.id)!==String(id));saveAll();render()}
+function delNote(id){
+  if(!requireEditMode())return;
+if(!confirmDelete('이 일정을 삭제할까요?'))return;const idx=notes.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('note',notes[idx]);notes.splice(idx,1);saveAll();render();}}
 
 
 function highlightText(s){
@@ -1222,6 +1331,33 @@ function makeCard(n){
   </div>`;
 }
 
+
+
+function toggleWeek(){
+  weekOpen=!weekOpen;
+  render();
+}
+function renderWeekView(){
+  if(main!=='s')return '';
+  if(!weekOpen){
+    return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
+      이번 주 <span class="sec-cnt">접힘</span><button style="margin-left:auto" class="toss-btn">펼치기</button>
+    </div>`;
+  }
+  const days=[];
+  for(let i=0;i<7;i++){
+    const k=addDaysStr(todayKey(),i);
+    const d=new Date(k+'T00:00:00');
+    const list=notes.filter(n=>!isDone(n)&&occursOn(n,k));
+    days.push(`<div class="week-day">
+      <div class="week-hd">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})</div>
+      ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
+    </div>`);
+  }
+  return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
+      이번 주 <span class="sec-cnt">펼침</span><button style="margin-left:auto" class="toss-btn">접기</button>
+    </div><div class="week-wrap">${days.join('')}</div>`;
+}
 
 function renderS(){
   let active=notes.filter(n=>{
@@ -1285,13 +1421,19 @@ function renderC(){
     const key=dk(y,m,d);
     const isToday=y===TY&&m===TM&&d===TD;
     const isSel=selDate===key;
-    const evs=notesOnDateAll(y,m,d);
+    const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
-    const cur=shiftData[key]||'OFF';
+    const cur=shiftData[key]||'';
     const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
-    g+=`<div class="cal-cell${isSel?' sel':''}" onclick="selCal('${key}')">
+    g+=`<div class="cal-cell${isSel?' sel':''}"
+      onclick="selCal('${key}')"
+      onmousedown="startLongAdd(event,'${key}')"
+      onmouseup="cancelLongAdd()"
+      onmouseleave="cancelLongAdd()"
+      ontouchstart="startLongAdd(event,'${key}')"
+      ontouchend="cancelLongAdd()">
       <div class="cal-num${isToday?' today-n':''}">${d}</div>
-      <div><span class="shift-one ${SCLS[cur]}">${cur}</span></div>
+      <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
       <div class="cal-dots">${dots}</div>
     </div>`;
   }
@@ -1299,19 +1441,20 @@ function renderC(){
   let evHtml='';
   if(selDate){
     const sp=selDate.split('-');
-    const cur=shiftData[selDate]||'OFF';
-    const evs=notesOnDateAll(+sp[0],+sp[1]-1,+sp[2]);
+    const cur=shiftData[selDate]||'';
+    const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
     const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     evHtml=`<div class="ev-card">
       <div class="ev-hd">${+sp[1]}/${+sp[2]} 일정</div>
       <div class="shift-picker">
         <span class="shift-picker-title">근무</span>
+        <button class="shift-btn${!cur?' on':''}" style="background:#fff;color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
         ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
       </div>
       ${evs.length||mems.length?[
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
-          return`<div class="ev-item"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div></div></div>`;
+          return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div>${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}${n.repeat?`<button class="small-link" style="margin-top:6px" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}</div></div>`;
         }),
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
@@ -1319,10 +1462,15 @@ function renderC(){
         })
       ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
+      <div class="longpress-hint">팁: 날짜를 길게 누르면 바로 일정 추가</div>
     </div>`;
   }
 
   return`<div class="cal-outer">
+    <div class="filter-row cal-filter">
+      <button class="chip-btn cb-all${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
+      ${getPersons().map(p=>`<button class="chip-btn cb-f${calWhoF===p?' on':''}" onclick="calWhoF='${p}';render()">${escapeHtml(p)}</button>`).join('')}
+    </div>
     <div class="cal-card">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="chCal(-1)">‹</button>
@@ -1344,7 +1492,9 @@ function renderC(){
     ${evHtml}
   </div>`;
 }
-function setShift(k,t){shiftData[k]=t;saveShiftOnly(k,t);render()}
+function setShift(k,t){
+  if(!requireEditMode())return;
+shiftData[k]=t||'';saveShiftOnly(k,t||'');render()}
 function selCal(k){selDate=selDate===k?null:k;const sp=k.split('-');calY=+sp[0];calM=+sp[1]-1;render()}
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
 
@@ -1383,33 +1533,58 @@ function renderI(){
   });
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button>
+    ${`<div class="version-card">
+      <div class="version-title">패스 ${APP_VERSION}</div>
+      <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
+      <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
+    </div>`}
     ${renderStatsCard()}
     <div class="action-grid" style="margin:12px 0">
       <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
+      <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+      <button class="toss-btn" onclick="openTrash()">휴지통</button>
+      <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
+      <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
+      <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
       <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
       <button class="toss-btn" onclick="openRestore()">백업 복구</button>
       <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
       <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
     </div>
     <div class="share-banner" style="margin:12px 0 0">
-      <div><div class="share-txt"><button class="toss-btn" style="margin-bottom:10px" onclick="openExport()">내보내기</button>
-      📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+      <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
       <button class="share-btn" onclick="copyShareLink()">복사</button>
     </div>
     <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
   </div>`;
   return h;
 }
-function toggleDay(ki,ci,ii,di){const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
-function updVal(ki,ci,ii,v){family[ki].cats[ci].items[ii].val=v;saveAll()}
-function addRow(ki,ci){const isEtc=family[ki].cats[ci].label==='기타';family[ki].cats[ci].items.push({days:isEtc?[]:[], val:''});saveAll();render();setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50)}
-function delRow(ki,ci,ii){if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveAll();render()}
-function delCat(ki,ci){if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
-function delKid(i){if(!confirmDelete('아이 정보를 삭제할까요?'))return;family.splice(i,1);saveAll();render()}
+function toggleDay(ki,ci,ii,di){
+  if(!requireEditMode())return;
+const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
+function updVal(ki,ci,ii,v){
+  if(!requireEditMode())return;
+family[ki].cats[ci].items[ii].val=v;saveAll()}
+function addRow(ki,ci){
+  if(!requireEditMode())return;
+const isEtc=family[ki].cats[ci].label==='기타';family[ki].cats[ci].items.push({days:isEtc?[]:[], val:''});saveAll();render();setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50)}
+function delRow(ki,ci,ii){
+  if(!requireEditMode())return;
+if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveAll();render()}
+function delCat(ki,ci){
+  if(!requireEditMode())return;
+if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
+function delKid(i){
+  if(!requireEditMode())return;
+if(!confirmDelete('아이 정보를 삭제할까요?'))return;if(family[i]){trashItem('kid',family[i]);family.splice(i,1);saveAll();render();}}
 
 
-function toggleReq(id){const r=requests.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;saveAll();render()}}
-function delReq(id){if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;requests=requests.filter(x=>String(x.id)!==String(id));saveAll();render()}
+function toggleReq(id){
+  if(!requireEditMode())return;
+const r=requests.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;saveAll();render()}}
+function delReq(id){
+  if(!requireEditMode())return;
+if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;const idx=requests.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('request',requests[idx]);requests.splice(idx,1);saveAll();render();}}
 
 function makeReqCard(r){
   return`<div class="card" draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)">
@@ -1465,6 +1640,8 @@ function openReqModal(id){
 }
 function openEditReq(id){openReqModal(id)}
 function saveReq(id){
+  if(!requireEditMode())return;
+
   const title=(document.getElementById('rq-ti')||{}).value||'';
   if(!title.trim())return;
   const writer=(document.getElementById('rq-wr')||{}).value||'';
@@ -1479,7 +1656,9 @@ function saveReq(id){
 }
 
 
-function delMemory(id){if(!confirmDelete('이 기억 항목을 삭제할까요?'))return;memories=memories.filter(x=>String(x.id)!==String(id));saveAll();render()}
+function delMemory(id){
+  if(!requireEditMode())return;
+if(!confirmDelete('이 기억 항목을 삭제할까요?'))return;const idx=memories.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('memory',memories[idx]);memories.splice(idx,1);saveAll();render();}}
 function makeMemoryCard(x){
   const age=ageNow(x.birth);
   const nb=nextBirthInfo(x.birth);
@@ -1529,6 +1708,8 @@ function openMemoryModal(id){
   </div>`;
 }
 function saveMemory(id){
+  if(!requireEditMode())return;
+
   const name=(document.getElementById('mem-name')||{}).value||'';
   if(!name.trim())return;
   const birth=getPickerVal('mem-birth');
@@ -1639,6 +1820,184 @@ function updateTabUI(){
   else{tr.innerHTML='';}
 }
 
+
+function trashItem(kind,item){
+  deletedItems.push({id:Date.now()+Math.random(),kind,item:deepCopy(item),deletedAt:Date.now()});
+}
+function trashKindName(k){
+  return k==='note'?'일정':k==='request'?'부탁':k==='memory'?'기억':k==='kid'?'아이정보':'항목';
+}
+function trashTitle(x){
+  const it=x.item||{};
+  return it.title||it.name||it.writer||trashKindName(x.kind);
+}
+function purgeOldTrash(save=true){
+  const limit=Date.now()-7*24*60*60*1000;
+  const before=deletedItems.length;
+  deletedItems=deletedItems.filter(x=>(x.deletedAt||0)>=limit);
+  if(save && before!==deletedItems.length)saveAll();
+}
+function openTrash(){
+  purgeOldTrash(false);
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">휴지통</div>
+      ${deletedItems.length?deletedItems.map(x=>`<div class="trash-item">
+        <div class="trash-title">[${trashKindName(x.kind)}] ${escapeHtml(trashTitle(x))}</div>
+        <div class="trash-sub">${new Date(x.deletedAt||Date.now()).toLocaleString()} 삭제됨</div>
+        <div class="action-grid">
+          <button class="toss-btn primary" onclick="restoreTrash('${x.id}')">복구</button>
+          <button class="toss-btn" onclick="deleteTrashForever('${x.id}')">완전 삭제</button>
+        </div>
+      </div>`).join(''):'<div class="empty">휴지통이 비어 있어요</div>'}
+      ${deletedItems.length?`<button class="cancel-link" onclick="emptyTrash()">휴지통 비우기</button>`:''}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function restoreTrash(id){
+  if(!requireEditMode())return;
+
+  const idx=deletedItems.findIndex(x=>String(x.id)===String(id));
+  if(idx<0)return;
+  const x=deletedItems[idx];
+  if(x.kind==='note')notes.push(x.item);
+  else if(x.kind==='request')requests.push(x.item);
+  else if(x.kind==='memory')memories.push(x.item);
+  else if(x.kind==='kid')family.push(x.item);
+  deletedItems.splice(idx,1);
+  saveAll();openTrash();render();
+}
+function deleteTrashForever(id){
+  if(!requireEditMode())return;
+
+  if(!confirm('완전히 삭제할까요?'))return;
+  deletedItems=deletedItems.filter(x=>String(x.id)!==String(id));
+  saveAll();openTrash();
+}
+function emptyTrash(){
+  if(!requireEditMode())return;
+
+  if(!confirm('휴지통을 모두 비울까요?'))return;
+  deletedItems=[];
+  saveAll();openTrash();
+}
+function repairData(){
+  if(!requireEditMode())return;
+  const validTypes=['family','personal','work'];
+  const validRepeats=['','daily','weekly','monthly'];
+  const validShifts=['','D','E','N','OFF'];
+  const isDate=v=>!v || /^\d{4}-\d{2}-\d{2}$/.test(v);
+  const seen=new Set();
+  let fixed=0;
+
+  notes=Array.isArray(notes)?notes:[];
+  requests=Array.isArray(requests)?requests:[];
+  memories=Array.isArray(memories)?memories:[];
+  notices=Array.isArray(notices)?notices:[];
+  family=Array.isArray(family)?family:[];
+  deletedItems=Array.isArray(deletedItems)?deletedItems:[];
+  shiftData=shiftData&&typeof shiftData==='object'?shiftData:{};
+
+  notes.forEach(n=>{
+    if(!n.id || seen.has('n'+n.id)){n.id=Date.now()+Math.random();fixed++}
+    seen.add('n'+n.id);
+    if(!n.title){n.title='제목 없는 일정';fixed++}
+    if(!n.who){n.who='공통';fixed++}
+    if(!validTypes.includes(n.type)){n.type='family';fixed++}
+    if(!validRepeats.includes(n.repeat)){n.repeat='';fixed++}
+    if(!Array.isArray(n.skipDates)){n.skipDates=[];fixed++}
+    n.skipDates=n.skipDates.filter(isDate);
+    if(!isDate(n.start)){n.start='';fixed++}
+    if(!isDate(n.end)){n.end='';fixed++}
+    if(!isDate(n.repeatEnd)){n.repeatEnd='';fixed++}
+    if(!n.alertMemo)n.alertMemo='';
+    if(!('done' in n))n.done=false;
+  });
+
+  requests.forEach(r=>{
+    if(!r.id || seen.has('r'+r.id)){r.id=Date.now()+Math.random();fixed++}
+    seen.add('r'+r.id);
+    if(!r.title){r.title='제목 없는 부탁';fixed++}
+    if(!('done' in r))r.done=false;
+  });
+
+  memories.forEach(m=>{
+    if(!m.id || seen.has('m'+m.id)){m.id=Date.now()+Math.random();fixed++}
+    seen.add('m'+m.id);
+    if(!m.name){m.name='이름 없음';fixed++}
+    if(!isDate(m.birth)){m.birth='';fixed++}
+  });
+
+  notices.forEach(n=>{
+    if(!n.id || seen.has('nt'+n.id)){n.id=Date.now()+Math.random();fixed++}
+    seen.add('nt'+n.id);
+    if(!n.title){n.title='가족 공지';fixed++}
+    if(!('read' in n))n.read=false;
+    if(!('important' in n))n.important=false;
+    if(!n.createdAt)n.createdAt=Date.now();
+  });
+
+  Object.keys(shiftData).forEach(k=>{
+    if(!isDate(k) || !validShifts.includes(shiftData[k])){delete shiftData[k];fixed++}
+  });
+
+  purgeOldTrash(false);
+  saveAll();render();
+  alert(`데이터 점검 완료${fixed?` · 보정 ${fixed}건`:''}`);
+}
+function copyNote(id){
+  if(!requireEditMode())return;
+
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const c=deepCopy(n);
+  c.id=Date.now();
+  c.title=(c.title||'일정')+' 복사';
+  c.done=false;
+  notes.push(c);
+  saveAll();render();
+  alert('일정을 복사했어요. 필요하면 날짜를 수정하세요.');
+}
+let longAddTimer=null,longAddOpened=false;
+function startLongAdd(e,k){
+  longAddOpened=false;
+  clearTimeout(longAddTimer);
+  longAddTimer=setTimeout(()=>{longAddOpened=true;openAddModal(k);},650);
+}
+function cancelLongAdd(){
+  clearTimeout(longAddTimer);
+  setTimeout(()=>{longAddOpened=false;},80);
+}
+function notesForCalendarDay(y,m,d){
+  return notesOnDateAll(y,m,d).filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+}
+function openRepeatExceptions(id){
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  const arr=Array.isArray(n.skipDates)?n.skipDates:[];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">반복 예외</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.45">${escapeHtml(n.title)}에서 이번 회차만 삭제한 날짜 목록입니다.</div>
+      ${arr.length?arr.sort().map(k=>`<div class="trash-item">
+        <div class="trash-title">${dateLabel(k)}</div>
+        <div class="action-grid"><button class="toss-btn primary" onclick="restoreRepeatException('${n.id}','${k}')">복구</button></div>
+      </div>`).join(''):'<div class="empty">등록된 예외가 없어요</div>'}
+      <button class="cancel-link" onclick="openDetailNote('${n.id}')">돌아가기</button>
+    </div>
+  </div>`;
+}
+function restoreRepeatException(id,k){
+  if(!requireEditMode())return;
+
+  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
+  n.skipDates=(n.skipDates||[]).filter(x=>x!==k);
+  saveAll();openRepeatExceptions(id);render();
+}
+
 function setMain(t){
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
@@ -1681,16 +2040,17 @@ function renderNoticeBanner(){
 }
 
 function renderShiftWidget(){
-  const labels=['TODAY','T+1','T+2'];
+  const labels=['오늘','내일','모레'];
   const keys=[todayKey(),addDaysStr(todayKey(),1),addDaysStr(todayKey(),2)];
   return `<div class="widget-wrap shift-widget-3">
     ${keys.map((k,i)=>{
-      const s=shiftData[k]||'OFF';
-      const d=new Date(k+'T00:00:00');
+      const s=shiftData[k]||'';
+      const [yy,mm,dd]=k.split('-').map(Number);
+      const d=new Date(yy,mm-1,dd);
       return `<div class="widget-card">
-        <div class="widget-title">${labels[i]} · ${d.getMonth()+1}/${d.getDate()}</div>
-        <div class="widget-main"><span class="shift-one ${SCLS[s]}">${s}</span></div>
-        <div class="widget-sub">${STXT[s]||'근무 정보'}</div>
+        <div class="widget-title">${labels[i]} · ${mm}/${dd} (${DAYS[d.getDay()]})</div>
+        <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
+        <div class="widget-sub">${s?(STXT[s]||'근무 정보'):'미입력'}</div>
       </div>`;
     }).join('')}
   </div>`;
@@ -1705,6 +2065,10 @@ function renderHomeWidgets(){
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
+      <div class="quick-actions">
+        <button onclick="event.stopPropagation();openAddModal(todayKey())">오늘 추가</button>
+        <button onclick="event.stopPropagation();openAddModal(tomorrowKey())">내일 추가</button>
+      </div>
     </div>
     <div class="widget-card" data-action="request" onclick="onWidgetClick(this)">
       <div class="widget-title">부탁</div>
@@ -1715,26 +2079,32 @@ function renderHomeWidgets(){
 }
 
 function renderManualNotice(){
-  const list=(notices||[]).filter(n=>!n.read).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const list=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
+    if(!!b.important!==!!a.important)return b.important?1:-1;
+    return (b.createdAt||0)-(a.createdAt||0);
+  });
   if(!list.length)return '';
   const n=list[0];
-  return `<div class="notice-manual" onclick="openNoticeList()" style="cursor:pointer">
-    <div class="nt-title">📌 ${escapeHtml(n.title||'가족 공지')}</div>
+  return `<div class="notice-manual${n.important?' important':''}" onclick="openNoticeList()" style="cursor:pointer">
+    <div class="nt-title">${n.important?'⭐':'📌'} ${escapeHtml(n.title||'가족 공지')}</div>
     <div class="nt-body">${escapeHtml(n.body||'')}</div>
     ${list.length>1?`<div class="nt-body" style="margin-top:4px">외 ${list.length-1}개 공지</div>`:''}
   </div>`;
 }
 
 function openNoticeList(){
-  const list=[...(notices||[])].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const list=[...(notices||[])].sort((a,b)=>{
+    if(!!b.important!==!!a.important)return b.important?1:-1;
+    return (b.createdAt||0)-(a.createdAt||0);
+  });
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">가족 공지</div>
       ${list.length?list.map(n=>`<div class="card" style="margin-bottom:8px">
-        <div class="c-title">${escapeHtml(n.title||'가족 공지')}</div>
-        <div class="c-meta"><span class="chip chip-g">${n.read?'읽음':'새 공지'}</span></div>
+        <div class="c-title">${n.important?'⭐ ':''}${escapeHtml(n.title||'가족 공지')}</div>
+        <div class="c-meta"><span class="chip chip-g">${n.read?'읽음':'새 공지'}</span>${n.important?`<span class="chip imp-chip">중요</span>`:''}</div>
         <div style="font-size:13px;color:var(--t2);line-height:1.45;margin-top:8px">${escapeHtml(n.body||'')}</div>
         <div class="action-grid">
           <button class="toss-btn" onclick="markNoticeRead('${n.id}')">읽음</button>
@@ -1748,6 +2118,8 @@ function openNoticeList(){
 }
 
 function markNoticeRead(id){
+  if(!requireEditMode())return;
+
   const n=(notices||[]).find(x=>String(x.id)===String(id));
   if(n){n.read=true;saveAll();render();}
 }
@@ -1763,6 +2135,8 @@ function openNoticeModal(id){
       <input class="mi" id="nt-title" placeholder="예: 이번 주 금요일 조기하교" value="${n?escapeAttr(n.title):''}"/>
       <div class="ml">내용</div>
       <textarea class="ta" id="nt-body" placeholder="가족에게 공유할 내용을 적어주세요">${n?escapeHtml(n.body||''):''}</textarea>
+      <div class="ml">중요 공지</div>
+      <button class="type-btn${n&&n.important?' tf':''}" id="nt-important" data-val="${n&&n.important?'1':''}" onclick="this.dataset.val=this.dataset.val?'':'1';this.className='type-btn'+(this.dataset.val?' tf':'')">중요로 고정</button>
       <button class="primary-btn" onclick="saveNotice('${n?n.id:''}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -1770,14 +2144,17 @@ function openNoticeModal(id){
 }
 
 function saveNotice(id){
+  if(!requireEditMode())return;
+
   const title=(document.getElementById('nt-title')||{}).value||'';
   const body=(document.getElementById('nt-body')||{}).value||'';
+  const important=!!((document.getElementById('nt-important')||{}).dataset||{}).val;
   if(!title.trim())return;
   if(id){
     const n=(notices||[]).find(x=>String(x.id)===String(id)); if(!n)return;
-    n.title=title.trim(); n.body=body; n.read=false;
+    n.title=title.trim(); n.body=body; n.important=important; n.read=false;
   }else{
-    notices.unshift({id:Date.now(),title:title.trim(),body,read:false,createdAt:Date.now()});
+    notices.unshift({id:Date.now(),title:title.trim(),body,important,read:false,createdAt:Date.now()});
   }
   saveAll();closeM();render();
 }
@@ -1818,10 +2195,13 @@ function openDetailNote(id){
       <div class="detail-row"><span class="detail-key">일시</span><span class="detail-val">${dts}</span></div>
       <div class="detail-row"><span class="detail-key">반복</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
       ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">반복 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
+      ${n.repeat?`<div class="detail-row"><span class="detail-key">반복 예외</span><span class="detail-val">${(n.skipDates||[]).length}개</span></div>`:''}
       ${n.alertMemo?`<div class="detail-row"><span class="detail-key">알림 메모</span><span class="detail-val">${escapeHtml(n.alertMemo)}</span></div>`:''}
       ${n.comment?`<div class="detail-row"><span class="detail-key">메모</span><span class="detail-val">${escapeHtml(n.comment)}</span></div>`:''}
       <div class="action-grid">
         <button class="toss-btn primary" onclick="openEditNote('${n.id}')">수정</button>
+        <button class="toss-btn" onclick="copyNote('${n.id}')">복사</button>
+        ${n.repeat?`<button class="toss-btn" onclick="openRepeatExceptions('${n.id}')">예외 보기</button>`:''}
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
     </div>
@@ -1855,6 +2235,8 @@ function openRestore(){
 }
 
 function restoreBackup(){
+  if(!requireEditMode())return;
+
   const f=document.getElementById('restore-file')?.files?.[0];
   if(!f)return alert('파일을 선택해 주세요.');
   if(!confirm('현재 데이터를 백업 파일 내용으로 교체할까요?'))return;
@@ -1987,9 +2369,27 @@ function selWho(w){
 }
 
 function saveNote(){
+  if(!requireEditMode())return;
   const ti=(document.getElementById('m-ti')||{}).value||'';
   if(!ti.trim())return;
-  notes.push({id:Date.now(),title:ti.trim(),who:_mWho,type:_mType,repeat:(document.getElementById('m-rp')||{}).value||'',repeatEnd:getPickerVal('m-re'),start:getPickerVal('m-sd'),end:getPickerVal('m-ed'),sT:getPickerVal('m-st'),eT:getPickerVal('m-et'),done:false,alertMemo:(document.getElementById('m-alert')||{}).value||'',comment:''});
+  const newNote={
+    id:Date.now(),
+    title:ti.trim(),
+    who:_mWho,
+    type:_mType,
+    repeat:(document.getElementById('m-rp')||{}).value||'',
+    repeatEnd:getPickerVal('m-re'),
+    start:getPickerVal('m-sd'),
+    end:getPickerVal('m-ed'),
+    sT:getPickerVal('m-st'),
+    eT:getPickerVal('m-et'),
+    done:false,
+    alertMemo:(document.getElementById('m-alert')||{}).value||'',
+    comment:''
+  };
+  const dup=notes.some(n=>!isDone(n)&&n.title===newNote.title&&n.start===newNote.start&&(n.who||'공통')===newNote.who);
+  if(dup && !confirm('같은 날짜에 같은 일정이 있어요. 그래도 추가할까요?'))return;
+  notes.push(newNote);
   saveAll();closeM();render();
 }
 
@@ -2021,7 +2421,7 @@ function openEditNote(id){
         <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
       </select>
       <div class="ml">반복 종료일</div>
-    <input class="picker-field empty" id="e-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('e-re')"/>
+    <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
     <div class="ml">날짜</div>
       <div class="mi-2">
         <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
@@ -2042,6 +2442,8 @@ function openEditNote(id){
   </div>`;
 }
 function saveEditNote(id){
+  if(!requireEditMode())return;
+
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
   n.title=document.getElementById('e-ti').value;
   n.type=_mType;
@@ -2077,8 +2479,12 @@ function editKid(i){
     </div>
   </div>`;
 }
-function addKid(){family.push({id:Date.now(),name:'새 아이',grade:'',year:'',cls:'',num:'',cats:[{label:'하교 시간',items:[]},{label:'학원',items:[]},{label:'기타',items:[]}]});saveAll();editKid(family.length-1)}
-function saveKid(i){family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
+function addKid(){
+  if(!requireEditMode())return;
+family.push({id:Date.now(),name:'새 아이',grade:'',year:'',cls:'',num:'',cats:[{label:'하교 시간',items:[]},{label:'학원',items:[]},{label:'기타',items:[]}]});saveAll();editKid(family.length-1)}
+function saveKid(i){
+  if(!requireEditMode())return;
+family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
 
 function getPickerVal(id){
   const el=document.getElementById(id);
