@@ -836,6 +836,117 @@ body{
   margin-bottom:2px;
 }
 
+
+/* 요청 반영: 근무 위젯 컴팩트/중앙 정렬 */
+.compact-shift-widget{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:7px !important;
+}
+.compact-shift-widget .shift-mini-card{
+  min-height:68px !important;
+  padding:10px 6px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  text-align:center !important;
+}
+.compact-shift-widget .widget-title{
+  font-size:10px !important;
+  margin:0 0 7px !important;
+  line-height:1.2 !important;
+  white-space:nowrap !important;
+}
+.compact-shift-widget .widget-main{
+  font-size:14px !important;
+  line-height:1 !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+}
+.compact-shift-widget .shift-one{
+  margin:0 auto !important;
+}
+
+/* 요청 반영: 이번 주/완료 접기 버튼 우측 정렬 */
+.sec-toggle{
+  justify-content:space-between !important;
+}
+.fold-btn{
+  margin-left:auto;
+  width:34px;
+  height:28px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:13px;
+  font-weight:900;
+  font-family:inherit;
+}
+
+/* 요청 반영: 달력 대상 필터는 선택 시에만 검정 */
+.cal-filter{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:5px !important;
+  padding:10px 10px 0 !important;
+  overflow-x:auto !important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.cal-filter::-webkit-scrollbar{display:none}
+.cal-filter .chip-btn{
+  flex:0 0 auto !important;
+  height:32px !important;
+  padding:0 10px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+  background:transparent !important;
+  color:var(--t1) !important;
+  border:1.5px solid var(--border) !important;
+}
+.cal-filter .chip-btn.on{
+  background:var(--t1) !important;
+  color:#fff !important;
+  border-color:var(--t1) !important;
+}
+
+/* 요청 반영: 달력 범례 글자 확대 + 한 줄 유지 */
+.cal-legend{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  gap:7px !important;
+  overflow-x:auto !important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-top:12px !important;
+  padding-bottom:2px !important;
+}
+.cal-legend::-webkit-scrollbar{display:none}
+.cal-legend .leg{
+  flex:0 0 auto !important;
+  gap:4px !important;
+  font-size:11px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+.cal-legend .leg-chip{
+  font-size:10px !important;
+  min-width:28px !important;
+  height:22px !important;
+  padding:3px 6px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:7px !important;
+}
+.cal-legend .leg-dot{
+  width:8px !important;
+  height:8px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1371,8 +1482,9 @@ function toggleWeek(){
 function renderWeekView(){
   if(main!=='s')return '';
   if(!weekOpen){
-    return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
-      이번 주 <span class="sec-cnt">접힘</span><button style="margin-left:auto" class="toss-btn">펼치기</button>
+    return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
+      <span>이번 주</span>
+      <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▼</button>
     </div>`;
   }
   const days=[];
@@ -1385,8 +1497,9 @@ function renderWeekView(){
       ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
     </div>`);
   }
-  return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
-      이번 주 <span class="sec-cnt">펼침</span><button style="margin-left:auto" class="toss-btn">접기</button>
+  return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
+      <span>이번 주</span>
+      <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▲</button>
     </div><div class="week-wrap">${days.join('')}</div>`;
 }
 
@@ -1428,7 +1541,10 @@ function renderS(){
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
     ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
-    <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ${doneOpen?'▲':'▼'}</div>
+    <div class="sec sec-toggle" onclick="toggleDone()" style="cursor:pointer">
+      <span>완료</span>
+      <button class="fold-btn" onclick="event.stopPropagation();toggleDone()">${doneOpen?'▲':'▼'}</button>
+    </div>
     ${doneSection}
   `;
 }
@@ -2083,15 +2199,14 @@ function renderNoticeBanner(){
 function renderShiftWidget(){
   const labels=['오늘','내일','모레'];
   const keys=[todayKey(),addDaysStr(todayKey(),1),addDaysStr(todayKey(),2)];
-  return `<div class="widget-wrap shift-widget-3">
+  return `<div class="widget-wrap shift-widget-3 compact-shift-widget">
     ${keys.map((k,i)=>{
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
       const d=new Date(yy,mm-1,dd);
-      return `<div class="widget-card">
+      return `<div class="widget-card shift-mini-card">
         <div class="widget-title">${labels[i]} · ${mm}/${dd} (${DAYS[d.getDay()]})</div>
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
-        <div class="widget-sub">${s?(STXT[s]||'근무 정보'):'미입력'}</div>
       </div>`;
     }).join('')}
   </div>`;
@@ -2115,6 +2230,9 @@ function renderHomeWidgets(){
       <div class="widget-title">부탁</div>
       <div class="widget-main">${reqCnt}개</div>
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
+      <div class="quick-actions">
+        <button onclick="event.stopPropagation();openReqModal()">부탁 추가</button>
+      </div>
     </div>
   </div>`;
 }
