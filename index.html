@@ -617,6 +617,149 @@ body{
 .qr-box canvas,.qr-box img{border-radius:14px;background:#fff}
 .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 
+
+/* 추가 기능: 근무 위젯/공지/통계/알림메모 */
+.notice-manual{
+  margin:12px 16px 0;
+  padding:14px 15px;
+  border-radius:18px;
+  background:#FFF7E8;
+  color:#7A3B00;
+  box-shadow:0 6px 16px rgba(255,149,0,.12);
+}
+.notice-manual .nt-title{font-size:13px;font-weight:950;margin-bottom:4px}
+.notice-manual .nt-body{font-size:12px;font-weight:700;line-height:1.45;color:#8A5A1E}
+.notice-actions{display:flex;gap:8px;margin-top:9px}
+.notice-actions button{border:none;border-radius:12px;padding:6px 9px;font-size:11px;font-weight:900;font-family:inherit}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.stat-card{background:#fff;border-radius:18px;padding:14px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+.stat-k{font-size:11px;color:var(--t3);font-weight:900}
+.stat-v{font-size:22px;font-weight:950;margin-top:5px}
+.alert-chip{background:#FFEFF2;color:#C0002C;font-weight:900}
+.ev-alert{margin-top:6px;font-size:12px;color:#C0002C;font-weight:800}
+
+
+/* UI 애니메이션 */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes softPop{
+  from{opacity:0;transform:scale(.96)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes sheetUp{
+  from{transform:translateY(24px);opacity:.8}
+  to{transform:translateY(0);opacity:1}
+}
+
+.widget-card,
+.card,
+.cal-card,
+.ev-card,
+.fi-card,
+.week-day,
+.notice-banner,
+.notice-manual,
+.stat-card{
+  animation:fadeUp .28s ease both;
+}
+
+.tab{
+  transition:background .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .12s ease;
+}
+.tab:active{
+  transform:scale(.96);
+}
+.tab.on{
+  animation:softPop .18s ease both;
+}
+
+.toss-btn,
+.chip-btn,
+.period-chip,
+.shift-btn,
+.day-btn,
+.share-btn,
+.primary-btn,
+.search-apply{
+  transition:transform .12s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+}
+.toss-btn:active,
+.chip-btn:active,
+.period-chip:active,
+.shift-btn:active,
+.day-btn:active,
+.share-btn:active,
+.primary-btn:active,
+.search-apply:active{
+  transform:scale(.96);
+}
+
+.modal-bg{
+  animation:fadeIn .18s ease both;
+}
+.modal-sheet,
+.picker-sheet{
+  animation:sheetUp .24s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.card.dragging{
+  opacity:.55;
+  transform:scale(.985);
+  box-shadow:0 14px 28px rgba(0,0,0,.12) !important;
+}
+.drop-target{
+  outline:3px solid rgba(0,122,255,.22);
+  transform:translateY(2px);
+}
+
+.cal-cell{
+  transition:background .14s ease, transform .12s ease, outline .12s ease;
+}
+.cal-cell:active{
+  transform:scale(.96);
+}
+.cal-cell.sel{
+  animation:softPop .18s ease both;
+}
+
+.chk{
+  transition:background .14s ease,border-color .14s ease,transform .12s ease;
+}
+.chk:active{
+  transform:scale(.9);
+}
+.chk.on{
+  animation:softPop .16s ease both;
+}
+
+.search-input{
+  transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.search-input:focus{
+  box-shadow:0 0 0 4px rgba(0,122,255,.10);
+}
+
+.splash-box{
+  animation:splashPop .55s cubic-bezier(.2,.8,.2,1) both;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,
+  *::before,
+  *::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -680,6 +823,9 @@ const DEFAULT_DATA={
   requests:[
     {id:101,title:'엄마한테 준비물 확인 부탁',writer:'첫째',done:false,comment:''}
   ],
+  notices:[
+    {id:301,title:'가족 공지 예시',body:'이번 주 주요 일정을 함께 확인해 주세요.',read:false,createdAt:Date.now()}
+  ],
   memories:[
     {id:201,name:'도미 생일',birth:'2026-05-12',memo:''}
   ],
@@ -729,7 +875,7 @@ function getPersons(){
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
-let notes=[],family=[],requests=[],memories=[],shiftData={};
+let notes=[],family=[],requests=[],memories=[],notices=[],shiftData={};
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -837,6 +983,7 @@ function addMonthsStr(dateStr,months){
 function occursOn(n,key){
   if(!n.start) return false;
   if(n.repeatEnd && key>n.repeatEnd) return false;
+  if(Array.isArray(n.skipDates) && n.skipDates.includes(key)) return false;
   if(!n.repeat){
     if(!n.sT && !n.eT && (!n.end || n.end===n.start)) return n.start===key;
     return n.start<=key && (!n.end || n.end>=key);
@@ -870,9 +1017,10 @@ function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
   notes=Array.isArray(d.notes)?d.notes:base.notes;
-  notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat='';});
+  notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo='';});
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
+  notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   family=Array.isArray(d.family)?d.family:base.family;
   shiftData=d.shiftData||{};
   // 사용자가 입력해둔 근무 값은 유지하고, 비어 있는 날짜만 랜덤으로 채움
@@ -887,7 +1035,7 @@ function normalizeData(d){
     }
   }
 }
-function currentData(){return {notes,family,requests,memories,shiftData,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -1009,6 +1157,17 @@ function notesOnDate(y,m,d){
 }
 
 function toggleNote(id){const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
+
+function skipRepeatInstance(id,dateKey){
+  const n=notes.find(x=>String(x.id)===String(id));
+  if(!n || !n.repeat)return;
+  if(!confirm('이번 회차만 삭제할까요?'))return;
+  if(!Array.isArray(n.skipDates))n.skipDates=[];
+  if(!n.skipDates.includes(dateKey))n.skipDates.push(dateKey);
+  saveAll();
+  render();
+}
+
 function delNote(id){if(!confirmDelete('이 일정을 삭제할까요?'))return;notes=notes.filter(x=>String(x.id)!==String(id));saveAll();render()}
 
 
@@ -1034,6 +1193,7 @@ function makeCard(n){
           <span class="chip ${typeChip(n.type)}">${typeName(n.type)}</span>
           <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
           ${n.repeat?`<span class="chip repeat-chip">${repeatName(n.repeat)}</span>`:''}
+          ${n.alertMemo?`<span class="chip alert-chip">알림</span>`:''}
           ${dts?`<span class="chip chip-g">${dts}</span>`:''}
         </div>
         ${done&&n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
@@ -1211,7 +1371,9 @@ function renderI(){
   });
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button>
+    ${renderStatsCard()}
     <div class="action-grid" style="margin:12px 0">
+      <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
       <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
       <button class="toss-btn" onclick="openRestore()">백업 복구</button>
       <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
@@ -1499,11 +1661,17 @@ function renderHomeWidgets(){
   const todayKey=dk(TY,TM,TD);
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
+  const todayShift=shiftData[todayKey]||'OFF';
   return `<div class="widget-wrap">
     <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
+    </div>
+    <div class="widget-card">
+      <div class="widget-title">오늘 근무</div>
+      <div class="widget-main"><span class="shift-one ${SCLS[todayShift]}">${todayShift}</span></div>
+      <div class="widget-sub">${STXT[todayShift]||'근무 정보'}</div>
     </div>
     <div class="widget-card" data-action="request" onclick="onWidgetClick(this)">
       <div class="widget-title">부탁</div>
@@ -1512,143 +1680,6 @@ function renderHomeWidgets(){
     </div>
   </div>`;
 }
-
-
-function todayKey(){return dk(TY,TM,TD)}
-function tomorrowKey(){return addDaysStr(todayKey(),1)}
-function renderNoticeBanner(){
-  const td=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
-  const req=requests.filter(r=>!isDone(r));
-  if(!td.length && !req.length)return '';
-  const parts=[];
-  if(td.length)parts.push(`오늘 일정 ${td.length}개`);
-  if(req.length)parts.push(`부탁 ${req.length}개`);
-  return `<div class="notice-banner">🔔 ${parts.join(' · ')} 확인해 주세요</div>`;
-}
-function downloadBackup(){
-  const data=currentData();
-  data.backupAt=new Date().toISOString();
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`패스_백업_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function openRestore(){
-  document.getElementById('modal').innerHTML=`
-  <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div class="modal-ind"></div>
-      <div class="modal-hd">백업 복구</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.5">백업 JSON 파일을 선택하면 현재 데이터가 백업 내용으로 교체됩니다.</div>
-      <div class="ml">백업 파일</div>
-      <input class="mi" type="file" id="restore-file" accept="application/json,.json"/>
-      <button class="primary-btn" onclick="restoreBackup()">복구하기</button>
-      <button class="cancel-link" onclick="closeM()">취소</button>
-    </div>
-  </div>`;
-}
-function restoreBackup(){
-  const f=document.getElementById('restore-file')?.files?.[0];
-  if(!f)return alert('파일을 선택해 주세요.');
-  if(!confirm('현재 데이터를 백업 파일 내용으로 교체할까요?'))return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const d=JSON.parse(reader.result);
-      normalizeData(d);
-      saveAll();
-      closeM();
-      render();
-      alert('복구 완료');
-    }catch(e){
-      alert('백업 파일을 읽을 수 없습니다.');
-    }
-  };
-  reader.readAsText(f);
-}
-function openShareTools(){
-  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
-  document.getElementById('modal').innerHTML=`
-  <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div class="modal-ind"></div>
-      <div class="modal-hd">공유하기</div>
-      <div class="share-banner" style="margin:0">
-        <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${url}</div></div>
-        <button class="share-btn" onclick="copyShareLink()">복사</button>
-      </div>
-      <div class="qr-box"><canvas id="qr-canvas"></canvas></div>
-      <div class="action-grid">
-        <button class="toss-btn primary" onclick="shareNative()">공유</button>
-        <button class="toss-btn" onclick="closeM()">닫기</button>
-      </div>
-    </div>
-  </div>`;
-  setTimeout(()=>{
-    if(window.QRCode){
-      QRCode.toCanvas(document.getElementById('qr-canvas'),url,{width:180,margin:1});
-    }
-  },50);
-}
-function shareNative(){
-  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
-  if(navigator.share){
-    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
-  }else{
-    copyShareLink();
-  }
-}
-function openDetailNote(id){
-  const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
-  const dts=dateTimeRange(n)||'날짜 없음';
-  document.getElementById('modal').innerHTML=`
-  <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(n.title)}</div>
-      <div class="detail-row"><span class="detail-key">구분</span><span class="detail-val">${typeName(n.type)}</span></div>
-      <div class="detail-row"><span class="detail-key">대상</span><span class="detail-val">${escapeHtml(n.who||'공통')}</span></div>
-      <div class="detail-row"><span class="detail-key">일시</span><span class="detail-val">${dts}</span></div>
-      <div class="detail-row"><span class="detail-key">반복</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
-      ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">반복 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
-      ${n.comment?`<div class="detail-row"><span class="detail-key">메모</span><span class="detail-val">${escapeHtml(n.comment)}</span></div>`:''}
-      <div class="action-grid">
-        <button class="toss-btn primary" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
-        <button class="toss-btn" onclick="closeM()">닫기</button>
-      </div>
-    </div>
-  </div>`;
-}
-
-function toggleWeek(){
-  weekOpen=!weekOpen;
-  render();
-}
-
-function renderWeekView(){
-  if(main!=='s')return '';
-  if(!weekOpen){
-    return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
-      이번 주 <span class="sec-cnt">접힘</span><button style="margin-left:auto" class="toss-btn">펼치기</button>
-    </div>`;
-  }
-  const days=[];
-  for(let i=0;i<7;i++){
-    const k=addDaysStr(todayKey(),i);
-    const d=new Date(k+'T00:00:00');
-    const list=notes.filter(n=>!isDone(n)&&occursOn(n,k));
-    days.push(`<div class="week-day">
-      <div class="week-hd">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})</div>
-      ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
-    </div>`);
-  }
-  return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
-      이번 주 <span class="sec-cnt">펼침</span><button style="margin-left:auto" class="toss-btn">접기</button>
-    </div><div class="week-wrap">${days.join('')}</div>`;
-}
-
 function render(){
   let h='';
   if(main==='s')h=renderS();
@@ -1656,7 +1687,7 @@ function render(){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h;
+  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h;
 }
 
 function copyShareLink(){
@@ -1760,7 +1791,7 @@ function openEditNote(id){
         <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
       </select>
       <div class="ml">반복 종료일</div>
-    <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+    <input class="picker-field empty" id="e-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
     <div class="ml">날짜</div>
       <div class="mi-2">
         <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
