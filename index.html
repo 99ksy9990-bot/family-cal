@@ -699,6 +699,7 @@ const DEFAULT_DATA={
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
 let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false;
+let weekOpen=false;
 let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
@@ -1044,6 +1045,7 @@ function renderS(){
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openAddModal()">+ 추가</button></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
+    ${renderWeekView()}
     <div class="div"></div>
     <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ▼</div>
     <div class="filter-row">
@@ -1053,7 +1055,7 @@ function renderS(){
       <button class="chip-btn cb-w${doneF==='work'?' on':''}" onclick="setDoneF('work')">회사</button>
     </div>
     <div class="period-row">
-      <span class="period-lbl">기간
+      <span class="period-lbl">기간</span>
       <button class="period-chip${donePer==='1w'?' on':''}" onclick="setPer('1w')">1주</button>
       <button class="period-chip${donePer==='1m'?' on':''}" onclick="setPer('1m')">1개월</button>
       <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
@@ -1590,8 +1592,19 @@ function openDetailNote(id){
     </div>
   </div>`;
 }
+
+function toggleWeek(){
+  weekOpen=!weekOpen;
+  render();
+}
+
 function renderWeekView(){
-  const start=new Date(todayKey()+'T00:00:00');
+  if(main!=='s')return '';
+  if(!weekOpen){
+    return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
+      이번 주 <span class="sec-cnt">접힘</span><button style="margin-left:auto" class="toss-btn">펼치기</button>
+    </div>`;
+  }
   const days=[];
   for(let i=0;i<7;i++){
     const k=addDaysStr(todayKey(),i);
@@ -1602,7 +1615,9 @@ function renderWeekView(){
       ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
     </div>`);
   }
-  return `<div class="sec">이번 주</div><div class="week-wrap">${days.join('')}</div>`;
+  return `<div class="sec" onclick="toggleWeek()" style="cursor:pointer">
+      이번 주 <span class="sec-cnt">펼침</span><button style="margin-left:auto" class="toss-btn">접기</button>
+    </div><div class="week-wrap">${days.join('')}</div>`;
 }
 
 function render(){
@@ -1612,7 +1627,7 @@ function render(){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h+(main==='s'?renderWeekView():'');
+  document.getElementById('body').innerHTML=renderNoticeBanner()+renderHomeWidgets()+renderSearchBox()+h;
 }
 
 function copyShareLink(){
