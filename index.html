@@ -805,6 +805,80 @@ body{
 .edit-off{background:#FFF0F3;color:#C0002C}
 .log-list{font-size:13px;line-height:1.6;color:var(--t2)}
 
+
+/* 2026-05-03 FIX: 탭/달력 필터/범례 한 줄 보정 */
+.tab-bar{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:6px !important;
+  padding:14px 14px 4px !important;
+}
+.tab{
+  min-width:0 !important;
+  height:44px !important;
+  font-size:13px !important;
+  padding:0 !important;
+  white-space:nowrap !important;
+}
+
+/* 달력 상단 대상 필터: 전체~도미 한 줄 */
+.cal-filter{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:4px !important;
+  padding:10px 10px 0 !important;
+  overflow-x:auto !important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.cal-filter::-webkit-scrollbar{display:none}
+.cal-filter .chip-btn{
+  flex:0 0 auto !important;
+  height:30px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+
+/* 달력 하단 범례: D~기억 한 줄 */
+.cal-legend{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  gap:4px !important;
+  overflow-x:auto !important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-bottom:2px !important;
+}
+.cal-legend::-webkit-scrollbar{display:none}
+.cal-legend .leg{
+  flex:0 0 auto !important;
+  gap:2px !important;
+  font-size:9px !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+}
+.cal-legend .leg-chip{
+  font-size:8px !important;
+  min-width:20px !important;
+  height:18px !important;
+  padding:2px 4px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:6px !important;
+}
+.cal-legend .leg-dot{
+  width:6px !important;
+  height:6px !important;
+}
+.cal-card{
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
