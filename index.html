@@ -948,7 +948,7 @@ body{
 }
 
 
-/* 근무표 초기화/공휴일/주말 표시 보정 */
+/* /공휴일/주말 표시 보정 */
 .cal-dname.sun-dname{color:#ff3b30 !important}
 .cal-dname.sat-dname{color:#007aff !important}
 .cal-num.sat-n{color:#007aff !important;font-weight:900}
@@ -1225,8 +1225,8 @@ function isHolidayKey(k){return !!holidayName(k)}
 
 
 let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],shiftData={};
-let shiftCleanupMay2026Done=false;
-let shiftCleanupMay2026NeedsSave=false;
+let shiftKeepOnlyMay2026Done_v3=false;
+let shiftKeepOnlyMay2026NeedsSave=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -1378,72 +1378,16 @@ function keepOnlyMay2026Shifts(){
   });
   return changed;
 }
-function applyInitialMay2026ShiftCleanup(){
-  if(shiftCleanupMay2026Done)return false;
+function applyMay2026ShiftMigration(){
+  if(shiftKeepOnlyMay2026Done_v3)return false;
   const changed=keepOnlyMay2026Shifts();
-  shiftCleanupMay2026Done=true;
-  if(changed)shiftCleanupMay2026NeedsSave=true;
+  shiftKeepOnlyMay2026Done_v3=true;
+  shiftKeepOnlyMay2026NeedsSave=true;
   return changed;
 }
-function openShiftResetModal(){
-  const years=[];
-  const curY=new Date().getFullYear();
-  for(let y=curY-1;y<=curY+3;y++)years.push(y);
-  const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
-  document.getElementById('modal').innerHTML=`
-  <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
-      <div class="modal-ind"></div>
-      <div class="modal-hd">근무표 초기화</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.5">
-        선택한 년/월의 근무 데이터를 미입력으로 초기화합니다.
-      </div>
-      <div class="ml">년도 · 월 선택</div>
-      <div class="mi-2">
-        <select class="mi" id="shift-clear-year">${opts(years,curY)}</select>
-        <select class="mi" id="shift-clear-month">${opts(Array.from({length:12},(_,i)=>i+1),new Date().getMonth()+1)}</select>
-      </div>
-      <button class="primary-btn" onclick="clearShiftMonthFromModal()">선택한 월 초기화</button>
-      <button class="toss-btn" style="width:100%;margin-top:8px" onclick="keepOnlyMay2026FromModal()">2026년 5월만 유지</button>
-      <button class="cancel-link" onclick="closeM()">취소</button>
-    </div>
-  </div>`;
-}
-function clearShiftMonthFromModal(){
-  if(!requireEditMode())return;
-  const y=String((document.getElementById('shift-clear-year')||{}).value||'');
-  const m=String((document.getElementById('shift-clear-month')||{}).value||'').padStart(2,'0');
-  if(!y||!m)return;
-  const prefix=`${y}-${m}-`;
-  const keys=Object.keys(shiftData||{}).filter(k=>k.startsWith(prefix)&&shiftData[k]);
-  if(!keys.length){
-    alert(`${y}년 ${Number(m)}월에 초기화할 근무 데이터가 없어요.`);
-    return;
-  }
-  if(!confirm(`${y}년 ${Number(m)}월 근무 데이터 ${keys.length}개를 미입력으로 초기화할까요?`))return;
-  keys.forEach(k=>delete shiftData[k]);
-  saveAll();
-  closeM();
-  render();
-  alert('근무표 초기화 완료');
-}
-function keepOnlyMay2026FromModal(){
-  if(!requireEditMode())return;
-  const keys=Object.keys(shiftData||{}).filter(k=>!k.startsWith('2026-05-')&&shiftData[k]);
-  if(!keys.length){
-    shiftCleanupMay2026Done=true;
-    saveAll();
-    alert('이미 2026년 5월 외 근무 데이터가 없어요.');
-    return;
-  }
-  if(!confirm(`2026년 5월만 남기고 나머지 근무 데이터 ${keys.length}개를 미입력으로 바꿀까요?`))return;
-  keepOnlyMay2026Shifts();
-  shiftCleanupMay2026Done=true;
-  saveAll();
-  closeM();
-  render();
-  alert('2026년 5월만 유지 완료');
-}
+
+
+
 
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
@@ -1457,12 +1401,12 @@ function normalizeData(d){
   family=Array.isArray(d.family)?d.family:base.family;
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
   purgeOldTrash(false);
-  shiftCleanupMay2026Done=d.shiftCleanupMay2026Done===true;
-  shiftCleanupMay2026NeedsSave=false;
+  shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
+  shiftKeepOnlyMay2026NeedsSave=false;
   shiftData=d.shiftData||{};
-  applyInitialMay2026ShiftCleanup();
+  applyMay2026ShiftMigration();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,shiftCleanupMay2026Done,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -1502,7 +1446,7 @@ function saveAll(){
 async function initData(){
   try{
     normalizeData(loadLocal()||DEFAULT_DATA);
-    if(shiftCleanupMay2026NeedsSave){saveLocal();}
+    if(shiftKeepOnlyMay2026NeedsSave){saveLocal();}
     hydrated=true;
     render();
 
@@ -1534,9 +1478,9 @@ async function initData(){
       }else{
         normalizeData(snap.data());
         saveLocal();
-        if(shiftCleanupMay2026NeedsSave){
-          shiftCleanupMay2026NeedsSave=false;
-          await api.setDoc(ref,{shiftData,shiftCleanupMay2026Done:true,updatedAt:api.serverTimestamp()},{merge:true});
+        if(shiftKeepOnlyMay2026NeedsSave){
+          shiftKeepOnlyMay2026NeedsSave=false;
+          await api.setDoc(ref,{shiftData,shiftKeepOnlyMay2026Done_v3:true,updatedAt:api.serverTimestamp()},{merge:true});
         }
         render();
       }
@@ -1545,6 +1489,11 @@ async function initData(){
         if(!s.exists()||savingRemote)return;
         normalizeData(s.data());
         saveLocal();
+        if(shiftKeepOnlyMay2026NeedsSave && window.__firebaseAPI){
+          shiftKeepOnlyMay2026NeedsSave=false;
+          const api=window.__firebaseAPI;
+          api.setDoc(api.doc(api.db,'familyCalendars',roomId),{shiftData,shiftKeepOnlyMay2026Done_v3:true,updatedAt:api.serverTimestamp()},{merge:true}).catch(e=>console.warn(e));
+        }
         render();
         updateSyncPill('실시간 공유 연결됨');
       },(e)=>{
@@ -1889,7 +1838,6 @@ function renderI(){
     <div class="action-grid" style="margin:12px 0">
       <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
       <button class="toss-btn" onclick="repairData()">데이터 점검</button>
-      <button class="toss-btn" onclick="clearFutureShifts()">근무표 초기화</button>
       <button class="toss-btn" onclick="openTrash()">휴지통</button>
       <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
       <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
@@ -2340,7 +2288,7 @@ function restoreRepeatException(id,k){
 }
 
 
-function clearFutureShifts(){openShiftResetModal();}
+
 
 function setMain(t){
   if(main!==t){searchQ='';searchDraft='';}
