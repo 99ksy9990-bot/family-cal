@@ -707,11 +707,25 @@ const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 
-const PERSONS = ['공통','아빠','엄마','초이','도미'];
+const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 function personCls(who){
-  return who==='아빠'?'person-dad':who==='엄마'?'person-mom':who==='초이'?'person-choi':who==='도미'?'person-domi':'person-common';
+  if(who==='아빠')return 'person-dad';
+  if(who==='엄마')return 'person-mom';
+  if(who==='초이')return 'person-choi';
+  if(who==='도미')return 'person-domi';
+  const arr=getPersons();
+  const idx=Math.max(0,arr.indexOf(who));
+  return ['person-common','person-dad','person-mom','person-choi','person-domi'][idx%5];
 }
 function repeatName(r){return r==='daily'?'매일':r==='weekly'?'매주':r==='monthly'?'매월':'반복 없음'}
+function getPersons(){
+  const names = [...BASE_PERSONS];
+  (family||[]).forEach(k=>{
+    const n=(k.name||'').trim();
+    if(n && !names.includes(n)) names.push(n);
+  });
+  return names;
+}
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
 
@@ -876,6 +890,21 @@ function normalizeData(d){
 function currentData(){return {notes,family,requests,memories,shiftData,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
+
+function saveShiftOnly(){
+  saveLocal();
+  if(remoteReady && window.__firebaseAPI && hydrated){
+    savingRemote=true;
+    const api=window.__firebaseAPI;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
+      shiftData,
+      updatedAt:api.serverTimestamp()
+    }, {merge:true})
+    .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
+    .finally(()=>{savingRemote=false;});
+  }
+}
+
 function saveAll(){
   saveLocal();
   if(remoteReady && window.__firebaseAPI && hydrated){
@@ -1061,7 +1090,7 @@ function renderS(){
       <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
       <button class="period-chip${donePer==='all'?' on':''}" onclick="setPer('all')">전체</button>
     </div>
-    <div class="card-wrap" style="margin-top:10px">${doneOpen ? (doneFilt.length?doneFilt.map(makeCard).join(''):'<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
+    <div class="card-wrap" style="margin-top:10px">${doneOpen ? (doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>') : ''}</div>
   `;
 }
 
@@ -1143,7 +1172,7 @@ function renderC(){
     ${evHtml}
   </div>`;
 }
-function setShift(k,t){shiftData[k]=t;saveAll();render()}
+function setShift(k,t){shiftData[k]=t;saveShiftOnly();render()}
 function selCal(k){selDate=selDate===k?null:k;const sp=k.split('-');calY=+sp[0];calM=+sp[1]-1;render()}
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
 
@@ -1655,7 +1684,7 @@ function openAddModal(dateVal){
       </div>
       <div class="ml">대상</div>
       <div class="type-sel">
-        ${PERSONS.map(p=>`<button class="type-btn${p==='공통'?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
+        ${getPersons().map(p=>`<button class="type-btn${p==='공통'?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
       </div>
       <div class="ml">반복</div>
       <select class="mi" id="m-rp">
@@ -1690,7 +1719,7 @@ function selT(t){
 
 function selWho(w){
   _mWho=w;
-  PERSONS.forEach(p=>{
+  getPersons().forEach(p=>{
     const el=document.getElementById('who-'+p);
     if(el)el.className='type-btn'+(p===w?' tf':'');
   });
@@ -1721,7 +1750,7 @@ function openEditNote(id){
       </div>
       <div class="ml">대상</div>
       <div class="type-sel">
-        ${PERSONS.map(p=>`<button class="type-btn${(n.who||'공통')===p?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
+        ${getPersons().map(p=>`<button class="type-btn${(n.who||'공통')===p?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
       </div>
       <div class="ml">반복</div>
       <select class="mi" id="e-rp">
