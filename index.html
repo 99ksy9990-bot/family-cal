@@ -78,6 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .topbar{padding:18px 20px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f5f5f7}
 .app-name{font-size:24px;font-weight:900;color:#007AFF;text-align:center}
 .app-sub{font-size:13px;color:#888;margin-top:4px;text-align:center}
+.top-right{display:flex;gap:8px;align-items:center}
 .toss-btn{height:36px;padding:0 14px;border-radius:22px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:700;color:var(--t1);cursor:pointer;font-family:inherit;white-space:nowrap}
 .toss-btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
 .toss-btn.purple{background:var(--purple);border-color:var(--purple);color:#fff}
@@ -804,6 +805,37 @@ body{
 .edit-off{background:#FFF0F3;color:#C0002C}
 .log-list{font-size:13px;line-height:1.6;color:var(--t2)}
 
+
+/* 달력 편집 버튼 복구 */
+.ev-hd{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.cal-edit-link{
+  color:var(--blue) !important;
+  font-weight:900 !important;
+  white-space:nowrap;
+}
+.ev-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:7px;
+}
+.ev-actions .small-link{
+  color:var(--blue);
+  font-weight:800;
+}
+.shift-picker{
+  flex-wrap:wrap;
+}
+.shift-picker-title{
+  width:100%;
+  margin-bottom:2px;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1424,13 +1456,15 @@ function renderC(){
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
     const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
+
     g+=`<div class="cal-cell${isSel?' sel':''}"
       onclick="selCal('${key}')"
       onmousedown="startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
       onmouseleave="cancelLongAdd()"
       ontouchstart="startLongAdd(event,'${key}')"
-      ontouchend="cancelLongAdd()">
+      ontouchend="cancelLongAdd()"
+      ontouchmove="cancelLongAdd()">
       <div class="cal-num${isToday?' today-n':''}">${d}</div>
       <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
       <div class="cal-dots">${dots}</div>
@@ -1444,20 +1478,35 @@ function renderC(){
     const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
     const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     evHtml=`<div class="ev-card">
-      <div class="ev-hd">${+sp[1]}/${+sp[2]} 일정</div>
+      <div class="ev-hd">
+        <span>${+sp[1]}/${+sp[2]} 일정</span>
+        <button class="small-link cal-edit-link" onclick="openAddModal('${selDate}')">+ 일정 추가</button>
+      </div>
       <div class="shift-picker">
-        <span class="shift-picker-title">근무</span>
-        <button class="shift-btn${!cur?' on':''}" style="background:#fff;color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
+        <span class="shift-picker-title">근무 편집</span>
+        <button class="shift-btn${!cur?' on':''}" style="background:var(--card);color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
         ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
       </div>
       ${evs.length||mems.length?[
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
-          return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer"><div class="ev-dot ${dotCls(n.type)}"></div><div><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">${ts} · ${typeName(n.type)}</div>${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}${n.repeat?`<button class="small-link" style="margin-top:6px" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}</div></div>`;
+          return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
+            <div class="ev-dot ${dotCls(n.type)}"></div>
+            <div style="min-width:0;flex:1">
+              <div class="ev-title">${highlightText(n.title)}</div>
+              <div class="ev-sub">${ts} · ${typeName(n.type)} · ${escapeHtml(n.who||'공통')}</div>
+              ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
+              <div class="ev-actions">
+                <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
+                <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
+                ${n.repeat?`<button class="small-link" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}
+              </div>
+            </div>
+          </div>`;
         }),
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
-          return`<div class="ev-item"><div class="ev-dot dm"></div><div><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">생일 · 만 ${Math.max(0,age)}세</div></div></div>`;
+          return`<div class="ev-item"><div class="ev-dot dm"></div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">생일 · 만 ${Math.max(0,age)}세</div></div></div>`;
         })
       ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
