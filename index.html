@@ -1037,10 +1037,9 @@ function saveShiftOnly(k,t){
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {
-      shiftData,
-      updatedAt:api.serverTimestamp()
-    }, {merge:true})
+    const payload = { updatedAt: api.serverTimestamp() };
+    if(k) payload[`shiftData.${k}`] = t;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), payload, {merge:true})
     .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
     .finally(()=>{savingRemote=false;});
   }
@@ -1236,7 +1235,7 @@ function renderS(){
     </div>
     <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openAddModal()">+ 추가</button></div>
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
-    ${renderWeekView ? renderWeekView() : ''}
+    ${typeof renderWeekView === 'function' ? renderWeekView() : ''}
     <div class="div"></div>
     <div class="sec" onclick="toggleDone()" style="cursor:pointer">완료 ${doneOpen?'▲':'▼'}</div>
     ${doneSection}
@@ -1673,6 +1672,10 @@ function renderHomeWidgets(){
       <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
     </div>
   </div>`;
+}
+
+function renderNoticeBanner(){
+  return '';
 }
 
 function renderManualNotice(){
