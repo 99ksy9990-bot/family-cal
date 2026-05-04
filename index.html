@@ -1137,6 +1137,51 @@ body{
   .manage-btn,.shift-bulk-bar{background:var(--card);border-color:var(--border)}
 }
 
+
+/* 반복 탭/달력 반복 범례/오늘 강조/부탁 날짜 */
+.today-widget-outline{
+  outline:2px solid var(--blue) !important;
+  outline-offset:3px !important;
+}
+.repeat-card .fi-key{min-width:auto}
+.repeat-date-grid{
+  width:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:6px;
+}
+.repeat-date-grid .picker-field{
+  height:38px !important;
+  font-size:11px !important;
+}
+.repeat-help{
+  font-size:10px;
+  color:var(--t3);
+  margin-top:4px;
+  line-height:1.4;
+}
+.dr{background:var(--purple)}
+.repeat-legend-dot{background:var(--purple)}
+.request-date-chip{background:#F2F2F7;color:#6B6B6F;font-weight:800}
+.done-date-chip{background:#EDFAF2;color:#1A7A36;font-weight:900}
+.shift-count-row .leg-chip{
+  min-width:34px !important;
+  height:26px !important;
+  font-size:12px !important;
+  border-radius:9px !important;
+}
+.shift-count-item{
+  font-size:13px !important;
+}
+.cal-legend.family-only-legend{
+  justify-content:center !important;
+  text-align:center;
+}
+.cal-legend.family-only-legend .leg{
+  font-size:12px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1180,10 +1225,10 @@ body{
 
   <div class="tab-bar">
     <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
+    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">반복</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
     <button class="tab tab-r" id="tab-r" onclick="setMain('r')">부탁</button>
     <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기억</button>
-    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">정보</button>
   </div>
 
   <div id="body"></div>
@@ -1561,6 +1606,11 @@ function applyMay2026ShiftMigration(){
 
 
 
+
+
+
+
+
 function parseTimeFromText(v){
   const s=String(v||'');
   let m=s.match(/([01]?\d|2[0-3])[:시]\s*([0-5]\d)?/);
@@ -1579,15 +1629,18 @@ function familyInfoEventsOnDate(y,m,d){
         const val=String(item.val||'').trim();
         const days=Array.isArray(item.days)?item.days:[];
         if(!val || !days.includes(dow))return;
+        if(item.start && date<item.start)return;
+        if(item.end && date>item.end)return;
+        if(item.repeatEnd && date>item.repeatEnd)return;
         out.push({
           id:`auto-${kid.id||kid.name}-${ci}-${ii}-${date}`,
-          title:`${kid.name||'아이'} ${cat.label}: ${val}`,
+          title:`${kid.name||'대상'} ${cat.label}: ${val}`,
           type:'family',
           who:kid.name||'공통',
           start:date,
-          end:'',
-          sT:parseTimeFromText(val),
-          eT:'',
+          end:date,
+          sT:item.sT||parseTimeFromText(val),
+          eT:item.eT||'',
           repeat:'weekly',
           done:false,
           comment:'',
@@ -1615,20 +1668,32 @@ function autoInfoMatchesFilter(n){
   if(subF==='family')return true;
   return (n.who||'공통')===subF;
 }
-
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
   notes=Array.isArray(d.notes)?d.notes:base.notes;
   notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo='';});
   requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
+  requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
   family=Array.isArray(d.family)?d.family:base.family;
-  customHolidays.forEach(h=>{if(!h.id)h.id=Date.now()+Math.random(); if(!h.name)h.name='공휴일';});
+  family.forEach(k=>{
+    (k.cats||[]).forEach(cat=>{
+      (cat.items||[]).forEach(item=>{
+        if(!Array.isArray(item.days))item.days=[];
+        if(!('start' in item))item.start='';
+        if(!('end' in item))item.end='';
+        if(!('sT' in item))item.sT='';
+        if(!('eT' in item))item.eT='';
+        if(!('repeatEnd' in item))item.repeatEnd='';
+      });
+    });
+  });
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
+  customHolidays.forEach(h=>{if(!h.id)h.id=Date.now()+Math.random(); if(!h.name)h.name='공휴일';});
   purgeOldTrash(false);
   shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
   shiftKeepOnlyMay2026NeedsSave=false;
@@ -1808,23 +1873,22 @@ function makeCard(n){
     const dts=dateTimeRange(n);
     return`<div class="card auto-info-card">
       <div class="c-row">
-        <div class="ev-dot df" style="margin-top:8px"></div>
+        <div class="ev-dot dr" style="margin-top:8px"></div>
         <div class="c-body">
           <div class="c-title">${highlightText(n.title)}</div>
           <div class="c-meta">
             <span class="chip chip-f">가족</span>
             <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
-            <span class="chip auto-info-chip">정보 자동</span>
+            <span class="chip auto-info-chip">반복</span>
             ${dts?`<span class="chip chip-g">${dts}</span>`:''}
           </div>
         </div>
         <div class="c-right">
-          <button class="small-link" onclick="setMain('i')">정보</button>
+          <button class="small-link" onclick="setMain('i')">반복</button>
         </div>
       </div>
     </div>`;
   }
-
   const dts=dateTimeRange(n);
   const done=isDone(n);
   return`<div class="card" onclick="openDetailNote('${n.id}')" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
@@ -2026,7 +2090,9 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const dots=[...evs.slice(0,4).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`), ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
+    const hasRepeat=evs.some(n=>n.repeat || n._autoFamilyInfo);
+    const normalDots=evs.filter(n=>!(n.repeat||n._autoFamilyInfo)).slice(0,3).map(n=>`<div class="cal-dot ${dotCls(n.type)}"></div>`);
+    const dots=[...normalDots, hasRepeat?`<div class="cal-dot dr"></div>`:'', ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
@@ -2064,13 +2130,13 @@ function renderC(){
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
           if(n._autoFamilyInfo){
-            return`<div class="ev-item"><div class="ev-dot df"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">정보 자동 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">정보에서 수정</button></div></div></div>`;
+            return`<div class="ev-item"><div class="ev-dot dr"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">반복 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">반복에서 수정</button></div></div></div>`;
           }
           return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
-            <div class="ev-dot ${dotCls(n.type)}"></div>
+            <div class="ev-dot ${n.repeat?'dr':dotCls(n.type)}"></div>
             <div style="min-width:0;flex:1">
               <div class="ev-title">${highlightText(n.title)}</div>
-              <div class="ev-sub">${ts} · ${typeName(n.type)} · ${escapeHtml(n.who||'공통')}</div>
+              <div class="ev-sub">${ts} · ${n.repeat?'반복':typeName(n.type)} · ${escapeHtml(n.who||'공통')}</div>
               ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
               <div class="ev-actions">
                 <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
@@ -2107,6 +2173,7 @@ function renderC(){
         <div class="leg"><span class="leg-dot" style="background:var(--green)"></span>가족</div>
         <div class="leg"><span class="leg-dot" style="background:var(--pink)"></span>개인</div>
         <div class="leg"><span class="leg-dot" style="background:var(--blue)"></span>회사</div>
+        <div class="leg"><span class="leg-dot repeat-legend-dot"></span>반복</div>
         <div class="leg"><span class="leg-dot" style="background:var(--orange)"></span>기억</div>
       </div>
     </div>
@@ -2115,7 +2182,10 @@ function renderC(){
 }
 function setShift(k,t){
   if(!requireEditMode())return;
-shiftData[k]=t||'';saveShiftOnly(k,t||'');render()}
+  shiftData[k]=t||'';
+  saveShiftOnly(k,t||'');
+  render();
+}
 function selCal(k){
   selDate=selDate===k?null:k;
   const sp=k.split('-');
@@ -2133,37 +2203,45 @@ function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}se
 
 function renderI(){
   let h=`<div class="fi-outer">`;
+  h+=`<div class="sec">반복 <span class="sec-cnt">${family.reduce((a,k)=>a+(k.cats||[]).reduce((b,c)=>b+(c.items||[]).length,0),0)}</span></div>`;
   family.forEach((kid,ki)=>{
-    const gs=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' ');
-    h+=`<div class="fi-card">
-      <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name)}</div>
+    h+=`<div class="fi-card repeat-card">
+      <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
         <div class="fi-hd-btns">
-          <button class="fi-btn fi-btn-e" onclick="editKid(${ki})">수정</button>
+          <button class="fi-btn fi-btn-e" onclick="editKid(${ki})">대상 수정</button>
           <button class="fi-btn fi-btn-d" onclick="delKid(${ki})">삭제</button>
         </div>
-      </div>
-      <div class="fi-row"><span class="fi-key">학년·반·번호</span><span style="font-size:12px;font-weight:700">${escapeHtml(gs||'미입력')}</span></div>`;
+      </div>`;
     kid.cats.forEach((cat,ci)=>{
       h+=`<div class="cat-hd"><span class="cat-lbl">${escapeHtml(cat.label)}</span>
         <div class="cat-hd-r">
-          <button class="cat-add" onclick="addRow(${ki},${ci})">+ 추가</button>
+          <button class="cat-add" onclick="addRow(${ki},${ci})">+ 반복 추가</button>
           <button class="cat-del" onclick="delCat(${ki},${ci})">삭제</button>
         </div></div>`;
       cat.items.forEach((item,ii)=>{
-        h+=`<div class="fi-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+        const idp=`${ki}-${ci}-${ii}`;
+        h+=`<div class="fi-row" style="flex-direction:column;align-items:flex-start;gap:6px">
           <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
             <span class="fi-key">${daysFmt(item.days)}</span>
             <button class="row-del" onclick="delRow(${ki},${ci},${ii})">✕</button>
           </div>
           <div class="day-sel">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleDay(${ki},${ci},${ii},${di})">${d}</button>`).join('')}</div>
-          <input class="fi-input" style="text-align:left;max-width:100%" value="${escapeAttr(item.val)}" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
+          <input class="fi-input" style="text-align:left;max-width:100%" value="${escapeAttr(item.val||'')}" placeholder="반복 내용 입력" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
+          <div class="repeat-date-grid">
+            <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="fi-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('fi-sd-${idp}')"/></div>
+            <div><div class="sublabel">종료일</div><input class="picker-field${item.end?'':' empty'}" id="fi-ed-${idp}" readonly data-val="${item.end||''}" value="${item.end?dateLabel(item.end):'종료일 없음'}" onclick="openDatePicker('fi-ed-${idp}')"/></div>
+            <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="fi-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('fi-st-${idp}')"/></div>
+            <div><div class="sublabel">종료</div><input class="picker-field${item.eT?'':' empty'}" id="fi-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'시간 없음'}" onclick="openTimePicker('fi-et-${idp}')"/></div>
+            <div style="grid-column:1 / -1"><div class="sublabel">반복 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="fi-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('fi-re-${idp}')"/></div>
+          </div>
+          <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
         </div>`;
       });
-      if(!cat.items.length)h+=`<div style="font-size:11px;color:var(--t3);padding:6px 0">항목 없음</div>`;
+      if(!cat.items.length)h+=`<div style="font-size:11px;color:var(--t3);padding:6px 0">반복 항목 없음</div>`;
     });
     h+=`</div>`;
   });
-  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 추가</button></div>`;
+  h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 대상 추가</button></div>`;
   return h;
 }
 function toggleDay(ki,ci,ii,di){
@@ -2174,7 +2252,10 @@ function updVal(ki,ci,ii,v){
 family[ki].cats[ci].items[ii].val=v;saveAll()}
 function addRow(ki,ci){
   if(!requireEditMode())return;
-const isEtc=family[ki].cats[ci].label==='기타';family[ki].cats[ci].items.push({days:isEtc?[]:[], val:''});saveAll();render();setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50)}
+  family[ki].cats[ci].items.push({days:[], val:'', start:'', end:'', sT:'', eT:'', repeatEnd:''});
+  saveAll();render();
+  setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50);
+}
 function delRow(ki,ci,ii){
   if(!requireEditMode())return;
 if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveAll();render()}
@@ -2188,7 +2269,13 @@ if(!confirmDelete('아이 정보를 삭제할까요?'))return;if(family[i]){tras
 
 function toggleReq(id){
   if(!requireEditMode())return;
-const r=requests.find(x=>String(x.id)===String(id));if(r){r.done=!r.done;saveAll();render()}}
+  const r=requests.find(x=>String(x.id)===String(id));
+  if(r){
+    r.done=!isDone(r);
+    r.doneAt=r.done?todayKey():'';
+    saveAll();render();
+  }
+}
 function delReq(id){
   if(!requireEditMode())return;
 if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;const idx=requests.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('request',requests[idx]);requests.splice(idx,1);saveAll();render();}}
@@ -2204,11 +2291,13 @@ function makeReqCard(r){
         <div class="c-meta">
           ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
           <span class="chip chip-g">부탁</span>
+          ${r.requestDate?`<span class="chip request-date-chip">요청 ${dateLabel(r.requestDate)}</span>`:''}
+          ${isDone(r)&&r.doneAt?`<span class="chip done-date-chip">완료 ${dateLabel(r.doneAt)}</span>`:''}
         </div>
-        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:''}
+        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 코멘트</button>`}
       </div>
       <div class="c-right">
-<button class="small-link" onclick="event.stopPropagation();openEditReq('${r.id}')">수정</button>
+        <button class="small-link" onclick="event.stopPropagation();openEditReq('${r.id}')">수정</button>
         <button class="small-link" onclick="event.stopPropagation();delReq('${r.id}')">삭제</button>
       </div>
     </div>
@@ -2229,6 +2318,7 @@ function renderR(){
 
 function openReqModal(id){
   const r=id?requests.find(x=>String(x.id)===String(id)):null;
+  const reqDate=(r&&r.requestDate)||todayKey();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -2238,8 +2328,11 @@ function openReqModal(id){
       <input class="mi" id="rq-ti" placeholder="예: 준비물 챙겨줘, 학원 데려다줘" value="${r?escapeAttr(r.title):''}"/>
       <div class="ml">작성자</div>
       <input class="mi" id="rq-wr" placeholder="예: 첫째, 둘째, 엄마" value="${r?escapeAttr(r.writer||''):''}"/>
-      <div class="ml">메모</div>
-      <textarea class="ta" id="rq-cm" placeholder="필요한 내용을 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
+      <div class="ml">요청 일자</div>
+      <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
+      ${r&&isDone(r)?`<div class="ml">완료 일자</div><input class="picker-field${r.doneAt?'':' empty'}" id="rq-done" readonly data-val="${r.doneAt||''}" value="${r.doneAt?dateLabel(r.doneAt):'완료일 없음'}" onclick="openDatePicker('rq-done')"/>`:''}
+      <div class="ml">코멘트</div>
+      <textarea class="ta" id="rq-cm" placeholder="진행 상황이나 메모를 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
       <button class="primary-btn" onclick="saveReq('${r?r.id:''}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -2253,11 +2346,13 @@ function saveReq(id){
   if(!title.trim())return;
   const writer=(document.getElementById('rq-wr')||{}).value||'';
   const comment=(document.getElementById('rq-cm')||{}).value||'';
+  const requestDate=getPickerVal('rq-date')||todayKey();
   if(id){
     const r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
-    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment;
+    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment; r.requestDate=requestDate;
+    if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
   }else{
-    requests.push({id:Date.now(),title:title.trim(),writer:writer.trim(),done:false,comment});
+    requests.push({id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,done:false,doneAt:'',comment});
   }
   saveAll();closeM();render();
 }
@@ -2607,8 +2702,6 @@ function restoreRepeatException(id,k){
 
 
 function clearShiftData(){
-  autoBackupBefore('근무표 전체 초기화 전');
-
   if(!requireEditMode())return;
   const cnt=Object.keys(shiftData||{}).filter(k=>shiftData[k]).length;
   if(!cnt){
@@ -2616,8 +2709,14 @@ function clearShiftData(){
     return;
   }
   if(!confirm(`근무표 데이터 ${cnt}개를 모두 미입력으로 초기화할까요?`))return;
-  shiftData={};
-  // 기존 2026년 5월 1회 정리 플래그가 있더라도 이후 입력은 그대로 저장되도록 유지
+  autoBackupBefore('근무표 전체 초기화 전');
+
+  // Firebase merge:true에서는 빈 객체로 덮어도 서버의 기존 날짜 키가 지워지지 않음
+  // 그래서 모든 날짜 키를 빈 문자열로 명시 저장
+  Object.keys(shiftData||{}).forEach(k=>{
+    shiftData[k]='';
+  });
+
   if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
   saveAll();
   render();
@@ -2625,8 +2724,6 @@ function clearShiftData(){
 }
 
 function prunePastShiftData(){
-  autoBackupBefore('과거 근무 정리 전');
-
   if(!requireEditMode())return;
   const today=todayKey();
   const keys=Object.keys(shiftData||{}).filter(k=>k<today && shiftData[k]);
@@ -2635,7 +2732,12 @@ function prunePastShiftData(){
     return;
   }
   if(!confirm(`오늘 이전 근무 데이터 ${keys.length}개를 미입력으로 정리할까요?`))return;
-  keys.forEach(k=>delete shiftData[k]);
+  autoBackupBefore('과거 근무 정리 전');
+
+  keys.forEach(k=>{
+    shiftData[k]='';
+  });
+
   saveAll();
   render();
   alert('과거 근무 데이터 정리 완료');
@@ -2745,12 +2847,24 @@ function applyBulkShift(t){
   const label=t||'미입력';
   if(!confirm(`선택한 날짜 ${shiftSelectedDates.length}개를 ${label}(으)로 변경할까요?`))return;
   autoBackupBefore('근무 일괄 입력 전');
+
   shiftSelectedDates.forEach(k=>{
-    if(t)shiftData[k]=t;
-    else delete shiftData[k];
+    if(t){
+      shiftData[k]=t;
+    }else{
+      // Firebase merge:true에서는 삭제 키가 서버에서 지워지지 않으므로 빈 문자열로 명시 저장
+      shiftData[k]='';
+    }
   });
+
   if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
+
   saveAll();
+
+  // 적용 완료 후 선택 상태 초기화
+  shiftSelectedDates=[];
+  shiftSelectMode=false;
+
   render();
 }
 function renderShiftBulkBar(){
@@ -2903,7 +3017,7 @@ function renderHomeWidgets(){
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
   return `<div class="widget-wrap">
-    <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
+    <div class="widget-card today-widget-outline" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
@@ -3356,6 +3470,21 @@ function setPickerField(id,val,label,emptyText){
   el.dataset.val=val||'';
   el.value=val?label:emptyText;
   el.classList.toggle('empty',!val);
+  updateFamilyRepeatPicker(id,val||'');
+}
+function updateFamilyRepeatPicker(id,val){
+  if(!id || !id.startsWith('fi-'))return;
+  const parts=id.split('-');
+  if(parts.length<5)return;
+  const kind=parts[1];
+  const ki=+parts[2],ci=+parts[3],ii=+parts[4];
+  const item=family?.[ki]?.cats?.[ci]?.items?.[ii];
+  if(!item)return;
+  const map={sd:'start',ed:'end',st:'sT',et:'eT',re:'repeatEnd'};
+  const key=map[kind];
+  if(!key)return;
+  item[key]=val||'';
+  saveAll();
 }
 function pickerRoot(){
   let p=document.getElementById('picker');
