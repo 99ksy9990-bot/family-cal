@@ -2598,6 +2598,74 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   border-radius:999px !important;
 }
 
+
+/* 최종 보정: 일정 대상 필터 바텀시트 / 부탁 접힘 / 기념 아이콘 */
+.today-list-person,
+.today-list-title{
+  font-size:13px !important;
+  font-weight:950 !important;
+  line-height:1.25 !important;
+}
+.memory-card-icon{
+  width:30px;
+  min-width:30px;
+  height:30px;
+  border-radius:12px;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  margin-top:0;
+}
+.memory-icon-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.memory-icon-btn{
+  height:46px;
+  border-radius:14px;
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  font-size:22px;
+  font-family:inherit;
+}
+.memory-icon-btn.on{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+  box-shadow:0 0 0 3px rgba(0,122,255,.12);
+}
+.ev-birthday-icon{
+  width:20px;
+  min-width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  line-height:1;
+  margin-top:0;
+}
+.cal-birthday-dot{
+  width:13px;
+  height:13px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  line-height:1;
+  flex:0 0 auto;
+  transform:translateY(-1px);
+}
+/* 루틴/기본정보/부탁 섹션 버튼 위치 통일 */
+.unified-sec .sec-actions .toss-btn.primary,
+.compact-sec .sec-actions .toss-btn.primary{
+  height:32px !important;
+  padding:0 12px !important;
+  border-radius:999px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2776,6 +2844,7 @@ let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',se
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
+let requestOpen=false,requestDoneOpen=false;
 let routineOpen=false;
 let todayDashboardOpen=false;
 let basicInfoOpen=false;
@@ -2786,6 +2855,7 @@ let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
+const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎁','⭐','💐','🥳'];
 
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
@@ -2981,6 +3051,18 @@ function birthDateInYear(birth,year){
   const d=Math.min(dd,last);
   return `${year}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 }
+
+function memoryIcon(x){
+  return (x&&x.icon)||'🎂';
+}
+function selectMemoryIcon(icon){
+  const el=document.getElementById('mem-icon');
+  if(el)el.value=icon;
+  document.querySelectorAll('.memory-icon-btn').forEach(b=>{
+    b.classList.toggle('on',b.dataset.icon===icon);
+  });
+}
+
 function memoryPerson(x){
   const direct=(x&&((x.who||x.todayWho||x.person||'')+'').trim())||'';
   if(direct)return direct;
@@ -3190,7 +3272,7 @@ function normalizeData(d){
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
-  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||'');});
+  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂';});
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
@@ -3997,6 +4079,32 @@ function weekCount(){
   return c;
 }
 
+
+function targetLabel(v){
+  return v==='all'?'전체':(v||'전체');
+}
+function openScheduleTargetSheet(){
+  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">대상 선택</div>
+      ${opts.map(o=>`<button class="sort-row${subF===o[0]?' on':''}" onclick="setScheduleTarget(${onclickArg(o[0])})">
+        <span class="sort-check">${subF===o[0]?'✓':''}</span>
+        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'전체 대상 일정':'선택한 대상 일정만 표시'}</em></span>
+      </button>`).join('')}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function setScheduleTarget(t){
+  filterToday=false;
+  subF=t||'all';
+  closeM();
+  render();
+}
+
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
   if(!list.length)return `<div class="empty">${emptyText}</div>`;
   const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
@@ -4043,8 +4151,6 @@ function renderS(){
   });
   doneFilt=sortScheduleList(doneFilt);
 
-  const filters=getPersons().map(p=>`<button class="chip-btn target-chip${subF===p?' on':''}" style="${targetChipStyle(p,subF===p)}" onclick="filterToday=false;setSub(${onclickArg(p)})">${escapeHtml(p)}</button>`).join('');
-
   const activeCards = activeOpen
     ? `<div class="card-wrap">${renderScheduleCardList(active,'진행 중인 일정이 없어요')}</div>`
     : `<div class="schedule-collapsed-hint">진행 중 목록이 접혀 있어요</div>`;
@@ -4055,11 +4161,8 @@ function renderS(){
 
   return`
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    <div class="filter-row target-filter-row schedule-filter-row">
-      <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="filterToday=false;setSub('all')">전체</button>
-      ${filters}
-    </div>
     ${sectionHeader('진행 중',active.length,activeOpen,'toggleActive',`
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
       <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
     `)}
@@ -4102,7 +4205,7 @@ function renderC(){
     const personDots=uniquePersonsForDay(evs,mems).slice(0,5)
       .map(p=>`<div class="cal-dot" title="${escapeAttr(p)}" style="background:${personColor(p)}"></div>`)
       .join('');
-    const birthDot=mems.length?`<div class="cal-birthday-dot" title="기념">🎂</div>`:'';
+    const birthDot=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
     const dots=birthDot+personDots;
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
@@ -4160,7 +4263,7 @@ function renderC(){
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
           const mp=memoryPerson(x);
-          return`<div class="ev-item"><div class="ev-birthday-icon">🎂</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
+          return`<div class="ev-item"><div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
         })
       ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
@@ -4317,15 +4420,9 @@ function toggleFamilyRoutine(ki){
 }
 function renderI(){
   let h=`<div class="fi-outer">`;
-  h+=`<div class="sec sec-toggle unified-sec" onclick="toggleBasicInfo()" style="cursor:pointer">
-    <span class="sec-title">기본정보</span>
-    <span class="sec-cnt">${family.length}</span>
-    <span class="collapsed-hint">${basicInfoOpen?'꾹 눌러 순서 이동':'접힘'}</span>
-    <div class="sec-actions">
-      <button class="fold-btn" onclick="event.stopPropagation();toggleBasicInfo()">${basicInfoOpen?'▲':'▼'}</button>
-      <button style="margin-left:6px" class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
-    </div>
-  </div>`;
+  h+=`${sectionHeader('기본정보',family.length,basicInfoOpen,'toggleBasicInfo',`
+    <button class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
+  `)}`;
   if(basicInfoOpen){
     family.forEach((kid,ki)=>{
       const memo=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
@@ -4489,15 +4586,27 @@ function makeReqCard(r){
   </div>`;
 }
 
+
+function toggleRequest(){
+  requestOpen=!requestOpen;
+  render({preserveScroll:true});
+}
+function toggleRequestDone(){
+  requestDoneOpen=!requestDoneOpen;
+  render({preserveScroll:true});
+}
+
 function renderR(){
   const active=requests.filter(r=>!isDone(r)&&matchSearchReq(r));
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   return`
-    <div class="sec">진행 중 <span class="sec-cnt">${active.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="openReqModal()">+ 추가</button></div>
-    <div class="card-wrap">${active.length?active.map(makeReqCard).join(''):'<div class="empty">부탁할 일이 없어요</div>'}</div>
+    ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest',`
+      <button class="toss-btn primary" onclick="event.stopPropagation();openReqModal()">+ 추가</button>
+    `)}
+    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):'<div class="empty">부탁할 일이 없어요</div>'}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
     <div class="div"></div>
-    <div class="sec">완료 <span class="sec-cnt">${done.length}</span></div>
-    <div class="card-wrap">${done.length?done.map(makeReqCard).join(''):'<div class="empty">완료된 부탁이 없어요</div>'}</div>
+    ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
+    ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):'<div class="empty">완료된 부탁이 없어요</div>'}</div>`:''}
   `;
 }
 
@@ -4564,7 +4673,7 @@ function makeMemoryCard(x){
     ontouchend="touchReorderEnd(event)"
     ontouchcancel="touchReorderCancel()">
     <div class="c-row">
-      <div class="ev-dot dm" style="margin-top:8px"></div>
+      <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
         <div class="c-title">${escapeHtml(x.name)}</div>
         <div class="c-meta">
@@ -4589,11 +4698,17 @@ function renderM(){
 }
 function openMemoryModal(id){
   const x=id?memories.find(v=>String(v.id)===String(id)):null;
+  const icon=x?memoryIcon(x):'🎂';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${x?'기념 수정':'기념 추가'}</div>
+      <div class="ml">아이콘</div>
+      <input type="hidden" id="mem-icon" value="${escapeAttr(icon)}"/>
+      <div class="memory-icon-grid">
+        ${MEMORY_ICONS.map(ic=>`<button class="memory-icon-btn${ic===icon?' on':''}" data-icon="${escapeAttr(ic)}" onclick="selectMemoryIcon('${ic}')">${ic}</button>`).join('')}
+      </div>
       <div class="ml">대상 이름</div>
       <input class="mi" id="mem-name" placeholder="예: 도미 생일, 엄마 생일" value="${x?escapeAttr(x.name):''}"/>
       <div class="ml">생년월일</div>
@@ -4612,11 +4727,12 @@ function saveMemory(id){
   if(!name.trim())return;
   const birth=getPickerVal('mem-birth');
   const memo=(document.getElementById('mem-memo')||{}).value||'';
+  const icon=(document.getElementById('mem-icon')||{}).value||'🎂';
   if(id){
     const x=memories.find(v=>String(v.id)===String(id)); if(!x)return;
-    x.name=name.trim(); x.birth=birth; x.memo=memo;
+    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon;
   }else{
-    memories.push({id:Date.now(),name:name.trim(),birth,memo});
+    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon});
   }
   saveAll();closeM();render();
 }
