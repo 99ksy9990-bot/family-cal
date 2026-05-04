@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.10';
+const CACHE_NAME = 'pass-cal-v1.0.11';
 
 const APP_SHELL = [
   './',
@@ -19,7 +19,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (url.origin !== self.location.origin) {
-    event.respondWith(fetch(req));
+    event.respondWith(fetch(req).catch(() => new Response('offline', {status: 503, statusText: 'offline'})));
     return;
   }
 
@@ -31,7 +31,7 @@ self.addEventListener('fetch', event => {
           caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
           return response;
         })
-        .catch(() => caches.match('./index.html').then(cached => cached || caches.match('./')))
+        .catch(() => caches.match('./index.html').then(cached => cached || caches.match('./') || new Response('offline', {status: 503, statusText: 'offline'})))
     );
     return;
   }
@@ -44,7 +44,7 @@ self.addEventListener('fetch', event => {
           caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
         }
         return response;
-      });
+      }).catch(() => new Response('offline', {status: 503, statusText: 'offline'}));
     })
   );
 });

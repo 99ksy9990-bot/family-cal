@@ -2141,6 +2141,38 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   .today-list-time{font-size:10px}
 }
 
+
+/* 정렬 바텀시트 / 보안 안내 */
+.sort-row{
+  width:100%;
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  border-radius:16px;
+  padding:10px 12px;
+  margin:8px 0;
+  font-family:inherit;
+  text-align:left;
+}
+.sort-row.on{border-color:var(--blue);background:var(--blue-bg)}
+.sort-check{width:20px;color:var(--blue);font-size:16px;font-weight:950;flex-shrink:0}
+.sort-row b{display:block;font-size:14px;font-weight:950}
+.sort-row em{display:block;font-style:normal;font-size:11px;color:var(--t3);margin-top:3px;line-height:1.3}
+.security-note{
+  margin-top:10px;
+  padding:12px;
+  border-radius:16px;
+  background:var(--orange-bg);
+  color:var(--orange-t);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.5;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2315,7 +2347,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='time';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let todayDashboardOpen=false;
@@ -2869,6 +2901,57 @@ function setupSubcollectionListeners(api){
   }catch(e){console.warn('subcollection listeners failed',e)}
 }
 
+
+function remoteActive(){return remoteReady && window.__firebaseAPI && hydrated}
+function finishSaving(){savingRemote=false}
+function saveSettingsOnly(){
+  saveLocal();
+  if(remoteActive()){
+    savingRemote=true;
+    const api=window.__firebaseAPI;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {...currentSettingsData(),updatedAt:api.serverTimestamp()}, {merge:false})
+      .catch(e=>{console.warn(e);updateSyncPill('설정 저장 실패: 로컬에만 저장됨');})
+      .finally(finishSaving);
+  }
+}
+function saveRemoteDoc(pathName,item){
+  saveLocal();
+  if(remoteActive() && item){
+    savingRemote=true;
+    const api=window.__firebaseAPI;
+    const id=String(item.id||Date.now());
+    item.id=item.id||id;
+    api.setDoc(api.doc(api.db,'familyCalendars',roomId,pathName,id), {...item}, {merge:false})
+      .catch(e=>{console.warn(e);updateSyncPill(`${pathName} 저장 실패: 로컬에만 저장됨`);})
+      .finally(finishSaving);
+  }
+}
+function deleteRemoteDoc(pathName,id){
+  saveLocal();
+  if(remoteActive() && id!==undefined && window.__firebaseAPI.deleteDoc){
+    savingRemote=true;
+    const api=window.__firebaseAPI;
+    api.deleteDoc(api.doc(api.db,'familyCalendars',roomId,pathName,String(id)))
+      .catch(e=>{console.warn(e);updateSyncPill(`${pathName} 삭제 실패: 로컬에만 저장됨`);})
+      .finally(finishSaving);
+  }
+}
+function saveNoteOnly(n){saveRemoteDoc('notes',n)}
+function saveRequestOnly(r){saveRemoteDoc('requests',r)}
+function saveAfterSoftDelete(kind,arr,idx,label){
+  if(idx<0||!arr[idx])return;
+  const item=arr[idx];
+  trashItem(kind,item);
+  const trashId=deletedItems[deletedItems.length-1].id;
+  arr.splice(idx,1);
+  saveLocal();
+  if(kind==='note')deleteRemoteDoc('notes',item.id);
+  else if(kind==='request')deleteRemoteDoc('requests',item.id);
+  saveSettingsOnly();
+  render({preserveScroll:true});
+  showToast(`${label} 삭제했습니다.`, '실행 취소', ()=>undoTrashById(trashId,kind,idx));
+}
+
 function saveShiftOnly(k,t){
   saveLocal();
   if(remoteReady && window.__firebaseAPI && hydrated){
@@ -3016,18 +3099,19 @@ function notesOnDate(y,m,d){
 
 function toggleNote(id){
   if(!requireEditMode())return;
-const n=notes.find(x=>String(x.id)===String(id));if(n){n.done=!n.done;saveAll();render()}}
+  const n=notes.find(x=>String(x.id)===String(id));
+  if(n){n.done=!n.done;saveNoteOnly(n);render({preserveScroll:true})}
+}
 
 function skipRepeatInstance(id,dateKey){
   if(!requireEditMode())return;
-
   const n=notes.find(x=>String(x.id)===String(id));
   if(!n || !n.repeat)return;
   if(!confirm('이번 회차만 삭제할까요?'))return;
   if(!Array.isArray(n.skipDates))n.skipDates=[];
   if(!n.skipDates.includes(dateKey))n.skipDates.push(dateKey);
-  saveAll();
-  render();
+  saveNoteOnly(n);
+  render({preserveScroll:true});
 }
 
 function delNote(id){
@@ -3176,6 +3260,28 @@ function openHolidaySyncGuide(){
   </div>`;
 }
 
+function openApiKeyGuide(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">Firebase API 키 보호</div>
+      <div class="security-note">
+        Firebase 웹 API 키는 정적 웹앱에서 완전히 숨길 수는 없습니다. 대신 Firebase Console에서 HTTP 참조자 제한을 걸어 이 앱 주소에서만 쓰이게 해야 합니다.
+      </div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.55;margin-top:12px">
+        권장 설정:<br>
+        1. Google Cloud Console → API 및 서비스 → 사용자 인증 정보<br>
+        2. 현재 웹 API 키 선택<br>
+        3. 애플리케이션 제한: HTTP 참조자<br>
+        4. 허용 주소에 GitHub Pages 주소 추가<br><br>
+        예: <b>https://99ksy9990-bot.github.io/*</b><br>
+        Firestore 보안 규칙도 함께 제한해야 실제 데이터 보호가 됩니다.
+      </div>
+      <button class="cancel-link" onclick="openManageCenter()">돌아가기</button>
+    </div>
+  </div>`;
+}
 function openManageCenter(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
@@ -3266,23 +3372,64 @@ function renderWeekView(){
 }
 
 
-function scheduleSortKey(n){
-  const k=n.repeat?nextOccurrence(n,todayKey()):(n.start||'9999-12-31');
-  return `${k}|${n.sT||'99:99'}|${String(n.id||'')}`;
+function scheduleDateKey(n){
+  return n.repeat?nextOccurrence(n,todayKey()):(n.start||'9999-12-31');
 }
-function toggleScheduleSort(){
-  scheduleSort=scheduleSort==='date'?'manual':'date';
-  render();
+function scheduleTimeKey(n){
+  // 시간이 없는 종일/메모성 일정은 놓치지 않도록 맨 위에 둡니다.
+  return n.sT || n.eT || '00:00';
+}
+function personRank(n){
+  const arr=getPersons();
+  const idx=arr.indexOf(n.who||'공통');
+  return idx<0?999:idx;
+}
+function oneOffRank(n){
+  return (n.repeat || n._autoFamilyInfo) ? 1 : 0;
+}
+function scheduleSortKey(n){
+  const date=scheduleDateKey(n);
+  const time=scheduleTimeKey(n);
+  const person=String(personRank(n)).padStart(3,'0');
+  const id=String(n.id||'');
+  if(scheduleSort==='person')return `${person}|${date}|${time}|${id}`;
+  if(scheduleSort==='special')return `${oneOffRank(n)}|${date}|${time}|${person}|${id}`;
+  if(scheduleSort==='manual')return id;
+  return `${date}|${time}|${person}|${id}`;
 }
 function sortScheduleList(arr){
-  if(scheduleSort!=='date')return arr;
+  if(scheduleSort==='manual')return arr;
   return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
 }
-
-
-function scheduleTimeKey(n){
-  return n.sT || n.eT || '99:99';
+function scheduleSortLabel(){
+  return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별우선':scheduleSort==='manual'?'입력순':'시간순';
 }
+function setScheduleSort(t){
+  scheduleSort=t;
+  closeM();
+  render({preserveScroll:true});
+}
+function openSortSheet(){
+  const opts=[
+    ['time','시간순','시작 시간이 빠른 일정부터 표시'],
+    ['person','대상별 묶어보기','대상별로 묶고 그룹 안은 시간순'],
+    ['special','특별 일정 우선','일반 일정 먼저, 루틴은 뒤에 표시'],
+    ['manual','입력순','등록한 순서 그대로 표시']
+  ];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">정렬 방식</div>
+      ${opts.map(o=>`<button class="sort-row${scheduleSort===o[0]?' on':''}" onclick="setScheduleSort('${o[0]}')">
+        <span class="sort-check">${scheduleSort===o[0]?'✓':''}</span>
+        <span><b>${o[1]}</b><em>${o[2]}</em></span>
+      </button>`).join('')}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+
 function sortByStartTime(arr){
   return [...arr].sort((a,b)=>{
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
@@ -3290,6 +3437,7 @@ function sortByStartTime(arr){
     return String(a.title||'').localeCompare(String(b.title||''));
   });
 }
+
 function activePeriodEnd(){
   if(activePer==='all')return '9999-12-31';
   if(activePer==='today')return todayKey();
@@ -3370,7 +3518,7 @@ function renderS(){
     <div class="sec sec-action-row">
       <span>진행 중</span>
       <span class="sec-cnt">${active.length}</span>
-      <button class="mini-toggle-btn" onclick="toggleScheduleSort()">${scheduleSort==='date'?'날짜순':'입력순'}</button>
+      <button class="mini-toggle-btn" onclick="openSortSheet()">${scheduleSortLabel()}</button>
       <button style="margin-left:6px" class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
     </div>
     ${!filterToday?renderActivePeriodRow():''}
@@ -3756,7 +3904,7 @@ function toggleReq(id){
   if(r){
     r.done=!isDone(r);
     r.doneAt=r.done?todayKey():'';
-    saveAll();render();
+    saveRequestOnly(r);render({preserveScroll:true});
   }
 }
 function delReq(id){
@@ -3826,20 +3974,21 @@ function openReqModal(id){
 function openEditReq(id){openReqModal(id)}
 function saveReq(id){
   if(!requireEditMode())return;
-
   const title=(document.getElementById('rq-ti')||{}).value||'';
   if(!title.trim())return;
   const writer=(document.getElementById('rq-wr')||{}).value||'';
   const comment=(document.getElementById('rq-cm')||{}).value||'';
   const requestDate=getPickerVal('rq-date')||todayKey();
+  let r=null;
   if(id){
-    const r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
+    r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
     r.title=title.trim(); r.writer=writer.trim(); r.comment=comment; r.requestDate=requestDate;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
   }else{
-    requests.push({id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,done:false,doneAt:'',comment});
+    r={id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,done:false,doneAt:'',comment};
+    requests.push(r);
   }
-  saveAll();closeM();render();
+  saveRequestOnly(r);closeM();render({preserveScroll:true});
 }
 
 
@@ -3987,19 +4136,15 @@ function undoTrashById(trashId,kind,insertIndex){
   const arr=kind==='note'?notes:kind==='request'?requests:kind==='memory'?memories:kind==='kid'?family:null;
   if(!arr)return;
   arr.splice(Math.min(insertIndex,arr.length),0,x.item);
-  saveAll();
+  if(kind==='note')saveNoteOnly(x.item);
+  else if(kind==='request')saveRequestOnly(x.item);
+  else saveSettingsOnly();
+  saveSettingsOnly();
   render({preserveScroll:true});
   showToast('삭제를 취소했어요.');
 }
 function softDelete(kind,arr,idx,label){
-  if(idx<0||!arr[idx])return;
-  const item=arr[idx];
-  trashItem(kind,item);
-  const trashId=deletedItems[deletedItems.length-1].id;
-  arr.splice(idx,1);
-  saveAll();
-  render({preserveScroll:true});
-  showToast(`${label} 삭제했습니다.`, '실행 취소', ()=>undoTrashById(trashId,kind,idx));
+  saveAfterSoftDelete(kind,arr,idx,label);
 }
 
 function confirmDelete(msg){return true;}
@@ -4185,15 +4330,14 @@ function repairData(){
 }
 function copyNote(id){
   if(!requireEditMode())return;
-
   const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
   const c=deepCopy(n);
   c.id=Date.now();
   c.title=(c.title||'일정')+' 복사';
   c.done=false;
   notes.push(c);
-  saveAll();render();
-  alert('일정을 복사했어요. 필요하면 날짜를 수정하세요.');
+  saveNoteOnly(c);render({preserveScroll:true});
+  showToast('일정을 복사했어요. 필요하면 날짜를 수정하세요.');
 }
 let longAddTimer=null,longAddOpened=false;
 function startLongAdd(e,k){
@@ -4227,10 +4371,9 @@ function openRepeatExceptions(id){
 }
 function restoreRepeatException(id,k){
   if(!requireEditMode())return;
-
   const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
   n.skipDates=(n.skipDates||[]).filter(x=>x!==k);
-  saveAll();openRepeatExceptions(id);render();
+  saveNoteOnly(n);openRepeatExceptions(id);render({preserveScroll:true});
 }
 
 
@@ -4489,7 +4632,7 @@ function saveCopyNoteWithDate(id){
   c.end='';
   c.done=false;
   notes.push(c);
-  saveAll();closeM();render();
+  saveNoteOnly(c);closeM();render({preserveScroll:true});
 }
 
 function setMain(t){
@@ -4986,7 +5129,7 @@ function saveNote(){
   const dup=notes.some(n=>!isDone(n)&&n.title===newNote.title&&n.start===newNote.start&&(n.who||'공통')===newNote.who);
   if(dup && !confirm('같은 날짜에 같은 일정이 있어요. 그래도 추가할까요?'))return;
   notes.push(newNote);
-  saveAll();closeM();render();
+  saveNoteOnly(newNote);closeM();render({preserveScroll:true});
 }
 
 function openEditNote(id){
@@ -5045,7 +5188,7 @@ function saveEditNote(id){
   n.eT=getPickerVal('e-et');
   n.alertMemo=(document.getElementById('e-alert')||{}).value||'';
   n.comment=document.getElementById('e-cm').value;
-  saveAll();closeM();render();
+  saveNoteOnly(n);closeM();render({preserveScroll:true});
 }
 
 function editKid(i){
@@ -5170,7 +5313,7 @@ function openDatePicker(id){
   const cur=getPickerVal(id)||new Date().toISOString().slice(0,10);
   const [cy,cm,cd]=cur.split('-').map(Number);
   const years=[];
-  for(let y=TY-1;y<=TY+2;y++)years.push(y);
+  for(let y=TY-2;y<=TY+10;y++)years.push(y);
   const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
   pickerRoot().innerHTML=`
   <div class="picker-bg" onclick="closePicker()">
