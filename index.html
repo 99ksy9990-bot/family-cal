@@ -1961,6 +1961,125 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   height:8px !important;
 }
 
+
+/* 오늘 하루 / 루틴 이중 대시보드 */
+.dashboard-wrap{
+  display:block !important;
+  padding-top:10px !important;
+}
+.dashboard-wrap + .dashboard-wrap{
+  padding-top:8px !important;
+}
+.today-dashboard,
+.routine-dashboard{
+  width:100%;
+  min-height:0 !important;
+  padding:14px !important;
+}
+.today-dashboard-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.today-dashboard-head .widget-title{
+  margin:0 !important;
+  font-size:13px !important;
+  color:var(--t2) !important;
+}
+.today-dashboard-count{
+  flex-shrink:0;
+  height:26px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:950;
+  border:1.5px solid rgba(0,122,255,.25);
+}
+.today-target-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.today-target-card{
+  min-width:0;
+  border-radius:16px;
+  background:var(--bg);
+  padding:10px 11px;
+  border:1px solid var(--border);
+}
+.today-dashboard .today-target-card{
+  min-height:96px;
+}
+.routine-dashboard .today-target-card{
+  min-height:178px;
+}
+.today-target-name{
+  font-size:12px;
+  line-height:1.15;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-bottom:7px;
+}
+.today-event-list{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.today-event-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:6px;
+  align-items:center;
+  min-height:20px;
+}
+.today-event-title{
+  min-width:0;
+  font-size:11.5px;
+  font-weight:850;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-event-time{
+  font-size:10.5px;
+  font-weight:900;
+  color:var(--t3);
+  white-space:nowrap;
+}
+.today-event-empty{
+  min-height:20px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--t3);
+  display:flex;
+  align-items:center;
+}
+.today-event-placeholder{
+  min-height:20px;
+  opacity:.35;
+}
+.today-target-empty-note{
+  font-size:11px;
+  color:var(--t3);
+  font-weight:800;
+  line-height:1.35;
+}
+@media (max-width:360px){
+  .today-target-grid{gap:6px}
+  .today-target-card{padding:9px 9px}
+  .today-event-title{font-size:11px}
+  .today-event-time{font-size:10px}
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -4373,45 +4492,60 @@ function toggleTodayDashboard(){
 function targetTodayEvents(target,sorted){
   return sorted.filter(n=>(n.who||'공통')===target);
 }
-
-function renderHomeWidgets(){
-  if(main!=='s')return '';
-  const todayList=[
-    ...notes.filter(n=>!isDone(n)&&occursOn(n,todayKey())),
-    ...familyInfoUpcomingEvents(1)
-  ].filter(n=>subF==='all'||(n.who||'공통')===subF);
-
-  const sorted=sortByStartTime(todayList);
-  const targets=selectedTodayTargets();
-  const cards=targets.length?targets:[{empty:true,label:'대상 선택'},{empty:true,label:'대상 선택'}];
-  const visible=todayDashboardOpen?cards:cards.slice(0,4);
-
-  const rows=visible.map(slot=>{
+function todayTimeOnly(n){
+  const sT=n.sT||'';
+  const eT=n.eT||'';
+  if(sT&&eT)return `${sT} ~ ${eT}`;
+  if(sT&&!eT)return `${sT} ~`;
+  if(!sT&&eT)return eT;
+  return '';
+}
+function renderDashboardEventRows(list,minRows){
+  const rows=list.map(n=>`<div class="today-event-row">
+    <div class="today-event-title">${escapeHtml(n.title||'일정')}</div>
+    <div class="today-event-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
+  </div>`);
+  if(!rows.length){
+    rows.push(`<div class="today-event-empty">일정 없음</div>`);
+  }
+  while(rows.length<minRows){
+    rows.push(`<div class="today-event-placeholder"></div>`);
+  }
+  return rows.join('');
+}
+function renderTargetDashboard(title,allEvents,minRows,cls){
+  const filtered=sortByStartTime((allEvents||[]).filter(n=>subF==='all'||(n.who||'공통')===subF));
+  const targets=selectedTodayTargets().filter(t=>subF==='all'||t.label===subF);
+  const cards=targets.length?targets:[{empty:true,label:'대상 선택'}];
+  const grid=cards.map(slot=>{
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
         <div class="today-target-name">대상 선택</div>
-        <div class="today-target-empty">루틴 기본정보에서 오늘 하루 표시를 켜주세요</div>
+        <div class="today-target-empty-note">루틴 기본정보에서 오늘 하루 표시를 켜주세요</div>
       </div>`;
     }
-    const target=slot.label;
-    const list=targetTodayEvents(target,sorted);
-    const first=list[0];
+    const list=targetTodayEvents(slot.label,filtered);
     return `<div class="today-target-card">
-      <div class="today-target-name" style="color:${personColor(target)}">${escapeHtml(target)}</div>
-      ${first?`<div class="today-target-title">${escapeHtml(first.title)}</div><div class="today-target-time">${escapeHtml(dateTimeRange(first)||'시간 미정')}${list.length>1?` · 외 ${list.length-1}개`:''}</div>`:`<div class="today-target-empty">오늘 일정 없음</div>`}
+      <div class="today-target-name" style="color:${personColor(slot.label)}">${escapeHtml(slot.label)}</div>
+      <div class="today-event-list">${renderDashboardEventRows(list,minRows)}</div>
     </div>`;
   }).join('');
-
-  return `<div class="widget-wrap">
-    <div class="widget-card today-dashboard" data-action="today-expanded" onclick="toggleTodayDashboard()">
+  return `<div class="widget-wrap dashboard-wrap">
+    <div class="widget-card ${cls}">
       <div class="today-dashboard-head">
-        <div class="widget-title">오늘 하루?</div>
-        <div class="today-dashboard-count">${todayList.length}개</div>
+        <div class="widget-title">${escapeHtml(title)}</div>
+        <div class="today-dashboard-count">${filtered.length}개</div>
       </div>
-      <div class="today-target-grid">${rows}</div>
-      ${cards.length>4?`<div class="today-dashboard-more">${todayDashboardOpen?'접기':'전체 보기'} · ${cards.length}명</div>`:''}
+      <div class="today-target-grid">${grid}</div>
     </div>
   </div>`;
+}
+
+function renderHomeWidgets(){
+  if(main!=='s')return '';
+  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,todayKey()));
+  const routineToday=familyInfoUpcomingEvents(1);
+  return `${renderTargetDashboard('오늘 하루?',normalToday,2,'today-dashboard')}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard')}`;
 }
 
 function renderManualNotice(){
