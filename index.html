@@ -3497,6 +3497,27 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   display:none !important;
 }
 
+
+/* 기본정보 삭제/빈 상태 랜덤 표시 보정 */
+.empty-state{
+  min-height:112px !important;
+  padding:16px 14px !important;
+  gap:6px !important;
+}
+.empty-emoji{
+  font-size:42px !important;
+  line-height:1 !important;
+}
+.empty-title{
+  font-size:14px !important;
+  font-weight:950 !important;
+}
+.empty-sub{
+  font-size:11.5px !important;
+  line-height:1.45 !important;
+  max-width:260px !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -3692,9 +3713,26 @@ const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳
 
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
+
+function isHiddenBasePerson(name){
+  return Array.isArray(hiddenBasePersons) && hiddenBasePersons.includes((name||'').trim());
+}
+function hideBasePerson(name){
+  name=(name||'').trim();
+  if(!name || !BASE_PERSONS.includes(name))return;
+  if(!Array.isArray(hiddenBasePersons))hiddenBasePersons=[];
+  if(!hiddenBasePersons.includes(name))hiddenBasePersons.push(name);
+}
+function unhideBasePerson(name){
+  name=(name||'').trim();
+  if(!name || !Array.isArray(hiddenBasePersons))return;
+  hiddenBasePersons=hiddenBasePersons.filter(x=>x!==name);
+}
+
 function ensureBaseTargets(){
   if(!Array.isArray(family))family=[];
   BASE_PERSONS.forEach(name=>{
+    if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
       family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
@@ -3711,9 +3749,9 @@ function getPersons(){
   const names=[];
   (family||[]).forEach(k=>{
     const n=(k.name||'').trim();
-    if(n && !names.includes(n))names.push(n);
+    if(n && !names.includes(n) && !isHiddenBasePerson(n))names.push(n);
   });
-  BASE_PERSONS.forEach(n=>{if(!names.includes(n))names.push(n)});
+  BASE_PERSONS.forEach(n=>{if(!isHiddenBasePerson(n) && !names.includes(n))names.push(n)});
   return names;
 }
 function personColor(who){
@@ -3827,7 +3865,7 @@ function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return 
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={};
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[];
 let shiftKeepOnlyMay2026Done_v3=false;
 let shiftKeepOnlyMay2026Done_v4=false;
 let shiftKeepOnlyMay2026NeedsSave=false;
@@ -4148,6 +4186,7 @@ function normalizeData(d){
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
   holidayCache=(d.holidayCache&&typeof d.holidayCache==='object')?d.holidayCache:(base.holidayCache||{});
   family=Array.isArray(d.family)?d.family:base.family;
+  hiddenBasePersons=Array.isArray(d.hiddenBasePersons)?d.hiddenBasePersons:[];
   ensureBaseTargets();
 
   repeatItems=Array.isArray(d.repeatItems)?d.repeatItems:[];
@@ -4193,14 +4232,14 @@ function normalizeData(d){
   applyMay2026ShiftMigration();
   applyMay2026ShiftMigrationV4();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
 
 function currentSettingsData(){
   return {
-    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,
+    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,
     shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,
     storageMode:'subcollections',
     updatedAt:Date.now()
@@ -4963,9 +5002,28 @@ function setScheduleTarget(t){
 }
 
 
+const EMPTY_SCHEDULE_VARIANTS=[
+  {emoji:'📭', title:'오늘 일정이 없어요', sub:'여유로운 하루네요. 잠시 숨을 고르며 천천히 쉬어가요.'},
+  {emoji:'🫖', title:'오늘 일정이 없어요', sub:'따뜻한 차 한 잔처럼 부드럽고 느긋한 하루가 기다리고 있어요.'},
+  {emoji:'🧺', title:'오늘 일정이 없어요', sub:'빈 바구니처럼 가벼운 날이에요. 마음도 한결 편안하게 보내보세요.'},
+  {emoji:'☕', title:'오늘 일정이 없어요', sub:'잠깐 쉬어가기 좋은 타이밍이에요. 느긋하게 하루를 시작해도 좋아요.'},
+  {emoji:'🌿', title:'오늘 일정이 없어요', sub:'바람처럼 가볍게 흘러가는 하루예요. 여유를 마음껏 누려보세요.'},
+  {emoji:'🪴', title:'오늘 일정이 없어요', sub:'작은 식물처럼 천천히 숨 고르기 좋은 날이에요.'},
+  {emoji:'🛋️', title:'오늘 일정이 없어요', sub:'소파에 기대듯 편안한 하루예요. 쉬어도 괜찮아요.'},
+  {emoji:'🌤️', title:'오늘 일정이 없어요', sub:'가족과 웃으며 보내기 좋은 맑은 하루예요.'},
+  {emoji:'🕊️', title:'오늘 일정이 없어요', sub:'조용하고 포근한 하루예요. 잠시 여백을 즐겨보세요.'},
+  {emoji:'🍪', title:'오늘 일정이 없어요', sub:'달콤한 간식처럼 기분 좋은 여유가 있는 날이에요.'}
+];
+const EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
+function pickScheduleEmpty(title,sub){
+  const base=EMPTY_SCHEDULE_VARIANTS[EMPTY_SCHEDULE_PICK]||EMPTY_SCHEDULE_VARIANTS[0];
+  if(title && !String(title).includes('오늘 일정'))return {emoji:'🗓️',title,sub:sub||'여유로운 하루네요. 잠시 숨을 고르세요.'};
+  return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
+}
+
 function renderEmptyState(kind,title,sub=''){
   const cfg={
-    schedule:{emoji:'🗓️',title:title||'진행 중인 일정이 없어요',sub:sub||'여유로운 하루네요. 잠시 숨을 고르세요.'},
+    schedule:pickScheduleEmpty(title,sub),
     request:{emoji:'📭',title:title||'부탁할 일이 없어요',sub:sub||'비어 있는 바구니처럼 한결 가벼운 상태예요.'},
     done:{emoji:'✅',title:title||'완료된 항목이 없어요',sub:sub||'기록은 아직 없지만 지금부터 차곡차곡 쌓아볼 수 있어요.'},
     generic:{emoji:'🌿',title:title||'표시할 내용이 없어요',sub:sub||'조금 더 편안한 화면이에요.'}
@@ -5479,6 +5537,9 @@ function delCat(ki,ci){
 if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
 function delKid(i){
   if(!requireEditMode())return;
+  if(!family[i])return;
+  const nm=(family[i].name||'').trim();
+  if(BASE_PERSONS.includes(nm))hideBasePerson(nm);
   softDelete('kid',family,i,'기본 정보를');
 }
 
@@ -5762,6 +5823,7 @@ function undoTrashById(trashId,kind,insertIndex){
   deletedItems.splice(ti,1);
   const arr=kind==='note'?notes:kind==='request'?requests:kind==='memory'?memories:kind==='kid'?family:null;
   if(!arr)return;
+  if(kind==='kid')unhideBasePerson((x.item||{}).name);
   arr.splice(Math.min(insertIndex,arr.length),0,x.item);
   if(kind==='note')saveNoteOnly(x.item);
   else if(kind==='request')saveRequestOnly(x.item);
@@ -5869,7 +5931,7 @@ function restoreTrash(id){
   if(x.kind==='note')notes.push(x.item);
   else if(x.kind==='request')requests.push(x.item);
   else if(x.kind==='memory')memories.push(x.item);
-  else if(x.kind==='kid')family.push(x.item);
+  else if(x.kind==='kid'){unhideBasePerson((x.item||{}).name);family.push(x.item);}
   deletedItems.splice(idx,1);
   saveAll();openTrash();render();
 }
