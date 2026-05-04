@@ -2080,6 +2080,67 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   .today-event-time{font-size:10px}
 }
 
+
+/* 오늘 하루/루틴 대상 분리 대시보드 */
+.today-list-card{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:9px 10px;
+  min-height:92px;
+}
+.today-list-row{
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr) auto;
+  align-items:center;
+  gap:7px;
+  min-height:24px;
+}
+.today-list-person{
+  min-width:0;
+  font-size:11px;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-list-title{
+  min-width:0;
+  font-size:12px;
+  font-weight:850;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-list-time{
+  font-size:10.5px;
+  font-weight:900;
+  color:var(--t3);
+  white-space:nowrap;
+}
+.today-list-empty{
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--t3);
+  font-size:12px;
+  font-weight:850;
+}
+.routine-dashboard .today-target-card{min-height:178px}
+.fi-hd-btns{flex-wrap:wrap;justify-content:flex-end}
+.today-toggle-pill{margin-bottom:2px}
+@media (max-width:360px){
+  .today-list-row{grid-template-columns:48px minmax(0,1fr) auto;gap:5px}
+  .today-list-person{font-size:10.5px}
+  .today-list-title{font-size:11.5px}
+  .today-list-time{font-size:10px}
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2273,11 +2334,15 @@ function ensureBaseTargets(){
   if(!Array.isArray(family))family=[];
   BASE_PERSONS.forEach(name=>{
     if(!family.some(x=>(x.name||'').trim()===name)){
-      family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[],showToday:name!=='공통'});
+      const def=['아빠','엄마','초이','도미'].includes(name);
+      family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
     }
   });
   family.forEach(k=>{
-    if(!('showToday' in k))k.showToday=['아빠','엄마','초이','도미'].includes((k.name||'').trim());
+    const nm=(k.name||'').trim();
+    const def=['아빠','엄마','초이','도미'].includes(nm);
+    if(!('showToday' in k))k.showToday=def;
+    if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
   });
 }
 function getPersons(){
@@ -3553,6 +3618,13 @@ function toggleFamilyToday(ki){
   saveAll();
   render();
 }
+function toggleFamilyRoutine(ki){
+  if(!requireEditMode())return;
+  if(!family[ki])return;
+  family[ki].showRoutine=!family[ki].showRoutine;
+  saveAll();
+  render();
+}
 function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`<div class="sec sec-toggle" onclick="toggleBasicInfo()" style="cursor:pointer">
@@ -3578,7 +3650,8 @@ function renderI(){
         ontouchcancel="touchReorderCancel()">
         <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
-            <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 하루 ${kid.showToday?'표시':'숨김'}</button>
+            <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
+            <button class="today-toggle-pill${kid.showRoutine?' on':''}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
             <button class="fi-btn fi-btn-e" onclick="event.stopPropagation();editKid(${ki})">수정</button>
             <button class="fi-btn fi-btn-d" onclick="event.stopPropagation();delKid(${ki})">삭제</button>
           </div>
@@ -3587,7 +3660,7 @@ function renderI(){
       </div>`;
     });
   }else{
-    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 순서를 설정할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
   }
 
   h+=`<div class="sec">루틴 일정 <span class="sec-cnt">${repeatItems.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="addRepeatItem()">+ 루틴 추가</button></div>`;
@@ -4485,6 +4558,11 @@ function selectedTodayTargets(){
     .filter(x=>x.showToday)
     .map(x=>({id:x.id,label:(x.name||'대상')}));
 }
+function selectedRoutineTargets(){
+  return (family||[])
+    .filter(x=>x.showRoutine)
+    .map(x=>({id:x.id,label:(x.name||'대상')}));
+}
 function toggleTodayDashboard(){
   todayDashboardOpen=!todayDashboardOpen;
   render();
@@ -4513,15 +4591,21 @@ function renderDashboardEventRows(list,minRows){
   }
   return rows.join('');
 }
-function renderTargetDashboard(title,allEvents,minRows,cls){
-  const filtered=sortByStartTime((allEvents||[]).filter(n=>subF==='all'||(n.who||'공통')===subF));
-  const targets=selectedTodayTargets().filter(t=>subF==='all'||t.label===subF);
+function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine'){
+  const sourceTargets=targetMode==='today'?selectedTodayTargets():selectedRoutineTargets();
+  const targets=sourceTargets.filter(t=>subF==='all'||t.label===subF);
+  const selectedSet=new Set(targets.map(t=>t.label));
+  const filtered=sortByStartTime((allEvents||[]).filter(n=>{
+    const who=n.who||'공통';
+    if(subF!=='all'&&who!==subF)return false;
+    return selectedSet.has(who);
+  }));
   const cards=targets.length?targets:[{empty:true,label:'대상 선택'}];
   const grid=cards.map(slot=>{
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
         <div class="today-target-name">대상 선택</div>
-        <div class="today-target-empty-note">루틴 기본정보에서 오늘 하루 표시를 켜주세요</div>
+        <div class="today-target-empty-note">루틴 기본정보에서 표시 대상을 켜주세요</div>
       </div>`;
     }
     const list=targetTodayEvents(slot.label,filtered);
@@ -4541,11 +4625,52 @@ function renderTargetDashboard(title,allEvents,minRows,cls){
   </div>`;
 }
 
+function renderTodayListDashboard(title,allEvents){
+  const targetOrder=selectedTodayTargets().map(x=>x.label);
+  const selectedSet=new Set(targetOrder);
+  let filtered=(allEvents||[]).filter(n=>{
+    const who=n.who||'공통';
+    if(subF!=='all'&&who!==subF)return false;
+    return selectedSet.has(who);
+  });
+  filtered.sort((a,b)=>{
+    const ia=targetOrder.indexOf(a.who||'공통');
+    const ib=targetOrder.indexOf(b.who||'공통');
+    const ga=ia<0?999:ia, gb=ib<0?999:ib;
+    if(ga!==gb)return ga-gb;
+    const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+    if(ta!==tb)return ta.localeCompare(tb);
+    return String(a.title||'').localeCompare(String(b.title||''));
+  });
+  const rows=filtered.map(n=>{
+    const who=n.who||'공통';
+    return `<div class="today-list-row">
+      <div class="today-list-person" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+      <div class="today-list-title">${escapeHtml(n.title||'일정')}</div>
+      <div class="today-list-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
+    </div>`;
+  });
+  if(!rows.length){
+    rows.push(`<div class="today-list-empty">오늘 하루 표시 대상의 일정이 없어요</div>`);
+  }
+  while(rows.length<2){
+    rows.push(`<div class="today-event-placeholder"></div>`);
+  }
+  return `<div class="widget-wrap dashboard-wrap">
+    <div class="widget-card today-dashboard">
+      <div class="today-dashboard-head">
+        <div class="widget-title">${escapeHtml(title)}</div>
+        <div class="today-dashboard-count">${filtered.length}개</div>
+      </div>
+      <div class="today-list-card">${rows.join('')}</div>
+    </div>
+  </div>`;
+}
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,todayKey()));
   const routineToday=familyInfoUpcomingEvents(1);
-  return `${renderTargetDashboard('오늘 하루?',normalToday,2,'today-dashboard')}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard')}`;
+  return `${renderTodayListDashboard('오늘 하루?',normalToday)}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
@@ -4945,7 +5070,7 @@ function editKid(i){
 }
 function addKid(){
   if(!requireEditMode())return;
-family.push({id:Date.now(),name:'새 대상',grade:'',year:'',cls:'',num:'',cats:[],showToday:false});saveAll();editKid(family.length-1)}
+family.push({id:Date.now(),name:'새 대상',grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});saveAll();editKid(family.length-1)}
 function saveKid(i){
   if(!requireEditMode())return;
 family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
