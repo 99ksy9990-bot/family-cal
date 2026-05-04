@@ -2677,6 +2677,152 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 /* 달력 선택 날짜 목록: 점 · 제목 / 대상자 · 시간 */
 .cal-selected-event .ev-dot{margin-top:5px}.cal-selected-event .ev-info{min-width:0;flex:1}.cal-selected-event .ev-title{font-size:14px!important;font-weight:950!important;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cal-selected-event .ev-sub{font-size:12px!important;color:var(--t2)!important;font-weight:850;margin-top:3px}.routine-selected-event .ev-sub{color:var(--purple-t)!important}
 
+
+/* 최종 미세조정: 달력 선택 날짜 일정 리스트 폰트/간격 통일 */
+.ev-card{
+  padding:15px 16px !important;
+}
+.ev-card .ev-hd{
+  font-size:15px !important;
+  font-weight:950 !important;
+  letter-spacing:-.25px;
+  margin-bottom:11px !important;
+}
+.ev-card .shift-picker{
+  padding:9px !important;
+  gap:7px !important;
+  margin-bottom:11px !important;
+}
+.ev-card .shift-picker-title{
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.ev-card .shift-btn{
+  height:31px !important;
+  min-width:42px !important;
+  border-radius:11px !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.ev-card .ev-item{
+  gap:11px !important;
+  padding:10px 0 !important;
+  align-items:flex-start !important;
+}
+.ev-card .ev-dot{
+  width:10px !important;
+  height:10px !important;
+  min-width:10px !important;
+  margin-top:7px !important;
+}
+.cal-selected-event .ev-info,
+.ev-card .ev-item > div[style*="flex:1"]{
+  min-width:0 !important;
+  flex:1 !important;
+}
+.cal-selected-event .ev-title,
+.ev-card .ev-title{
+  font-size:14px !important;
+  line-height:1.38 !important;
+  font-weight:950 !important;
+  color:var(--t1) !important;
+  letter-spacing:-.25px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.cal-selected-event .ev-sub,
+.ev-card .ev-sub{
+  display:flex !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:4px !important;
+  margin-top:4px !important;
+  font-size:14px !important;
+  line-height:1.35 !important;
+  font-weight:850 !important;
+  color:var(--t2) !important;
+  letter-spacing:-.2px !important;
+}
+.cal-selected-event .ev-meta-kind,
+.cal-selected-event .ev-meta-person,
+.cal-selected-event .ev-meta-time,
+.cal-selected-event .ev-meta-sep{
+  font-size:14px !important;
+  line-height:1.35 !important;
+  font-weight:850 !important;
+}
+.cal-selected-event .ev-meta-kind{
+  color:var(--purple-t) !important;
+  font-weight:950 !important;
+}
+.cal-selected-event .ev-meta-person{
+  color:var(--t1) !important;
+  font-weight:950 !important;
+}
+.cal-selected-event .ev-meta-time{
+  color:var(--t2) !important;
+}
+.routine-selected-event .ev-sub{
+  color:var(--t2) !important;
+}
+.ev-card .ev-actions{
+  gap:12px !important;
+  margin-top:8px !important;
+}
+.ev-card .ev-actions .small-link{
+  font-size:12px !important;
+  font-weight:950 !important;
+  color:var(--blue) !important;
+}
+.ev-card .ev-alert{
+  margin-top:7px !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+.ev-card .ev-birthday-icon{
+  width:22px !important;
+  min-width:22px !important;
+  height:22px !important;
+  font-size:16px !important;
+  margin-top:3px !important;
+}
+/* 최종 미세조정: 대시보드/카드/칩 균형 */
+.today-list-person,
+.today-list-title,
+.today-list-time{
+  font-size:13px !important;
+  line-height:1.3 !important;
+  font-weight:950 !important;
+}
+.today-event-title,
+.today-event-time{
+  font-size:12.5px !important;
+  line-height:1.3 !important;
+}
+.sec-chip-btn,
+.fold-btn,
+.today-toggle-pill{
+  font-weight:950 !important;
+  letter-spacing:-.2px !important;
+}
+.memory-icon-btn{
+  height:48px !important;
+  border-radius:15px !important;
+}
+.memory-card-icon{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+}
+.shift-count-item{
+  font-size:13px !important;
+  gap:6px !important;
+}
+.shift-count-item .leg-chip{
+  min-width:36px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -4225,27 +4371,36 @@ function calendarTimeOnly(n){
   if(e)return `~ ${e}`;
   return '시간 미정';
 }
+function calendarDateTime(n,selDate=''){
+  const v=dateTimeRange({...n,start:n.start||selDate,end:n.end||''});
+  return v || calendarTimeOnly(n) || '시간 미정';
+}
 function calendarEventItem(n,selDate){
-  const who=escapeHtml(n.who||'공통');
-  const tm=escapeHtml(calendarTimeOnly(n));
+  const whoRaw=n.who||'공통';
+  const who=escapeHtml(whoRaw);
+  const tm=escapeHtml(calendarDateTime(n,selDate));
   const title=highlightText(n.title||'일정');
   const isRoutine=!!(n.repeat||n._autoFamilyInfo);
-  const sub=isRoutine?`루틴 · ${who} · ${tm}`:`${who} · ${tm}`;
+  const meta=isRoutine
+    ? `<span class="ev-meta-kind">루틴</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`
+    : `<span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`;
+
   if(n._autoFamilyInfo){
     return `<div class="ev-item cal-selected-event routine-selected-event">
-      <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
+      <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
       <div class="ev-info">
         <div class="ev-title">${title}</div>
-        <div class="ev-sub">${sub}</div>
+        <div class="ev-sub">${meta}</div>
         <div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div>
       </div>
     </div>`;
   }
-  return `<div class="ev-item cal-selected-event" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
-    <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
+
+  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
+    <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
     <div class="ev-info">
       <div class="ev-title">${title}</div>
-      <div class="ev-sub">${sub}</div>
+      <div class="ev-sub">${meta}</div>
       ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
       <div class="ev-actions">
         <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
