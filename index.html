@@ -3389,7 +3389,18 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   gap:5px;
 }
 
+
+/* 음력 기념일 표시 보정 */
+.mem-dday{
+  white-space:nowrap !important;
+  max-width:none !important;
+}
+.memory-meta-line{
+  align-items:center !important;
+}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
 <script>
@@ -3790,8 +3801,8 @@ function selectMemoryIcon(icon){
 function selectMemoryCal(v){
   const el=document.getElementById('mem-cal');
   if(el)el.value=v;
-  const solar=document.getElementById('mem-cal-solar');
-  const lunar=document.getElementById('mem-cal-lunar');
+  const solar=document.getElementById('mem-solar') || document.getElementById('mem-cal-solar');
+  const lunar=document.getElementById('mem-lunar') || document.getElementById('mem-cal-lunar');
   if(solar)solar.className='type-btn'+(v==='solar'?' tf':'');
   if(lunar)lunar.className='type-btn'+(v==='lunar'?' tf':'');
 }
@@ -3815,8 +3826,15 @@ function uniquePersonsForDay(evs,mems){
   return people;
 }
 function memoriesOnDate(y,m,d){
-  const md=`${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-  return memories.filter(x=>x.birth&&x.birth.slice(5)===md);
+  const key=dk(y,m,d);
+  return memories.filter(x=>{
+    if(!x.birth)return false;
+    const [,mm,dd]=x.birth.split('-').map(Number);
+    if(memoryCalendarType(x)==='lunar'){
+      return [y-1,y,y+1].some(ly=>lunarToSolarDate(ly,mm,dd)===key);
+    }
+    return birthDateInYear(x.birth,y)===key;
+  });
 }
 function ageNow(birth){
   if(!birth)return '';
@@ -3826,14 +3844,26 @@ function ageNow(birth){
   if(dk(TY,TM,TD)<thisBirth)age--;
   return Math.max(0,age);
 }
-function nextBirthInfo(birth){
+function nextBirthInfo(birth,isLunar=false){
   if(!birth)return {date:'',dday:''};
-  let y=TY;
-  let b=birthDateInYear(birth,y);
   const today=dk(TY,TM,TD);
-  if(b<today){y++;b=birthDateInYear(birth,y);}
-  const diff=Math.ceil((new Date(b+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
-  return {date:b,dday:diff===0?'D-Day':`D-${diff}`};
+  let targetSolarDate='';
+
+  if(isLunar){
+    const [,bm,bd]=birth.split('-').map(Number);
+    targetSolarDate=lunarToSolarDate(TY,bm,bd);
+    if(targetSolarDate<today){
+      targetSolarDate=lunarToSolarDate(TY+1,bm,bd);
+    }
+  }else{
+    targetSolarDate=birthDateInYear(birth,TY);
+    if(targetSolarDate<today){
+      targetSolarDate=birthDateInYear(birth,TY+1);
+    }
+  }
+
+  const diff=Math.ceil((new Date(targetSolarDate+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
+  return {date:targetSolarDate,dday:diff===0?'D-Day':`D-${diff}`};
 }
 
 function makeId(){
@@ -4014,7 +4044,7 @@ function normalizeData(d){
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
-  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂'; if(!x.calendarType)x.calendarType=x.lunar?'lunar':'solar'; x.lunar=x.calendarType==='lunar';});
+  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂'; if(!x.calendarType)x.calendarType=(x.isLunar||x.lunar)?'lunar':'solar'; x.isLunar=x.calendarType==='lunar'||x.isLunar===true; x.lunar=x.isLunar;});
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
@@ -4748,10 +4778,9 @@ function activePeriodEnd(){
 }
 function activeInPeriod(n){
   if(activePer==='all')return true;
-  const base=dashboardDateKey ? dashboardDateKey() : todayKey();
   const today=todayKey();
   const end=activePeriodEnd();
-  if(activePer==='today')return occursOn(n,base);
+  if(activePer==='today')return occursOn(n,today);
   const k=n.repeat?nextOccurrence(n,today):(n.start||'');
   if(!k)return true;
   if(n.end && n.end>=today && (n.start||k)<=end)return true;
@@ -4872,12 +4901,12 @@ function renderS(){
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
     if(!matchSearchNote(n)) return false;
-    if(filterToday) return occursOn(n,dashboardDateKey());
+    if(filterToday) return occursOn(n,todayKey());
     return (subF==='all'||(n.who||'공통')===subF) && activeInPeriod(n);
   });
 
   const autoActive=(activePer==='today'||filterToday)
-    ? familyInfoEventsForKey(dashboardDateKey()).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
+    ? familyInfoEventsForKey(todayKey()).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
     : familyInfoUpcomingEvents(90).filter(n=>{
         if(!autoInfoMatchesFilter(n))return false;
         if(!matchSearchNote(n))return false;
@@ -5466,10 +5495,17 @@ function delMemory(id){
   softDelete('memory',memories,idx,'기념을');
 }
 function makeMemoryCard(x){
-  const nb=nextBirthInfo(x.birth);
-  const ageLabel=memoryAgeLabel(x);
   const calType=memoryCalendarType(x);
+  const isLunar=calType==='lunar';
+  const nb=nextBirthInfo(x.birth,isLunar);
+  const ageLabel=memoryAgeLabel(x);
   const thisYear=memoryThisYearDate(x);
+  let upcomingLabel='';
+  if(nb.date){
+    const [ny,nm,nd]=nb.date.split('-').map(Number);
+    const dow=DAYS[new Date(ny,nm-1,nd).getDay()];
+    upcomingLabel=`${nm}/${nd}(${dow})`;
+  }
   return`<div class="card mem-card reorder-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -5486,13 +5522,12 @@ function makeMemoryCard(x){
       <div class="c-body">
         <div class="c-title memory-title-line">
           <span>${escapeHtml(x.name)}</span>
-          ${calType==='lunar'&&thisYear?`<em class="memory-year-date">올해 양력 ${dateLabel(thisYear)}</em>`:''}
+          ${isLunar&&thisYear?`<em class="memory-year-date">올해 양력 ${dateLabel(thisYear)}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
-          ${x.birth?`<span class="chip chip-g">${dateLabel(x.birth)}</span>`:''}
-          <span class="chip ${calType==='lunar'?'lunar-chip':'solar-chip'}">${calType==='lunar'?'음력':'양력'}</span>
+          ${x.birth?`<span class="chip ${isLunar?'lunar-chip':'solar-chip'}">${isLunar?'음력':'양력'}</span>`:''}
           ${x.birth?`<span class="chip mem-age">${escapeHtml(ageLabel)}</span>`:''}
-          ${x.birth?`<span class="chip mem-dday">${nb.dday}</span>`:''}
+          ${x.birth?`<span class="chip mem-dday">${escapeHtml(upcomingLabel)} ┃ ${escapeHtml(nb.dday)}</span>`:''}
         </div>
         ${x.memo?`<button class="comment-pill" onclick="event.stopPropagation();openMemoryModal('${x.id}')">${escapeHtml(x.memo)}</button>`:''}
       </div>
@@ -5525,9 +5560,9 @@ function openMemoryModal(id){
       </div>
       <div class="ml">날짜 방식</div>
       <input type="hidden" id="mem-cal" value="${escapeAttr(calType)}"/>
-      <div class="type-sel">
-        <button class="type-btn${calType==='solar'?' tf':''}" id="mem-cal-solar" onclick="selectMemoryCal('solar')">양력</button>
-        <button class="type-btn${calType==='lunar'?' tf':''}" id="mem-cal-lunar" onclick="selectMemoryCal('lunar')">음력</button>
+      <div class="type-sel" style="margin-bottom:8px">
+        <button class="type-btn${calType==='solar'?' tf':''}" id="mem-solar" onclick="selectMemoryCal('solar')">양력</button>
+        <button class="type-btn${calType==='lunar'?' tf':''}" id="mem-lunar" onclick="selectMemoryCal('lunar')">음력</button>
       </div>
       <div class="ml">대상 이름</div>
       <input class="mi" id="mem-name" placeholder="예: 도미 생일, 결혼기념일" value="${x?escapeAttr(x.name):''}"/>
@@ -5548,13 +5583,15 @@ function saveMemory(id){
   const birth=getPickerVal('mem-birth');
   const memo=(document.getElementById('mem-memo')||{}).value||'';
   const icon=(document.getElementById('mem-icon')||{}).value||'🎂';
-  const calendarType=(document.getElementById('mem-cal')||{}).value||'solar';
-  const lunar=calendarType==='lunar';
+  const lunarBtn=document.getElementById('mem-lunar');
+  const isLunar=lunarBtn?lunarBtn.classList.contains('tf'):((document.getElementById('mem-cal')||{}).value==='lunar');
+  const calendarType=isLunar?'lunar':'solar';
+  const lunar=isLunar;
   if(id){
     const x=memories.find(v=>String(v.id)===String(id)); if(!x)return;
-    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon; x.calendarType=calendarType; x.lunar=lunar;
+    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon; x.isLunar=isLunar; x.calendarType=calendarType; x.lunar=lunar;
   }else{
-    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon,calendarType,lunar});
+    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon,isLunar,calendarType,lunar});
   }
   saveAll();closeM();render();
 }
@@ -6335,7 +6372,7 @@ function alertUrgentClass(n){
   return diff!==null && diff>=0 && diff<=1 ? ' urgent' : '';
 }
 function memoryCalendarType(x){
-  return (x&&x.lunar) || (x&&x.calendarType)==='lunar' ? 'lunar' : 'solar';
+  return (x&&x.isLunar) || (x&&x.lunar) || (x&&x.calendarType)==='lunar' ? 'lunar' : 'solar';
 }
 function lunarPartsFromSolar(dateStr){
   try{
@@ -6353,12 +6390,17 @@ function lunarPartsFromSolar(dateStr){
 }
 function lunarToSolarDate(year,month,day){
   try{
+    if(typeof Lunar!=='undefined' && Lunar.fromYmd){
+      return Lunar.fromYmd(Number(year),Number(month),Number(day)).getSolar().toYmd();
+    }
+  }catch(e){}
+  try{
     const start=new Date(year,0,1);
     const end=new Date(year,11,31);
     for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
       const key=dk(d.getFullYear(),d.getMonth(),d.getDate());
       const p=lunarPartsFromSolar(key);
-      if(p && p.year===year && p.month===Number(month) && p.day===Number(day))return key;
+      if(p && p.year===Number(year) && p.month===Number(month) && p.day===Number(day))return key;
     }
   }catch(e){}
   return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -6371,9 +6413,13 @@ function memoryThisYearDate(x){
   return birthDateInYear(b,TY);
 }
 function memoryAgeLabel(x){
-  const age=ageNow(x&&x.birth);
-  const title=String((x&&x.name)||'');
-  if(age==='' || age===null)return '';
+  if(!x||!x.birth)return '';
+  const nb=nextBirthInfo(x.birth,memoryCalendarType(x)==='lunar');
+  const [by]=x.birth.split('-').map(Number);
+  let age=Number((nb.date||'').slice(0,4))-by;
+  if(nb.date>todayKey())age--;
+  age=Math.max(0,age||0);
+  const title=String(x.name||'');
   if(title.includes('기념') || title.includes('결혼'))return age===0?'올해':`${age}주년`;
   if(title.includes('생일') || title.includes('탄생'))return `만 ${age}세`;
   return `${age}년째`;
@@ -6449,15 +6495,12 @@ function renderCalendarShiftCounts(){
 
 
 function dashboardDateKey(){
-  // 달력에서 날짜를 선택한 뒤 일정 탭으로 돌아오면 그 날짜 기준으로 대시보드를 보여줍니다.
-  // 선택한 날짜가 없으면 원래대로 오늘 기준입니다.
-  return selDate || todayKey();
+  // 일정 탭 상단 5일 근무 위젯의 첫 칸이 기준입니다.
+  // 달력에서 선택한 날짜와 무관하게 항상 실제 오늘 날짜를 기준으로 대시보드를 표시합니다.
+  return todayKey();
 }
 function dashboardDateLabel(){
-  const k=dashboardDateKey();
-  if(k===todayKey())return '';
-  const [y,m,d]=k.split('-').map(Number);
-  return ` · ${m}/${d} (${DAYS[new Date(y,m-1,d).getDay()]})`;
+  return '';
 }
 function familyInfoEventsForKey(k){
   const [y,m,d]=k.split('-').map(Number);
@@ -6466,13 +6509,12 @@ function familyInfoEventsForKey(k){
 
 function renderHomeWidgets(){
   if(main!=='s')return '';
-  const baseKey=dashboardDateKey();
+  const baseKey=todayKey();
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,baseKey));
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  const suffix=dashboardDateLabel();
-  return `${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderUpcomingPreview()}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}`;
+  return `${renderTodayListDashboard('오늘 일정',normalToday)}${renderUpcomingPreview()}${renderTargetDashboard('오늘 루틴',routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
@@ -7078,7 +7120,7 @@ function openExport(){
   }));
 
   const memoryRows=memories.map(x=>{
-    const nb=nextBirthInfo(x.birth);
+    const nb=nextBirthInfo(x.birth,memoryCalendarType(x)==='lunar');
     return {
       대상:x.name||'',
       생년월일:x.birth||'',
