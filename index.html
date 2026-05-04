@@ -2666,6 +2666,17 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   border-radius:999px !important;
 }
 
+
+/* Empty State 감성 일러스트 스타일 */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:120px;padding:20px 14px;border:1px dashed rgba(142,142,147,.28);border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,248,252,.98));text-align:center}
+.empty-emoji{font-size:36px;line-height:1}.empty-title{font-size:14px;font-weight:950;color:var(--t1);line-height:1.35}.empty-sub{font-size:12px;color:var(--t2);line-height:1.5;max-width:240px}
+/* 달력 상단 선택 영역을 일정 탭 칩과 통일 */
+.cal-top-select-row{margin:0 10px 10px;display:flex;align-items:center;gap:8px}.cal-top-select-scroll{flex:1 1 auto;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cal-top-select-scroll::-webkit-scrollbar{display:none}.cal-top-select-row .sec-chip-btn{flex:0 0 auto;height:32px;padding:0 12px}
+/* 달력 기념 아이콘 숫자 위 배치 */
+.cal-top-badges{min-height:14px;display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:1px}.cal-top-badges:empty::before{content:'';display:block;width:1px;height:14px}.cal-birthday-dot{width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1;flex:0 0 auto;transform:none}.shift-bulk-bar.selecting{box-shadow:0 0 0 2px rgba(0,122,255,.08) inset}
+/* 달력 선택 날짜 목록: 점 · 제목 / 대상자 · 시간 */
+.cal-selected-event .ev-dot{margin-top:5px}.cal-selected-event .ev-info{min-width:0;flex:1}.cal-selected-event .ev-title{font-size:14px!important;font-weight:950!important;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cal-selected-event .ev-sub{font-size:12px!important;color:var(--t2)!important;font-weight:850;margin-top:3px}.routine-selected-event .ev-sub{color:var(--purple-t)!important}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2996,6 +3007,7 @@ function isHolidayKey(k){return !!holidayName(k)}
 
 let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={};
 let shiftKeepOnlyMay2026Done_v3=false;
+let shiftKeepOnlyMay2026Done_v4=false;
 let shiftKeepOnlyMay2026NeedsSave=false;
 let roomId = getRoomId();
 let unsubscribe=null;
@@ -3247,6 +3259,13 @@ function applyMay2026ShiftMigration(){
   shiftKeepOnlyMay2026NeedsSave=true;
   return changed;
 }
+function applyMay2026ShiftMigrationV4(){
+  if(shiftKeepOnlyMay2026Done_v4)return false;
+  const changed=keepOnlyMay2026Shifts();
+  shiftKeepOnlyMay2026Done_v4=true;
+  shiftKeepOnlyMay2026NeedsSave=true;
+  return changed;
+}
 
 
 
@@ -3315,12 +3334,14 @@ function normalizeData(d){
   customHolidays.forEach(h=>{if(!h.id)h.id=Date.now()+Math.random(); if(!h.name)h.name='공휴일';});
   purgeOldTrash(false);
   shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
+  shiftKeepOnlyMay2026Done_v4=d.shiftKeepOnlyMay2026Done_v4===true;
   shiftKeepOnlyMay2026NeedsSave=false;
   shiftData=d.shiftData&& !subMode ? d.shiftData : (subMode?shiftData:(d.shiftData||{}));
   shiftData=shiftData||{};
   applyMay2026ShiftMigration();
+  applyMay2026ShiftMigrationV4();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -3328,7 +3349,7 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 function currentSettingsData(){
   return {
     family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,
-    shiftKeepOnlyMay2026Done_v3,
+    shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,
     storageMode:'subcollections',
     updatedAt:Date.now()
   };
@@ -4105,8 +4126,20 @@ function setScheduleTarget(t){
   render();
 }
 
+
+function renderEmptyState(kind,title,sub=''){
+  const cfg={
+    schedule:{emoji:'🗓️',title:title||'진행 중인 일정이 없어요',sub:sub||'여유로운 하루네요. 잠시 숨을 고르세요.'},
+    request:{emoji:'📭',title:title||'부탁할 일이 없어요',sub:sub||'비어 있는 바구니처럼 한결 가벼운 상태예요.'},
+    done:{emoji:'✅',title:title||'완료된 항목이 없어요',sub:sub||'기록은 아직 없지만 지금부터 차곡차곡 쌓아볼 수 있어요.'},
+    generic:{emoji:'🌿',title:title||'표시할 내용이 없어요',sub:sub||'조금 더 편안한 화면이에요.'}
+  };
+  const c=cfg[kind]||cfg.generic;
+  return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
+}
+
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
-  if(!list.length)return `<div class="empty">${emptyText}</div>`;
+  if(!list.length)return renderEmptyState('schedule',emptyText);
   const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
   if(!grouped)return list.map(makeCard).join('');
   let last='';
@@ -4183,10 +4216,49 @@ function setSub(t){subF=t;render()}
 function setDoneF(t){doneF=t;render()}
 function setPer(t){donePer=t;render()}
 
+
+function calendarTimeOnly(n){
+  const s=n.sT||'';
+  const e=n.eT||'';
+  if(s&&e)return `${s} ~ ${e}`;
+  if(s)return `${s} ~`;
+  if(e)return `~ ${e}`;
+  return '시간 미정';
+}
+function calendarEventItem(n,selDate){
+  const who=escapeHtml(n.who||'공통');
+  const tm=escapeHtml(calendarTimeOnly(n));
+  const title=highlightText(n.title||'일정');
+  const isRoutine=!!(n.repeat||n._autoFamilyInfo);
+  const sub=isRoutine?`루틴 · ${who} · ${tm}`:`${who} · ${tm}`;
+  if(n._autoFamilyInfo){
+    return `<div class="ev-item cal-selected-event routine-selected-event">
+      <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
+      <div class="ev-info">
+        <div class="ev-title">${title}</div>
+        <div class="ev-sub">${sub}</div>
+        <div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div>
+      </div>
+    </div>`;
+  }
+  return `<div class="ev-item cal-selected-event" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
+    <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
+    <div class="ev-info">
+      <div class="ev-title">${title}</div>
+      <div class="ev-sub">${sub}</div>
+      ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
+      <div class="ev-actions">
+        <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
+        <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
+        ${n.repeat?`<button class="small-link" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderC(){
   const y=calY,m=calM;
   ensureHolidayYear(y);
-  const sc=getShiftCount(y,m);
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
   let g='';
@@ -4205,8 +4277,7 @@ function renderC(){
     const personDots=uniquePersonsForDay(evs,mems).slice(0,5)
       .map(p=>`<div class="cal-dot" title="${escapeAttr(p)}" style="background:${personColor(p)}"></div>`)
       .join('');
-    const birthDot=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
-    const dots=birthDot+personDots;
+    const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
@@ -4217,9 +4288,10 @@ function renderC(){
       ontouchstart="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
+      <div class="cal-top-badges">${birthTop}</div>
       <div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div>
       <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
-      <div class="cal-dots">${dots}</div>
+      <div class="cal-dots">${personDots}</div>
     </div>`;
   }
 
@@ -4241,31 +4313,13 @@ function renderC(){
         ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
       </div>
       ${evs.length||mems.length?[
-        ...evs.map(n=>{
-          const ts=dateTimeRange(n)||'시간 미정';
-          if(n._autoFamilyInfo){
-            return`<div class="ev-item"><div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">루틴 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div></div></div>`;
-          }
-          return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
-            <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
-            <div style="min-width:0;flex:1">
-              <div class="ev-title">${highlightText(n.title)}</div>
-              <div class="ev-sub">${ts} · ${n.repeat?'루틴':escapeHtml(n.who||'공통')}</div>
-              ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
-              <div class="ev-actions">
-                <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
-                <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
-                ${n.repeat?`<button class="small-link" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}
-              </div>
-            </div>
-          </div>`;
-        }),
+        ...evs.map(n=>calendarEventItem(n,selDate)),
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
           const mp=memoryPerson(x);
           return`<div class="ev-item"><div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
         })
-      ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
+      ].join(''):renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
       <div class="longpress-hint">팁: 날짜를 길게 누르면 바로 일정 추가</div>
     </div>`;
@@ -4274,9 +4328,12 @@ function renderC(){
   const legend=getPersons().map(p=>`<div class="leg"><span class="target-dot" style="background:${personColor(p)}"></span>${escapeHtml(p)}</div>`).join('');
 
   return`<div class="cal-outer">
-    <div class="filter-row cal-filter target-filter-row">
-      <button class="chip-btn cb-all${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
-      ${getPersons().map(p=>`<button class="chip-btn target-chip${calWhoF===p?' on':''}" style="${targetChipStyle(p,calWhoF===p)}" onclick="calWhoF=${onclickArg(p)};render()">${escapeHtml(p)}</button>`).join('')}
+    <div class="cal-top-select-row">
+      <div class="cal-top-select-scroll">
+        <button class="sec-chip-btn${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
+        ${getPersons().map(p=>`<button class="sec-chip-btn${calWhoF===p?' on':''}" onclick="calWhoF=${onclickArg(p)};render()">${escapeHtml(p)}</button>`).join('')}
+      </div>
+      <button class="sec-chip-btn${shiftSelectMode?' on':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
     </div>
     ${renderShiftBulkBar()}
     <div class="cal-card">
@@ -4603,10 +4660,10 @@ function renderR(){
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest',`
       <button class="toss-btn primary" onclick="event.stopPropagation();openReqModal()">+ 추가</button>
     `)}
-    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):'<div class="empty">부탁할 일이 없어요</div>'}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
+    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요','잠시 여유를 즐겨도 괜찮아요.')}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
-    ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):'<div class="empty">완료된 부탁이 없어요</div>'}</div>`:''}
+    ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 부탁이 없어요','완료 기록이 생기면 이곳에 차곡차곡 모여요.')}</div>`:''}
   `;
 }
 
@@ -5218,14 +5275,13 @@ function applyBulkShift(t){
 }
 function renderShiftBulkBar(){
   const sc=getShiftCount(calY,calM);
-  return `<div class="shift-bulk-bar">
+  return `<div class="shift-bulk-bar${shiftSelectMode?' selecting':''}">
     <div class="shift-count-row">
       <span class="shift-count-item"><span class="leg-chip s-d">D</span>${sc.D}</span>
       <span class="shift-count-item"><span class="leg-chip s-e">E</span>${sc.E}</span>
       <span class="shift-count-item"><span class="leg-chip s-n">N</span>${sc.N}</span>
       <span class="shift-count-item"><span class="leg-chip s-off">OFF</span>${sc.OFF}</span>
     </div>
-    <button class="toss-btn shift-bulk-main-btn ${shiftSelectMode?'primary':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
     ${shiftSelectMode?`<div class="shift-bulk-actions">
       <span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
       <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
