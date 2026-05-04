@@ -3125,6 +3125,50 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   padding:2px 6px !important;
 }
 
+
+/* 최종 보정: 일정 탭 이번 주 삭제 후 진행/완료 카드 폰트 통일 */
+.schedule-card-list .card{
+  padding:12px 14px !important;
+}
+.schedule-card-list .card .c-row{
+  gap:9px !important;
+}
+.schedule-card-list .card .c-title{
+  font-size:11.5px !important;
+  line-height:1.32 !important;
+  font-weight:850 !important;
+  letter-spacing:-.15px !important;
+}
+.schedule-card-list .card .person-chip{
+  min-height:22px !important;
+  height:22px !important;
+  padding:0 8px !important;
+  font-size:11.5px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+}
+.schedule-card-list .card .chip{
+  height:22px !important;
+  padding:0 8px !important;
+  font-size:10.5px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+}
+.schedule-card-list .card .c-meta{
+  margin-top:6px !important;
+  gap:4px !important;
+}
+.schedule-card-list .card .chk{
+  width:21px !important;
+  height:21px !important;
+  min-width:21px !important;
+  border-radius:7px !important;
+}
+.schedule-card-list .card .c-right .small-link{
+  font-size:10.5px !important;
+  font-weight:850 !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -3299,7 +3343,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='time';
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -4354,26 +4398,7 @@ function weekDateClass(k){
   if(dow===6)return 'week-date-sat';
   return '';
 }
-function renderWeekView(){
-  if(main!=='s')return '';
-  const cnt=weekCount();
-  if(!weekOpen){
-    return `${sectionHeader('이번 주',cnt,false,'toggleWeek')}`;
-  }
-  const days=[];
-  for(let i=0;i<7;i++){
-    const k=addDaysStr(todayKey(),i);
-    const d=new Date(k+'T00:00:00');
-    const h=holidayName(k);
-    const cls=weekDateClass(k);
-    const list=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,k));
-    days.push(`<div class="week-day">
-      <div class="week-hd ${cls}">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})${h?` · ${escapeHtml(h)}`:''}</div>
-      ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
-    </div>`);
-  }
-  return `${sectionHeader('이번 주',cnt,true,'toggleWeek')}<div class="week-wrap">${days.join('')}</div>`;
-}
+function renderWeekView(){return '';}
 
 
 function scheduleDateKey(n){
@@ -4644,11 +4669,11 @@ function renderS(){
   doneFilt=sortScheduleList(doneFilt);
 
   const activeCards = activeOpen
-    ? `<div class="card-wrap">${renderScheduleCardList(active,'진행 중인 일정이 없어요')}</div>`
+    ? `<div class="card-wrap schedule-card-list">${renderScheduleCardList(active,'진행 중인 일정이 없어요')}</div>`
     : `<div class="schedule-collapsed-hint">진행 중 목록이 접혀 있어요</div>`;
 
   const doneCards = doneOpen
-    ? `<div class="card-wrap" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>'}</div>`
+    ? `<div class="card-wrap schedule-card-list" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : renderEmptyState('done','완료된 일정이 없어요','완료한 일정은 이곳에 모여요.')}</div>`
     : '';
 
   return`
@@ -4659,7 +4684,6 @@ function renderS(){
       <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
     `)}
     ${activeCards}
-    ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
     ${sectionHeader('완료',doneFilt.length,doneOpen,'toggleDone',`
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
