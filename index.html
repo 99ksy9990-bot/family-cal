@@ -2294,6 +2294,91 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   color:var(--t3);
 }
 
+
+/* 최종 보정: 달력 근무 카운트 간격 + 일정 탭 근무 위젯 가독성 */
+.shift-count-row{
+  gap:11px !important;
+}
+.shift-count-item{
+  gap:5px !important;
+  font-size:13.5px !important;
+  letter-spacing:.1px !important;
+}
+.shift-count-item .leg-chip{
+  min-width:36px !important;
+  height:27px !important;
+  padding:0 8px !important;
+  font-size:12.5px !important;
+  border-radius:10px !important;
+}
+
+/* 일정 탭 오늘/내일/모레 근무 카드 */
+.compact-shift-widget{
+  gap:8px !important;
+}
+.compact-shift-widget .shift-mini-card{
+  min-height:72px !important;
+  padding:10px 6px !important;
+}
+.compact-shift-widget .widget-title{
+  font-size:12px !important;
+  line-height:1.22 !important;
+  font-weight:950 !important;
+  margin-bottom:7px !important;
+  letter-spacing:-.3px !important;
+}
+.today-shift-date{
+  height:31px !important;
+  padding:0 11px !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  margin-bottom:7px !important;
+}
+.compact-shift-widget .widget-main{
+  font-size:15px !important;
+  line-height:1.1 !important;
+}
+.compact-shift-widget .shift-one{
+  min-width:34px !important;
+  height:25px !important;
+  padding:0 8px !important;
+  font-size:12px !important;
+  border-radius:9px !important;
+}
+
+
+/* 최종 보정: 달력 점/범례는 사람만 표시 */
+.person-common{background:#F2F2F7!important;color:#6B6B6F!important}
+.person-dad{background:#EAF3FF!important;color:#0055B3!important}
+.person-mom{background:#FFF0F3!important;color:#C0002C!important}
+.person-choi{background:#EDFAF2!important;color:#1A7A36!important}
+.person-domi{background:#FFF4E5!important;color:#7A3800!important}
+.target-legend{
+  justify-content:center !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:6px 8px !important;
+  overflow:visible !important;
+  text-align:center !important;
+}
+.target-legend .leg{
+  font-size:11px !important;
+  gap:4px !important;
+  padding:2px 6px !important;
+  flex:0 0 auto !important;
+  background:var(--bg);
+  border-radius:999px;
+}
+.target-legend .target-dot{
+  width:8px !important;
+  height:8px !important;
+  border-radius:50%;
+}
+.cal-dot{
+  width:5.5px !important;
+  height:5.5px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2510,14 +2595,14 @@ function getPersons(){
 }
 function personColor(who){
   const w=who||'공통';
-  if(w==='공통')return '#6B7280';
+  if(w==='공통')return '#8E8E93';
   if(w==='아빠')return '#007AFF';
-  if(w==='엄마')return '#AF52DE';
+  if(w==='엄마')return '#FF2D55';
   if(w==='초이')return '#34C759';
-  if(w==='도미')return '#FF2D55';
+  if(w==='도미')return '#FF9500';
   const arr=getPersons();
   const idx=Math.max(0,arr.indexOf(w));
-  const extra=['#FF9500','#00C7BE','#5856D6','#FF6B00','#111827'];
+  const extra=['#5856D6','#00C7BE','#AF52DE','#FF6B00','#111827'];
   return extra[idx%extra.length];
 }
 function personCls(who){
@@ -2675,6 +2760,23 @@ function birthDateInYear(birth,year){
   const last=new Date(year,mm,0).getDate();
   const d=Math.min(dd,last);
   return `${year}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+function memoryPerson(x){
+  const direct=(x&&((x.who||x.todayWho||x.person||'')+'').trim())||'';
+  if(direct)return direct;
+  const name=String((x&&x.name)||'');
+  const found=getPersons().find(p=>p!=='공통' && name.includes(p));
+  return found||'공통';
+}
+function uniquePersonsForDay(evs,mems){
+  const people=[];
+  const add=p=>{
+    p=p||'공통';
+    if(!people.includes(p))people.push(p);
+  };
+  (evs||[]).forEach(n=>add(n.who||'공통'));
+  (mems||[]).forEach(x=>add(memoryPerson(x)));
+  return people;
 }
 function memoriesOnDate(y,m,d){
   const md=`${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
@@ -3260,7 +3362,7 @@ function makeCard(n){
     const dts=dateTimeRange(n);
     return`<div class="card auto-info-card">
       <div class="c-row">
-        <div class="ev-dot dr" style="margin-top:8px"></div>
+        <div class="ev-dot" style="margin-top:8px;background:${personColor(n.who||'공통')}"></div>
         <div class="c-body">
           <div class="c-title">${highlightText(n.title)}</div>
           <div class="c-meta">
@@ -3768,9 +3870,9 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const hasRepeat=evs.some(n=>n.repeat || n._autoFamilyInfo);
-    const normalDots=evs.filter(n=>!(n.repeat||n._autoFamilyInfo)).slice(0,3).map(n=>`<div class="cal-dot" style="background:${personColor(n.who||'공통')}"></div>`);
-    const dots=[...normalDots, hasRepeat?`<div class="cal-dot dr"></div>`:'', ...mems.slice(0,2).map(x=>`<div class="cal-dot dm"></div>`)].join('');
+    const dots=uniquePersonsForDay(evs,mems).slice(0,5)
+      .map(p=>`<div class="cal-dot" title="${escapeAttr(p)}" style="background:${personColor(p)}"></div>`)
+      .join('');
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
@@ -3808,10 +3910,10 @@ function renderC(){
         ...evs.map(n=>{
           const ts=dateTimeRange(n)||'시간 미정';
           if(n._autoFamilyInfo){
-            return`<div class="ev-item"><div class="ev-dot dr"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">루틴 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div></div></div>`;
+            return`<div class="ev-item"><div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div><div style="min-width:0;flex:1"><div class="ev-title">${highlightText(n.title)}</div><div class="ev-sub">루틴 · ${escapeHtml(n.who||'공통')}</div><div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div></div></div>`;
           }
           return`<div class="ev-item" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
-            <div class="ev-dot" style="background:${n.repeat?'var(--purple)':personColor(n.who||'공통')}"></div>
+            <div class="ev-dot" style="background:${personColor(n.who||'공통')}"></div>
             <div style="min-width:0;flex:1">
               <div class="ev-title">${highlightText(n.title)}</div>
               <div class="ev-sub">${ts} · ${n.repeat?'루틴':escapeHtml(n.who||'공통')}</div>
@@ -3826,7 +3928,8 @@ function renderC(){
         }),
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
-          return`<div class="ev-item"><div class="ev-dot dm"></div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">생일 · 만 ${Math.max(0,age)}세</div></div></div>`;
+          const mp=memoryPerson(x);
+          return`<div class="ev-item"><div class="ev-dot" style="background:${personColor(mp)}"></div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
         })
       ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
@@ -3851,8 +3954,6 @@ function renderC(){
       <div class="cal-grid">${g}</div>
       <div class="cal-legend target-legend">
         ${legend}
-        <div class="leg"><span class="leg-dot repeat-legend-dot"></span>루틴</div>
-        <div class="leg"><span class="leg-dot" style="background:var(--orange)"></span>기념</div>
       </div>
     </div>
     ${evHtml}
