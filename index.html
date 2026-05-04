@@ -3008,6 +3008,123 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   font-weight:950 !important;
 }
 
+
+/* 최종 요청 반영: 5일 근무 위젯 / 루틴 접힘 / D-day 배지 통일 / 기념 한 줄 */
+.shift-widget-5{
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+.shift-widget-5 .shift-mini-card{
+  min-height:66px !important;
+  padding:8px 4px !important;
+}
+.shift-widget-5 .widget-title{
+  font-size:11px !important;
+  line-height:1.2 !important;
+  font-weight:950 !important;
+  margin:0 0 7px !important;
+  white-space:nowrap !important;
+}
+.shift-date-sat{color:#007AFF !important}
+.shift-date-holiday{color:#FF3B30 !important}
+.shift-widget-5 .shift-one{
+  min-width:30px !important;
+  height:23px !important;
+  font-size:11px !important;
+  border-radius:8px !important;
+}
+.routine-dashboard .today-target-grid{
+  grid-template-columns:1fr !important;
+}
+.routine-dashboard .today-target-card{
+  min-height:0 !important;
+  padding:11px 12px !important;
+}
+.routine-dashboard .today-event-list{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.routine-more-btn{
+  align-self:center;
+  width:36px;
+  height:30px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:13px;
+  font-weight:950;
+  font-family:inherit;
+  margin-top:2px;
+}
+.today-dashboard-count,
+.today-dashboard-count.hot,
+.dday-chip{
+  height:26px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+  border:1.5px solid rgba(255,45,85,.22) !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.sec-cnt{
+  min-width:28px !important;
+  height:26px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.calendar-control-line{
+  margin:0 10px 10px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+}
+.calendar-control-line .cal-target-btn{
+  flex:0 0 auto;
+}
+.calendar-control-line .calendar-count-inline{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  overflow-x:auto !important;
+}
+.calendar-control-line .cal-bulk-btn{
+  flex:0 0 auto;
+}
+.memory-meta-line{
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+  gap:4px !important;
+  scrollbar-width:none;
+}
+.memory-meta-line::-webkit-scrollbar{display:none}
+.mem-card .chip{
+  height:22px !important;
+  padding:0 7px !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+}
+.mem-card .c-title{
+  font-size:14px !important;
+  line-height:1.25 !important;
+}
+.memory-card-icon{
+  width:28px !important;
+  min-width:28px !important;
+  height:28px !important;
+  font-size:18px !important;
+}
+.memory-year-date{
+  font-size:10.5px !important;
+  padding:2px 6px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -3054,7 +3171,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
     <button class="tab tab-i" id="tab-i" onclick="setMain('i')">루틴</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
     <button class="tab tab-r" id="tab-r" onclick="setMain('r')">부탁</button>
-    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기념일</button>
+    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기념</button>
   </div>
 
   <div id="body"></div>
@@ -3189,6 +3306,7 @@ let activeOpen=false;
 let requestOpen=false,requestDoneOpen=false;
 let routineOpen=false;
 let todayDashboardOpen=false;
+let routineDashboardOpen=false;
 let basicInfoOpen=false;
 let touchReorderInfo=null,touchReorderTimer=null;
 let filterToday=false;
@@ -4058,7 +4176,7 @@ function makeCard(n){
           ${dts?`<span class="chip chip-g">${dts}</span>`:''}
         </div>
         ${done&&n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
-        ${done&&!n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">+ 코멘트 달기</button>`:''}
+        ${done&&!n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">+ 메모 달기</button>`:''}
       </div>
       <div class="c-right">
         <button class="small-link" onclick="event.stopPropagation();copyNoteWithDate?copyNoteWithDate('${n.id}'):copyNote('${n.id}')">복사</button>
@@ -4639,7 +4757,7 @@ function renderC(){
     evHtml=`<div class="ev-card" id="selected-day-panel">
       <div class="ev-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
-        <button class="small-link cal-edit-link" onclick="openAddModal('${selDate}')">+ 일정 추가</button>
+        
       </div>
       <div class="shift-picker">
         <span class="shift-picker-title">근무 편집</span>
@@ -4965,7 +5083,7 @@ function makeReqCard(r){
           ${r.requestDate?`<span class="chip request-date-chip">요청 ${dateLabel(r.requestDate)}</span>`:''}
           ${isDone(r)&&r.doneAt?`<span class="chip done-date-chip">완료 ${dateLabel(r.doneAt)}</span>`:''}
         </div>
-        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 코멘트</button>`}
+        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 메모</button>`}
       </div>
       <div class="c-right">
         <button class="small-link" onclick="event.stopPropagation();openEditReq('${r.id}')">수정</button>
@@ -5014,7 +5132,7 @@ function openReqModal(id){
       <div class="ml">요청 일자</div>
       <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
       ${r&&isDone(r)?`<div class="ml">완료 일자</div><input class="picker-field${r.doneAt?'':' empty'}" id="rq-done" readonly data-val="${r.doneAt||''}" value="${r.doneAt?dateLabel(r.doneAt):'완료일 없음'}" onclick="openDatePicker('rq-done')"/>`:''}
-      <div class="ml">코멘트</div>
+      <div class="ml">메모</div>
       <textarea class="ta" id="rq-cm" placeholder="진행 상황이나 메모를 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
       <button class="primary-btn" onclick="saveReq('${r?r.id:''}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
@@ -5068,9 +5186,9 @@ function makeMemoryCard(x){
       <div class="c-body">
         <div class="c-title memory-title-line">
           <span>${escapeHtml(x.name)}</span>
-          ${calType==='lunar'&&thisYear?`<em class="memory-year-date">올해 ${dateLabel(thisYear)}</em>`:''}
+          ${calType==='lunar'&&thisYear?`<em class="memory-year-date">올해 양력 ${dateLabel(thisYear)}</em>`:''}
         </div>
-        <div class="c-meta">
+        <div class="c-meta memory-meta-line">
           ${x.birth?`<span class="chip chip-g">${dateLabel(x.birth)}</span>`:''}
           <span class="chip ${calType==='lunar'?'lunar-chip':'solar-chip'}">${calType==='lunar'?'음력':'양력'}</span>
           ${x.birth?`<span class="chip mem-age">${escapeHtml(ageLabel)}</span>`:''}
@@ -5745,16 +5863,18 @@ function renderNoticeBanner(){
 
 function renderShiftWidget(){
   if(main!=='s')return '';
-  const labels=['오늘','내일','모레'];
-  const keys=[todayKey(),addDaysStr(todayKey(),1),addDaysStr(todayKey(),2)];
-  return `<div class="widget-wrap shift-widget-3 compact-shift-widget">
+  const keys=Array.from({length:5},(_,i)=>addDaysStr(todayKey(),i));
+  return `<div class="widget-wrap shift-widget-5 compact-shift-widget">
     ${keys.map((k,i)=>{
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
       const d=new Date(yy,mm-1,dd);
-      const title=`${labels[i]} ${mm}/${dd} (${DAYS[d.getDay()]})`;
+      const h=holidayName(k);
+      const dow=d.getDay();
+      const cls=(h||dow===0)?' shift-date-holiday':(dow===6?' shift-date-sat':'');
+      const title=`${mm}/${dd} (${DAYS[dow]})`;
       return `<div class="widget-card shift-mini-card">
-        <div class="widget-title${i===0?' today-shift-date':''}">${title}</div>
+        <div class="widget-title shift-date-label${cls}">${title}</div>
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
       </div>`;
     }).join('')}
@@ -5787,8 +5907,16 @@ function todayTimeOnly(n){
   if(!sT&&eT)return eT;
   return '';
 }
-function renderDashboardEventRows(list,minRows){
-  const rows=list.map(n=>`<div class="today-event-row">
+function toggleRoutineDashboard(){
+  routineDashboardOpen=!routineDashboardOpen;
+  render({preserveScroll:true});
+}
+function renderDashboardEventRows(list,minRows=0,opts={}){
+  const limit=opts.limit||0;
+  const expandable=!!opts.expandable;
+  const expanded=!!opts.expanded;
+  const shown=limit && !expanded ? list.slice(0,limit) : list;
+  const rows=shown.map(n=>`<div class="today-event-row">
     <div class="today-event-title">${escapeHtml(n.title||'일정')}</div>
     <div class="today-event-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
   </div>`);
@@ -5797,6 +5925,9 @@ function renderDashboardEventRows(list,minRows){
   }
   while(rows.length<minRows){
     rows.push(`<div class="today-event-placeholder"></div>`);
+  }
+  if(expandable && list.length>limit){
+    rows.push(`<button class="routine-more-btn" onclick="event.stopPropagation();toggleRoutineDashboard()">${expanded?'▲':'▼'}</button>`);
   }
   return rows.join('');
 }
@@ -5810,6 +5941,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
     return selectedSet.has(who);
   }));
   const cards=targets.length?targets:[{empty:true,label:'대상 선택'}];
+  const isRoutine=targetMode==='routine';
   const grid=cards.map(slot=>{
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
@@ -5818,9 +5950,10 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
       </div>`;
     }
     const list=targetTodayEvents(slot.label,filtered);
+    const opts=isRoutine?{limit:4,expandable:true,expanded:routineDashboardOpen}:{};
     return `<div class="today-target-card">
       <div class="today-target-name" style="color:${personColor(slot.label)}">${escapeHtml(slot.label)}</div>
-      <div class="today-event-list">${renderDashboardEventRows(list,minRows)}</div>
+      <div class="today-event-list">${renderDashboardEventRows(list,0,opts)}</div>
     </div>`;
   }).join('');
   return `<div class="widget-wrap dashboard-wrap">
@@ -5899,12 +6032,38 @@ function alertUrgentClass(n){
 function memoryCalendarType(x){
   return (x&&x.lunar) || (x&&x.calendarType)==='lunar' ? 'lunar' : 'solar';
 }
+function lunarPartsFromSolar(dateStr){
+  try{
+    const fmt=new Intl.DateTimeFormat('ko-KR-u-ca-chinese',{year:'numeric',month:'numeric',day:'numeric'});
+    const parts=fmt.formatToParts(new Date(dateStr+'T00:00:00'));
+    const get=t=>parts.find(p=>p.type===t)?.value||'';
+    return {
+      year:Number(get('relatedYear')||get('year')),
+      month:Number(String(get('month')).replace(/[^\d]/g,'')),
+      day:Number(String(get('day')).replace(/[^\d]/g,''))
+    };
+  }catch(e){
+    return null;
+  }
+}
+function lunarToSolarDate(year,month,day){
+  try{
+    const start=new Date(year,0,1);
+    const end=new Date(year,11,31);
+    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+      const key=dk(d.getFullYear(),d.getMonth(),d.getDate());
+      const p=lunarPartsFromSolar(key);
+      if(p && p.year===year && p.month===Number(month) && p.day===Number(day))return key;
+    }
+  }catch(e){}
+  return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
 function memoryThisYearDate(x){
   const b=x&&x.birth;
   if(!b)return '';
-  const p=b.split('-');
-  if(p.length<3)return '';
-  return `${TY}-${p[1]}-${p[2]}`;
+  const [,mm,dd]=b.split('-').map(Number);
+  if(memoryCalendarType(x)==='lunar')return lunarToSolarDate(TY,mm,dd);
+  return birthDateInYear(b,TY);
 }
 function memoryAgeLabel(x){
   const age=ageNow(x&&x.birth);
@@ -6341,7 +6500,7 @@ function openEditNote(id){
       </div>
       <div class="ml">알림 메모</div>
       <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
-      <div class="ml">코멘트</div>
+      <div class="ml">메모</div>
       <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
       <button class="primary-btn" onclick="saveEditNote('${id}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
@@ -6559,7 +6718,7 @@ function openExport(){
     종료일:n.end||'',
     시작시간:n.sT||'',
     종료시간:n.eT||'',
-    코멘트:n.comment||''
+    메모:n.comment||''
   }));
 
   const requestRows=requests.map(r=>({
@@ -6617,8 +6776,8 @@ function openExport(){
   }
 
   // 인터넷 문제로 라이브러리가 안 불러와졌을 때 CSV로 대체
-  const rows=[['상태','구분','제목','시작일','종료일','시작시간','종료시간','코멘트'],
-    ...scheduleRows.map(r=>[r.상태,r.구분,r.제목,r.시작일,r.종료일,r.시작시간,r.종료시간,r.코멘트])];
+  const rows=[['상태','구분','제목','시작일','종료일','시작시간','종료시간','메모'],
+    ...scheduleRows.map(r=>[r.상태,r.구분,r.제목,r.시작일,r.종료일,r.시작시간,r.종료시간,r.메모])];
   const csv='\ufeff'+rows.map(row=>row.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');
