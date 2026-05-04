@@ -1182,6 +1182,31 @@ body{
   font-size:12px !important;
 }
 
+
+/* 반복탭 보완 */
+.cat-lbl-btn{
+  border:none;
+  background:transparent;
+  padding:0;
+  font-family:inherit;
+  cursor:pointer;
+  text-align:left;
+}
+.cat-lbl-btn::after{
+  content:' 수정';
+  font-size:10px;
+  color:var(--blue);
+  font-weight:900;
+  margin-left:6px;
+}
+.repeat-date-grid{
+  grid-template-columns:1fr 1fr !important;
+}
+.today-widget-outline{
+  outline:2px solid var(--blue) !important;
+  outline-offset:3px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1456,6 +1481,7 @@ function dateTimeRange(n){
   const end=n.end||'';
   const sT=n.sT||'';
   const eT=n.eT||'';
+  const baseDate=start || end;
 
   // 시간이 없는 일정은 날짜만 표시
   if(!sT && !eT){
@@ -1464,11 +1490,25 @@ function dateTimeRange(n){
     return `${fmtD(start)} ~ ${fmtD(end)}`;
   }
 
-  // 시간이 있는 일정은 시작일 시작시간 ~ 종료일 종료시간
-  const st=[fmtD(start),sT].filter(Boolean).join(' ');
-  const ed=[fmtD(end||start),eT].filter(Boolean).join(' ');
-  if(st&&ed)return `${st} ~ ${ed}`;
-  return st||ed||'';
+  // 종료 시간만 있으면 "5/4 15:15"
+  if(!sT && eT){
+    return [fmtD(baseDate), eT].filter(Boolean).join(' ');
+  }
+
+  // 시작 시간만 있으면 "5/4 17:00 ~"
+  if(sT && !eT){
+    return `${[fmtD(start), sT].filter(Boolean).join(' ')} ~`;
+  }
+
+  // 시작/종료 시간이 모두 있고 같은 날짜면 "5/4 15:15 ~ 17:00"
+  if(sT && eT){
+    if(!end || end===start){
+      return `${fmtD(start)} ${sT} ~ ${eT}`;
+    }
+    return `${fmtD(start)} ${sT} ~ ${fmtD(end)} ${eT}`;
+  }
+
+  return '';
 }
 function daysFmt(arr){if(!arr||!arr.length)return'매일';return arr.map(i=>DAYS[i]).join('·')}
 function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
@@ -1630,7 +1670,6 @@ function familyInfoEventsOnDate(y,m,d){
         const days=Array.isArray(item.days)?item.days:[];
         if(!val || !days.includes(dow))return;
         if(item.start && date<item.start)return;
-        if(item.end && date>item.end)return;
         if(item.repeatEnd && date>item.repeatEnd)return;
         out.push({
           id:`auto-${kid.id||kid.name}-${ci}-${ii}-${date}`,
@@ -2205,15 +2244,21 @@ function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`<div class="sec">반복 <span class="sec-cnt">${family.reduce((a,k)=>a+(k.cats||[]).reduce((b,c)=>b+(c.items||[]).length,0),0)}</span></div>`;
   family.forEach((kid,ki)=>{
+    const memo=[kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
     h+=`<div class="fi-card repeat-card">
       <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
         <div class="fi-hd-btns">
           <button class="fi-btn fi-btn-e" onclick="editKid(${ki})">대상 수정</button>
           <button class="fi-btn fi-btn-d" onclick="delKid(${ki})">삭제</button>
         </div>
+      </div>
+      <div class="fi-row" style="border-bottom:1px solid var(--bg)">
+        <span class="fi-key">메모</span>
+        <span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'학년·반·번호 미입력')}</span>
       </div>`;
     kid.cats.forEach((cat,ci)=>{
-      h+=`<div class="cat-hd"><span class="cat-lbl">${escapeHtml(cat.label)}</span>
+      h+=`<div class="cat-hd">
+        <button class="cat-lbl cat-lbl-btn" onclick="editCatLabel(${ki},${ci})">${escapeHtml(cat.label||'반복')}</button>
         <div class="cat-hd-r">
           <button class="cat-add" onclick="addRow(${ki},${ci})">+ 반복 추가</button>
           <button class="cat-del" onclick="delCat(${ki},${ci})">삭제</button>
@@ -2229,10 +2274,9 @@ function renderI(){
           <input class="fi-input" style="text-align:left;max-width:100%" value="${escapeAttr(item.val||'')}" placeholder="반복 내용 입력" onchange="updVal(${ki},${ci},${ii},this.value)" onclick="this.select()"/>
           <div class="repeat-date-grid">
             <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="fi-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('fi-sd-${idp}')"/></div>
-            <div><div class="sublabel">종료일</div><input class="picker-field${item.end?'':' empty'}" id="fi-ed-${idp}" readonly data-val="${item.end||''}" value="${item.end?dateLabel(item.end):'종료일 없음'}" onclick="openDatePicker('fi-ed-${idp}')"/></div>
+            <div><div class="sublabel">반복 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="fi-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('fi-re-${idp}')"/></div>
             <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="fi-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('fi-st-${idp}')"/></div>
             <div><div class="sublabel">종료</div><input class="picker-field${item.eT?'':' empty'}" id="fi-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'시간 없음'}" onclick="openTimePicker('fi-et-${idp}')"/></div>
-            <div style="grid-column:1 / -1"><div class="sublabel">반복 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="fi-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('fi-re-${idp}')"/></div>
           </div>
           <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
         </div>`;
@@ -2244,6 +2288,31 @@ function renderI(){
   h+=`<button style="width:100%;padding:14px;border-radius:var(--r);border:2px dashed var(--border);background:transparent;color:var(--t3);font-size:13px;font-weight:900;cursor:pointer;font-family:inherit" onclick="addKid()">+ 대상 추가</button></div>`;
   return h;
 }
+function editCatLabel(ki,ci){
+  const cat=family?.[ki]?.cats?.[ci];
+  if(!cat)return;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">반복 이름 수정</div>
+      <div class="ml">이름</div>
+      <input class="mi" id="cat-name" value="${escapeAttr(cat.label||'')}" placeholder="예: 학교 시간, 학원, 기타"/>
+      <button class="primary-btn" onclick="saveCatLabel(${ki},${ci})">저장</button>
+      <button class="cancel-link" onclick="closeM()">취소</button>
+    </div>
+  </div>`;
+}
+function saveCatLabel(ki,ci){
+  if(!requireEditMode())return;
+  const cat=family?.[ki]?.cats?.[ci];
+  if(!cat)return;
+  const name=(document.getElementById('cat-name')||{}).value||'';
+  cat.label=name.trim()||'반복';
+  saveAll();
+  closeM();
+  render();
+}
 function toggleDay(ki,ci,ii,di){
   if(!requireEditMode())return;
 const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
@@ -2252,7 +2321,7 @@ function updVal(ki,ci,ii,v){
 family[ki].cats[ci].items[ii].val=v;saveAll()}
 function addRow(ki,ci){
   if(!requireEditMode())return;
-  family[ki].cats[ci].items.push({days:[], val:'', start:'', end:'', sT:'', eT:'', repeatEnd:''});
+  family[ki].cats[ci].items.push({days:[], val:'', start:'', sT:'', eT:'', repeatEnd:''});
   saveAll();render();
   setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50);
 }
@@ -3004,7 +3073,7 @@ function renderShiftWidget(){
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
       const d=new Date(yy,mm-1,dd);
-      return `<div class="widget-card shift-mini-card">
+      return `<div class="widget-card shift-mini-card${i===0?' today-widget-outline':''}">
         <div class="widget-title">${labels[i]} · ${mm}/${dd} (${DAYS[d.getDay()]})</div>
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
       </div>`;
@@ -3017,7 +3086,7 @@ function renderHomeWidgets(){
   const todayList=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
   const reqCnt=requests.filter(r=>!isDone(r)).length;
   return `<div class="widget-wrap">
-    <div class="widget-card today-widget-outline" data-action="today" onclick="onWidgetClick(this)">
+    <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
       <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
@@ -3427,9 +3496,9 @@ function editKid(i){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">아이 정보 수정</div>
+      <div class="modal-hd">대상 메모 수정</div>
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
-      <div class="ml">학교 과정</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="초등, 유치원 등"/>
+      <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
       <div class="ml">학년 · 반 · 번호</div>
       <div class="mi-3">
         <input class="mi" id="k-y" value="${escapeAttr(k.year)}" placeholder="학년"/>
@@ -3480,7 +3549,7 @@ function updateFamilyRepeatPicker(id,val){
   const ki=+parts[2],ci=+parts[3],ii=+parts[4];
   const item=family?.[ki]?.cats?.[ci]?.items?.[ii];
   if(!item)return;
-  const map={sd:'start',ed:'end',st:'sT',et:'eT',re:'repeatEnd'};
+  const map={sd:'start',st:'sT',et:'eT',re:'repeatEnd'};
   const key=map[kind];
   if(!key)return;
   item[key]=val||'';
