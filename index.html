@@ -2617,10 +2617,14 @@ function occursOn(n,key){
   if(n.repeat && holidayName(key)) return false;
   if(n.repeatEnd && key>n.repeatEnd) return false;
   if(Array.isArray(n.skipDates) && n.skipDates.includes(key)) return false;
+
   if(!n.repeat){
-    if(!n.sT && !n.eT && (!n.end || n.end===n.start)) return n.start===key;
-    return n.start<=key && (!n.end || n.end>=key);
+    // 종료일이 비어 있거나 시작일과 같으면 시간 유무와 관계없이 시작일 하루만 표시
+    if(!n.end || n.end===n.start) return n.start===key;
+    // 종료일이 실제로 다른 날짜일 때만 여러 날짜에 표시
+    return n.start<=key && key<=n.end;
   }
+
   if(key<n.start) return false;
   const start=new Date(n.start+'T00:00:00');
   const cur=new Date(key+'T00:00:00');
@@ -2736,7 +2740,7 @@ function normalizeData(d){
   const subMode=d.storageMode==='subcollections';
   notes=Array.isArray(d.notes)?d.notes:(subMode?notes:base.notes);
   notes=Array.isArray(notes)?notes:[];
-  notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo=''; if(!n.type)n.type='family';});
+  notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo=''; if(!n.type)n.type='family'; if(!n.end)n.end='';});
   requests=Array.isArray(d.requests)?d.requests:(subMode?requests:(base.requests||[]));
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
