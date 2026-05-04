@@ -2469,6 +2469,135 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   gap:12px !important;
 }
 
+
+/* 최종 통일 보정: 섹션 헤더 / 숫자 / 루틴 핸들 / 카드 시인성 / 달력 일괄선택 */
+.unified-sec,
+.compact-sec{
+  min-height:44px;
+  padding:14px 16px 8px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.unified-sec .sec-title,
+.compact-sec .sec-title{
+  font-size:14px !important;
+  font-weight:950 !important;
+  color:var(--t2) !important;
+  letter-spacing:-.2px;
+}
+.unified-sec .sec-cnt,
+.compact-sec .sec-cnt{
+  min-width:28px;
+  height:28px;
+  padding:0 10px !important;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--card) !important;
+  color:var(--t3) !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+}
+.unified-sec .sec-actions,
+.compact-sec .sec-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.unified-sec .fold-btn,
+.compact-sec .fold-btn{
+  width:34px;
+  height:30px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:13px;
+  font-weight:950;
+  font-family:inherit;
+}
+.schedule-collapsed-hint,
+.basic-info-collapsed{
+  margin:0 16px;
+  padding:13px 15px;
+  border-radius:16px;
+  background:var(--card);
+  color:var(--t3);
+  font-size:12px;
+  font-weight:850;
+  box-shadow:0 4px 14px rgba(15,23,42,.06);
+}
+.routine-handle{
+  width:28px;
+  height:32px;
+  flex:0 0 28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  color:var(--t3);
+  background:var(--bg);
+  font-size:16px;
+  font-weight:950;
+  cursor:grab;
+}
+.repeat-item-card .fi-hd{
+  gap:8px !important;
+}
+.repeat-item-card .repeat-title-input{
+  flex:1;
+  min-width:0;
+}
+
+/* 일정 카드 안 대상자 글자 크기 = 제목 크기 */
+.card-wrap .card .c-title{
+  font-size:17px !important;
+  font-weight:950 !important;
+  line-height:1.35 !important;
+  letter-spacing:-.3px !important;
+}
+.card-wrap .card .person-chip{
+  height:auto !important;
+  min-height:28px !important;
+  padding:3px 10px !important;
+  font-size:17px !important;
+  font-weight:950 !important;
+  line-height:1.25 !important;
+  border-radius:999px !important;
+}
+
+/* 달력 일괄선택 바깥 레이아웃을 상단 대상 필터와 동일한 폭/정렬로 */
+.cal-outer > .shift-bulk-bar{
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  width:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+}
+.cal-outer > .shift-bulk-bar .shift-count-row{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  overflow-x:auto !important;
+  scrollbar-width:none;
+}
+.cal-outer > .shift-bulk-bar .shift-count-row::-webkit-scrollbar{display:none}
+.cal-outer > .shift-bulk-bar .shift-bulk-main-btn{
+  flex:0 0 auto !important;
+  height:32px !important;
+  border-radius:999px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2647,6 +2776,7 @@ let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',se
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
+let routineOpen=false;
 let todayDashboardOpen=false;
 let basicInfoOpen=false;
 let touchReorderInfo=null,touchReorderTimer=null;
@@ -3664,12 +3794,9 @@ function weekDateClass(k){
 }
 function renderWeekView(){
   if(main!=='s')return '';
+  const cnt=weekCount();
   if(!weekOpen){
-    return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
-      <span>이번 주</span>
-      <span class="week-exclude-chip">루틴일정 제외</span>
-      <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▼</button>
-    </div>`;
+    return `${sectionHeader('이번 주',cnt,false,'toggleWeek')}`;
   }
   const days=[];
   for(let i=0;i<7;i++){
@@ -3683,11 +3810,7 @@ function renderWeekView(){
       ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
     </div>`);
   }
-  return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
-      <span>이번 주</span>
-      <span class="week-exclude-chip">루틴일정 제외</span>
-      <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▲</button>
-    </div><div class="week-wrap">${days.join('')}</div>`;
+  return `${sectionHeader('이번 주',cnt,true,'toggleWeek')}<div class="week-wrap">${days.join('')}</div>`;
 }
 
 
@@ -3770,6 +3893,7 @@ function openRoutineAddFromSchedule(){
   if(!requireEditMode())return;
   main='i';
   basicInfoOpen=false;
+  routineOpen=true;
   updateTabUI();
   addRepeatItem();
 }
@@ -3849,6 +3973,30 @@ function scheduleGroupLabel(k){
   if(k===tomorrowKey())return `내일 (${md})`;
   return `${md} (${DAYS[dt.getDay()]})`;
 }
+
+function toggleRoutine(){
+  routineOpen=!routineOpen;
+  render();
+}
+function sectionHeader(title,count,isOpen,toggleFn,actions=''){
+  return `<div class="sec compact-sec unified-sec sec-toggle" onclick="${toggleFn}()" style="cursor:pointer">
+    <span class="sec-title">${escapeHtml(title)}</span>
+    <span class="sec-cnt">${count}</span>
+    <div class="sec-actions">
+      ${actions}
+      <button class="fold-btn" onclick="event.stopPropagation();${toggleFn}()">${isOpen?'▲':'▼'}</button>
+    </div>
+  </div>`;
+}
+function weekCount(){
+  let c=0;
+  for(let i=0;i<7;i++){
+    const k=addDaysStr(todayKey(),i);
+    c+=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,k)).length;
+  }
+  return c;
+}
+
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
   if(!list.length)return `<div class="empty">${emptyText}</div>`;
   const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
@@ -3911,26 +4059,16 @@ function renderS(){
       <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="filterToday=false;setSub('all')">전체</button>
       ${filters}
     </div>
-    <div class="sec compact-sec sec-toggle" onclick="toggleActive()" style="cursor:pointer">
-      <span class="sec-title">진행 중</span>
-      <span class="sec-cnt">${active.length}개</span>
-      <div class="sec-actions">
-        <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
-        <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
-        <button class="fold-btn" onclick="event.stopPropagation();toggleActive()">${activeOpen?'▲':'▼'}</button>
-      </div>
-    </div>
+    ${sectionHeader('진행 중',active.length,activeOpen,'toggleActive',`
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
+      <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
+    `)}
     ${activeCards}
     ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
-    <div class="sec compact-sec sec-toggle" onclick="toggleDone()" style="cursor:pointer">
-      <span class="sec-title">완료</span>
-      <span class="sec-cnt">${doneFilt.length}</span>
-      <div class="sec-actions">
-        <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
-        <button class="fold-btn" onclick="event.stopPropagation();toggleDone()">${doneOpen?'▲':'▼'}</button>
-      </div>
-    </div>
+    ${sectionHeader('완료',doneFilt.length,doneOpen,'toggleDone',`
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
+    `)}
     ${doneCards}
   `;
 }
@@ -4075,6 +4213,7 @@ function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}se
 
 function addRepeatItem(){
   if(!requireEditMode())return;
+  routineOpen=true;
   repeatItems.unshift({id:Date.now(),who:getPersons()[0]||'공통',title:'',days:[],start:'',sT:'',eT:'',repeatEnd:''});
   saveAll();render();
 }
@@ -4178,12 +4317,14 @@ function toggleFamilyRoutine(ki){
 }
 function renderI(){
   let h=`<div class="fi-outer">`;
-  h+=`<div class="sec sec-toggle" onclick="toggleBasicInfo()" style="cursor:pointer">
-    <span>기본정보</span>
+  h+=`<div class="sec sec-toggle unified-sec" onclick="toggleBasicInfo()" style="cursor:pointer">
+    <span class="sec-title">기본정보</span>
     <span class="sec-cnt">${family.length}</span>
     <span class="collapsed-hint">${basicInfoOpen?'꾹 눌러 순서 이동':'접힘'}</span>
-    <button class="fold-btn" onclick="event.stopPropagation();toggleBasicInfo()">${basicInfoOpen?'▲':'▼'}</button>
-    <button style="margin-left:6px" class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
+    <div class="sec-actions">
+      <button class="fold-btn" onclick="event.stopPropagation();toggleBasicInfo()">${basicInfoOpen?'▲':'▼'}</button>
+      <button style="margin-left:6px" class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
+    </div>
   </div>`;
   if(basicInfoOpen){
     family.forEach((kid,ki)=>{
@@ -4214,41 +4355,49 @@ function renderI(){
     h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
   }
 
-  h+=`<div class="sec">루틴 일정 <span class="sec-cnt">${repeatItems.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="addRepeatItem()">+ 루틴 추가</button></div>`;
-  repeatItems.forEach((item,ii)=>{
-    const idp=`${ii}`;
-    const rid=item.id||ii;
-    h+=`<div class="fi-card repeat-item-card reorder-card"
-      draggable="true"
-      data-reorder-list="repeatItems" data-reorder-id="${rid}"
-      ondragstart="dragStart(event,'repeatItems','${rid}')"
-      ondragover="dragOver(event)"
-      ondrop="dropItem(event,'repeatItems','${rid}')"
-      ondragend="dragEnd(event)"
-      ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
-      ontouchmove="touchReorderMove(event)"
-      ontouchend="touchReorderEnd(event)"
-      ontouchcancel="touchReorderCancel()">
-      <div class="fi-hd">
-        <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="루틴 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
-        <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
-      </div>
-      <div class="ml">대상</div>
-      <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
-        ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-      </select>
-      <div class="ml">요일</div>
-      <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
-      <div class="repeat-date-grid" onclick="event.stopPropagation()">
-        <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
-        <div><div class="sublabel">루틴 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
-        <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
-        <div><div class="sublabel">종료</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'시간 없음'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
-      </div>
-      <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
-    </div>`;
-  });
-  if(!repeatItems.length)h+=`<div class="empty">등록된 루틴 일정이 없어요</div>`;
+  h+=`${sectionHeader('루틴 일정',repeatItems.length,routineOpen,'toggleRoutine',`
+    <button class="toss-btn primary" onclick="event.stopPropagation();addRepeatItem()">+ 루틴 추가</button>
+  `)}`;
+
+  if(routineOpen){
+    repeatItems.forEach((item,ii)=>{
+      const idp=`${ii}`;
+      const rid=item.id||ii;
+      h+=`<div class="fi-card repeat-item-card reorder-card"
+        draggable="true"
+        data-reorder-list="repeatItems" data-reorder-id="${rid}"
+        ondragstart="dragStart(event,'repeatItems','${rid}')"
+        ondragover="dragOver(event)"
+        ondrop="dropItem(event,'repeatItems','${rid}')"
+        ondragend="dragEnd(event)"
+        ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+        ontouchmove="touchReorderMove(event)"
+        ontouchend="touchReorderEnd(event)"
+        ontouchcancel="touchReorderCancel()">
+        <div class="fi-hd">
+          <div class="routine-handle" title="꾹 눌러 이동">☰</div>
+          <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="루틴 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
+          <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
+        </div>
+        <div class="ml">대상</div>
+        <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
+          ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
+        </select>
+        <div class="ml">요일</div>
+        <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
+        <div class="repeat-date-grid" onclick="event.stopPropagation()">
+          <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
+          <div><div class="sublabel">루틴 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
+          <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
+          <div><div class="sublabel">종료</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'시간 없음'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+        </div>
+        <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
+      </div>`;
+    });
+    if(!repeatItems.length)h+=`<div class="empty">등록된 루틴 일정이 없어요</div>`;
+  }else{
+    h+=`<div class="basic-info-collapsed">루틴 일정이 접혀 있어요. 펼치면 핸들을 꾹 눌러 순서를 이동할 수 있어요.</div>`;
+  }
   h+=`</div>`;
   return h;
 }
@@ -5166,8 +5315,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
       <div class="today-dashboard-head inline-count">
         <div class="routine-title-row">
           <div class="widget-title">${escapeHtml(title)}</div>
-          <div class="today-dashboard-count">${filtered.length}개</div>
-          ${targetMode==='routine'?`<button class="toss-btn primary routine-add-mini" onclick="event.stopPropagation();openRoutineAddFromSchedule()">+ 루틴</button>`:''}
+          <div class="today-dashboard-count">${filtered.length}</div>
         </div>
       </div>
       <div class="today-target-grid">${grid}</div>
@@ -5210,7 +5358,7 @@ function renderTodayListDashboard(title,allEvents){
     <div class="widget-card today-dashboard">
       <div class="today-dashboard-head inline-count">
         <div class="widget-title">${escapeHtml(title)}</div>
-        <div class="today-dashboard-count">${filtered.length}개</div>
+        <div class="today-dashboard-count">${filtered.length}</div>
       </div>
       <div class="today-list-card">${rows.join('')}</div>
     </div>
