@@ -2173,6 +2173,127 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   line-height:1.5;
 }
 
+
+/* 일정 그룹 헤더 / FAB / 알림 클릭 보정 */
+.date-group-hd{
+  position:sticky;
+  top:0;
+  z-index:2;
+  margin:4px 0 2px;
+  padding:7px 10px;
+  border-radius:12px;
+  background:rgba(245,245,247,.92);
+  color:var(--t2);
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:-.2px;
+  backdrop-filter:blur(10px);
+}
+.date-group-hd.today{color:var(--blue-t);background:var(--blue-bg)}
+.fab-add{
+  position:fixed;
+  right:max(20px,calc((100vw - 430px)/2 + 20px));
+  bottom:calc(88px + env(safe-area-inset-bottom,0px));
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:none;
+  background:var(--blue);
+  color:#fff;
+  font-size:32px;
+  line-height:1;
+  font-weight:800;
+  box-shadow:0 12px 24px rgba(0,122,255,.32);
+  z-index:90;
+  font-family:inherit;
+}
+.fab-add:active{transform:scale(.94)}
+.notice-go{float:right;font-size:18px;line-height:1;font-weight:950}
+@media (prefers-color-scheme: dark){
+  .date-group-hd{background:rgba(28,28,30,.92)}
+}
+
+
+/* 진행 중/완료 압축 헤더 + 대시보드 카운트 위치 */
+.sec.compact-sec{
+  padding:10px 16px 6px !important;
+  gap:7px !important;
+  min-height:42px !important;
+}
+.compact-sec .sec-title{
+  font-size:13px;
+  font-weight:950;
+  color:var(--t2);
+  white-space:nowrap;
+}
+.sec-add-mini{
+  height:28px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  margin-left:0 !important;
+}
+.sec-actions{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.sec-chip-btn{
+  height:30px;
+  padding:0 11px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+  white-space:nowrap;
+}
+.sec-chip-btn.on{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+  color:var(--blue-t);
+}
+.compact-sec .fold-btn{
+  width:30px;
+  height:28px;
+}
+.schedule-collapsed-hint{
+  padding:0 16px 8px;
+  font-size:11px;
+  color:var(--t3);
+  font-weight:800;
+}
+.today-dashboard-head.inline-count{
+  justify-content:flex-start !important;
+  gap:7px !important;
+}
+.today-dashboard-head.inline-count .today-dashboard-count{
+  margin-left:0;
+}
+.routine-title-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.routine-title-row .today-dashboard-count{
+  margin-left:0;
+}
+.routine-add-mini{
+  margin-left:0;
+  height:26px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+}
+.sort-row em small{
+  font-style:normal;
+  color:var(--t3);
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2350,6 +2471,7 @@ const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
 let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='time';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
+let activeOpen=false;
 let todayDashboardOpen=false;
 let basicInfoOpen=false;
 let touchReorderInfo=null,touchReorderTimer=null;
@@ -3413,6 +3535,52 @@ function setScheduleSort(t){
   closeM();
   render({preserveScroll:true});
 }
+
+function periodLabel(v){
+  return v==='today'?'당일':v==='1w'?'1주':v==='1m'?'1개월':v==='3m'?'3개월':'전체';
+}
+function openActivePeriodSheet(){
+  const opts=[['today','당일'],['1w','1주'],['1m','1개월'],['3m','3개월'],['all','전체']];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">진행 중 기간</div>
+      ${opts.map(o=>`<button class="sort-row${activePer===o[0]?' on':''}" onclick="setActivePer('${o[0]}');closeM()">
+        <span class="sort-check">${activePer===o[0]?'✓':''}</span>
+        <span><b>${o[1]}</b><em>${o[0]==='today'?'오늘 일정만 표시':'해당 기간의 진행 중 일정을 표시'}</em></span>
+      </button>`).join('')}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function openDonePeriodSheet(){
+  const opts=[['1w','1주'],['1m','1개월'],['3m','3개월'],['all','전체']];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">완료 기간</div>
+      ${opts.map(o=>`<button class="sort-row${donePer===o[0]?' on':''}" onclick="setPer('${o[0]}');closeM()">
+        <span class="sort-check">${donePer===o[0]?'✓':''}</span>
+        <span><b>${o[1]}</b><em>${o[0]==='all'?'전체 완료 일정':'최근 완료 일정을 표시'}</em></span>
+      </button>`).join('')}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function toggleActive(){
+  activeOpen=!activeOpen;
+  render({preserveScroll:true});
+}
+function openRoutineAddFromSchedule(){
+  if(!requireEditMode())return;
+  main='i';
+  basicInfoOpen=false;
+  updateTabUI();
+  addRepeatItem();
+}
+
 function openSortSheet(){
   const opts=[
     ['time','시간순','시작 시간이 빠른 일정부터 표시'],
@@ -3475,6 +3643,40 @@ function renderActivePeriodRow(){
   </div>`;
 }
 
+
+function scheduleGroupDate(n){
+  return scheduleDateKey(n)||n.start||'';
+}
+function scheduleGroupLabel(k){
+  if(!k)return '날짜 없음';
+  const [y,m,d]=k.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  const md=`${m}/${d}`;
+  if(k===todayKey())return `오늘 (${md})`;
+  if(k===tomorrowKey())return `내일 (${md})`;
+  return `${md} (${DAYS[dt.getDay()]})`;
+}
+function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
+  if(!list.length)return `<div class="empty">${emptyText}</div>`;
+  const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
+  if(!grouped)return list.map(makeCard).join('');
+  let last='';
+  let html='';
+  list.forEach(n=>{
+    const k=scheduleGroupDate(n);
+    if(k!==last){
+      html+=`<div class="date-group-hd${k===todayKey()?' today':''}">${scheduleGroupLabel(k)}</div>`;
+      last=k;
+    }
+    html+=makeCard(n);
+  });
+  return html;
+}
+function renderFab(){
+  if(main!=='s')return '';
+  return `<button class="fab-add" onclick="openAddModal()" aria-label="일정 추가">+</button>`;
+}
+
 function renderS(){
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
@@ -3500,18 +3702,15 @@ function renderS(){
   });
   doneFilt=sortScheduleList(doneFilt);
 
-  const doneSection = doneOpen ? `
-    <div class="period-row">
-      <span class="period-lbl">기간</span>
-      <button class="period-chip${donePer==='1w'?' on':''}" onclick="setPer('1w')">1주</button>
-      <button class="period-chip${donePer==='1m'?' on':''}" onclick="setPer('1m')">1개월</button>
-      <button class="period-chip${donePer==='3m'?' on':''}" onclick="setPer('3m')">3개월</button>
-      <button class="period-chip${donePer==='all'?' on':''}" onclick="setPer('all')">전체</button>
-    </div>
-    <div class="card-wrap" style="margin-top:10px">${doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>'}</div>
-  ` : '';
-
   const filters=getPersons().map(p=>`<button class="chip-btn target-chip${subF===p?' on':''}" style="${targetChipStyle(p,subF===p)}" onclick="filterToday=false;setSub(${onclickArg(p)})">${escapeHtml(p)}</button>`).join('');
+
+  const activeCards = activeOpen
+    ? `<div class="card-wrap">${renderScheduleCardList(active,'진행 중인 일정이 없어요')}</div>`
+    : `<div class="schedule-collapsed-hint">진행 중 목록이 접혀 있어요</div>`;
+
+  const doneCards = doneOpen
+    ? `<div class="card-wrap" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>'}</div>`
+    : '';
 
   return`
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
@@ -3519,21 +3718,27 @@ function renderS(){
       <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="filterToday=false;setSub('all')">전체</button>
       ${filters}
     </div>
-    <div class="sec sec-action-row">
-      <span>진행 중</span>
-      <span class="sec-cnt">${active.length}</span>
-      <button class="mini-toggle-btn" onclick="openSortSheet()">${scheduleSortLabel()}</button>
-      <button style="margin-left:6px" class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
+    <div class="sec compact-sec sec-toggle" onclick="toggleActive()" style="cursor:pointer">
+      <span class="sec-title">진행 중</span>
+      <button class="toss-btn primary sec-add-mini" onclick="event.stopPropagation();openAddModal()">+ 추가</button>
+      <div class="sec-actions">
+        <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
+        <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
+        <button class="fold-btn" onclick="event.stopPropagation();toggleActive()">${activeOpen?'▲':'▼'}</button>
+      </div>
     </div>
-    ${!filterToday?renderActivePeriodRow():''}
-    <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
+    ${activeCards}
     ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
-    <div class="sec sec-toggle" onclick="toggleDone()" style="cursor:pointer">
-      <span>완료</span>
-      <button class="fold-btn" onclick="event.stopPropagation();toggleDone()">${doneOpen?'▲':'▼'}</button>
+    <div class="sec compact-sec sec-toggle" onclick="toggleDone()" style="cursor:pointer">
+      <span class="sec-title">완료</span>
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
+      <span class="sec-cnt">${doneFilt.length}</span>
+      <div class="sec-actions">
+        <button class="fold-btn" onclick="event.stopPropagation();toggleDone()">${doneOpen?'▲':'▼'}</button>
+      </div>
     </div>
-    ${doneSection}
+    ${doneCards}
   `;
 }
 
@@ -4678,7 +4883,8 @@ function renderNoticeBanner(){
   const parts=[];
   if(td.length)parts.push(`오늘 일정 ${td.length}개`);
   if(req.length)parts.push(`부탁 ${req.length}개`);
-  return `<div class="notice-banner">🔔 ${parts.join(' · ')} 확인해 주세요</div>`;
+  const canGo=req.length>0;
+  return `<div class="notice-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🔔 ${parts.join(' · ')} 확인해 주세요${canGo?` <span class="notice-go">›</span>`:''}</div>`;
 }
 
 function renderShiftWidget(){
@@ -4763,9 +4969,12 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
   }).join('');
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card ${cls}">
-      <div class="today-dashboard-head">
-        <div class="widget-title">${escapeHtml(title)}</div>
-        <div class="today-dashboard-count">${filtered.length}개</div>
+      <div class="today-dashboard-head inline-count">
+        <div class="routine-title-row">
+          <div class="widget-title">${escapeHtml(title)}</div>
+          <div class="today-dashboard-count">${filtered.length}개</div>
+          ${targetMode==='routine'?`<button class="toss-btn primary routine-add-mini" onclick="event.stopPropagation();openRoutineAddFromSchedule()">+ 루틴</button>`:''}
+        </div>
       </div>
       <div class="today-target-grid">${grid}</div>
     </div>
@@ -4805,7 +5014,7 @@ function renderTodayListDashboard(title,allEvents){
   }
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard">
-      <div class="today-dashboard-head">
+      <div class="today-dashboard-head inline-count">
         <div class="widget-title">${escapeHtml(title)}</div>
         <div class="today-dashboard-count">${filtered.length}개</div>
       </div>
@@ -4817,7 +5026,7 @@ function renderHomeWidgets(){
   if(main!=='s')return '';
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,todayKey()));
   const routineToday=familyInfoUpcomingEvents(1);
-  return `${renderTodayListDashboard('오늘 하루?',normalToday)}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard','routine')}`;
+  return `${renderTodayListDashboard('일정',normalToday)}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
@@ -5043,7 +5252,7 @@ function render(opts={}){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderShiftWidget()+renderHomeWidgets()+renderSearchBox()+h;
+  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderShiftWidget()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }

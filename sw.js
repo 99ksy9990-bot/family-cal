@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.12';
+const CACHE_NAME = 'pass-cal-v1.0.14';
 
 const APP_SHELL = [
   './',
@@ -19,7 +19,6 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   if (url.origin !== self.location.origin) {
-    event.respondWith(fetch(req).catch(() => new Response('offline', {status: 503, statusText: 'offline'})));
     return;
   }
 
