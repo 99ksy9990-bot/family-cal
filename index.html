@@ -1763,6 +1763,204 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   cursor:grab;
 }
 
+
+/* 최종 요청 반영: 근무 오늘 pill / 기간형 필터 / 오늘 하루 2분할 */
+.shift-mini-card.today-widget-outline{outline:none !important;outline-offset:0 !important}
+.today-shift-date{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1.5px solid var(--blue) !important;
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  margin:0 auto 6px !important;
+  max-width:100%;
+  white-space:nowrap;
+}
+.compact-shift-widget .shift-mini-card{
+  min-height:56px !important;
+  padding:8px 5px !important;
+}
+.compact-shift-widget .widget-main{
+  margin-top:1px !important;
+}
+
+/* 전체~도미 필터를 기간 선택과 동일한 폼으로 */
+.schedule-filter-row,
+.cal-filter.target-filter-row{
+  padding-left:16px !important;
+  padding-right:16px !important;
+  gap:6px !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.schedule-filter-row::-webkit-scrollbar,
+.cal-filter.target-filter-row::-webkit-scrollbar{display:none}
+.schedule-filter-row .chip-btn,
+.cal-filter.target-filter-row .chip-btn{
+  flex:0 0 auto !important;
+  min-width:48px !important;
+  height:30px !important;
+  padding:0 10px !important;
+  border-radius:20px !important;
+  border:1.5px solid var(--border) !important;
+  background:var(--card) !important;
+  color:var(--t2) !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  box-shadow:none !important;
+  white-space:nowrap !important;
+}
+.schedule-filter-row .chip-btn.on,
+.schedule-filter-row .cb-all.on,
+.cal-filter.target-filter-row .chip-btn.on,
+.cal-filter.target-filter-row .cb-all.on{
+  border-color:var(--blue) !important;
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+}
+.schedule-filter-row .chip-btn.on::after,
+.schedule-filter-row .cb-all.on::after,
+.cal-filter.target-filter-row .chip-btn.on::after,
+.cal-filter.target-filter-row .cb-all.on::after{
+  display:none !important;
+}
+
+/* 오늘 하루 2분할 대시보드 */
+.today-dashboard{
+  grid-column:1 / -1 !important;
+  padding:14px !important;
+  min-height:0 !important;
+}
+.today-dashboard-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.today-dashboard-head .widget-title{
+  margin:0 !important;
+  font-size:13px !important;
+  color:var(--t2) !important;
+}
+.today-dashboard-count{
+  flex-shrink:0;
+  height:26px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 10px;
+  border-radius:999px;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:950;
+  border:1.5px solid rgba(0,122,255,.25);
+}
+.today-target-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.today-target-card{
+  min-width:0;
+  min-height:74px;
+  border-radius:16px;
+  background:var(--bg);
+  padding:10px 11px;
+  border:1px solid var(--border);
+}
+.today-target-name{
+  font-size:12px;
+  line-height:1.15;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-bottom:6px;
+}
+.today-target-title{
+  font-size:12px;
+  font-weight:900;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-target-time{
+  margin-top:3px;
+  font-size:10px;
+  color:var(--t3);
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-target-empty{
+  font-size:11px;
+  color:var(--t3);
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-dashboard-more{
+  margin-top:9px;
+  text-align:center;
+  font-size:11px;
+  font-weight:950;
+  color:var(--blue);
+}
+
+/* 루틴 기본정보 오늘 하루 선택 */
+.today-toggle-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:11px;
+  font-weight:950;
+  font-family:inherit;
+}
+.today-toggle-pill.on{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+  color:var(--blue-t);
+}
+
+/* 달력 범례 가운데 정렬 */
+.target-legend{
+  justify-content:center !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:6px 8px !important;
+  overflow:visible !important;
+  text-align:center !important;
+}
+.target-legend .leg{
+  font-size:10.5px !important;
+  gap:4px !important;
+  padding:2px 5px !important;
+  flex:0 0 auto !important;
+}
+.target-legend .target-dot,
+.target-legend .leg-dot{
+  width:8px !important;
+  height:8px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1937,13 +2135,13 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='1w',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let todayDashboardOpen=false;
 let basicInfoOpen=false;
 let touchReorderInfo=null,touchReorderTimer=null;
-let filterToday=true;
+let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
@@ -1956,8 +2154,11 @@ function ensureBaseTargets(){
   if(!Array.isArray(family))family=[];
   BASE_PERSONS.forEach(name=>{
     if(!family.some(x=>(x.name||'').trim()===name)){
-      family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[]});
+      family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[],showToday:name!=='공통'});
     }
+  });
+  family.forEach(k=>{
+    if(!('showToday' in k))k.showToday=['아빠','엄마','초이','도미'].includes((k.name||'').trim());
   });
 }
 function getPersons(){
@@ -1995,7 +2196,8 @@ function hexToRgba(hex,a=.14){
   return `rgba(${r},${g},${b},${a})`;
 }
 function targetChipStyle(who,on=false){
-  return `background:transparent!important;border-color:transparent!important;color:var(--t1)!important`;
+  if(on)return `background:var(--blue-bg)!important;border-color:var(--blue)!important;color:var(--blue-t)!important`;
+  return `background:var(--card)!important;border-color:var(--border)!important;color:var(--t2)!important`;
 }
 function targetPersonChipStyle(who){
   const c=personColor(who);
@@ -2906,15 +3108,17 @@ function sortByStartTime(arr){
 }
 function activePeriodEnd(){
   if(activePer==='all')return '9999-12-31';
+  if(activePer==='today')return todayKey();
   if(activePer==='1w')return addDaysStr(todayKey(),6);
   if(activePer==='1m')return addMonthsStr(todayKey(),1);
   if(activePer==='3m')return addMonthsStr(todayKey(),3);
-  return addDaysStr(todayKey(),6);
+  return todayKey();
 }
 function activeInPeriod(n){
   if(activePer==='all')return true;
   const today=todayKey();
   const end=activePeriodEnd();
+  if(activePer==='today')return occursOn(n,today);
   const k=n.repeat?nextOccurrence(n,today):(n.start||'');
   if(!k)return true;
   if(n.end && n.end>=today && (n.start||k)<=end)return true;
@@ -2927,6 +3131,7 @@ function setActivePer(t){
 function renderActivePeriodRow(){
   return `<div class="period-row active-period-row">
     <span class="period-lbl">기간</span>
+    <button class="period-chip${activePer==='today'?' on':''}" onclick="setActivePer('today')">당일</button>
     <button class="period-chip${activePer==='1w'?' on':''}" onclick="setActivePer('1w')">1주</button>
     <button class="period-chip${activePer==='1m'?' on':''}" onclick="setActivePer('1m')">1개월</button>
     <button class="period-chip${activePer==='3m'?' on':''}" onclick="setActivePer('3m')">3개월</button>
@@ -3222,6 +3427,13 @@ function touchReorderCancel(){
   document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
 }
 
+function toggleFamilyToday(ki){
+  if(!requireEditMode())return;
+  if(!family[ki])return;
+  family[ki].showToday=!family[ki].showToday;
+  saveAll();
+  render();
+}
 function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`<div class="sec sec-toggle" onclick="toggleBasicInfo()" style="cursor:pointer">
@@ -3247,6 +3459,7 @@ function renderI(){
         ontouchcancel="touchReorderCancel()">
         <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
+            <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 하루 ${kid.showToday?'표시':'숨김'}</button>
             <button class="fi-btn fi-btn-e" onclick="event.stopPropagation();editKid(${ki})">수정</button>
             <button class="fi-btn fi-btn-d" onclick="event.stopPropagation();delKid(${ki})">삭제</button>
           </div>
@@ -3255,7 +3468,7 @@ function renderI(){
       </div>`;
     });
   }else{
-    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 대상 순서를 꾹 눌러 이동할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 순서를 설정할 수 있어요.</div>`;
   }
 
   h+=`<div class="sec">루틴 일정 <span class="sec-cnt">${repeatItems.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="addRepeatItem()">+ 루틴 추가</button></div>`;
@@ -3446,7 +3659,6 @@ function delMemory(id){
 function makeMemoryCard(x){
   const age=ageNow(x.birth);
   const nb=nextBirthInfo(x.birth);
-  const who=x.todayWho||x.name||'';
   return`<div class="card mem-card reorder-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -3466,7 +3678,6 @@ function makeMemoryCard(x){
           ${x.birth?`<span class="chip chip-g">${dateLabel(x.birth)}</span>`:''}
           ${x.birth?`<span class="chip mem-age">만 ${age}세</span>`:''}
           ${x.birth?`<span class="chip mem-dday">${nb.dday}</span>`:''}
-          ${x.showToday?`<span class="chip auto-info-chip">오늘 하루 · ${escapeHtml(who)}</span>`:''}
         </div>
         ${x.memo?`<button class="comment-pill" onclick="event.stopPropagation();openMemoryModal('${x.id}')">${escapeHtml(x.memo)}</button>`:''}
       </div>
@@ -3485,8 +3696,6 @@ function renderM(){
 }
 function openMemoryModal(id){
   const x=id?memories.find(v=>String(v.id)===String(id)):null;
-  const today=new Date().toISOString().slice(0,10);
-  const who=(x&&x.todayWho)||getPersons()[0]||'공통';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -3496,12 +3705,6 @@ function openMemoryModal(id){
       <input class="mi" id="mem-name" placeholder="예: 도미 생일, 엄마 생일" value="${x?escapeAttr(x.name):''}"/>
       <div class="ml">생년월일</div>
       <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'생년월일 선택'}" onclick="openBirthPicker('mem-birth')"/>
-      <div class="ml">오늘 하루 표시</div>
-      <button class="type-btn${x&&x.showToday?' tf':''}" id="mem-show" data-val="${x&&x.showToday?'1':''}" onclick="this.dataset.val=this.dataset.val?'':'1';this.className='type-btn'+(this.dataset.val?' tf':'')">오늘 하루에 표시</button>
-      <div class="ml">오늘 하루 대상자</div>
-      <select class="mi" id="mem-who">
-        ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${who===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-      </select>
       <div class="ml">메모</div>
       <textarea class="ta" id="mem-memo" placeholder="선물, 좋아하는 것, 참고할 내용">${x?escapeHtml(x.memo||''):''}</textarea>
       <button class="primary-btn" onclick="saveMemory('${x?x.id:''}')">저장</button>
@@ -3516,13 +3719,11 @@ function saveMemory(id){
   if(!name.trim())return;
   const birth=getPickerVal('mem-birth');
   const memo=(document.getElementById('mem-memo')||{}).value||'';
-  const showToday=!!((document.getElementById('mem-show')||{}).dataset||{}).val;
-  const todayWho=(document.getElementById('mem-who')||{}).value||name.trim();
   if(id){
     const x=memories.find(v=>String(v.id)===String(id)); if(!x)return;
-    x.name=name.trim(); x.birth=birth; x.memo=memo; x.showToday=showToday; x.todayWho=todayWho;
+    x.name=name.trim(); x.birth=birth; x.memo=memo;
   }else{
-    memories.push({id:Date.now(),name:name.trim(),birth,memo,showToday,todayWho});
+    memories.push({id:Date.now(),name:name.trim(),birth,memo});
   }
   saveAll();closeM();render();
 }
@@ -4150,8 +4351,9 @@ function renderShiftWidget(){
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
       const d=new Date(yy,mm-1,dd);
-      return `<div class="widget-card shift-mini-card${i===0?' today-widget-outline':''}">
-        <div class="widget-title">${labels[i]} · ${mm}/${dd} (${DAYS[d.getDay()]})</div>
+      const title=`${labels[i]} ${mm}/${dd} (${DAYS[d.getDay()]})`;
+      return `<div class="widget-card shift-mini-card">
+        <div class="widget-title${i===0?' today-shift-date':''}">${title}</div>
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
       </div>`;
     }).join('')}
@@ -4160,9 +4362,9 @@ function renderShiftWidget(){
 
 
 function selectedTodayTargets(){
-  return (memories||[])
+  return (family||[])
     .filter(x=>x.showToday)
-    .map(x=>({id:x.id,label:(x.todayWho||x.name||'대상'),memoryName:x.name||''}));
+    .map(x=>({id:x.id,label:(x.name||'대상')}));
 }
 function toggleTodayDashboard(){
   todayDashboardOpen=!todayDashboardOpen;
@@ -4180,33 +4382,23 @@ function renderHomeWidgets(){
   ].filter(n=>subF==='all'||(n.who||'공통')===subF);
 
   const sorted=sortByStartTime(todayList);
-  const common=sorted.filter(n=>(n.who||'공통')==='공통');
-  const selected=selectedTodayTargets();
-  const slots=[...selected];
-  while(slots.length<5)slots.push({empty:true,label:'대상 선택'});
-  const visibleSlots=todayDashboardOpen?slots:slots.slice(0,5);
+  const targets=selectedTodayTargets();
+  const cards=targets.length?targets:[{empty:true,label:'대상 선택'},{empty:true,label:'대상 선택'}];
+  const visible=todayDashboardOpen?cards:cards.slice(0,4);
 
-  const commonHtml=common.length
-    ? common.slice(0,8).map(n=>`<div class="today-common-item">
-        <div class="today-common-title">${escapeHtml(n.title)}</div>
-      </div>`).join('')
-    : `<div class="today-common-item"><div class="today-common-title">공통 일정 없음</div></div>`;
-
-  const rows=visibleSlots.map(slot=>{
+  const rows=visible.map(slot=>{
     if(slot.empty){
-      return `<div class="today-person-row today-person-placeholder">
-        <div class="today-person-name">대상 선택</div>
-        <div class="today-empty">기념 탭에서 오늘 하루 표시를 켜주세요</div>
+      return `<div class="today-target-card today-person-placeholder">
+        <div class="today-target-name">대상 선택</div>
+        <div class="today-target-empty">루틴 기본정보에서 오늘 하루 표시를 켜주세요</div>
       </div>`;
     }
     const target=slot.label;
     const list=targetTodayEvents(target,sorted);
     const first=list[0];
-    return `<div class="today-person-row">
-      <div class="today-person-name" style="color:${personColor(target)}">${escapeHtml(target)}</div>
-      <div style="min-width:0">
-        ${first?`<div class="today-person-title">${escapeHtml(first.title)}</div><div class="today-person-sub">${escapeHtml(dateTimeRange(first)||'시간 미정')}${list.length>1?` · 외 ${list.length-1}개`:''}</div>`:`<div class="today-empty">일정 없음</div>`}
-      </div>
+    return `<div class="today-target-card">
+      <div class="today-target-name" style="color:${personColor(target)}">${escapeHtml(target)}</div>
+      ${first?`<div class="today-target-title">${escapeHtml(first.title)}</div><div class="today-target-time">${escapeHtml(dateTimeRange(first)||'시간 미정')}${list.length>1?` · 외 ${list.length-1}개`:''}</div>`:`<div class="today-target-empty">오늘 일정 없음</div>`}
     </div>`;
   }).join('');
 
@@ -4216,9 +4408,8 @@ function renderHomeWidgets(){
         <div class="widget-title">오늘 하루?</div>
         <div class="today-dashboard-count">${todayList.length}개</div>
       </div>
-      <div class="today-common-strip">${commonHtml}</div>
-      <div class="today-person-list">${rows}</div>
-      ${selected.length>5?`<div class="today-person-more">${todayDashboardOpen?'접기':'전체 보기'} · ${selected.length}명</div>`:''}
+      <div class="today-target-grid">${rows}</div>
+      ${cards.length>4?`<div class="today-dashboard-more">${todayDashboardOpen?'접기':'전체 보기'} · ${cards.length}명</div>`:''}
     </div>
   </div>`;
 }
@@ -4620,7 +4811,7 @@ function editKid(i){
 }
 function addKid(){
   if(!requireEditMode())return;
-family.push({id:Date.now(),name:'새 대상',grade:'',year:'',cls:'',num:'',cats:[]});saveAll();editKid(family.length-1)}
+family.push({id:Date.now(),name:'새 대상',grade:'',year:'',cls:'',num:'',cats:[],showToday:false});saveAll();editKid(family.length-1)}
 function saveKid(i){
   if(!requireEditMode())return;
 family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
