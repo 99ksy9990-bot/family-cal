@@ -32,7 +32,7 @@
 -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp, collection, getDocs, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAetOk4YV9OTl7fjQOJAVcapWXmFHETLeQ",
@@ -53,7 +53,7 @@
       const app = initializeApp(FIREBASE_CONFIG);
       const db = getFirestore(app);
       window.__firebaseReady = true;
-      window.__firebaseAPI = { db, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp };
+      window.__firebaseAPI = { db, doc, getDoc, setDoc, updateDoc, FieldPath, onSnapshot, serverTimestamp, collection, getDocs, writeBatch, deleteDoc };
     } catch (e) {
       console.warn("Firebase 초기화 실패. 로컬 저장으로 동작합니다.", e);
     }
@@ -1304,6 +1304,201 @@ body{
   box-shadow:0 4px 14px rgba(15,23,42,.06);
 }
 
+
+/* 수동 테마 토글 */
+body[data-theme="light"]{
+  --bg:#F5F5F7;--card:#fff;--border:#E5E5EA;
+  --t1:#1C1C1E;--t2:#6B6B6F;--t3:#AEAEB2;
+  --blue-bg:#EAF3FF;--blue-t:#0055B3;
+  --pink-bg:#FFF0F3;--pink-t:#C0002C;
+  --green-bg:#EDFAF2;--green-t:#1A7A36;
+  --purple-bg:#F2EEFF;--purple-t:#4C1D95;
+  --orange-bg:#FFF4E5;--orange-t:#7A3800;
+  background:linear-gradient(180deg,#F7F8FA 0%,#F2F3F6 100%) !important;
+}
+body[data-theme="dark"]{
+  --bg:#000000;--card:#1C1C1E;--border:#38383A;
+  --t1:#FFFFFF;--t2:#EBEBF5;--t3:#8E8E93;
+  --blue-bg:#0A244A;--blue-t:#66B2FF;
+  --pink-bg:#4A0F1E;--pink-t:#FF6685;
+  --green-bg:#0B3019;--green-t:#59D67D;
+  --purple-bg:#27144A;--purple-t:#A37AF0;
+  --orange-bg:#4A2B0A;--orange-t:#FFB347;
+  background:#000 !important;
+}
+body[data-theme="dark"] .tab,
+body[data-theme="dark"] .widget-card,
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .cal-card,
+body[data-theme="dark"] .ev-card,
+body[data-theme="dark"] .fi-card,
+body[data-theme="dark"] .week-day,
+body[data-theme="dark"] .version-card,
+body[data-theme="dark"] .trash-item{
+  background:var(--card) !important;
+  border-color:var(--border) !important;
+}
+body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
+.theme-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:12px 13px;
+  margin-top:8px;
+}
+.theme-row label{font-size:13px;font-weight:900;color:var(--t2)}
+.theme-select{
+  height:34px;
+  border-radius:12px;
+  border:1.5px solid var(--border);
+  background:var(--bg);
+  color:var(--t1);
+  font-size:13px;
+  font-weight:900;
+  font-family:inherit;
+  padding:0 10px;
+}
+.today-dashboard{
+  grid-column:1 / -1;
+  min-height:106px !important;
+}
+.today-dashboard-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.today-dash-item{
+  min-width:0;
+  border-radius:12px;
+  background:var(--bg);
+  padding:8px 9px;
+}
+.today-dash-title{
+  font-size:12px;
+  font-weight:900;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-dash-sub{
+  font-size:10px;
+  color:var(--t3);
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+
+/* 토스트 알림 / 실행 취소 */
+.toast-wrap{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  width:min(398px,calc(100% - 28px));
+  z-index:3000;
+  pointer-events:none;
+}
+.toast{
+  background:rgba(28,28,30,.96);
+  color:#fff;
+  border-radius:18px;
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  box-shadow:0 14px 32px rgba(0,0,0,.25);
+  animation:toastUp .18s ease both;
+  pointer-events:auto;
+}
+.toast-msg{
+  font-size:13px;
+  font-weight:800;
+  line-height:1.35;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.toast-btn{
+  border:none;
+  background:transparent;
+  color:#8EC5FF;
+  font-size:13px;
+  font-weight:950;
+  font-family:inherit;
+  white-space:nowrap;
+}
+@keyframes toastUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+
+/* 대상 필터 색상/한 줄 정렬 */
+.schedule-filter-row,
+.cal-filter.target-filter-row{
+  padding:12px 16px 0 !important;
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:6px !important;
+  overflow-x:auto !important;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.schedule-filter-row::-webkit-scrollbar,
+.cal-filter.target-filter-row::-webkit-scrollbar{display:none}
+.schedule-filter-row .chip-btn,
+.cal-filter.target-filter-row .chip-btn{
+  flex:0 0 calc((100% - 30px)/6) !important;
+  min-width:0 !important;
+  height:34px !important;
+  padding:0 4px !important;
+  justify-content:center !important;
+  text-align:center !important;
+  font-size:11.5px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  border:1.5px solid var(--border) !important;
+}
+.schedule-filter-row .cb-all,
+.cal-filter.target-filter-row .cb-all{
+  background:var(--card) !important;
+  color:var(--t1) !important;
+  border-color:var(--border) !important;
+}
+.schedule-filter-row .cb-all.on,
+.cal-filter.target-filter-row .cb-all.on{
+  background:var(--t1) !important;
+  color:#fff !important;
+  border-color:var(--t1) !important;
+}
+.target-legend .leg{
+  padding:3px 7px;
+  border-radius:999px;
+  background:var(--bg);
+}
+.target-legend .target-dot{
+  width:9px !important;
+  height:9px !important;
+}
+@media (max-width:390px){
+  .schedule-filter-row .chip-btn,
+  .cal-filter.target-filter-row .chip-btn{
+    font-size:10.5px !important;
+    height:32px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1426,7 +1621,23 @@ function openSecurityGuide(){
   </div>`;
 }
 
+
+let themeMode='system';
+try{themeMode=localStorage.getItem('pass_theme_mode')||'system'}catch(e){themeMode='system'}
+function applyThemeMode(){
+  try{localStorage.setItem('pass_theme_mode',themeMode)}catch(e){}
+  if(themeMode==='system')document.body.removeAttribute('data-theme');
+  else document.body.setAttribute('data-theme',themeMode);
+}
+function setThemeMode(v){
+  themeMode=v||'system';
+  applyThemeMode();
+  render();
+}
+document.addEventListener('DOMContentLoaded',applyThemeMode);
+
 const SK={data:'fam_shared_v8_data',room:'fam_shared_v8_room'};
+const HOLIDAY_FUNCTION_URL=''; // Firebase Cloud Function URL을 넣으면 한국천문연구원 공휴일 API와 자동 연동됩니다.
 const DEFAULT_ROOM_ID='family-dmm8oydaq6';
 const DEFAULT_DATA={
   notes:[
@@ -1456,6 +1667,7 @@ const DEFAULT_DATA={
   shiftData:{},
   deletedItems:[],
   customHolidays:[],
+  holidayCache:{},
   repeatItems:[]
 };
 
@@ -1466,7 +1678,7 @@ let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let basicInfoOpen=false;
 let touchReorderInfo=null,touchReorderTimer=null;
-let filterToday=false;
+let filterToday=true;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
@@ -1502,6 +1714,27 @@ function personCls(who){
   const idx=Math.max(0,arr.indexOf(who||'공통'));
   return ['person-common','person-dad','person-mom','person-choi','person-domi'][idx%5]||'person-common';
 }
+
+function hexToRgba(hex,a=.14){
+  const h=String(hex||'#6B6B6F').replace('#','');
+  const full=h.length===3?h.split('').map(x=>x+x).join(''):h.padEnd(6,'0').slice(0,6);
+  const n=parseInt(full,16);
+  const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  return `rgba(${r},${g},${b},${a})`;
+}
+function targetChipStyle(who,on=false){
+  const c=personColor(who);
+  if(on)return `background:${c}!important;border-color:${c}!important;color:#fff!important`;
+  return `background:${hexToRgba(c,.14)}!important;border-color:${hexToRgba(c,.28)}!important;color:${c}!important`;
+}
+function targetPersonChipStyle(who){
+  const c=personColor(who);
+  return `background:${hexToRgba(c,.14)};color:${c};border:1px solid ${hexToRgba(c,.24)}`;
+}
+function onclickArg(v){
+  return escapeAttr(JSON.stringify(String(v??'')));
+}
+
 function repeatName(r){return r==='daily'?'매일':r==='weekly'?'매주':r==='monthly'?'매월':'반복 없음'}
 
 const STXT={D:'주간',E:'저녁',N:'야간',OFF:'휴무'};
@@ -1572,11 +1805,11 @@ function annualHolidayName(k){
   return '';
 }
 
-function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return (c&&c.name)||KR_HOLIDAYS[k]||annualHolidayName(k)||''}
+function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return (c&&c.name)||holidayCache[k]||KR_HOLIDAYS[k]||annualHolidayName(k)||''}
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],repeatItems=[],shiftData={};
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={};
 let shiftKeepOnlyMay2026Done_v3=false;
 let shiftKeepOnlyMay2026NeedsSave=false;
 let roomId = getRoomId();
@@ -1693,6 +1926,7 @@ function addMonthsStr(dateStr,months){
 }
 function occursOn(n,key){
   if(!n.start) return false;
+  if(n.repeat && holidayName(key)) return false;
   if(n.repeatEnd && key>n.repeatEnd) return false;
   if(Array.isArray(n.skipDates) && n.skipDates.includes(key)) return false;
   if(!n.repeat){
@@ -1738,6 +1972,7 @@ function familyInfoEventsOnDate(y,m,d){
   const dow=new Date(y,m,d).getDay();
   const date=dk(y,m,d);
   const out=[];
+  if(holidayName(date))return out;
   (repeatItems||[]).forEach(r=>{
     const title=String(r.title||'').trim();
     const days=Array.isArray(r.days)?r.days:[];
@@ -1746,7 +1981,7 @@ function familyInfoEventsOnDate(y,m,d){
     if(r.repeatEnd && date>r.repeatEnd)return;
     out.push({
       id:`auto-${r.id}-${date}`,
-      title:`${r.who||'공통'} ${title}`,
+      title:title,
       type:'family',
       who:r.who||'공통',
       start:date,
@@ -1810,18 +2045,21 @@ function applyMay2026ShiftMigration(){
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
-  notes=Array.isArray(d.notes)?d.notes:base.notes;
+  const subMode=d.storageMode==='subcollections';
+  notes=Array.isArray(d.notes)?d.notes:(subMode?notes:base.notes);
+  notes=Array.isArray(notes)?notes:[];
   notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo=''; if(!n.type)n.type='family';});
-  requests=Array.isArray(d.requests)?d.requests:(base.requests||[]);
+  requests=Array.isArray(d.requests)?d.requests:(subMode?requests:(base.requests||[]));
+  requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
+  holidayCache=(d.holidayCache&&typeof d.holidayCache==='object')?d.holidayCache:(base.holidayCache||{});
   family=Array.isArray(d.family)?d.family:base.family;
   ensureBaseTargets();
 
-  // 기존 가족별 반복 항목을 새 repeatItems 구조로 1회 마이그레이션
   repeatItems=Array.isArray(d.repeatItems)?d.repeatItems:[];
   if(!repeatItems.length){
     (family||[]).forEach(kid=>{
@@ -1858,32 +2096,139 @@ function normalizeData(d){
   purgeOldTrash(false);
   shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
   shiftKeepOnlyMay2026NeedsSave=false;
-  shiftData=d.shiftData||{};
+  shiftData=d.shiftData&& !subMode ? d.shiftData : (subMode?shiftData:(d.shiftData||{}));
+  shiftData=shiftData||{};
   applyMay2026ShiftMigration();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,repeatItems,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftKeepOnlyMay2026Done_v3,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
+
+
+function currentSettingsData(){
+  return {
+    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,
+    shiftKeepOnlyMay2026Done_v3,
+    storageMode:'subcollections',
+    updatedAt:Date.now()
+  };
+}
+function monthKeyOf(k){return String(k||'').slice(0,7)}
+function monthShiftMap(monthKey){
+  const out={};
+  Object.keys(shiftData||{}).forEach(k=>{
+    if(k.startsWith(monthKey+'-'))out[k]=shiftData[k]||'';
+  });
+  return out;
+}
+function monthsInShiftData(){
+  return [...new Set(Object.keys(shiftData||{}).map(monthKeyOf).filter(Boolean))];
+}
+async function getCollectionDocs(api, pathName){
+  const col=api.collection(api.db,'familyCalendars',roomId,pathName);
+  const snap=await api.getDocs(col);
+  return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+async function saveCollectionExact(api, pathName, arr){
+  if(!api.collection||!api.getDocs||!api.writeBatch||!api.deleteDoc)return;
+  const col=api.collection(api.db,'familyCalendars',roomId,pathName);
+  const snap=await api.getDocs(col);
+  const existing=new Set(snap.docs.map(d=>d.id));
+  const ids=new Set((arr||[]).map(x=>String(x.id)));
+  const batch=api.writeBatch(api.db);
+  (arr||[]).forEach(x=>{
+    const id=String(x.id||Date.now()+Math.random());
+    x.id=x.id||id;
+    batch.set(api.doc(api.db,'familyCalendars',roomId,pathName,id), x);
+  });
+  snap.docs.forEach(d=>{
+    if(!ids.has(d.id))batch.delete(api.doc(api.db,'familyCalendars',roomId,pathName,d.id));
+  });
+  await batch.commit();
+}
+async function saveShiftMonthsExact(api){
+  if(!api.collection||!api.getDocs||!api.writeBatch)return;
+  const col=api.collection(api.db,'familyCalendars',roomId,'shifts');
+  const snap=await api.getDocs(col);
+  const months=monthsInShiftData();
+  const monthSet=new Set(months);
+  const batch=api.writeBatch(api.db);
+  months.forEach(m=>{
+    batch.set(api.doc(api.db,'familyCalendars',roomId,'shifts',m), {id:m,days:monthShiftMap(m),updatedAt:Date.now()});
+  });
+  snap.docs.forEach(d=>{
+    if(!monthSet.has(d.id))batch.delete(api.doc(api.db,'familyCalendars',roomId,'shifts',d.id));
+  });
+  await batch.commit();
+}
+async function loadSubcollectionData(api){
+  if(!api.collection||!api.getDocs)return false;
+  let any=false;
+  try{
+    const ns=await getCollectionDocs(api,'notes');
+    const rs=await getCollectionDocs(api,'requests');
+    const ss=await getCollectionDocs(api,'shifts');
+    if(ns.length){notes=ns;any=true}
+    if(rs.length){requests=rs;any=true}
+    if(ss.length){
+      const merged={};
+      ss.forEach(s=>Object.assign(merged,s.days||{}));
+      shiftData=merged;
+      any=true;
+    }
+  }catch(e){console.warn('subcollection load failed',e)}
+  return any;
+}
+async function saveRemoteSubcollections(api){
+  await api.setDoc(api.doc(api.db,'familyCalendars',roomId), {...currentSettingsData(), updatedAt:api.serverTimestamp()}, {merge:false});
+  await saveCollectionExact(api,'notes',notes);
+  await saveCollectionExact(api,'requests',requests);
+  await saveShiftMonthsExact(api);
+}
+function setupSubcollectionListeners(api){
+  try{
+    if(!api.collection||!api.onSnapshot)return;
+    if(!window.__passUnsubs)window.__passUnsubs=[];
+    window.__passUnsubs.forEach(u=>{try{u&&u()}catch(e){}});
+    window.__passUnsubs=[
+      api.onSnapshot(api.collection(api.db,'familyCalendars',roomId,'notes'),s=>{
+        if(savingRemote)return;
+        notes=s.docs.map(d=>({id:d.id,...d.data()}));
+        saveLocal();render();
+      }),
+      api.onSnapshot(api.collection(api.db,'familyCalendars',roomId,'requests'),s=>{
+        if(savingRemote)return;
+        requests=s.docs.map(d=>({id:d.id,...d.data()}));
+        saveLocal();render();
+      }),
+      api.onSnapshot(api.collection(api.db,'familyCalendars',roomId,'shifts'),s=>{
+        if(savingRemote)return;
+        const merged={};
+        s.docs.forEach(d=>Object.assign(merged,(d.data()||{}).days||{}));
+        shiftData=merged;
+        saveLocal();render();
+      })
+    ];
+  }catch(e){console.warn('subcollection listeners failed',e)}
+}
 
 function saveShiftOnly(k,t){
   saveLocal();
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    const ref=api.doc(api.db,'familyCalendars',roomId);
     const finish=()=>{savingRemote=false};
-    if(k && api.updateDoc && api.FieldPath){
-      api.updateDoc(ref, new api.FieldPath('shiftData', k), t, 'updatedAt', api.serverTimestamp())
-        .catch(e=>{
-          console.warn(e);
-          return api.setDoc(ref,{shiftData,updatedAt:api.serverTimestamp()},{merge:true});
-        })
-        .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
-        .finally(finish);
-    }else{
-      api.setDoc(ref,{shiftData,updatedAt:api.serverTimestamp()},{merge:true})
-        .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
-        .finally(finish);
+    try{
+      const m=monthKeyOf(k);
+      if(m){
+        api.setDoc(api.doc(api.db,'familyCalendars',roomId,'shifts',m), {id:m,days:monthShiftMap(m),updatedAt:api.serverTimestamp()}, {merge:false})
+          .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
+          .finally(finish);
+      }else{
+        saveRemoteSubcollections(api).catch(e=>console.warn(e)).finally(finish);
+      }
+    }catch(e){
+      console.warn(e);finish();
     }
   }
 }
@@ -1892,7 +2237,7 @@ function saveAll(){
   if(remoteReady && window.__firebaseAPI && hydrated){
     savingRemote=true;
     const api=window.__firebaseAPI;
-    api.setDoc(api.doc(api.db,'familyCalendars',roomId), {...currentData(), updatedAt:api.serverTimestamp()}, {merge:true})
+    saveRemoteSubcollections(api)
       .catch(e=>{console.warn(e);updateSyncPill('Firebase 저장 실패: 로컬에만 저장됨');})
       .finally(()=>{savingRemote=false;});
   }
@@ -1929,32 +2274,44 @@ async function initData(){
       }
 
       if(!snap.exists()){
-        await api.setDoc(ref,{...currentData(),createdAt:api.serverTimestamp(),updatedAt:api.serverTimestamp()});
+        await saveRemoteSubcollections(api);
       }else{
-        normalizeData(snap.data());
-        saveLocal();
+        const root=snap.data();
+        normalizeData(root);
+        const hadSub=await loadSubcollectionData(api);
+
+        // 기존 단일문서 구조를 감지하면 하위 컬렉션으로 1회 마이그레이션하고 루트 문서를 가볍게 정리
+        if(!hadSub && (Array.isArray(root.notes)||Array.isArray(root.requests)||root.shiftData)){
+          await saveRemoteSubcollections(api);
+          updateSyncPill('데이터 구조 최적화 완료');
+        }
+
         if(shiftKeepOnlyMay2026NeedsSave){
           shiftKeepOnlyMay2026NeedsSave=false;
-          await api.setDoc(ref,{shiftData,shiftKeepOnlyMay2026Done_v3:true,updatedAt:api.serverTimestamp()},{merge:true});
+          await saveRemoteSubcollections(api);
         }
+
+        saveLocal();
         render();
       }
 
       unsubscribe=api.onSnapshot(ref,(s)=>{
         if(!s.exists()||savingRemote)return;
-        normalizeData(s.data());
-        saveLocal();
-        if(shiftKeepOnlyMay2026NeedsSave && window.__firebaseAPI){
-          shiftKeepOnlyMay2026NeedsSave=false;
-          const api=window.__firebaseAPI;
-          api.setDoc(api.doc(api.db,'familyCalendars',roomId),{shiftData,shiftKeepOnlyMay2026Done_v3:true,updatedAt:api.serverTimestamp()},{merge:true}).catch(e=>console.warn(e));
+        const root=s.data();
+        const keep={notes,requests,shiftData};
+        normalizeData(root);
+        // 루트 설정 변경만 반영하고 대용량 컬렉션은 별도 리스너가 담당
+        if(root.storageMode==='subcollections'){
+          notes=keep.notes;requests=keep.requests;shiftData=keep.shiftData;
         }
+        saveLocal();
         render();
         updateSyncPill('실시간 공유 연결됨');
       },(e)=>{
         console.warn(e);
         updateSyncPill('공유 연결 실패 · 로컬 저장으로 동작 중');
       });
+      setupSubcollectionListeners(api);
     }else{
       updateSyncPill('현재 로컬 저장 모드 · Firebase 설정 필요');
     }
@@ -2018,7 +2375,9 @@ function skipRepeatInstance(id,dateKey){
 
 function delNote(id){
   if(!requireEditMode())return;
-if(!confirmDelete('이 일정을 삭제할까요?'))return;const idx=notes.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('note',notes[idx]);notes.splice(idx,1);saveAll();render();}}
+  const idx=notes.findIndex(x=>String(x.id)===String(id));
+  softDelete('note',notes,idx,'일정을');
+}
 
 
 function highlightText(s){
@@ -2038,7 +2397,7 @@ function makeCard(n){
         <div class="c-body">
           <div class="c-title">${highlightText(n.title)}</div>
           <div class="c-meta">
-            <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
+            <span class="person-chip" style="${targetPersonChipStyle(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
             <span class="chip auto-info-chip">반복</span>
             ${dts?`<span class="chip chip-g">${dts}</span>`:''}
           </div>
@@ -2059,7 +2418,7 @@ function makeCard(n){
       <div class="c-body">
         <div class="c-title${done?' done':''}">${highlightText(n.title)}</div>
         <div class="c-meta">
-          <span class="person-chip ${personCls(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
+          <span class="person-chip" style="${targetPersonChipStyle(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
           ${n.repeat?`<span class="chip repeat-chip">반복</span>`:''}
           ${n.alertMemo?`<span class="chip alert-chip">알림</span>`:''}
           ${dts?`<span class="chip chip-g">${dts}</span>`:''}
@@ -2082,6 +2441,84 @@ function toggleWeek(){
   weekOpen=!weekOpen;
   render();
 }
+
+let holidaySyncBusy=false;
+function normalizeHolidayApiResponse(data,year){
+  const out=[];
+  const push=(date,name)=>{
+    if(!date||!name)return;
+    const raw=String(date).replace(/-/g,'');
+    if(raw.length!==8)return;
+    out.push({date:`${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`,name:String(name)});
+  };
+
+  if(Array.isArray(data)){
+    data.forEach(x=>push(x.date||x.locdate||x.locDate,x.name||x.dateName||x.title));
+    return out;
+  }
+  if(Array.isArray(data?.holidays)){
+    data.holidays.forEach(x=>push(x.date||x.locdate||x.locDate,x.name||x.dateName||x.title));
+    return out;
+  }
+
+  let item=data?.response?.body?.items?.item || data?.body?.items?.item || data?.items?.item || [];
+  if(!Array.isArray(item))item=[item];
+  item.forEach(x=>{
+    if(x && (x.isHoliday==='Y' || x.isHoliday===true || x.isHoliday==='true' || x.isHoliday===1)){
+      push(x.locdate||x.locDate||x.date, x.dateName||x.name||x.title);
+    }
+  });
+  return out;
+}
+async function syncHolidayYear(year=calY){
+  if(holidaySyncBusy)return;
+  if(!HOLIDAY_FUNCTION_URL){
+    showToast('공휴일 API URL이 비어 있어요. 관리 센터 안내를 확인하세요.');
+    openHolidaySyncGuide();
+    return;
+  }
+  holidaySyncBusy=true;
+  try{
+    const url=`${HOLIDAY_FUNCTION_URL}${HOLIDAY_FUNCTION_URL.includes('?')?'&':'?'}year=${encodeURIComponent(year)}`;
+    const res=await fetch(url,{cache:'no-store'});
+    if(!res.ok)throw new Error('공휴일 API 응답 오류');
+    const data=await res.json();
+    const list=normalizeHolidayApiResponse(data,year);
+    if(!list.length)throw new Error('공휴일 데이터가 비어 있음');
+    list.forEach(h=>{holidayCache[h.date]=h.name});
+    saveAll();
+    render({preserveScroll:true});
+    showToast(`${year}년 공휴일 ${list.length}개를 갱신했어요.`);
+  }catch(e){
+    console.warn(e);
+    showToast('공휴일 갱신 실패: API 설정을 확인해 주세요.');
+  }finally{
+    holidaySyncBusy=false;
+  }
+}
+function ensureHolidayYear(year){
+  if(!HOLIDAY_FUNCTION_URL)return;
+  const has=Object.keys(holidayCache||{}).some(k=>k.startsWith(String(year)+'-'));
+  if(!has)syncHolidayYear(year);
+}
+function openHolidaySyncGuide(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">공휴일 자동 연동</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.55">
+        2028년 이후 명절/대체공휴일은 프론트 코드에 하드코딩하지 않고 Firebase Cloud Functions에서 한국천문연구원 특일 정보 API를 호출해 받아오는 구조로 준비했습니다.<br><br>
+        패키지 안의 <b>functions/holidayFunction.example.js</b>를 Cloud Functions에 배포한 뒤, index.html의 <b>HOLIDAY_FUNCTION_URL</b>에 함수 URL을 넣으면 관리 센터에서 연도별 공휴일을 갱신할 수 있습니다.
+      </div>
+      <div class="action-grid">
+        <button class="toss-btn primary" onclick="syncHolidayYear(calY)">현재 연도 갱신</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+}
+
 function openManageCenter(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
@@ -2093,6 +2530,15 @@ function openManageCenter(){
         <div class="version-title">패스 ${APP_VERSION}</div>
         <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
         <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
+      </div>
+
+      <div class="theme-row">
+        <label>화면 테마</label>
+        <select class="theme-select" onchange="setThemeMode(this.value)">
+          <option value="system" ${themeMode==='system'?'selected':''}>시스템 설정</option>
+          <option value="light" ${themeMode==='light'?'selected':''}>라이트</option>
+          <option value="dark" ${themeMode==='dark'?'selected':''}>다크</option>
+        </select>
       </div>
 
       <div class="manage-section-title">공유</div>
@@ -2120,6 +2566,8 @@ function openManageCenter(){
         <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
         <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
         <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
+        <button class="toss-btn" onclick="openHolidaySyncGuide()">공휴일 API 안내</button>
+        <button class="toss-btn" onclick="syncHolidayYear(calY)">공휴일 갱신</button>
       </div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -2210,11 +2658,11 @@ function renderS(){
     <div class="card-wrap" style="margin-top:10px">${doneFilt.length ? doneFilt.map(makeCard).join('') : '<div class="empty">완료된 일정이 없어요</div>'}</div>
   ` : '';
 
-  const filters=getPersons().map(p=>`<button class="chip-btn cb-f${subF===p?' on':''}" onclick="filterToday=false;setSub('${p}')">${escapeHtml(p)}</button>`).join('');
+  const filters=getPersons().map(p=>`<button class="chip-btn target-chip${subF===p?' on':''}" style="${targetChipStyle(p,subF===p)}" onclick="filterToday=false;setSub(${onclickArg(p)})">${escapeHtml(p)}</button>`).join('');
 
   return`
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    <div class="filter-row target-filter-row">
+    <div class="filter-row target-filter-row schedule-filter-row">
       <button class="chip-btn cb-all${subF==='all'?' on':''}" onclick="filterToday=false;setSub('all')">전체</button>
       ${filters}
     </div>
@@ -2244,6 +2692,7 @@ function setPer(t){donePer=t;render()}
 
 function renderC(){
   const y=calY,m=calM;
+  ensureHolidayYear(y);
   const sc=getShiftCount(y,m);
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
@@ -2331,7 +2780,7 @@ function renderC(){
   return`<div class="cal-outer">
     <div class="filter-row cal-filter target-filter-row">
       <button class="chip-btn cb-all${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
-      ${getPersons().map(p=>`<button class="chip-btn cb-f${calWhoF===p?' on':''}" onclick="calWhoF='${p}';render()">${escapeHtml(p)}</button>`).join('')}
+      ${getPersons().map(p=>`<button class="chip-btn target-chip${calWhoF===p?' on':''}" style="${targetChipStyle(p,calWhoF===p)}" onclick="calWhoF=${onclickArg(p)};render()">${escapeHtml(p)}</button>`).join('')}
     </div>
     ${renderShiftBulkBar()}
     <div class="cal-card">
@@ -2578,7 +3027,8 @@ function delCat(ki,ci){
 if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
 function delKid(i){
   if(!requireEditMode())return;
-if(!confirmDelete('아이 정보를 삭제할까요?'))return;if(family[i]){trashItem('kid',family[i]);family.splice(i,1);saveAll();render();}}
+  softDelete('kid',family,i,'기본정보를');
+}
 
 
 function toggleReq(id){
@@ -2592,7 +3042,9 @@ function toggleReq(id){
 }
 function delReq(id){
   if(!requireEditMode())return;
-if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;const idx=requests.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('request',requests[idx]);requests.splice(idx,1);saveAll();render();}}
+  const idx=requests.findIndex(x=>String(x.id)===String(id));
+  softDelete('request',requests,idx,'부탁을');
+}
 
 function makeReqCard(r){
   return`<div class="card" draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)">
@@ -2674,7 +3126,9 @@ function saveReq(id){
 
 function delMemory(id){
   if(!requireEditMode())return;
-if(!confirmDelete('이 기억 항목을 삭제할까요?'))return;const idx=memories.findIndex(x=>String(x.id)===String(id));if(idx>=0){trashItem('memory',memories[idx]);memories.splice(idx,1);saveAll();render();}}
+  const idx=memories.findIndex(x=>String(x.id)===String(id));
+  softDelete('memory',memories,idx,'기억을');
+}
 function makeMemoryCard(x){
   const age=ageNow(x.birth);
   const nb=nextBirthInfo(x.birth);
@@ -2769,9 +3223,59 @@ function dropItem(e, listName, targetId){
 }
 
 
-function confirmDelete(msg){
-  return confirm(msg || '정말 삭제할까요?');
+
+let toastTimer=null;
+function toastRoot(){
+  let t=document.getElementById('toast-root') || window.__toastRoot;
+  if(!t){
+    t=document.createElement('div');
+    t.id='toast-root';
+    t.className='toast-wrap';
+    document.body.appendChild(t);
+  }
+  window.__toastRoot=t;
+  return t;
 }
+function showToast(msg, actionText='', actionFn=null, ms=3200){
+  clearTimeout(toastTimer);
+  const root=toastRoot();
+  root.innerHTML=`<div class="toast">
+    <div class="toast-msg">${escapeHtml(msg)}</div>
+    ${actionFn?`<button class="toast-btn" id="toast-action">${escapeHtml(actionText||'실행 취소')}</button>`:''}
+  </div>`;
+  if(actionFn){
+    document.getElementById('toast-action').onclick=()=>{
+      clearTimeout(toastTimer);
+      root.innerHTML='';
+      actionFn();
+    };
+  }
+  toastTimer=setTimeout(()=>{root.innerHTML=''},ms);
+}
+function undoTrashById(trashId,kind,insertIndex){
+  const ti=deletedItems.findIndex(x=>String(x.id)===String(trashId));
+  if(ti<0)return;
+  const x=deletedItems[ti];
+  deletedItems.splice(ti,1);
+  const arr=kind==='note'?notes:kind==='request'?requests:kind==='memory'?memories:kind==='kid'?family:null;
+  if(!arr)return;
+  arr.splice(Math.min(insertIndex,arr.length),0,x.item);
+  saveAll();
+  render({preserveScroll:true});
+  showToast('삭제를 취소했어요.');
+}
+function softDelete(kind,arr,idx,label){
+  if(idx<0||!arr[idx])return;
+  const item=arr[idx];
+  trashItem(kind,item);
+  const trashId=deletedItems[deletedItems.length-1].id;
+  arr.splice(idx,1);
+  saveAll();
+  render({preserveScroll:true});
+  showToast(`${label} 삭제했습니다.`, '실행 취소', ()=>undoTrashById(trashId,kind,idx));
+}
+
+function confirmDelete(msg){return true;}
 function normText(v){return String(v||'').toLowerCase().trim()}
 function matchSearchNote(n){
   if(!searchQ)return true;
@@ -3100,8 +3604,10 @@ function openDiagnostics(){
       <div class="detail-row"><span class="detail-key">편집 모드</span><span class="detail-val">${isEditMode()?'켜짐':'꺼짐'}</span></div>
       <div class="detail-row"><span class="detail-key">Service Worker</span><span class="detail-val">${sw}</span></div>
       <div class="detail-row"><span class="detail-key">앱 버전</span><span class="detail-val">${APP_VERSION}</span></div>
+      <div class="detail-row"><span class="detail-key">저장 구조</span><span class="detail-val">하위 컬렉션</span></div>
       <div class="detail-row"><span class="detail-key">로컬 데이터</span><span class="detail-val">${localSize}</span></div>
       <div class="detail-row"><span class="detail-key">근무 데이터</span><span class="detail-val">${shiftCnt}개</span></div>
+      <div class="detail-row"><span class="detail-key">공휴일 캐시</span><span class="detail-val">${Object.keys(holidayCache||{}).length}개</span></div>
       <div class="detail-row"><span class="detail-key">마지막 저장</span><span class="detail-val">${last}</span></div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -3264,7 +3770,8 @@ function setMain(t){
   filterToday=false;
   main=t;
   updateTabUI();
-  render();
+  render({preserveScroll:false});
+  try{window.scrollTo(0,0)}catch(e){}
 }
 
 
@@ -3323,23 +3830,20 @@ function renderHomeWidgets(){
     ...notes.filter(n=>!isDone(n)&&occursOn(n,todayKey())),
     ...familyInfoUpcomingEvents(1)
   ].filter(n=>subF==='all'||(n.who||'공통')===subF);
-  const reqCnt=requests.filter(r=>!isDone(r)).length;
+  const items=todayList.slice(0,4);
   return `<div class="widget-wrap">
-    <div class="widget-card" data-action="today" onclick="onWidgetClick(this)">
+    <div class="widget-card today-dashboard" data-action="today" onclick="onWidgetClick(this)">
       <div class="widget-title">오늘은?</div>
       <div class="widget-main">${todayList.length}개</div>
-      <div class="widget-sub">${todayList.slice(0,2).map(n=>escapeHtml(n.title)).join('<br>')||'오늘 일정 없음'}</div>
+      <div class="today-dashboard-grid">
+        ${items.length?items.map(n=>`<div class="today-dash-item">
+          <div class="today-dash-title">${escapeHtml(n.title)}</div>
+          <div class="today-dash-sub">${escapeHtml(dateTimeRange(n)||n.who||'일정')}</div>
+        </div>`).join(''):'<div class="today-dash-item" style="grid-column:1/-1"><div class="today-dash-title">오늘 일정 없음</div><div class="today-dash-sub">여유로운 하루예요</div></div>'}
+      </div>
       <div class="quick-actions">
         <button onclick="event.stopPropagation();openAddModal(todayKey())">오늘 추가</button>
         <button onclick="event.stopPropagation();openAddModal(tomorrowKey())">내일 추가</button>
-      </div>
-    </div>
-    <div class="widget-card" data-action="request" onclick="onWidgetClick(this)">
-      <div class="widget-title">부탁</div>
-      <div class="widget-main">${reqCnt}개</div>
-      <div class="widget-sub">${reqCnt?'진행 중 부탁 있음':'부탁할 일 없음'}</div>
-      <div class="quick-actions">
-        <button onclick="event.stopPropagation();openReqModal()">부탁 추가</button>
       </div>
     </div>
   </div>`;
@@ -3559,7 +4063,9 @@ function shareNative(){
   }
 }
 
-function render(){
+function render(opts={}){
+  const preserve=opts.preserveScroll!==false;
+  const y=preserve?(window.scrollY||document.documentElement?.scrollTop||0):0;
   let h='';
   if(main==='s')h=renderS();
   else if(main==='c')h=renderC();
@@ -3567,6 +4073,9 @@ function render(){
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
   document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderShiftWidget()+renderHomeWidgets()+renderSearchBox()+h;
+  if(preserve){
+    requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
+  }
 }
 
 function copyShareLink(){
