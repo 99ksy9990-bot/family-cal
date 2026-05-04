@@ -400,7 +400,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .person-dad{background:#EAF3FF;color:#0055B3}
 .person-mom{background:#FFF0F3;color:#C0002C}
 .person-choi{background:#EDFAF2;color:#1A7A36}
-.person-domi{background:#F2EEFF;color:#4C1D95}
+.person-domi{background:#FFF0F3;color:#C0002C}
 
 /* 홈 위젯 */
 .widget-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px 0}
@@ -1499,6 +1499,158 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   }
 }
 
+
+/* 오늘 근무 위젯 세로 간격 축소 */
+.compact-shift-widget{
+  gap:6px !important;
+  padding-top:10px !important;
+}
+.compact-shift-widget .shift-mini-card{
+  min-height:58px !important;
+  padding:8px 6px !important;
+  border-radius:18px !important;
+}
+.compact-shift-widget .widget-title{
+  font-size:9.5px !important;
+  margin-bottom:5px !important;
+}
+.compact-shift-widget .widget-main{
+  font-size:13px !important;
+}
+
+/* 오늘 하루 대시보드 */
+.today-dashboard{
+  grid-column:1 / -1;
+  min-height:0 !important;
+  padding:14px !important;
+}
+.today-dashboard-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.today-dashboard-head .widget-title{
+  margin:0 !important;
+  font-size:13px !important;
+  color:var(--t2) !important;
+}
+.today-dashboard-count{
+  font-size:13px;
+  font-weight:950;
+  color:var(--blue);
+  background:var(--blue-bg);
+  border-radius:999px;
+  padding:4px 9px;
+  flex-shrink:0;
+}
+.today-common-strip{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow-x:auto;
+  padding:2px 0 8px;
+  scrollbar-width:none;
+}
+.today-common-strip::-webkit-scrollbar{display:none}
+.today-common-item{
+  flex:0 0 auto;
+  max-width:45%;
+  min-width:0;
+  border-radius:12px;
+  background:var(--bg);
+  padding:7px 9px;
+}
+.today-common-title,
+.today-person-title{
+  font-size:12px;
+  font-weight:900;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-common-sub,
+.today-person-sub{
+  font-size:10px;
+  color:var(--t3);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-person-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.today-person-row{
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr);
+  gap:7px;
+  align-items:center;
+  border-radius:13px;
+  background:var(--bg);
+  padding:7px 8px;
+}
+.today-person-name{
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-empty{
+  font-size:12px;
+  color:var(--t3);
+  font-weight:800;
+}
+
+/* 진행 중 기간 필터 */
+.active-period-row{
+  padding-top:4px !important;
+  padding-bottom:4px !important;
+}
+
+/* 달력 범례 초과 방지 */
+.target-legend{
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+  gap:5px !important;
+  padding-bottom:2px !important;
+  scrollbar-width:none;
+}
+.target-legend::-webkit-scrollbar{display:none}
+.target-legend .leg{
+  font-size:10px !important;
+  gap:3px !important;
+  padding:2px 5px !important;
+  white-space:nowrap !important;
+  flex:0 0 auto !important;
+}
+.target-legend .target-dot,
+.target-legend .leg-dot{
+  width:7px !important;
+  height:7px !important;
+}
+
+/* 일정/달력 대상 필터 한 줄 유지 */
+.schedule-filter-row,
+.cal-filter.target-filter-row{
+  padding-left:16px !important;
+  padding-right:16px !important;
+  gap:5px !important;
+}
+.schedule-filter-row .chip-btn,
+.cal-filter.target-filter-row .chip-btn{
+  flex:0 0 calc((100% - 30px)/6) !important;
+  height:32px !important;
+  font-size:10.5px !important;
+  padding:0 3px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1673,7 +1825,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
+let main='s',subF='all',doneF='all',activePer='1w',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let basicInfoOpen=false;
@@ -1705,8 +1857,14 @@ function getPersons(){
   return names;
 }
 function personColor(who){
+  const w=who||'공통';
+  if(w==='공통')return '#6B6B6F';
+  if(w==='아빠')return '#007AFF';
+  if(w==='엄마')return '#7C3AED';
+  if(w==='초이')return '#34C759';
+  if(w==='도미')return '#FF2D55';
   const arr=getPersons();
-  const idx=Math.max(0,arr.indexOf(who||'공통'));
+  const idx=Math.max(0,arr.indexOf(w));
   return PERSON_COLORS[idx%PERSON_COLORS.length];
 }
 function personCls(who){
@@ -2622,19 +2780,60 @@ function sortScheduleList(arr){
   return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
 }
 
+
+function scheduleTimeKey(n){
+  return n.sT || n.eT || '99:99';
+}
+function sortByStartTime(arr){
+  return [...arr].sort((a,b)=>{
+    const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+    if(ta!==tb)return ta.localeCompare(tb);
+    return String(a.title||'').localeCompare(String(b.title||''));
+  });
+}
+function activePeriodEnd(){
+  if(activePer==='all')return '9999-12-31';
+  if(activePer==='1w')return addDaysStr(todayKey(),6);
+  if(activePer==='1m')return addMonthsStr(todayKey(),1);
+  if(activePer==='3m')return addMonthsStr(todayKey(),3);
+  return addDaysStr(todayKey(),6);
+}
+function activeInPeriod(n){
+  if(activePer==='all')return true;
+  const today=todayKey();
+  const end=activePeriodEnd();
+  const k=n.repeat?nextOccurrence(n,today):(n.start||'');
+  if(!k)return true;
+  if(n.end && n.end>=today && (n.start||k)<=end)return true;
+  return k>=today && k<=end;
+}
+function setActivePer(t){
+  activePer=t;
+  render();
+}
+function renderActivePeriodRow(){
+  return `<div class="period-row active-period-row">
+    <span class="period-lbl">기간</span>
+    <button class="period-chip${activePer==='1w'?' on':''}" onclick="setActivePer('1w')">1주</button>
+    <button class="period-chip${activePer==='1m'?' on':''}" onclick="setActivePer('1m')">1개월</button>
+    <button class="period-chip${activePer==='3m'?' on':''}" onclick="setActivePer('3m')">3개월</button>
+    <button class="period-chip${activePer==='all'?' on':''}" onclick="setActivePer('all')">전체</button>
+  </div>`;
+}
+
 function renderS(){
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
     if(!matchSearchNote(n)) return false;
     if(filterToday) return occursOn(n,todayKey());
-    return (subF==='all'||(n.who||'공통')===subF);
+    return (subF==='all'||(n.who||'공통')===subF) && activeInPeriod(n);
   });
 
-  const autoActive=familyInfoUpcomingEvents(filterToday?1:30).filter(n=>{
+  const autoActive=familyInfoUpcomingEvents(filterToday?1:90).filter(n=>{
     if(!autoInfoMatchesFilter(n))return false;
     if(!matchSearchNote(n))return false;
     if(filterToday)return occursOn(n,todayKey());
-    return true;
+    return activeInPeriod(n);
   });
   active=[...active,...autoActive];
   active=sortScheduleList(active);
@@ -2672,6 +2871,7 @@ function renderS(){
       <button class="mini-toggle-btn" onclick="toggleScheduleSort()">${scheduleSort==='date'?'날짜순':'입력순'}</button>
       <button style="margin-left:6px" class="toss-btn primary" onclick="openAddModal()">+ 추가</button>
     </div>
+    ${!filterToday?renderActivePeriodRow():''}
     <div class="card-wrap">${active.length?active.map(makeCard).join(''):'<div class="empty">진행 중인 일정이 없어요</div>'}</div>
     ${renderWeekView ? renderWeekView() : ''}
     <div class="div"></div>
@@ -3830,21 +4030,37 @@ function renderHomeWidgets(){
     ...notes.filter(n=>!isDone(n)&&occursOn(n,todayKey())),
     ...familyInfoUpcomingEvents(1)
   ].filter(n=>subF==='all'||(n.who||'공통')===subF);
-  const items=todayList.slice(0,4);
+
+  const sorted=sortByStartTime(todayList);
+  const common=sorted.filter(n=>(n.who||'공통')==='공통');
+  const people=getPersons().filter(p=>p!=='공통').slice(0,4);
+
+  const commonHtml=common.length
+    ? common.slice(0,6).map(n=>`<div class="today-common-item">
+        <div class="today-common-title">${escapeHtml(n.title)}</div>
+        <div class="today-common-sub">${escapeHtml(dateTimeRange(n)||'시간 미정')}</div>
+      </div>`).join('')
+    : `<div class="today-common-item"><div class="today-common-title">공통 일정 없음</div><div class="today-common-sub">함께 볼 일정이 없어요</div></div>`;
+
+  const rows=people.map(p=>{
+    const list=sorted.filter(n=>(n.who||'공통')===p);
+    const first=list[0];
+    return `<div class="today-person-row">
+      <div class="today-person-name" style="color:${personColor(p)}">${escapeHtml(p)}</div>
+      <div style="min-width:0">
+        ${first?`<div class="today-person-title">${escapeHtml(first.title)}</div><div class="today-person-sub">${escapeHtml(dateTimeRange(first)||'시간 미정')}${list.length>1?` · 외 ${list.length-1}개`:''}</div>`:`<div class="today-empty">일정 없음</div>`}
+      </div>
+    </div>`;
+  }).join('');
+
   return `<div class="widget-wrap">
     <div class="widget-card today-dashboard" data-action="today" onclick="onWidgetClick(this)">
-      <div class="widget-title">오늘은?</div>
-      <div class="widget-main">${todayList.length}개</div>
-      <div class="today-dashboard-grid">
-        ${items.length?items.map(n=>`<div class="today-dash-item">
-          <div class="today-dash-title">${escapeHtml(n.title)}</div>
-          <div class="today-dash-sub">${escapeHtml(dateTimeRange(n)||n.who||'일정')}</div>
-        </div>`).join(''):'<div class="today-dash-item" style="grid-column:1/-1"><div class="today-dash-title">오늘 일정 없음</div><div class="today-dash-sub">여유로운 하루예요</div></div>'}
+      <div class="today-dashboard-head">
+        <div class="widget-title">오늘 하루?</div>
+        <div class="today-dashboard-count">${todayList.length}개</div>
       </div>
-      <div class="quick-actions">
-        <button onclick="event.stopPropagation();openAddModal(todayKey())">오늘 추가</button>
-        <button onclick="event.stopPropagation();openAddModal(tomorrowKey())">내일 추가</button>
-      </div>
+      <div class="today-common-strip">${commonHtml}</div>
+      <div class="today-person-list">${rows}</div>
     </div>
   </div>`;
 }
