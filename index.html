@@ -1208,7 +1208,7 @@ body{
 }
 
 
-/* 기본정보 기반 필터/루틴 등록 개선 */
+/* 기본 정보 기반 필터/루틴 등록 개선 */
 .basic-info-card .fi-row{border-bottom:0}
 .repeat-target-select{
   width:100%;
@@ -1919,7 +1919,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   color:var(--blue);
 }
 
-/* 루틴 기본정보 오늘 하루 선택 */
+/* 루틴 기본 정보 오늘 하루 선택 */
 .today-toggle-pill{
   display:inline-flex;
   align-items:center;
@@ -2658,7 +2658,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   flex:0 0 auto;
   transform:translateY(-1px);
 }
-/* 루틴/기본정보/부탁 섹션 버튼 위치 통일 */
+/* 루틴/기본 정보/부탁 섹션 버튼 위치 통일 */
 .unified-sec .sec-actions .toss-btn.primary,
 .compact-sec .sec-actions .toss-btn.primary{
   height:32px !important;
@@ -2823,6 +2823,191 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   min-width:36px !important;
 }
 
+
+/* 최종 보정: 오늘 일정/오늘 루틴/기념일/디데이/달력 선택 UI */
+.today-dashboard-count.hot,
+.today-dashboard-count{
+  background:var(--blue-bg) !important;
+  color:var(--pink-t) !important;
+  border-color:rgba(0,122,255,.32) !important;
+  font-weight:950 !important;
+}
+.today-list-empty{
+  display:block !important;
+  min-height:0 !important;
+}
+.today-dashboard .empty-state{
+  margin-top:4px;
+  min-height:132px;
+}
+.routine-dashboard .today-target-grid{
+  grid-template-columns:1fr !important;
+}
+.routine-dashboard .today-target-card{
+  width:100%;
+  min-height:178px !important;
+}
+.today-event-row{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  gap:8px !important;
+  align-items:center !important;
+}
+.today-event-title{
+  text-align:left !important;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-event-time{
+  text-align:right !important;
+  white-space:nowrap;
+}
+.upcoming-card{
+  width:100%;
+  min-height:0 !important;
+}
+.upcoming-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.upcoming-row{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:7px;
+  align-items:center;
+  padding:7px 8px;
+  border-radius:12px;
+  background:var(--bg);
+}
+.upcoming-dday{
+  font-size:11px;
+  font-weight:950;
+  color:var(--pink-t);
+  background:var(--pink-bg);
+  padding:3px 7px;
+  border-radius:999px;
+}
+.upcoming-title{
+  min-width:0;
+  font-size:12.5px;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.upcoming-meta{
+  font-size:11px;
+  font-weight:900;
+  color:var(--t3);
+}
+.dday-chip{
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+  font-weight:950 !important;
+}
+.card.dim-future{
+  opacity:.62;
+}
+.alert-chip.urgent{
+  background:var(--pink) !important;
+  color:#fff !important;
+  box-shadow:0 0 0 3px rgba(255,45,85,.13);
+}
+.calendar-control-line{
+  margin:0 10px 10px !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+}
+.calendar-control-line .cal-target-btn{
+  flex:0 0 auto;
+}
+.calendar-control-line .calendar-count-inline{
+  flex:1 1 auto !important;
+  min-width:0;
+  overflow-x:auto;
+}
+.calendar-control-line .cal-bulk-btn{
+  flex:0 0 auto;
+}
+.shift-bulk-bar{
+  margin:0 10px 10px !important;
+}
+.memory-title-line{
+  display:flex !important;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.memory-title-line > span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.memory-year-date{
+  flex:0 0 auto;
+  font-style:normal;
+  font-size:11px;
+  font-weight:950;
+  color:var(--purple-t);
+  background:var(--purple-bg);
+  border-radius:999px;
+  padding:3px 7px;
+}
+.lunar-chip{
+  background:var(--purple-bg) !important;
+  color:var(--purple-t) !important;
+  font-weight:950 !important;
+}
+.solar-chip{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  font-weight:950 !important;
+}
+.memory-row{
+  align-items:flex-start !important;
+}
+.memory-actions{
+  align-self:flex-end !important;
+  gap:7px !important;
+  min-width:54px !important;
+}
+.memory-action{
+  min-width:48px;
+  height:28px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+}
+.memory-action.edit{
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  border:1.5px solid var(--blue);
+}
+.memory-action.del{
+  background:var(--t1);
+  color:#fff;
+  border:1.5px solid var(--t1);
+}
+.memory-icon-grid{
+  grid-template-columns:repeat(4,1fr) !important;
+}
+.memory-icon-btn{
+  height:48px !important;
+  border-radius:15px !important;
+  font-size:22px !important;
+}
+/* 일정 카드 디테일 가독성 유지 */
+.card-wrap .card .person-chip{
+  font-size:17px !important;
+  font-weight:950 !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2869,7 +3054,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
     <button class="tab tab-i" id="tab-i" onclick="setMain('i')">루틴</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
     <button class="tab tab-r" id="tab-r" onclick="setMain('r')">부탁</button>
-    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기념</button>
+    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기념일</button>
   </div>
 
   <div id="body"></div>
@@ -3012,7 +3197,7 @@ let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
-const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎁','⭐','💐','🥳'];
+const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳','💍','🏥','✈️','🏡','🍀','☕','📌'];
 
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
@@ -3219,6 +3404,14 @@ function selectMemoryIcon(icon){
   document.querySelectorAll('.memory-icon-btn').forEach(b=>{
     b.classList.toggle('on',b.dataset.icon===icon);
   });
+}
+function selectMemoryCal(v){
+  const el=document.getElementById('mem-cal');
+  if(el)el.value=v;
+  const solar=document.getElementById('mem-cal-solar');
+  const lunar=document.getElementById('mem-cal-lunar');
+  if(solar)solar.className='type-btn'+(v==='solar'?' tf':'');
+  if(lunar)lunar.className='type-btn'+(v==='lunar'?' tf':'');
 }
 
 function memoryPerson(x){
@@ -3437,7 +3630,7 @@ function normalizeData(d){
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
-  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂';});
+  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂'; if(!x.calendarType)x.calendarType=x.lunar?'lunar':'solar'; x.lunar=x.calendarType==='lunar';});
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
@@ -3849,7 +4042,8 @@ function makeCard(n){
   }
   const dts=dateTimeRange(n);
   const done=isDone(n);
-  return`<div class="card" onclick="openDetailNote('${n.id}')" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
+  const dim=scheduleDimClass(n);
+  return`<div class="card${dim}" onclick="openDetailNote('${n.id}')" draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
     <div class="c-row">
       <div class="chk${done?' on':''}" onclick="event.stopPropagation();toggleNote('${n.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -3859,7 +4053,8 @@ function makeCard(n){
         <div class="c-meta">
           <span class="person-chip" style="${targetPersonChipStyle(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
           ${n.repeat?`<span class="chip repeat-chip">루틴</span>`:''}
-          ${n.alertMemo?`<span class="chip alert-chip">알림</span>`:''}
+          ${scheduleDdayChip(n)}
+          ${n.alertMemo?`<span class="chip alert-chip${alertUrgentClass(n)}">알림</span>`:''}
           ${dts?`<span class="chip chip-g">${dts}</span>`:''}
         </div>
         ${done&&n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
@@ -4385,28 +4580,12 @@ function calendarEventItem(n,selDate){
     ? `<span class="ev-meta-kind">루틴</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`
     : `<span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`;
 
-  if(n._autoFamilyInfo){
-    return `<div class="ev-item cal-selected-event routine-selected-event">
-      <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
-      <div class="ev-info">
-        <div class="ev-title">${title}</div>
-        <div class="ev-sub">${meta}</div>
-        <div class="ev-actions"><button class="small-link" onclick="setMain('i')">루틴에서 수정</button></div>
-      </div>
-    </div>`;
-  }
-
-  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" onclick="openDetailNote('${n.id}')" style="cursor:pointer">
+  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${n._autoFamilyInfo?'':`onclick="openDetailNote('${n.id}')" style="cursor:pointer"`}>
     <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
     <div class="ev-info">
       <div class="ev-title">${title}</div>
       <div class="ev-sub">${meta}</div>
       ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
-      <div class="ev-actions">
-        <button class="small-link" onclick="event.stopPropagation();openDetailNote('${n.id}')">상세</button>
-        <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
-        ${n.repeat?`<button class="small-link" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>`:''}
-      </div>
     </div>
   </div>`;
 }
@@ -4472,7 +4651,7 @@ function renderC(){
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
           const mp=memoryPerson(x);
-          return`<div class="ev-item"><div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
+          return`<div class="ev-item"><div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념일 · ${escapeHtml(mp)} · ${escapeHtml(memoryAgeLabel(x))}</div></div></div>`;
         })
       ].join(''):renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
@@ -4483,12 +4662,10 @@ function renderC(){
   const legend=getPersons().map(p=>`<div class="leg"><span class="target-dot" style="background:${personColor(p)}"></span>${escapeHtml(p)}</div>`).join('');
 
   return`<div class="cal-outer">
-    <div class="cal-top-select-row">
-      <div class="cal-top-select-scroll">
-        <button class="sec-chip-btn${calWhoF==='all'?' on':''}" onclick="calWhoF='all';render()">전체</button>
-        ${getPersons().map(p=>`<button class="sec-chip-btn${calWhoF===p?' on':''}" onclick="calWhoF=${onclickArg(p)};render()">${escapeHtml(p)}</button>`).join('')}
-      </div>
-      <button class="sec-chip-btn${shiftSelectMode?' on':''}" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
+    <div class="cal-top-select-row calendar-control-line">
+      <button class="sec-chip-btn on cal-target-btn" onclick="openCalendarTargetSheet()">${targetLabel(calWhoF)}</button>
+      ${renderCalendarShiftCounts()}
+      <button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
     </div>
     ${renderShiftBulkBar()}
     <div class="cal-card">
@@ -4632,7 +4809,7 @@ function toggleFamilyRoutine(ki){
 }
 function renderI(){
   let h=`<div class="fi-outer">`;
-  h+=`${sectionHeader('기본정보',family.length,basicInfoOpen,'toggleBasicInfo',`
+  h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo',`
     <button class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
   `)}`;
   if(basicInfoOpen){
@@ -4661,7 +4838,7 @@ function renderI(){
       </div>`;
     });
   }else{
-    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed">기본 정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
   }
 
   h+=`${sectionHeader('루틴 일정',repeatItems.length,routineOpen,'toggleRoutine',`
@@ -4755,7 +4932,7 @@ function delCat(ki,ci){
 if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
 function delKid(i){
   if(!requireEditMode())return;
-  softDelete('kid',family,i,'기본정보를');
+  softDelete('kid',family,i,'기본 정보를');
 }
 
 
@@ -4871,8 +5048,10 @@ function delMemory(id){
   softDelete('memory',memories,idx,'기념을');
 }
 function makeMemoryCard(x){
-  const age=ageNow(x.birth);
   const nb=nextBirthInfo(x.birth);
+  const ageLabel=memoryAgeLabel(x);
+  const calType=memoryCalendarType(x);
+  const thisYear=memoryThisYearDate(x);
   return`<div class="card mem-card reorder-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -4884,47 +5063,58 @@ function makeMemoryCard(x){
     ontouchmove="touchReorderMove(event)"
     ontouchend="touchReorderEnd(event)"
     ontouchcancel="touchReorderCancel()">
-    <div class="c-row">
+    <div class="c-row memory-row">
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
-        <div class="c-title">${escapeHtml(x.name)}</div>
+        <div class="c-title memory-title-line">
+          <span>${escapeHtml(x.name)}</span>
+          ${calType==='lunar'&&thisYear?`<em class="memory-year-date">올해 ${dateLabel(thisYear)}</em>`:''}
+        </div>
         <div class="c-meta">
           ${x.birth?`<span class="chip chip-g">${dateLabel(x.birth)}</span>`:''}
-          ${x.birth?`<span class="chip mem-age">만 ${age}세</span>`:''}
+          <span class="chip ${calType==='lunar'?'lunar-chip':'solar-chip'}">${calType==='lunar'?'음력':'양력'}</span>
+          ${x.birth?`<span class="chip mem-age">${escapeHtml(ageLabel)}</span>`:''}
           ${x.birth?`<span class="chip mem-dday">${nb.dday}</span>`:''}
         </div>
         ${x.memo?`<button class="comment-pill" onclick="event.stopPropagation();openMemoryModal('${x.id}')">${escapeHtml(x.memo)}</button>`:''}
       </div>
-      <div class="c-right">
-        <button class="small-link" onclick="event.stopPropagation();openMemoryModal('${x.id}')">수정</button>
-        <button class="small-link" onclick="event.stopPropagation();delMemory('${x.id}')">삭제</button>
+      <div class="c-right memory-actions">
+        <button class="memory-action edit" onclick="event.stopPropagation();openMemoryModal('${x.id}')">수정</button>
+        <button class="memory-action del" onclick="event.stopPropagation();delMemory('${x.id}')">삭제</button>
       </div>
     </div>
   </div>`;
 }
 function renderM(){
   return`
-    <div class="sec">기념 <span class="sec-cnt">${memories.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="openMemoryModal()">+ 추가</button></div>
-    <div class="card-wrap">${memories.length?memories.map(makeMemoryCard).join(''):'<div class="empty">기념할 대상이 없어요</div>'}</div>
+    <div class="sec">기념일 <span class="sec-cnt">${memories.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="openMemoryModal()">+ 추가</button></div>
+    <div class="card-wrap">${memories.length?memories.map(makeMemoryCard).join(''):renderEmptyState('generic','기념일이 없어요','생일, 결혼기념일, 여행 기념일을 예쁘게 기록해 보세요.')}</div>
   `;
 }
 function openMemoryModal(id){
   const x=id?memories.find(v=>String(v.id)===String(id)):null;
   const icon=x?memoryIcon(x):'🎂';
+  const calType=x?memoryCalendarType(x):'solar';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${x?'기념 수정':'기념 추가'}</div>
+      <div class="modal-hd">${x?'기념일 수정':'기념일 추가'}</div>
       <div class="ml">아이콘</div>
       <input type="hidden" id="mem-icon" value="${escapeAttr(icon)}"/>
       <div class="memory-icon-grid">
         ${MEMORY_ICONS.map(ic=>`<button class="memory-icon-btn${ic===icon?' on':''}" data-icon="${escapeAttr(ic)}" onclick="selectMemoryIcon('${ic}')">${ic}</button>`).join('')}
       </div>
+      <div class="ml">날짜 방식</div>
+      <input type="hidden" id="mem-cal" value="${escapeAttr(calType)}"/>
+      <div class="type-sel">
+        <button class="type-btn${calType==='solar'?' tf':''}" id="mem-cal-solar" onclick="selectMemoryCal('solar')">양력</button>
+        <button class="type-btn${calType==='lunar'?' tf':''}" id="mem-cal-lunar" onclick="selectMemoryCal('lunar')">음력</button>
+      </div>
       <div class="ml">대상 이름</div>
-      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 엄마 생일" value="${x?escapeAttr(x.name):''}"/>
-      <div class="ml">생년월일</div>
-      <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'생년월일 선택'}" onclick="openBirthPicker('mem-birth')"/>
+      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 결혼기념일" value="${x?escapeAttr(x.name):''}"/>
+      <div class="ml">날짜</div>
+      <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'날짜 선택'}" onclick="openBirthPicker('mem-birth')"/>
       <div class="ml">메모</div>
       <textarea class="ta" id="mem-memo" placeholder="선물, 좋아하는 것, 참고할 내용">${x?escapeHtml(x.memo||''):''}</textarea>
       <button class="primary-btn" onclick="saveMemory('${x?x.id:''}')">저장</button>
@@ -4940,11 +5130,13 @@ function saveMemory(id){
   const birth=getPickerVal('mem-birth');
   const memo=(document.getElementById('mem-memo')||{}).value||'';
   const icon=(document.getElementById('mem-icon')||{}).value||'🎂';
+  const calendarType=(document.getElementById('mem-cal')||{}).value||'solar';
+  const lunar=calendarType==='lunar';
   if(id){
     const x=memories.find(v=>String(v.id)===String(id)); if(!x)return;
-    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon;
+    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon; x.calendarType=calendarType; x.lunar=lunar;
   }else{
-    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon});
+    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon,calendarType,lunar});
   }
   saveAll();closeM();render();
 }
@@ -5429,15 +5621,9 @@ function applyBulkShift(t){
   render();
 }
 function renderShiftBulkBar(){
-  const sc=getShiftCount(calY,calM);
-  return `<div class="shift-bulk-bar${shiftSelectMode?' selecting':''}">
-    <div class="shift-count-row">
-      <span class="shift-count-item"><span class="leg-chip s-d">D</span>${sc.D}</span>
-      <span class="shift-count-item"><span class="leg-chip s-e">E</span>${sc.E}</span>
-      <span class="shift-count-item"><span class="leg-chip s-n">N</span>${sc.N}</span>
-      <span class="shift-count-item"><span class="leg-chip s-off">OFF</span>${sc.OFF}</span>
-    </div>
-    ${shiftSelectMode?`<div class="shift-bulk-actions">
+  if(!shiftSelectMode)return '';
+  return `<div class="shift-bulk-bar selecting">
+    <div class="shift-bulk-actions">
       <span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
       <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
       <button class="shift-bulk-chip s-e" onclick="applyBulkShift('E')">E</button>
@@ -5445,7 +5631,7 @@ function renderShiftBulkBar(){
       <button class="shift-bulk-chip s-off" onclick="applyBulkShift('OFF')">OFF</button>
       <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
       <button class="shift-bulk-chip clear" onclick="clearShiftSelected()">선택 해제</button>
-    </div>`:''}
+    </div>
   </div>`;
 }
 
@@ -5628,7 +5814,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
         <div class="today-target-name">대상 선택</div>
-        <div class="today-target-empty-note">루틴 기본정보에서 표시 대상을 켜주세요</div>
+        <div class="today-target-empty-note">루틴 기본 정보에서 표시 대상을 켜주세요</div>
       </div>`;
     }
     const list=targetTodayEvents(slot.label,filtered);
@@ -5642,7 +5828,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
       <div class="today-dashboard-head inline-count">
         <div class="routine-title-row">
           <div class="widget-title">${escapeHtml(title)}</div>
-          <div class="today-dashboard-count">${filtered.length}</div>
+          <div class="today-dashboard-count hot">${filtered.length}</div>
         </div>
       </div>
       <div class="today-target-grid">${grid}</div>
@@ -5675,27 +5861,133 @@ function renderTodayListDashboard(title,allEvents){
       <div class="today-list-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
     </div>`;
   });
-  if(!rows.length){
-    rows.push(`<div class="today-list-empty">오늘 하루 표시 대상의 일정이 없어요</div>`);
-  }
-  while(rows.length<2){
-    rows.push(`<div class="today-event-placeholder"></div>`);
-  }
+  const body=rows.length
+    ? `<div class="today-list-card">${rows.join('')}</div>`
+    : renderEmptyState('schedule','오늘 일정이 없어요','가족과 여유로운 하루를 보내기 좋은 날이에요.');
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard">
       <div class="today-dashboard-head inline-count">
         <div class="widget-title">${escapeHtml(title)}</div>
-        <div class="today-dashboard-count">${filtered.length}</div>
+        <div class="today-dashboard-count hot">${filtered.length}</div>
       </div>
-      <div class="today-list-card">${rows.join('')}</div>
+      ${body}
     </div>
   </div>`;
 }
+
+function daysUntilDate(dateStr){
+  if(!dateStr)return null;
+  const today=todayKey();
+  const diff=Math.ceil((new Date(dateStr+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
+  return diff;
+}
+function scheduleDdayChip(n){
+  const k=n.start||'';
+  const diff=daysUntilDate(k);
+  if(diff===null || diff<0 || diff>30)return '';
+  const label=diff===0?'D-Day':`D-${diff}`;
+  return `<span class="chip dday-chip">${label}</span>`;
+}
+function scheduleDimClass(n){
+  const diff=daysUntilDate(n.start||'');
+  return diff!==null && diff>=7 && diff<=30 ? ' dim-future' : '';
+}
+function alertUrgentClass(n){
+  const diff=daysUntilDate(n.start||'');
+  return diff!==null && diff>=0 && diff<=1 ? ' urgent' : '';
+}
+function memoryCalendarType(x){
+  return (x&&x.lunar) || (x&&x.calendarType)==='lunar' ? 'lunar' : 'solar';
+}
+function memoryThisYearDate(x){
+  const b=x&&x.birth;
+  if(!b)return '';
+  const p=b.split('-');
+  if(p.length<3)return '';
+  return `${TY}-${p[1]}-${p[2]}`;
+}
+function memoryAgeLabel(x){
+  const age=ageNow(x&&x.birth);
+  const title=String((x&&x.name)||'');
+  if(age==='' || age===null)return '';
+  if(title.includes('기념') || title.includes('결혼'))return age===0?'올해':`${age}주년`;
+  if(title.includes('생일') || title.includes('탄생'))return `만 ${age}세`;
+  return `${age}년째`;
+}
+function upcomingEvents(days=7){
+  const today=todayKey();
+  const end=addDaysStr(today,days);
+  return notes.filter(n=>{
+    if(isDone(n)||n.repeat)return false;
+    const k=n.start||'';
+    if(!k || k<=today || k>end)return false;
+    if(subF!=='all' && (n.who||'공통')!==subF)return false;
+    return true;
+  }).sort((a,b)=>{
+    const ka=(a.start||'')+'|'+scheduleTimeKey(a)+'|'+(a.who||'');
+    const kb=(b.start||'')+'|'+scheduleTimeKey(b)+'|'+(b.who||'');
+    return ka.localeCompare(kb);
+  }).slice(0,2);
+}
+function renderUpcomingPreview(){
+  if(main!=='s')return '';
+  const list=upcomingEvents(7);
+  if(!list.length)return '';
+  return `<div class="widget-wrap dashboard-wrap upcoming-wrap">
+    <div class="widget-card upcoming-card">
+      <div class="today-dashboard-head inline-count">
+        <div class="widget-title">미리 보는 다음 일정 (D-7)</div>
+        <div class="today-dashboard-count">${list.length}</div>
+      </div>
+      <div class="upcoming-list">
+        ${list.map(n=>{
+          const d=daysUntilDate(n.start);
+          const dd=d===1?'내일':`D-${d}`;
+          return `<div class="upcoming-row">
+            <span class="upcoming-dday">${dd}</span>
+            <span class="upcoming-title">${escapeHtml(n.title||'일정')}</span>
+            <span class="upcoming-meta">${escapeHtml(n.who||'공통')}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function openCalendarTargetSheet(){
+  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">달력 대상 선택</div>
+      ${opts.map(o=>`<button class="sort-row${calWhoF===o[0]?' on':''}" onclick="setCalendarTarget(${onclickArg(o[0])})">
+        <span class="sort-check">${calWhoF===o[0]?'✓':''}</span>
+        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'전체 대상 일정 표시':'선택한 대상만 표시'}</em></span>
+      </button>`).join('')}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function setCalendarTarget(t){
+  calWhoF=t||'all';
+  closeM();
+  render();
+}
+function renderCalendarShiftCounts(){
+  const sc=getShiftCount(calY,calM);
+  return `<div class="shift-count-row calendar-count-inline">
+    <span class="shift-count-item"><span class="leg-chip s-d">D</span>${sc.D}</span>
+    <span class="shift-count-item"><span class="leg-chip s-e">E</span>${sc.E}</span>
+    <span class="shift-count-item"><span class="leg-chip s-n">N</span>${sc.N}</span>
+    <span class="shift-count-item"><span class="leg-chip s-off">OFF</span>${sc.OFF}</span>
+  </div>`;
+}
+
 function renderHomeWidgets(){
   if(main!=='s')return '';
-  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,todayKey()));
+  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,todayKey()));
   const routineToday=familyInfoUpcomingEvents(1);
-  return `${renderTodayListDashboard('일정',normalToday)}${renderTargetDashboard('루틴',routineToday,5,'routine-dashboard','routine')}`;
+  return `${renderTodayListDashboard('오늘 일정',normalToday)}${renderUpcomingPreview()}${renderTargetDashboard('오늘 루틴',routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
@@ -6079,7 +6371,7 @@ function editKid(i){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">기본정보 수정</div>
+      <div class="modal-hd">기본 정보 수정</div>
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
       <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
       <div class="ml">학년 · 반 · 번호</div>
