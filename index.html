@@ -3399,6 +3399,104 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   align-items:center !important;
 }
 
+
+/* 루틴 탭 초압축: 대상+요일 한 줄, 날짜/시간 한 줄 */
+.repeat-item-card{
+  padding:10px 11px !important;
+}
+.repeat-item-card .fi-hd{
+  margin-bottom:6px !important;
+  gap:6px !important;
+}
+.repeat-title-input{
+  height:34px !important;
+  padding:7px 9px !important;
+  font-size:12.5px !important;
+  border-radius:10px !important;
+}
+.routine-target-days-line{
+  display:flex !important;
+  align-items:center !important;
+  flex-wrap:nowrap !important;
+  gap:6px !important;
+  margin-top:5px !important;
+  width:100% !important;
+}
+.routine-target-group,
+.routine-days-group{
+  display:flex !important;
+  align-items:center !important;
+  gap:4px !important;
+  min-width:0 !important;
+}
+.routine-target-group{
+  flex:0 0 112px !important;
+}
+.routine-days-group{
+  flex:1 1 auto !important;
+}
+.routine-target-days-line .inline-lbl{
+  width:auto !important;
+  min-width:20px !important;
+  margin:0 !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  color:var(--t2) !important;
+  letter-spacing:0 !important;
+  text-transform:none !important;
+  font-weight:950 !important;
+}
+.routine-target-group .repeat-target-select{
+  flex:1 1 auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  height:29px !important;
+  border-radius:9px !important;
+  font-size:10.5px !important;
+  padding:0 5px !important;
+}
+.routine-days-group .day-sel{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  gap:2px !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+.routine-days-group .day-btn{
+  width:21px !important;
+  height:21px !important;
+  min-width:21px !important;
+  font-size:9px !important;
+  border-width:1px !important;
+  font-weight:900 !important;
+}
+.routine-time-line{
+  width:100% !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:4px !important;
+  margin-top:6px !important;
+}
+.routine-time-line .picker-field{
+  min-width:0 !important;
+  height:29px !important;
+  border-radius:9px !important;
+  font-size:9.5px !important;
+  padding:0 2px !important;
+  letter-spacing:-.55px !important;
+  font-weight:850 !important;
+}
+.routine-time-line .picker-field.empty{
+  color:var(--t3) !important;
+}
+.repeat-help{
+  display:none !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5308,21 +5406,23 @@ function renderI(){
           <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="루틴 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
           <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
         </div>
-        <div class="repeat-inline-row">
-          <div class="ml inline-lbl">대상</div>
-          <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
-            ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-          </select>
+        <div class="routine-compact-line routine-target-days-line">
+          <div class="routine-target-group">
+            <div class="ml inline-lbl">대상</div>
+            <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
+              ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="routine-days-group">
+            <div class="ml inline-lbl">요일</div>
+            <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
+          </div>
         </div>
-        <div class="repeat-inline-row days-line">
-          <div class="ml inline-lbl">요일</div>
-          <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
-        </div>
-        <div class="repeat-date-grid compact" onclick="event.stopPropagation()">
-          <div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
-          <div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
-          <div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
-          <div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+        <div class="routine-time-line" onclick="event.stopPropagation()">
+          <input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/>
+          <input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/>
+          <input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/>
+          <input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/>
         </div>
         <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
       </div>`;
