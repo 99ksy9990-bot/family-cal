@@ -3169,6 +3169,191 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   font-weight:850 !important;
 }
 
+
+/* 최종 보정: 누락 일정 표시 / Empty 축소 / 루틴 입력 컴팩트 / 달력 압축 */
+.empty-state{
+  min-height:82px !important;
+  padding:12px 12px !important;
+  gap:4px !important;
+}
+.empty-emoji{
+  font-size:28px !important;
+}
+.empty-title{
+  font-size:12.5px !important;
+}
+.empty-sub{
+  font-size:10.8px !important;
+  line-height:1.35 !important;
+}
+.today-dashboard .empty-state{
+  min-height:96px !important;
+}
+.mem-card{
+  padding:11px 12px !important;
+}
+.mem-card .memory-row{
+  gap:8px !important;
+}
+.mem-card .c-title,
+.mem-card .memory-title-line{
+  font-size:12.5px !important;
+  line-height:1.2 !important;
+  font-weight:950 !important;
+}
+.mem-card .memory-card-icon{
+  width:24px !important;
+  min-width:24px !important;
+  height:24px !important;
+  font-size:15px !important;
+  border-radius:9px !important;
+}
+.memory-meta-line{
+  gap:3px !important;
+  margin-top:5px !important;
+  flex-wrap:nowrap !important;
+  overflow-x:auto !important;
+}
+.memory-meta-line .chip,
+.mem-card .chip{
+  height:18px !important;
+  padding:0 5px !important;
+  font-size:9px !important;
+  border-radius:999px !important;
+  white-space:nowrap !important;
+}
+.memory-year-date{
+  font-size:9.5px !important;
+  padding:1px 5px !important;
+}
+.memory-actions{
+  gap:5px !important;
+}
+.memory-action{
+  min-width:42px !important;
+  height:24px !important;
+  font-size:10.5px !important;
+}
+.repeat-item-card{
+  padding:12px !important;
+}
+.repeat-item-card .fi-hd{
+  margin-bottom:7px !important;
+}
+.repeat-title-input{
+  height:38px !important;
+  padding:8px 10px !important;
+  font-size:13px !important;
+}
+.repeat-inline-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+}
+.repeat-inline-row .inline-lbl{
+  margin:0 !important;
+  width:34px;
+  min-width:34px;
+  color:var(--t2) !important;
+  font-size:11px !important;
+  letter-spacing:0 !important;
+  text-transform:none !important;
+}
+.repeat-inline-row .repeat-target-select{
+  flex:1;
+  min-width:0;
+  height:34px !important;
+  font-size:12px !important;
+}
+.repeat-inline-row .day-sel{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-wrap:nowrap;
+  gap:3px;
+  margin:0 !important;
+}
+.repeat-inline-row .day-btn{
+  width:25px !important;
+  height:25px !important;
+  font-size:10px !important;
+}
+.repeat-date-grid.compact{
+  gap:6px !important;
+  margin-top:8px !important;
+}
+.repeat-date-grid.compact .picker-field{
+  height:32px !important;
+  font-size:10.5px !important;
+  padding:0 4px !important;
+}
+.repeat-date-grid.compact .picker-field.empty{
+  color:var(--t3) !important;
+}
+.repeat-help{
+  display:none !important;
+}
+.cal-grid{
+  gap:2px !important;
+}
+.cal-dname{
+  padding:3px 0 !important;
+  font-size:9px !important;
+  line-height:1 !important;
+}
+.cal-cell{
+  min-height:42px !important;
+  padding:2px 1px !important;
+  border-radius:10px !important;
+}
+.cal-date-line{
+  min-height:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  margin-bottom:1px;
+}
+.cal-num{
+  margin:0 !important;
+  font-size:11px !important;
+  line-height:1.05 !important;
+}
+.cal-num.today-n{
+  width:19px !important;
+  height:19px !important;
+  margin:0 !important;
+}
+.cal-birthday-dot{
+  width:12px !important;
+  height:12px !important;
+  font-size:9px !important;
+  transform:none !important;
+}
+.cal-cell .shift-one{
+  height:16px !important;
+  min-width:22px !important;
+  font-size:8.5px !important;
+  border-radius:6px !important;
+  padding:0 3px !important;
+}
+.cal-dots{
+  min-height:4px !important;
+  margin-top:1px !important;
+  gap:2px !important;
+}
+.cal-dot{
+  width:4px !important;
+  height:4px !important;
+}
+.cal-card{
+  padding:12px 10px !important;
+}
+.cal-nav{
+  margin-bottom:7px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -4764,9 +4949,8 @@ function renderC(){
       ontouchstart="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
-      <div class="cal-top-badges">${birthTop}</div>
-      <div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div>
-      <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:20px"></span>'}</div>
+      <div class="cal-date-line">${birthTop}<div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
+      <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>'}</div>
       <div class="cal-dots">${personDots}</div>
     </div>`;
   }
@@ -5007,17 +5191,21 @@ function renderI(){
           <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="루틴 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
           <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
         </div>
-        <div class="ml">대상</div>
-        <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
-          ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-        </select>
-        <div class="ml">요일</div>
-        <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
-        <div class="repeat-date-grid" onclick="event.stopPropagation()">
-          <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
-          <div><div class="sublabel">루틴 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
-          <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
-          <div><div class="sublabel">종료</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'시간 없음'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+        <div class="repeat-inline-row">
+          <div class="ml inline-lbl">대상</div>
+          <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
+            ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="repeat-inline-row days-line">
+          <div class="ml inline-lbl">요일</div>
+          <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
+        </div>
+        <div class="repeat-date-grid compact" onclick="event.stopPropagation()">
+          <div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
+          <div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
+          <div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
+          <div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
         </div>
         <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
       </div>`;
@@ -5957,16 +6145,21 @@ function renderDashboardEventRows(list,minRows=0,opts={}){
 }
 function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine'){
   const sourceTargets=targetMode==='today'?selectedTodayTargets():selectedRoutineTargets();
-  const targets=sourceTargets.filter(t=>subF==='all'||t.label===subF);
-  const selectedSet=new Set(targets.map(t=>t.label));
-  const filtered=sortByStartTime((allEvents||[]).filter(n=>{
+  const filteredAll=(allEvents||[]).filter(n=>{
     const who=n.who||'공통';
     if(subF!=='all'&&who!==subF)return false;
-    return selectedSet.has(who);
-  }));
-  const cards=targets.length?targets:[{empty:true,label:'대상 선택'}];
+    return true;
+  });
+  const targetNames=[...new Set([...sourceTargets.map(t=>t.label),...filteredAll.map(n=>n.who||'공통')])];
+  const targetOrder=[...getPersons(),...targetNames];
+  targetNames.sort((a,b)=>{
+    const ia=targetOrder.indexOf(a), ib=targetOrder.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  const targets=targetNames.length?targetNames.map((label,i)=>({id:label||i,label})):[{empty:true,label:'대상 선택'}];
+  const filtered=sortByStartTime(filteredAll);
   const isRoutine=targetMode==='routine';
-  const grid=cards.map(slot=>{
+  const grid=targets.map(slot=>{
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
         <div class="today-target-name">대상 선택</div>
@@ -5994,13 +6187,12 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
 }
 
 function renderTodayListDashboard(title,allEvents){
-  const targetOrder=selectedTodayTargets().map(x=>x.label);
-  const selectedSet=new Set(targetOrder);
   let filtered=(allEvents||[]).filter(n=>{
     const who=n.who||'공통';
     if(subF!=='all'&&who!==subF)return false;
-    return selectedSet.has(who);
+    return true;
   });
+  const targetOrder=[...new Set([...selectedTodayTargets().map(x=>x.label),...getPersons(),...filtered.map(n=>n.who||'공통')])];
   filtered.sort((a,b)=>{
     const ia=targetOrder.indexOf(a.who||'공통');
     const ib=targetOrder.indexOf(b.who||'공통');
@@ -6169,7 +6361,9 @@ function renderCalendarShiftCounts(){
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,todayKey()));
-  const routineToday=familyInfoUpcomingEvents(1);
+  const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,todayKey()))
+    .map(n=>({...n,start:todayKey(),end:todayKey(),_repeatInstance:true}));
+  const routineToday=[...familyInfoUpcomingEvents(1),...noteRoutineToday];
   return `${renderTodayListDashboard('오늘 일정',normalToday)}${renderUpcomingPreview()}${renderTargetDashboard('오늘 루틴',routineToday,5,'routine-dashboard','routine')}`;
 }
 
