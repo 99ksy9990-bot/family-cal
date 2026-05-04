@@ -1258,6 +1258,52 @@ body{
 .auto-info-chip{background:#F2EEFF;color:#4C1D95;font-weight:900}
 .auto-info-card{border-style:dashed !important}
 
+
+/* 반복탭 접힘/재정렬, 이번 주 주말/공휴일 색 */
+.collapsed-hint{
+  font-size:11px;
+  color:var(--t3);
+  font-weight:800;
+  margin-left:4px;
+}
+.reorder-card{
+  touch-action:none;
+  cursor:grab;
+}
+.reorder-card:active{
+  cursor:grabbing;
+}
+.reorder-card.dragging{
+  opacity:.45;
+  transform:scale(.98);
+}
+.reorder-card.drop-target{
+  outline:3px solid rgba(0,122,255,.22);
+}
+.week-date-sat{color:#007AFF !important}
+.week-date-holiday{color:#FF3B30 !important}
+.week-exclude-chip{
+  display:inline-flex;
+  align-items:center;
+  height:22px;
+  padding:0 8px;
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--t3);
+  font-size:10px;
+  font-weight:900;
+}
+.basic-info-collapsed{
+  margin:0 16px;
+  padding:14px 16px;
+  border-radius:18px;
+  background:var(--card);
+  color:var(--t2);
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 4px 14px rgba(15,23,42,.06);
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -1418,6 +1464,8 @@ const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
 let main='s',subF='all',doneF='all',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='manual';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
+let basicInfoOpen=false;
+let touchReorderInfo=null,touchReorderTimer=null;
 let filterToday=false;
 let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
@@ -2077,11 +2125,19 @@ function openManageCenter(){
     </div>
   </div>`;
 }
+function weekDateClass(k){
+  const [y,m,d]=k.split('-').map(Number);
+  const dow=new Date(y,m-1,d).getDay();
+  if(holidayName(k)||dow===0)return 'week-date-holiday';
+  if(dow===6)return 'week-date-sat';
+  return '';
+}
 function renderWeekView(){
   if(main!=='s')return '';
   if(!weekOpen){
     return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
       <span>이번 주</span>
+      <span class="week-exclude-chip">반복일정 제외</span>
       <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▼</button>
     </div>`;
   }
@@ -2089,14 +2145,17 @@ function renderWeekView(){
   for(let i=0;i<7;i++){
     const k=addDaysStr(todayKey(),i);
     const d=new Date(k+'T00:00:00');
-    const list=notes.filter(n=>!isDone(n)&&occursOn(n,k));
+    const h=holidayName(k);
+    const cls=weekDateClass(k);
+    const list=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,k));
     days.push(`<div class="week-day">
-      <div class="week-hd">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})</div>
+      <div class="week-hd ${cls}">${d.getMonth()+1}/${d.getDate()} (${DAYS[d.getDay()]})${h?` · ${escapeHtml(h)}`:''}</div>
       ${list.length?list.map(n=>`<div class="week-item">• ${escapeHtml(n.title)} ${n.who?`<span style="color:var(--t3)">(${escapeHtml(n.who)})</span>`:''}</div>`).join(''):'<div style="font-size:12px;color:var(--t3)">일정 없음</div>'}
     </div>`);
   }
   return `<div class="sec sec-toggle" onclick="toggleWeek()" style="cursor:pointer">
       <span>이번 주</span>
+      <span class="week-exclude-chip">반복일정 제외</span>
       <button class="fold-btn" onclick="event.stopPropagation();toggleWeek()">▲</button>
     </div><div class="week-wrap">${days.join('')}</div>`;
 }
@@ -2314,7 +2373,7 @@ function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}se
 
 function addRepeatItem(){
   if(!requireEditMode())return;
-  repeatItems.push({id:Date.now(),who:getPersons()[0]||'공통',title:'',days:[],start:'',sT:'',eT:'',repeatEnd:''});
+  repeatItems.unshift({id:Date.now(),who:getPersons()[0]||'공통',title:'',days:[],start:'',sT:'',eT:'',repeatEnd:''});
   saveAll();render();
 }
 function delRepeatItem(ii){
@@ -2338,37 +2397,130 @@ function toggleRepeatDay(ii,di){
   item.days.sort((a,b)=>a-b);
   saveAll();render();
 }
+
+function toggleBasicInfo(){
+  basicInfoOpen=!basicInfoOpen;
+  render();
+}
+function reorderListItem(listName,id,targetId){
+  if(!requireEditMode())return;
+  if(!id || !targetId || String(id)===String(targetId))return;
+  let arr=null;
+  if(listName==='notes')arr=notes;
+  else if(listName==='requests')arr=requests;
+  else if(listName==='family')arr=family;
+  else if(listName==='repeatItems')arr=repeatItems;
+  if(!arr)return;
+  const from=arr.findIndex(x=>String(x.id)===String(id));
+  const to=arr.findIndex(x=>String(x.id)===String(targetId));
+  if(from<0||to<0)return;
+  const [item]=arr.splice(from,1);
+  arr.splice(to,0,item);
+  saveAll();
+  render();
+}
+function touchReorderStart(e,listName,id){
+  if(e.target && e.target.closest && e.target.closest('input,select,button,textarea'))return;
+  clearTimeout(touchReorderTimer);
+  touchReorderTimer=setTimeout(()=>{
+    touchReorderInfo={listName,id,el:e.currentTarget};
+    e.currentTarget.classList.add('dragging');
+  },500);
+}
+function touchReorderMove(e){
+  if(!touchReorderInfo)return;
+  e.preventDefault();
+  const t=e.touches&&e.touches[0];
+  if(!t)return;
+  document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+  const el=document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-reorder-list]');
+  if(el && el.dataset.reorderList===touchReorderInfo.listName && el.dataset.reorderId!==String(touchReorderInfo.id)){
+    el.classList.add('drop-target');
+  }
+}
+function touchReorderEnd(e){
+  clearTimeout(touchReorderTimer);
+  if(!touchReorderInfo)return;
+  const info=touchReorderInfo;
+  if(info.el)info.el.classList.remove('dragging');
+  const t=e.changedTouches&&e.changedTouches[0];
+  let target=null;
+  if(t)target=document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-reorder-list]');
+  document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+  touchReorderInfo=null;
+  if(target && target.dataset.reorderList===info.listName){
+    reorderListItem(info.listName,info.id,target.dataset.reorderId);
+  }
+}
+function touchReorderCancel(){
+  clearTimeout(touchReorderTimer);
+  if(touchReorderInfo?.el)touchReorderInfo.el.classList.remove('dragging');
+  touchReorderInfo=null;
+  document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+}
+
 function renderI(){
   let h=`<div class="fi-outer">`;
-  h+=`<div class="sec">기본정보 <span class="sec-cnt">${family.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="addKid()">+ 대상 추가</button></div>`;
-  family.forEach((kid,ki)=>{
-    const memo=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
-    h+=`<div class="fi-card basic-info-card">
-      <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
-        <div class="fi-hd-btns">
-          <button class="fi-btn fi-btn-e" onclick="editKid(${ki})">수정</button>
-          <button class="fi-btn fi-btn-d" onclick="delKid(${ki})">삭제</button>
+  h+=`<div class="sec sec-toggle" onclick="toggleBasicInfo()" style="cursor:pointer">
+    <span>기본정보</span>
+    <span class="sec-cnt">${family.length}</span>
+    <span class="collapsed-hint">${basicInfoOpen?'꾹 눌러 순서 이동':'접힘'}</span>
+    <button class="fold-btn" onclick="event.stopPropagation();toggleBasicInfo()">${basicInfoOpen?'▲':'▼'}</button>
+    <button style="margin-left:6px" class="toss-btn primary" onclick="event.stopPropagation();addKid()">+ 대상 추가</button>
+  </div>`;
+  if(basicInfoOpen){
+    family.forEach((kid,ki)=>{
+      const memo=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
+      h+=`<div class="fi-card basic-info-card reorder-card"
+        draggable="true"
+        data-reorder-list="family" data-reorder-id="${kid.id}"
+        ondragstart="dragStart(event,'family','${kid.id}')"
+        ondragover="dragOver(event)"
+        ondrop="dropItem(event,'family','${kid.id}')"
+        ondragend="dragEnd(event)"
+        ontouchstart="touchReorderStart(event,'family','${kid.id}')"
+        ontouchmove="touchReorderMove(event)"
+        ontouchend="touchReorderEnd(event)"
+        ontouchcancel="touchReorderCancel()">
+        <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
+          <div class="fi-hd-btns">
+            <button class="fi-btn fi-btn-e" onclick="event.stopPropagation();editKid(${ki})">수정</button>
+            <button class="fi-btn fi-btn-d" onclick="event.stopPropagation();delKid(${ki})">삭제</button>
+          </div>
         </div>
-      </div>
-      <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
-    </div>`;
-  });
+        <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
+      </div>`;
+    });
+  }else{
+    h+=`<div class="basic-info-collapsed">기본정보가 접혀 있어요. 펼치면 대상 순서를 꾹 눌러 이동할 수 있어요.</div>`;
+  }
 
-  h+=`<div class="sec">반복 일정 <span class="sec-cnt">${repeatItems.length}</span><button style="margin-left:auto" class="toss-btn primary" onclick="addRepeatItem()">+ 반복 추가</button></div>`;
+  h+=`<div class="sec">반복 일정 <span class="sec-cnt">${repeatItems.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="addRepeatItem()">+ 반복 추가</button></div>`;
   repeatItems.forEach((item,ii)=>{
     const idp=`${ii}`;
-    h+=`<div class="fi-card repeat-item-card">
+    const rid=item.id||ii;
+    h+=`<div class="fi-card repeat-item-card reorder-card"
+      draggable="true"
+      data-reorder-list="repeatItems" data-reorder-id="${rid}"
+      ondragstart="dragStart(event,'repeatItems','${rid}')"
+      ondragover="dragOver(event)"
+      ondrop="dropItem(event,'repeatItems','${rid}')"
+      ondragend="dragEnd(event)"
+      ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+      ontouchmove="touchReorderMove(event)"
+      ontouchend="touchReorderEnd(event)"
+      ontouchcancel="touchReorderCancel()">
       <div class="fi-hd">
-        <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="반복 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="this.select()"/>
-        <button class="row-del" onclick="delRepeatItem(${ii})">✕</button>
+        <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="반복 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
+        <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
       </div>
       <div class="ml">대상</div>
-      <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)">
+      <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
         ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
       </select>
       <div class="ml">요일</div>
-      <div class="day-sel">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
-      <div class="repeat-date-grid">
+      <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
+      <div class="repeat-date-grid" onclick="event.stopPropagation()">
         <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일 없음'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
         <div><div class="sublabel">반복 종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료 없음'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
         <div><div class="sublabel">시작</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시간 없음'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
@@ -2591,6 +2743,7 @@ function saveMemory(id){
 let dragInfo=null;
 
 function dragStart(e, listName, id){
+  if(e.target && e.target.closest && e.target.closest('input,select,button,textarea'))return;
   dragInfo={listName,id};
   e.currentTarget.classList.add('dragging');
   if(e.dataTransfer){
@@ -2604,7 +2757,7 @@ function dragOver(e){
   if(e.dataTransfer)e.dataTransfer.dropEffect='move';
 }
 function dragEnd(e){
-  e.currentTarget.classList.remove('dragging');
+  if(e&&e.currentTarget)e.currentTarget.classList.remove('dragging');
   document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
   dragInfo=null;
 }
@@ -2612,17 +2765,7 @@ function dropItem(e, listName, targetId){
   e.preventDefault();
   if(e.currentTarget)e.currentTarget.classList.remove('drop-target');
   if(!dragInfo || dragInfo.listName!==listName || String(dragInfo.id)===String(targetId)) return;
-
-  const arr = listName==='notes' ? notes : requests;
-  const from = arr.findIndex(x=>String(x.id)===String(dragInfo.id));
-  const to = arr.findIndex(x=>String(x.id)===String(targetId));
-  if(from<0 || to<0) return;
-
-  const [item] = arr.splice(from,1);
-  arr.splice(to,0,item);
-
-  saveAll();
-  render();
+  reorderListItem(listName,dragInfo.id,targetId);
 }
 
 
