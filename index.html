@@ -2379,6 +2379,96 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   height:5.5px !important;
 }
 
+
+/* 최종 보정: 달력 필터 정렬 / 생일 아이콘 / 일정 카드 시인성 */
+.cal-outer > .cal-filter.target-filter-row{
+  padding:0 !important;
+  margin:0 !important;
+  width:100% !important;
+  display:flex !important;
+  justify-content:space-between !important;
+  gap:5px !important;
+  overflow:visible !important;
+}
+.cal-outer > .cal-filter.target-filter-row .chip-btn{
+  flex:1 1 0 !important;
+  min-width:0 !important;
+  height:32px !important;
+  padding:0 3px !important;
+  font-size:10.5px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.cal-birthday-dot{
+  width:13px;
+  height:13px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  line-height:1;
+  flex:0 0 auto;
+  transform:translateY(-1px);
+}
+.ev-birthday-icon{
+  width:18px;
+  min-width:18px;
+  height:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  line-height:1;
+  margin-top:1px;
+}
+.target-legend{
+  justify-content:center !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:6px 8px !important;
+  overflow:visible !important;
+  text-align:center !important;
+}
+.target-legend .leg{
+  font-size:11px !important;
+  gap:4px !important;
+  padding:2px 6px !important;
+  flex:0 0 auto !important;
+  background:var(--bg);
+  border-radius:999px;
+}
+.target-legend .target-dot{
+  width:8px !important;
+  height:8px !important;
+  border-radius:50%;
+}
+/* 일정 탭 카드 텍스트 확대 */
+.card-wrap .card .c-title{
+  font-size:17px !important;
+  font-weight:950 !important;
+  line-height:1.35 !important;
+  letter-spacing:-.3px !important;
+}
+.card-wrap .card .person-chip{
+  height:27px !important;
+  padding:0 11px !important;
+  font-size:12.5px !important;
+  font-weight:950 !important;
+}
+.card-wrap .card .chip{
+  height:26px !important;
+  padding:0 10px !important;
+  font-size:12px !important;
+}
+.card-wrap .card .c-meta{
+  gap:6px !important;
+  margin-top:9px !important;
+}
+.card-wrap .card .c-row{
+  gap:12px !important;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -2774,8 +2864,9 @@ function uniquePersonsForDay(evs,mems){
     p=p||'공통';
     if(!people.includes(p))people.push(p);
   };
+  // 달력 점 색상은 사람만 의미합니다.
+  // 기념/생일은 별도 🎂 아이콘으로 표시하므로 대상자 점과 중복하지 않습니다.
   (evs||[]).forEach(n=>add(n.who||'공통'));
-  (mems||[]).forEach(x=>add(memoryPerson(x)));
   return people;
 }
 function memoriesOnDate(y,m,d){
@@ -3822,7 +3913,7 @@ function renderS(){
     </div>
     <div class="sec compact-sec sec-toggle" onclick="toggleActive()" style="cursor:pointer">
       <span class="sec-title">진행 중</span>
-      <button class="toss-btn primary sec-add-mini" onclick="event.stopPropagation();openAddModal()">+ 추가</button>
+      <span class="sec-cnt">${active.length}개</span>
       <div class="sec-actions">
         <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
         <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
@@ -3834,9 +3925,9 @@ function renderS(){
     <div class="div"></div>
     <div class="sec compact-sec sec-toggle" onclick="toggleDone()" style="cursor:pointer">
       <span class="sec-title">완료</span>
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
       <span class="sec-cnt">${doneFilt.length}</span>
       <div class="sec-actions">
+        <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
         <button class="fold-btn" onclick="event.stopPropagation();toggleDone()">${doneOpen?'▲':'▼'}</button>
       </div>
     </div>
@@ -3870,9 +3961,11 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const dots=uniquePersonsForDay(evs,mems).slice(0,5)
+    const personDots=uniquePersonsForDay(evs,mems).slice(0,5)
       .map(p=>`<div class="cal-dot" title="${escapeAttr(p)}" style="background:${personColor(p)}"></div>`)
       .join('');
+    const birthDot=mems.length?`<div class="cal-birthday-dot" title="기념">🎂</div>`:'';
+    const dots=birthDot+personDots;
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
@@ -3929,7 +4022,7 @@ function renderC(){
         ...mems.map(x=>{
           const age=+sp[0]-Number((x.birth||'').slice(0,4));
           const mp=memoryPerson(x);
-          return`<div class="ev-item"><div class="ev-dot" style="background:${personColor(mp)}"></div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
+          return`<div class="ev-item"><div class="ev-birthday-icon">🎂</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념 · ${escapeHtml(mp)} · 만 ${Math.max(0,age)}세</div></div></div>`;
         })
       ].join(''):`<div style="font-size:12px;color:var(--t3);padding:4px 0">등록된 일정 없음</div>`}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
