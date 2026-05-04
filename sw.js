@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.26';
+const CACHE_NAME = 'pass-cal-v1.0.28';
 
 const APP_SHELL = [
   './',

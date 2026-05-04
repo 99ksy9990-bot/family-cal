@@ -3354,6 +3354,41 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   margin-bottom:7px !important;
 }
 
+
+/* 루틴 회차 예외 처리 / 달력 상세 정렬 보정 */
+.routine-instance-actions{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  margin-top:7px !important;
+}
+.routine-instance-actions.inline{
+  margin-top:8px !important;
+}
+.routine-instance-actions .small-link{
+  height:25px;
+  padding:0 9px;
+  border-radius:999px;
+  background:var(--blue-bg);
+  color:var(--blue-t) !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+}
+.memory-selected-event .ev-sub .ev-meta-kind{
+  color:var(--orange-t) !important;
+}
+
+
+/* 선택 날짜 기준 일정 대시보드 보정 */
+.dashboard-wrap .widget-title{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.routine-dashboard .today-event-list{
+  gap:5px;
+}
+
 </style>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
@@ -3896,8 +3931,10 @@ function familyInfoEventsOnDate(y,m,d){
     if(!title || !days.includes(dow))return;
     if(r.start && date<r.start)return;
     if(r.repeatEnd && date>r.repeatEnd)return;
+    if(Array.isArray(r.skipDates) && r.skipDates.includes(date))return;
     out.push({
       id:`auto-${r.id}-${date}`,
+      _originalRoutineId:r.id,
       title:title,
       type:'family',
       who:r.who||'공통',
@@ -4014,6 +4051,7 @@ function normalizeData(d){
     if(!('sT' in r))r.sT='';
     if(!('eT' in r))r.eT='';
     if(!('repeatEnd' in r))r.repeatEnd='';
+    if(!Array.isArray(r.skipDates))r.skipDates=[];
   });
 
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
@@ -4380,6 +4418,7 @@ function makeCard(n){
             <span class="chip auto-info-chip">루틴</span>
             ${dts?`<span class="chip chip-g">${dts}</span>`:''}
           </div>
+          ${n._originalRoutineId!==undefined?`<div class="routine-instance-actions inline"><button class="small-link" onclick="event.stopPropagation();skipRoutineInstance('${n._originalRoutineId}','${n.start}')">이번 회차만 삭제</button></div>`:''}
         </div>
         <div class="c-right">
           <button class="small-link" onclick="setMain('i')">루틴</button>
@@ -4709,9 +4748,10 @@ function activePeriodEnd(){
 }
 function activeInPeriod(n){
   if(activePer==='all')return true;
+  const base=dashboardDateKey ? dashboardDateKey() : todayKey();
   const today=todayKey();
   const end=activePeriodEnd();
-  if(activePer==='today')return occursOn(n,today);
+  if(activePer==='today')return occursOn(n,base);
   const k=n.repeat?nextOccurrence(n,today):(n.start||'');
   if(!k)return true;
   if(n.end && n.end>=today && (n.start||k)<=end)return true;
@@ -4832,16 +4872,17 @@ function renderS(){
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
     if(!matchSearchNote(n)) return false;
-    if(filterToday) return occursOn(n,todayKey());
+    if(filterToday) return occursOn(n,dashboardDateKey());
     return (subF==='all'||(n.who||'공통')===subF) && activeInPeriod(n);
   });
 
-  const autoActive=familyInfoUpcomingEvents(filterToday?1:90).filter(n=>{
-    if(!autoInfoMatchesFilter(n))return false;
-    if(!matchSearchNote(n))return false;
-    if(filterToday)return occursOn(n,todayKey());
-    return activeInPeriod(n);
-  });
+  const autoActive=(activePer==='today'||filterToday)
+    ? familyInfoEventsForKey(dashboardDateKey()).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
+    : familyInfoUpcomingEvents(90).filter(n=>{
+        if(!autoInfoMatchesFilter(n))return false;
+        if(!matchSearchNote(n))return false;
+        return activeInPeriod(n);
+      });
   active=[...active,...autoActive];
   active=sortScheduleList(active);
   let doneFilt=notes.filter(n=>{
@@ -4897,6 +4938,55 @@ function calendarDateTime(n,selDate=''){
   const v=dateTimeRange({...n,start:n.start||selDate,end:n.end||''});
   return v || calendarTimeOnly(n) || '시간 미정';
 }
+
+function calendarDetailSort(a,b){
+  const pa=personRank(a), pb=personRank(b);
+  if(pa!==pb)return pa-pb;
+  const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+  if(ta!==tb)return ta.localeCompare(tb);
+  return String(a.title||'').localeCompare(String(b.title||''));
+}
+function calendarMemorySort(a,b){
+  const pa=personRank({who:memoryPerson(a)}), pb=personRank({who:memoryPerson(b)});
+  if(pa!==pb)return pa-pb;
+  return String(a.name||'').localeCompare(String(b.name||''));
+}
+function calendarMemoryItem(x,sp){
+  const mp=memoryPerson(x);
+  return `<div class="ev-item cal-selected-event memory-selected-event">
+    <div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div>
+    <div class="ev-info">
+      <div class="ev-title">${escapeHtml(x.name)}</div>
+      <div class="ev-sub"><span class="ev-meta-kind">기념일</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${escapeHtml(mp)}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(memoryAgeLabel(x))}</span></div>
+    </div>
+  </div>`;
+}
+function skipRoutineInstance(routineId,dateKey){
+  if(!requireEditMode())return;
+  const r=(repeatItems||[]).find(x=>String(x.id)===String(routineId));
+  if(!r)return;
+  if(!confirm('이 날짜의 루틴만 삭제할까요?'))return;
+  if(!Array.isArray(r.skipDates))r.skipDates=[];
+  if(!r.skipDates.includes(dateKey))r.skipDates.push(dateKey);
+  saveAll();
+  render({preserveScroll:true});
+  showToast('해당 날짜의 루틴을 삭제했습니다.');
+}
+function routineInstanceActions(n,selDate){
+  if(n._autoFamilyInfo && n._originalRoutineId!==undefined){
+    return `<div class="ev-actions routine-instance-actions">
+      <button class="small-link" onclick="event.stopPropagation();setMain('i')">루틴 관리</button>
+      <button class="small-link" onclick="event.stopPropagation();skipRoutineInstance('${n._originalRoutineId}','${selDate}')">이번 회차만 삭제</button>
+    </div>`;
+  }
+  if(n.repeat && n.id){
+    return `<div class="ev-actions routine-instance-actions">
+      <button class="small-link" onclick="event.stopPropagation();skipRepeatInstance('${n.id}','${selDate}')">이번 회차만 삭제</button>
+    </div>`;
+  }
+  return '';
+}
+
 function calendarEventItem(n,selDate){
   const whoRaw=n.who||'공통';
   const who=escapeHtml(whoRaw);
@@ -4907,12 +4997,13 @@ function calendarEventItem(n,selDate){
     ? `<span class="ev-meta-kind">루틴</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`
     : `<span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${tm}</span>`;
 
-  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${n._autoFamilyInfo?'':`onclick="openDetailNote('${n.id}')" style="cursor:pointer"`}>
+  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${(!isRoutine&&!n._autoFamilyInfo)?`onclick="openDetailNote('${n.id}')" style="cursor:pointer"`:''}>
     <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
     <div class="ev-info">
       <div class="ev-title">${title}</div>
       <div class="ev-sub">${meta}</div>
       ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
+      ${isRoutine?routineInstanceActions(n,selDate):''}
     </div>
   </div>`;
 }
@@ -4973,12 +5064,9 @@ function renderC(){
         ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
       </div>
       ${evs.length||mems.length?[
-        ...evs.map(n=>calendarEventItem(n,selDate)),
-        ...mems.map(x=>{
-          const age=+sp[0]-Number((x.birth||'').slice(0,4));
-          const mp=memoryPerson(x);
-          return`<div class="ev-item"><div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div><div style="min-width:0;flex:1"><div class="ev-title">${escapeHtml(x.name)}</div><div class="ev-sub">기념일 · ${escapeHtml(mp)} · ${escapeHtml(memoryAgeLabel(x))}</div></div></div>`;
-        })
+        ...[...mems].sort(calendarMemorySort).map(x=>calendarMemoryItem(x,sp)),
+        ...[...evs].filter(n=>!(n.repeat||n._autoFamilyInfo)).sort(calendarDetailSort).map(n=>calendarEventItem(n,selDate)),
+        ...[...evs].filter(n=>(n.repeat||n._autoFamilyInfo)).sort(calendarDetailSort).map(n=>calendarEventItem(n,selDate))
       ].join(''):renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
       <div class="longpress-hint">팁: 날짜를 길게 누르면 바로 일정 추가</div>
@@ -6167,7 +6255,8 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
       </div>`;
     }
     const list=targetTodayEvents(slot.label,filtered);
-    const opts=isRoutine?{limit:4,expandable:true,expanded:routineDashboardOpen}:{};
+    // 사용자가 누락으로 느끼지 않도록 기본은 전체 출력, 하단 핸들로 접을 수 있게 유지합니다.
+    const opts=isRoutine?{limit:4,expandable:true,expanded:true}:{};
     return `<div class="today-target-card">
       <div class="today-target-name" style="color:${personColor(slot.label)}">${escapeHtml(slot.label)}</div>
       <div class="today-event-list">${renderDashboardEventRows(list,0,opts)}</div>
@@ -6358,13 +6447,32 @@ function renderCalendarShiftCounts(){
   </div>`;
 }
 
+
+function dashboardDateKey(){
+  // 달력에서 날짜를 선택한 뒤 일정 탭으로 돌아오면 그 날짜 기준으로 대시보드를 보여줍니다.
+  // 선택한 날짜가 없으면 원래대로 오늘 기준입니다.
+  return selDate || todayKey();
+}
+function dashboardDateLabel(){
+  const k=dashboardDateKey();
+  if(k===todayKey())return '';
+  const [y,m,d]=k.split('-').map(Number);
+  return ` · ${m}/${d} (${DAYS[new Date(y,m-1,d).getDay()]})`;
+}
+function familyInfoEventsForKey(k){
+  const [y,m,d]=k.split('-').map(Number);
+  return familyInfoEventsOnDate(y,m-1,d);
+}
+
 function renderHomeWidgets(){
   if(main!=='s')return '';
-  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,todayKey()));
-  const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,todayKey()))
-    .map(n=>({...n,start:todayKey(),end:todayKey(),_repeatInstance:true}));
-  const routineToday=[...familyInfoUpcomingEvents(1),...noteRoutineToday];
-  return `${renderTodayListDashboard('오늘 일정',normalToday)}${renderUpcomingPreview()}${renderTargetDashboard('오늘 루틴',routineToday,5,'routine-dashboard','routine')}`;
+  const baseKey=dashboardDateKey();
+  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,baseKey));
+  const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
+    .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
+  const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
+  const suffix=dashboardDateLabel();
+  return `${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderUpcomingPreview()}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
