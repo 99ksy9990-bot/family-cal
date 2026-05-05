@@ -5627,6 +5627,294 @@ select{
   letter-spacing:-.22px !important;
 }
 
+
+/* v1.0.69 calendar detail actions / compact routine / aligned time columns */
+:root{
+  --time-col:104px;
+}
+
+/* 오늘 일정/달력 상세 제목은 '거제도 여행'과 같은 톤 */
+.today-list-title,
+.merged-routine-title,
+.routine-group-title,
+.oneoff-title,
+.upcoming-title{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  letter-spacing:-.22px !important;
+  color:var(--t1) !important;
+}
+
+/* 시간은 고정폭 숫자 + 왼쪽 정렬 */
+.today-list-time,
+.merged-routine-time,
+.routine-group-time,
+.oneoff-time,
+.today-event-time{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,'Roboto Mono',monospace !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:'tnum' 1 !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  font-weight:800 !important;
+  letter-spacing:-.12px !important;
+  color:var(--t2) !important;
+  text-align:left !important;
+  justify-self:start !important;
+  min-width:var(--time-col) !important;
+  width:var(--time-col) !important;
+  white-space:nowrap !important;
+}
+
+/* 일정 탭 등록 일정 행 */
+.merged-today-row{
+  grid-template-columns:48px minmax(0,1fr) var(--time-col) !important;
+  gap:7px !important;
+  align-items:center !important;
+  padding:6px 0 !important;
+  min-height:28px !important;
+}
+.today-list-person{
+  font-size:11.5px !important;
+  font-weight:950 !important;
+}
+
+/* 일정 탭 루틴과 달력 탭 루틴을 같은 형식으로 */
+.merged-routine-group,
+.routine-group-card{
+  grid-template-columns:42px minmax(0,1fr) !important;
+  gap:8px !important;
+  align-items:flex-start !important;
+}
+.merged-routine-head,
+.routine-group-avatar-col{
+  gap:4px !important;
+}
+.merged-routine-avatar,
+.routine-group-avatar{
+  width:30px !important;
+  height:30px !important;
+  flex:0 0 30px !important;
+}
+.merged-routine-avatar .avatar-img,
+.routine-group-avatar .avatar-img{
+  width:30px !important;
+  height:30px !important;
+  object-fit:contain !important;
+}
+.merged-routine-person.under-avatar,
+.routine-group-person.under-avatar{
+  font-size:11px !important;
+  font-weight:950 !important;
+  line-height:1.15 !important;
+}
+.merged-routine-box,
+.routine-group-box{
+  padding:8px 11px !important;
+  border-radius:15px !important;
+}
+.merged-routine-row,
+.routine-group-row{
+  min-height:34px !important;
+  padding:7px 0 !important;
+}
+.merged-routine-row,
+.routine-group-main{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) var(--time-col) !important;
+  gap:8px !important;
+  align-items:center !important;
+}
+.merged-routine-title,
+.routine-group-title{
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 달력 탭 등록 일정도 같은 텍스트 박스 규칙 */
+.oneoff-selected-event{
+  grid-template-columns:42px minmax(0,1fr) !important;
+  gap:8px !important;
+}
+.oneoff-avatar,
+.oneoff-avatar .avatar-img{
+  width:30px !important;
+  height:30px !important;
+  flex-basis:30px !important;
+  object-fit:contain !important;
+}
+.oneoff-person.under-avatar{
+  font-size:11px !important;
+  font-weight:950 !important;
+}
+.oneoff-box{
+  padding:8px 11px !important;
+  border-radius:15px !important;
+}
+.oneoff-main{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) var(--time-col) !important;
+  gap:8px !important;
+  align-items:center !important;
+}
+.oneoff-title{
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 선택 날짜 헤더 액션 */
+.selected-day-hd{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:8px !important;
+  margin-bottom:10px !important;
+}
+.selected-day-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.shift-status-btn{
+  height:28px !important;
+  padding:0 10px !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  border-radius:999px !important;
+  white-space:nowrap !important;
+}
+.shift-status-btn.s-d,
+.shift-status-btn.s-e,
+.shift-status-btn.s-n{
+  color:#fff !important;
+}
+.shift-status-btn.s-off{
+  color:var(--shift-off-t,#8E8E93) !important;
+}
+
+/* 근무 편집은 바텀시트에서 */
+.shift-edit-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+  margin:8px 0 10px;
+}
+.shift-edit-btn{
+  min-width:0 !important;
+  height:42px !important;
+  border-radius:14px !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+
+/* 상세 패널은 읽기 중심: 큰 하단 버튼 제거 후 FAB 사용 */
+.calendar-fab-add{
+  bottom:calc(22px + env(safe-area-inset-bottom,0px)) !important;
+}
+.ev-card{
+  padding-bottom:16px !important;
+}
+.longpress-hint{
+  font-size:9.5px !important;
+}
+
+/* 일괄 선택은 근무 뷰에서 상단 액션 바로 */
+.compact-bulk-bar{
+  margin:0 10px 10px !important;
+  padding:8px 10px !important;
+  border-radius:16px !important;
+  background:var(--card) !important;
+  border:1px solid var(--border) !important;
+}
+.compact-bulk-bar .shift-bulk-actions{
+  width:100%;
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  flex-wrap:wrap !important;
+  padding-top:0 !important;
+}
+.compact-bulk-bar .shift-bulk-count{
+  font-size:11px !important;
+  font-weight:950 !important;
+  color:var(--t2) !important;
+  margin-right:2px !important;
+}
+.compact-bulk-bar .shift-bulk-chip{
+  height:28px !important;
+  min-width:34px !important;
+  padding:0 8px !important;
+  border-radius:10px !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+}
+
+/* 숨겨진 루틴 안내는 작은 칩 형태 */
+.hidden-routine-note{
+  margin:8px 0 0 !important;
+  padding:7px 9px !important;
+  border-radius:12px !important;
+  font-size:10.5px !important;
+  font-weight:800 !important;
+  line-height:1.35 !important;
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+}
+.hidden-routine-note button{
+  font-size:10.5px !important;
+  font-weight:950 !important;
+}
+
+/* 루틴/등록 일정 사이 여백 축소 */
+.ev-card .ev-item{
+  padding:7px 0 !important;
+}
+.selected-day-section-label{
+  margin:8px 0 4px !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+}
+
+/* 좁은 화면에서는 시간 컬럼을 조금 줄임 */
+@media (max-width:430px){
+  :root{--time-col:96px;}
+  .today-list-title,
+  .merged-routine-title,
+  .routine-group-title,
+  .oneoff-title,
+  .upcoming-title,
+  .today-list-time,
+  .merged-routine-time,
+  .routine-group-time,
+  .oneoff-time{
+    font-size:11.5px !important;
+  }
+  .merged-routine-group,
+  .routine-group-card,
+  .oneoff-selected-event{
+    grid-template-columns:38px minmax(0,1fr) !important;
+    gap:7px !important;
+  }
+  .merged-routine-avatar,
+  .routine-group-avatar,
+  .oneoff-avatar,
+  .merged-routine-avatar .avatar-img,
+  .routine-group-avatar .avatar-img,
+  .oneoff-avatar .avatar-img{
+    width:28px !important;
+    height:28px !important;
+    flex-basis:28px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5684,13 +5972,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.68';
-const PASS_BUILD_VERSION='v1.0.68-font-unify';
+const APP_VERSION='v1.0.69';
+const PASS_BUILD_VERSION='v1.0.69-calendar-detail-actions';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '오늘 일정/루틴 제목 폰트 통일',
-  '오늘 일정/루틴 시간 폰트 통일',
-  '미리 보는 다음 일정과 동일 톤 적용'
+  '달력 상세 패널 근무 편집 분리',
+  '선택 날짜 헤더 근무 버튼 추가',
+  '근무 수정 바텀시트 적용',
+  '달력 상세/일정 탭 루틴 폰트와 시간 정렬 통일',
+  '달력 상세 하단 일정 추가 버튼 FAB 전환',
+  '일괄 선택 UI 근무 뷰 중심 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -6040,6 +6331,32 @@ function setCalendarViewMode(mode){
 function calendarViewLabel(mode){
   return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'루틴':'전체';
 }
+function shiftLabelForDate(k){
+  const cur=shiftData[k]||'';
+  return cur?`근무 ${cur}`:'근무 미입력';
+}
+function openShiftPicker(dateKey){
+  if(!requireEditMode())return;
+  const cur=shiftData[dateKey]||'';
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet shift-edit-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${dateLabel(dateKey)} 근무 변경</div>
+      <div class="shift-edit-grid">
+        <button class="shift-btn shift-edit-btn${!cur?' on':''}" style="background:var(--card);color:var(--t3)" onclick="setShiftFromModal('${dateKey}','')">미입력</button>
+        ${SHIFTS.map(s=>`<button class="shift-btn shift-edit-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShiftFromModal('${dateKey}','${s}')">${s}</button>`).join('')}
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function setShiftFromModal(k,t){
+  setShift(k,t);
+  closeM();
+  showToast('근무를 변경했어요.');
+}
+
 function renderCalendarViewModeChips(){
   const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','루틴']];
   return `<div class="calendar-view-mode-row">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
@@ -7756,8 +8073,13 @@ function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어�
   return html;
 }
 function renderFab(){
-  if(main!=='s')return '';
-  return `<button class="fab-add" onclick="openAddModal()" aria-label="일정 추가">+</button>`;
+  if(main==='s'){
+    return `<button class="fab-add" onclick="openAddModal()" aria-label="일정 추가">+</button>`;
+  }
+  if(main==='c' && selDate && !shiftSelectMode){
+    return `<button class="fab-add calendar-fab-add" onclick="openAddModal('${selDate}')" aria-label="이 날짜에 일정 추가">+</button>`;
+  }
+  return '';
 }
 
 function renderS(){
@@ -7980,32 +8302,28 @@ function renderC(){
   let evHtml='';
   if(selDate && !shiftSelectMode){
     const sp=selDate.split('-');
-    const cur=shiftData[selDate]||'';
     const allEvs=notesOnDateAll(+sp[0],+sp[1]-1,+sp[2]);
     const allMems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     const selHoliday=holidayName(selDate);
+    const cur=shiftData[selDate]||'';
     evHtml=`<div class="ev-card" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
       <div class="ev-hd selected-day-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
-        <button class="sec-chip-btn detail-target-btn" onclick="openCalendarTargetSheet()">대상 ${targetLabel(calWhoF)}</button>
-      </div>
-      <div class="shift-picker">
-        <span class="shift-picker-title">근무 편집</span>
-        <button class="shift-btn${!cur?' on':''}" style="background:var(--card);color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
-        ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
+        <div class="selected-day-actions">
+          <button class="sec-chip-btn detail-target-btn" onclick="openCalendarTargetSheet()">대상 ${targetLabel(calWhoF)}</button>
+          <button class="sec-chip-btn shift-status-btn ${cur?SCLS[cur]:''}" onclick="openShiftPicker('${selDate}')">${shiftLabelForDate(selDate)}</button>
+        </div>
       </div>
       ${renderSelectedDayList(mems,evs,selDate,sp)}
-      <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
-      <div class="longpress-hint">팁: 날짜를 길게 누르면 바로 일정 추가</div>
     </div>`;
   }
 
   return`<div class="cal-outer">
     <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
       ${renderCalendarViewModeChips()}
-      ${isEditMode()?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>`:''}
+      ${isEditMode() && calViewMode==='work'?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 중':'일괄 선택'}</button>`:''}
     </div>
     ${renderCalendarShiftCounts()}
     ${renderShiftBulkBar()}
@@ -9051,31 +9369,29 @@ function applyBulkShift(t){
     if(t){
       shiftData[k]=t;
     }else{
-      // Firebase merge:true에서는 삭제 키가 서버에서 지워지지 않으므로 빈 문자열로 명시 저장
       shiftData[k]='';
     }
   });
 
   saveAll();
 
-  // 적용 완료 후 선택 상태 초기화
+  const cnt=shiftSelectedDates.length;
   shiftSelectedDates=[];
   shiftSelectMode=false;
-
   render();
+  showToast(`${cnt}개 날짜의 근무를 변경했어요.`);
 }
 function renderShiftBulkBar(){
   if(!isEditMode() || !shiftSelectMode)return '';
-  return `<div class="shift-bulk-bar selecting">
-    <div class="shift-bulk-guide">날짜를 여러 개 선택한 뒤 D · E · N · OFF 또는 미입력을 눌러 한 번에 적용해요.</div>
+  return `<div class="shift-bulk-bar selecting compact-bulk-bar">
     <div class="shift-bulk-actions">
-      <span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
+      <span class="shift-bulk-count">선택 ${shiftSelectedDates.length}개</span>
       <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
       <button class="shift-bulk-chip s-e" onclick="applyBulkShift('E')">E</button>
       <button class="shift-bulk-chip s-n" onclick="applyBulkShift('N')">N</button>
       <button class="shift-bulk-chip s-off" onclick="applyBulkShift('OFF')">OFF</button>
       <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
-      <button class="shift-bulk-chip clear" onclick="clearShiftSelected()">선택 해제</button>
+      <button class="shift-bulk-chip clear" onclick="toggleShiftSelectMode()">취소</button>
     </div>
   </div>`;
 }
@@ -10018,7 +10334,7 @@ function copyShareLink(){
 function openAddModal(dateVal){
   _mType='family';
   _mWho=getPersons()[0]||'공통';
-  const today=todayKey();
+  const startDate=dateVal||todayKey();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -10041,7 +10357,7 @@ function openAddModal(dateVal){
       <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
       <div class="ml">날짜</div>
       <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${today}" value="${dateLabel(today)}" onclick="openDatePicker('m-sd')"/></div>
+        <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
         <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
       </div>
       <div class="ml">시간</div>
