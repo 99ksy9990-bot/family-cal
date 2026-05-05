@@ -4939,6 +4939,27 @@ select{
   .basic-info-card{padding:12px 14px !important;}
 }
 
+
+/* v1.0.59 memory sort and birth-inline */
+.mem-card .memory-title-line{
+  justify-content:flex-start !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:8px !important;
+}
+.mem-card .memory-birth-inline{
+  flex:0 0 auto;
+  font-style:normal !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  line-height:1.2 !important;
+  color:var(--t3) !important;
+  background:var(--bg) !important;
+  padding:4px 10px !important;
+  border-radius:999px !important;
+  white-space:nowrap !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4996,14 +5017,12 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.58';
+const APP_VERSION='v1.0.59';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '루틴 기본정보 카드 축소 및 대상자 하단 배치',
-  '루틴/오늘 숨김 버튼 디자인 통일',
-  '루틴 탭 숫자 배지 스타일 개선',
-  '접힘 안내 클릭 시 펼치기 추가',
-  '달력 세부일정 대상자 하단 배치'
+  '기념일 카드 디데이 가까운 순 자동 정렬',
+  '기념일 생년월일 제목 옆 배치 및 폰트 축소',
+  '기념일 카드 레이아웃 미세 조정'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -7661,6 +7680,22 @@ function delMemory(id){
   const idx=memories.findIndex(x=>String(x.id)===String(id));
   softDelete('memory',memories,idx,'기념을');
 }
+function memoryUpcomingDiff(x){
+  if(!x||!x.birth)return Number.POSITIVE_INFINITY;
+  const nb=nextBirthInfo(x.birth,memoryCalendarType(x)==='lunar');
+  if(!nb.date)return Number.POSITIVE_INFINITY;
+  const diff=Math.ceil((new Date(nb.date+'T00:00:00')-new Date(todayKey()+'T00:00:00'))/86400000);
+  return diff<0?Number.POSITIVE_INFINITY:diff;
+}
+function sortedMemoriesForDisplay(){
+  return [...memories].sort((a,b)=>{
+    const da=memoryUpcomingDiff(a), db=memoryUpcomingDiff(b);
+    if(da!==db)return da-db;
+    const na=String(a?.name||'');
+    const nb=String(b?.name||'');
+    return na.localeCompare(nb,'ko');
+  });
+}
 function makeMemoryCard(x){
   const calType=memoryCalendarType(x);
   const isLunar=calType==='lunar';
@@ -7699,9 +7734,10 @@ function makeMemoryCard(x){
   </div>`;
 }
 function renderM(){
+  const memList=sortedMemoriesForDisplay();
   return`
-    <div class="sec">기념일 <span class="sec-cnt">${memories.length}</span><span class="collapsed-hint">꾹 눌러 순서 이동</span><button style="margin-left:auto" class="toss-btn primary" onclick="openMemoryModal()">+ 추가</button></div>
-    <div class="card-wrap">${memories.length?memories.map(makeMemoryCard).join(''):renderEmptyState('generic','기념일이 없어요','생일, 결혼기념일, 여행 기념일을 예쁘게 기록해 보세요.')}</div>
+    <div class="sec">기념일 <span class="sec-cnt">${memories.length}</span><span class="collapsed-hint">디데이 가까운 순 정렬</span><button style="margin-left:auto" class="toss-btn primary" onclick="openMemoryModal()">+ 추가</button></div>
+    <div class="card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','기념일이 없어요','생일, 결혼기념일, 여행 기념일을 예쁘게 기록해 보세요.')}</div>
   `;
 }
 function openMemoryModal(id){
