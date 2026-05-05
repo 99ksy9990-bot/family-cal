@@ -4421,32 +4421,20 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   bottom:0;
   width:86px;
   z-index:1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  font-weight:950;
-  color:#fff;
-  opacity:0;
-  transition:opacity .14s ease;
+  display:none !important;
+  color:transparent !important;
+  opacity:0 !important;
+  background:transparent !important;
+  transition:none !important;
 }
-.swipe-bg-right{
-  left:0;
-  background:var(--green);
-  border-radius:inherit;
-  justify-content:flex-start;
-  padding-left:18px;
-}
+.swipe-bg-right,
 .swipe-bg-left{
-  right:0;
-  background:var(--blue);
+  background:transparent !important;
   border-radius:inherit;
-  justify-content:flex-end;
-  padding-right:18px;
 }
 .swipe-card.swipe-complete .swipe-bg-right,
 .swipe-card.swipe-actions .swipe-bg-left{
-  opacity:1;
+  opacity:0 !important;
 }
 .toss-btn.danger{
   background:#111 !important;
@@ -4471,112 +4459,12 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* v1.0.48 memory swipe actions */
-.mem-card .memory-title-line{
-  justify-content:flex-start !important;
-  align-items:center !important;
-  gap:8px !important;
-  flex-wrap:wrap !important;
-}
-.mem-card .memory-title-line > span,
-.memory-title-text{
-  flex:0 0 auto !important;
-  min-width:0 !important;
-  max-width:58% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  white-space:nowrap !important;
-}
-.mem-card .memory-birth-inline{
-  flex:0 0 auto !important;
-  margin-left:0 !important;
-  white-space:nowrap !important;
-}
-.memory-actions{
-  display:none !important;
-}
-.memory-swipe-card{
-  touch-action:pan-y;
-}
-.memory-swipe-card .swipe-bg-left{
-  background:#111 !important;
-}
-.memory-swipe-action-grid{
-  grid-template-columns:1fr 1fr !important;
-}
-
-
-/* v1.0.49 calendar selected-day grouping */
-.oneoff-overline,
-.routine-group-overline{
-  margin-top:0 !important;
-  margin-bottom:5px !important;
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-.schedule-kind{color:var(--blue-t);font-weight:950}
-.routine-kind{color:var(--purple-t);font-weight:950}
-.schedule-person,
-.routine-person{font-weight:950;color:var(--t1)}
-.oneoff-main,
-.routine-group-main{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  min-width:0;
-}
-.oneoff-title,
-.routine-group-title{
-  flex:1 1 auto;
-  min-width:0;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.oneoff-time,
-.routine-group-time{
-  flex:0 0 auto;
-  font-size:12.5px !important;
-  font-weight:850 !important;
-  color:var(--t2) !important;
-}
-.routine-selected-group{
-  border-bottom:none !important;
-  padding-top:10px !important;
-  padding-bottom:10px !important;
-}
-.routine-group-avatar{
-  margin-top:2px;
-}
-.routine-group-box{
-  display:flex;
-  flex-direction:column;
-  background:var(--bg);
-  border-radius:12px;
-  padding:6px 12px;
-}
-.routine-group-row{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:6px 0;
-}
-.routine-row-divider{
-  height:1px;
-  background:var(--border);
-  opacity:.75;
-  margin:1px 0;
-}
-.routine-group-alert{
-  font-size:11px !important;
-  margin-top:3px !important;
-}
-.memory-selected-event{
-  padding-top:8px !important;
-  padding-bottom:8px !important;
-}
+/* v1.0.50 clean swipe/menu polish */
+.basic-info-card.swipe-card,.mem-card.swipe-card{overflow:hidden;touch-action:pan-y;}
+.basic-info-card.swipe-card .fi-hd,.basic-info-card.swipe-card .fi-row,.mem-card.swipe-card .c-row{position:relative;z-index:2;}
+.mem-card .memory-title-line{font-size:15px !important;font-weight:900 !important;line-height:1.35 !important;}
+.memory-actions{display:none !important;}
+.memory-swipe-action-grid{grid-template-columns:1fr 1fr !important;}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
@@ -4635,13 +4523,14 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.49';
+const APP_VERSION='v1.0.50';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '달력 선택일 상세 그룹핑 개선',
-  '기념일/등록 일정/루틴 표시 순서 정리',
-  '루틴을 대상자별 시간순 묶음으로 표시',
-  '일반 일정 상세 포맷 간소화'
+  '스와이프 시 색상/문구 노출 제거',
+  '기본 정보 수정/삭제 버튼 제거 및 스와이프 메뉴 적용',
+  '기념 카드 수정/삭제 버튼 제거 및 스와이프 메뉴 적용',
+  '기념 탭 양력/음력 칩 삭제',
+  '기념 제목 폰트 크기 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4834,70 +4723,6 @@ function selectKidAvatar(icon){
   document.querySelectorAll('.avatar-choice').forEach(b=>{
     b.classList.toggle('on',b.dataset.avatar===icon);
   });
-}
-function renderSelectedDayList(mems, evs, selDate, sp){
-  if(!mems.length && !evs.length){
-    return renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.');
-  }
-
-  let html='';
-
-  // 1. 기념일: 최상단
-  if(mems.length){
-    html += [...mems].sort(calendarMemorySort).map(x=>calendarMemoryItem(x,sp)).join('');
-  }
-
-  // 2. 단발성 등록 일정: 기념일 아래
-  const oneOffs=evs.filter(n=>!(n.repeat||n._autoFamilyInfo));
-  if(oneOffs.length){
-    html += [...oneOffs].sort(calendarDetailSort).map(n=>calendarEventItem(n,selDate)).join('');
-  }
-
-  // 3. 루틴: 대상자별 묶음으로 하단 표시
-  const routines=evs.filter(n=>(n.repeat||n._autoFamilyInfo));
-  if(routines.length){
-    const groups={};
-    routines.forEach(r=>{
-      const who=r.who||'공통';
-      if(!groups[who])groups[who]=[];
-      groups[who].push(r);
-    });
-
-    const persons=getPersons();
-    const groupKeys=Object.keys(groups).sort((a,b)=>{
-      const ia=persons.indexOf(a), ib=persons.indexOf(b);
-      return (ia<0?999:ia)-(ib<0?999:ib);
-    });
-
-    groupKeys.forEach(who=>{
-      const personRoutines=groups[who].sort(calendarDetailSort);
-      const avatarHtml=avatarMarkup(personAvatar(who),who);
-      const overline=`<span class="ev-meta-kind routine-kind">루틴</span><span class="ev-meta-sep">·</span><span class="ev-meta-person routine-person">${escapeHtml(who)}</span>`;
-
-      const itemsHtml=personRoutines.map(n=>{
-        const tm=calendarTimeOnly(n);
-        const title=highlightText(n.title||'일정');
-        const clickAttr=`onclick="openRoutineInstanceDetail(${onclickArg(n.title||'루틴')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(selDate)},${onclickArg(n._autoFamilyInfo?'auto':'note')},${onclickArg(n._autoFamilyInfo?n._originalRoutineId:n.id)})" style="cursor:pointer"`;
-        return `<div class="routine-group-row" ${clickAttr}>
-          <div class="routine-group-main">
-            <div class="ev-title routine-group-title">${title}</div>
-            ${tm&&tm!=='시간 미정'?`<div class="ev-meta-time routine-group-time">${escapeHtml(tm)}</div>`:''}
-          </div>
-          ${n.alertMemo?`<div class="ev-alert routine-group-alert">${escapeHtml(n.alertMemo)}</div>`:''}
-        </div>`;
-      }).join('<div class="routine-row-divider"></div>');
-
-      html += `<div class="ev-item cal-selected-event routine-selected-group">
-        <div class="ev-avatar routine-group-avatar">${avatarHtml}</div>
-        <div class="ev-info">
-          <div class="ev-sub routine-group-overline">${overline}</div>
-          <div class="routine-group-box">${itemsHtml}</div>
-        </div>
-      </div>`;
-    });
-  }
-
-  return html;
 }
 function renderCalendarAvatars(people){
   const arr=(people||[]).filter(Boolean);
@@ -5936,17 +5761,14 @@ function endItemSwipe(e){
   if(itemSwipe.active&&(actionRight||actionLeft))swipeTapUntil=Date.now()+500;
   itemSwipe=null;
   if(actionRight){
-    if(kind==='request'){
-      toggleReq(id);
-      showToast('완료 상태를 변경했어요.');
-    }else if(kind==='note'){
-      toggleNote(id);
-      showToast('일정 완료 상태를 변경했어요.');
-    }
+    if(kind==='request')toggleReq(id);
+    if(kind==='note')toggleNote(id);
+    if(kind==='request'||kind==='note')showToast(kind==='request'?'완료 상태를 변경했어요.':'일정 완료 상태를 변경했어요.');
   }else if(actionLeft){
     if(kind==='request')openSwipeReqActions(id);
     if(kind==='note')openSwipeNoteActions(id);
     if(kind==='memory')openSwipeMemoryActions(id);
+    if(kind==='family')openSwipeFamilyActions(id);
   }
 }
 function openSwipeNoteActions(id){
@@ -5981,6 +5803,7 @@ function openSwipeReqActions(id){
     </div>
   </div>`;
 }
+
 function openSwipeMemoryActions(id){
   const x=memories.find(v=>String(v.id)===String(id));if(!x)return;
   document.getElementById('modal').innerHTML=`
@@ -5996,6 +5819,24 @@ function openSwipeMemoryActions(id){
     </div>
   </div>`;
 }
+function openSwipeFamilyActions(id){
+  const idx=family.findIndex(x=>String(x.id)===String(id));
+  const k=family[idx];
+  if(!k)return;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(k.name||'대상')}</div>
+      <div class="action-grid memory-swipe-action-grid">
+        <button class="toss-btn primary" onclick="editKid(${idx})">수정</button>
+        <button class="toss-btn danger" onclick="delKid(${idx});closeM()">삭제</button>
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+
 let panelSwipe=null;
 function startPanelSwipe(e){
   const p=swipePoint(e);
@@ -6672,19 +6513,22 @@ function skipCalendarRoutineInstance(kind,id,dateKey){
 function calendarEventItem(n,selDate){
   const whoRaw=n.who||'공통';
   const who=escapeHtml(whoRaw);
-  const tm=calendarTimeOnly(n);
+  const tm=calendarDateTime(n,selDate);
   const title=highlightText(n.title||'일정');
-  const overline=`<span class="ev-meta-kind schedule-kind">일정</span><span class="ev-meta-sep">·</span><span class="ev-meta-person schedule-person">${who}</span>`;
-  const clickAttr=`onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
+  const isRoutine=!!(n.repeat||n._autoFamilyInfo);
+  const meta=isRoutine
+    ? `<span class="ev-meta-kind">루틴</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(tm)}</span>`
+    : `<span class="ev-meta-person">${who}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(tm)}</span>`;
 
-  return `<div class="ev-item cal-selected-event oneoff-selected-event" ${clickAttr}>
+  const clickAttr=isRoutine
+    ? `onclick="openRoutineInstanceDetail(${onclickArg(n.title||'루틴')},${onclickArg(whoRaw)},${onclickArg(tm)},${onclickArg(selDate)},${onclickArg(n._autoFamilyInfo?'auto':'note')},${onclickArg(n._autoFamilyInfo?n._originalRoutineId:n.id)})" style="cursor:pointer"`
+    : `onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
+
+  return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${clickAttr}>
     <div class="ev-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
     <div class="ev-info">
-      <div class="ev-sub oneoff-overline">${overline}</div>
-      <div class="oneoff-main">
-        <div class="ev-title oneoff-title">${title}</div>
-        ${tm&&tm!=='시간 미정'?`<div class="ev-meta-time oneoff-time">${escapeHtml(tm)}</div>`:''}
-      </div>
+      <div class="ev-title">${title}</div>
+      <div class="ev-sub">${meta}</div>
       ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
     </div>
   </div>`;
@@ -6748,7 +6592,11 @@ function renderC(){
         <button class="shift-btn${!cur?' on':''}" style="background:var(--card);color:var(--t3)" onclick="setShift('${selDate}','')">미입력</button>
         ${SHIFTS.map(s=>`<button class="shift-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShift('${selDate}','${s}')">${s}</button>`).join('')}
       </div>
-      ${renderSelectedDayList(mems,evs,selDate,sp)}
+      ${evs.length||mems.length?[
+        ...[...mems].sort(calendarMemorySort).map(x=>calendarMemoryItem(x,sp)),
+        ...[...evs].filter(n=>!(n.repeat||n._autoFamilyInfo)).sort(calendarDetailSort).map(n=>calendarEventItem(n,selDate)),
+        ...[...evs].filter(n=>(n.repeat||n._autoFamilyInfo)).sort(calendarDetailSort).map(n=>calendarEventItem(n,selDate))
+      ].join(''):renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')}
       <button class="primary-btn" style="margin-top:12px" onclick="openAddModal('${selDate}')">이 날짜에 일정 추가</button>
       <div class="longpress-hint">팁: 날짜를 길게 누르면 바로 일정 추가</div>
     </div>`;
@@ -6924,23 +6772,20 @@ function renderI(){
   if(basicInfoOpen){
     family.forEach((kid,ki)=>{
       const memo=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
-      h+=`<div class="fi-card basic-info-card reorder-card"
+      h+=`<div class="fi-card basic-info-card reorder-card swipe-card"
         draggable="true"
         data-reorder-list="family" data-reorder-id="${kid.id}"
         ondragstart="dragStart(event,'family','${kid.id}')"
         ondragover="dragOver(event)"
         ondrop="dropItem(event,'family','${kid.id}')"
         ondragend="dragEnd(event)"
-        ontouchstart="touchReorderStart(event,'family','${kid.id}')"
-        ontouchmove="touchReorderMove(event)"
-        ontouchend="touchReorderEnd(event)"
-        ontouchcancel="touchReorderCancel()">
+        ontouchstart="startItemSwipe(event,'family','${kid.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
+        onmousedown="startItemSwipe(event,'family','${kid.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
+        <div class="swipe-bg swipe-bg-left"></div>
         <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</span>${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
             <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
             <button class="today-toggle-pill${kid.showRoutine?' on':''}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
-            <button class="fi-btn fi-btn-e" onclick="event.stopPropagation();editKid(${ki})">수정</button>
-            <button class="fi-btn fi-btn-d" onclick="event.stopPropagation();delKid(${ki})">삭제</button>
           </div>
         </div>
         <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
@@ -7199,25 +7044,24 @@ function makeMemoryCard(x){
     const dow=DAYS[new Date(ny,nm-1,nd).getDay()];
     upcomingLabel=`${nm}/${nd}(${dow})`;
   }
-  return`<div class="card mem-card swipe-card memory-swipe-card reorder-card"
+  return`<div class="card mem-card reorder-card swipe-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
-    ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
-    onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
     ondragstart="dragStart(event,'memories','${x.id}')"
     ondragover="dragOver(event)"
     ondrop="dropItem(event,'memories','${x.id}')"
-    ondragend="dragEnd(event)">
-    <div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
+    ondragend="dragEnd(event)"
+    ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
+    onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
+    <div class="swipe-bg swipe-bg-left"></div>
     <div class="c-row memory-row">
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
         <div class="c-title memory-title-line">
-          <span class="memory-title-text">${escapeHtml(x.name)}</span>
+          <span>${escapeHtml(x.name)}</span>
           ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)} ${isLunar?'(음)':'(양)'}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
-          ${x.birth?`<span class="chip ${isLunar?'lunar-chip':'solar-chip'}">${isLunar?'음력':'양력'}</span>`:''}
           ${x.birth?`<span class="chip mem-age">${escapeHtml(ageLabel)}</span>`:''}
           ${x.birth?`<span class="chip mem-dday">${escapeHtml(upcomingLabel)} ┃ ${escapeHtml(nb.dday)}</span>`:''}
         </div>
