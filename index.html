@@ -5520,6 +5520,56 @@ select{
   }
 }
 
+
+/* v1.0.67 shift text color unify */
+.s-d,
+.s-e,
+.s-n,
+.cal-cell .shift-one.s-d,
+.cal-cell .shift-one.s-e,
+.cal-cell .shift-one.s-n,
+.shift-mini-card .shift-one.s-d,
+.shift-mini-card .shift-one.s-e,
+.shift-mini-card .shift-one.s-n,
+.leg-chip.s-d,
+.leg-chip.s-e,
+.leg-chip.s-n,
+.shift-bulk-chip.s-d,
+.shift-bulk-chip.s-e,
+.shift-bulk-chip.s-n,
+.shift-btn.s-d,
+.shift-btn.s-e,
+.shift-btn.s-n{
+  color:#fff !important;
+}
+.s-d,
+.cal-cell .shift-one.s-d,
+.shift-mini-card .shift-one.s-d,
+.leg-chip.s-d,
+.shift-bulk-chip.s-d,
+.shift-btn.s-d{
+  background:#007AFF !important;
+  border-color:#007AFF !important;
+}
+.s-e,
+.cal-cell .shift-one.s-e,
+.shift-mini-card .shift-one.s-e,
+.leg-chip.s-e,
+.shift-bulk-chip.s-e,
+.shift-btn.s-e{
+  background:#5AC8FA !important;
+  border-color:#5AC8FA !important;
+}
+.s-n,
+.cal-cell .shift-one.s-n,
+.shift-mini-card .shift-one.s-n,
+.leg-chip.s-n,
+.shift-bulk-chip.s-n,
+.shift-btn.s-n{
+  background:#1C3A5E !important;
+  border-color:#1C3A5E !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5577,16 +5627,13 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.66';
-const PASS_BUILD_VERSION='v1.0.66-layout-polish';
+const APP_VERSION='v1.0.67';
+const PASS_BUILD_VERSION='v1.0.67-shift-white-minimal';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '오늘 일정 카드 높이 자동 축소',
-  '루틴 그룹 박스 컴팩트 정리',
-  '미리 보는 다음 일정 슬림화',
-  'FAB 겹침 방지',
-  '데스크톱 폭 520px 보정',
-  '오늘 일정/루틴 카운트 강조'
+  '달력 근무 D/E/N 글자색 흰색 통일',
+  '근무 뱃지 블루 계열 유지',
+  '업로드 파일 최소화 패키지'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
