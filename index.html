@@ -4390,6 +4390,134 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   }
 }
 
+
+/* v1.0.45 calendar view modes / compact dots / target colors */
+.cal-view-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr)) auto;
+  gap:6px;
+  align-items:center;
+  padding:0 0 2px;
+}
+.cal-view-chip{
+  height:32px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+}
+.cal-view-chip.on{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(0,122,255,.18);
+}
+.cal-view-tabs .cal-bulk-btn{
+  height:32px !important;
+  padding:0 9px !important;
+  font-size:11px !important;
+}
+.compact-month-grid{
+  gap:3px !important;
+}
+.compact-cal-cell{
+  min-height:44px !important;
+  padding:2px 1px !important;
+  border-radius:10px !important;
+}
+.compact-cal-cell .cal-date-line{
+  min-height:15px !important;
+  margin-bottom:1px !important;
+}
+.compact-cal-cell .cal-num{
+  font-size:11px !important;
+  margin-bottom:1px !important;
+}
+.compact-cal-cell .cal-num.today-n{
+  width:19px !important;
+  height:19px !important;
+  font-size:10px !important;
+}
+.cal-shift-line{
+  height:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.compact-cal-cell .shift-one{
+  height:16px !important;
+  min-width:22px !important;
+  font-size:8.5px !important;
+  border-radius:6px !important;
+}
+.compact-cal-cell .shift-one-big{
+  height:22px !important;
+  min-width:34px !important;
+  font-size:11px !important;
+  border-radius:9px !important;
+}
+.compact-cal-cell .cal-dots{
+  min-height:8px !important;
+  margin-top:1px !important;
+  gap:2px !important;
+  flex-wrap:nowrap !important;
+}
+.cal-dot-person{
+  display:inline-block;
+  width:5.5px;
+  height:5.5px;
+  border-radius:50%;
+  box-shadow:0 0 0 1px rgba(255,255,255,.75);
+}
+.cal-dot-more{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:9px;
+  min-width:10px;
+  padding:0 2px;
+  border-radius:99px;
+  background:var(--bg);
+  color:var(--t2);
+  font-size:7px;
+  font-weight:950;
+  line-height:1;
+}
+.color-choice-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:8px 0 2px;
+}
+.color-choice{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:3px solid transparent;
+  box-shadow:0 2px 7px rgba(0,0,0,.10);
+  font-family:inherit;
+}
+.color-choice.on{
+  border-color:#fff;
+  outline:3px solid var(--blue);
+}
+.color-leg .leg-dot{
+  width:9px !important;
+  height:9px !important;
+}
+@media (max-width:430px){
+  .cal-view-tabs{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+  .cal-view-tabs .cal-bulk-btn{
+    grid-column:1/-1;
+    justify-self:end;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4447,14 +4575,14 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.44';
+const APP_VERSION='v1.0.45';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '일정 겹침 경고 추가',
-  '최근 변경사항 기록 추가',
-  '부탁 마감일/브리핑 연동',
-  '달력 루틴 표시 토글 추가',
-  '달력 루틴 상세 패널 유지'
+  '달력 뷰 모드 분리',
+  '달력 셀 아바타를 색상 점으로 단순화',
+  '달력 셀 높이 축소',
+  '대상자별 색상 선택 추가',
+  '루틴/일정/근무 레이어 보기 전환'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4565,7 +4693,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0,calViewMode='all';
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -4656,6 +4784,70 @@ function renderCalendarAvatars(people){
     (more>0?`<span class="cal-avatar-more">+${more}</span>`:'');
 }
 
+
+const PERSON_COLOR_PALETTE=['#8E8E93','#007AFF','#FF2D55','#34C759','#FF9500','#5856D6','#00C7BE','#AF52DE','#FF6B00','#111827'];
+function defaultPersonColor(who){
+  const w=who||'공통';
+  if(w==='공통')return '#8E8E93';
+  if(w==='아빠')return '#007AFF';
+  if(w==='엄마')return '#FF2D55';
+  if(w==='초이')return '#34C759';
+  if(w==='도미')return '#FF9500';
+  const arr=getPersons();
+  const idx=Math.max(0,arr.indexOf(w));
+  return PERSON_COLOR_PALETTE[idx%PERSON_COLOR_PALETTE.length];
+}
+function selectKidColor(color){
+  const el=document.getElementById('k-color');
+  if(el)el.value=color;
+  document.querySelectorAll('.color-choice').forEach(b=>{
+    b.classList.toggle('on',b.dataset.color===color);
+  });
+}
+function setCalViewMode(v){
+  calViewMode=v||'all';
+  render({preserveScroll:true});
+}
+function calViewLabel(v){
+  return v==='shift'?'근무':v==='schedule'?'일정':v==='routine'?'루틴':'전체';
+}
+function isRoutineCalendarEvent(n){
+  return !!(n&&(n.repeat||n._autoFamilyInfo));
+}
+function visibleEventsForCalendarDots(evs,mems){
+  const out=[];
+  if(calViewMode==='shift')return out;
+  if(calViewMode==='schedule'){
+    (evs||[]).filter(n=>!isRoutineCalendarEvent(n)).forEach(n=>out.push({kind:'person',who:n.who||'공통'}));
+    return out;
+  }
+  if(calViewMode==='routine'){
+    (evs||[]).filter(n=>isRoutineCalendarEvent(n)).forEach(n=>out.push({kind:'person',who:n.who||'공통'}));
+    return out;
+  }
+  (evs||[]).forEach(n=>out.push({kind:'person',who:n.who||'공통'}));
+  (mems||[]).forEach(x=>out.push({kind:'memory',who:'기념'}));
+  return out;
+}
+function renderCalendarDots(evs,mems){
+  const raw=visibleEventsForCalendarDots(evs,mems);
+  const seen=[];
+  raw.forEach(x=>{
+    const key=x.kind==='memory'?'memory':`person:${x.who||'공통'}`;
+    if(!seen.some(v=>v.key===key))seen.push({...x,key});
+  });
+  const shown=seen.slice(0,3);
+  const more=seen.length-shown.length;
+  return shown.map(x=>{
+    const color=x.kind==='memory'?'#FF9500':personColor(x.who||'공통');
+    const title=x.kind==='memory'?'기념':(x.who||'공통');
+    return `<span class="cal-dot-person" title="${escapeAttr(title)}" style="background:${color}"></span>`;
+  }).join('')+(more>0?`<span class="cal-dot-more">+${more}</span>`:'');
+}
+function shouldShowShiftBadgeInCalendar(){
+  return calViewMode==='all'||calViewMode==='shift';
+}
+
 function isHiddenBasePerson(name){
   return Array.isArray(hiddenBasePersons) && hiddenBasePersons.includes((name||'').trim());
 }
@@ -4677,7 +4869,7 @@ function ensureBaseTargets(){
     if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
-      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def,vacations:[]});
+      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,color:defaultPersonColor(name),grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def,vacations:[]});
     }
   });
   family.forEach(k=>{
@@ -4685,6 +4877,7 @@ function ensureBaseTargets(){
     const def=['아빠','엄마','초이','도미'].includes(nm);
     if(shouldAutoReplaceAvatar(k))k.avatar=defaultAvatarForName(nm);
     if(!('avatarCustom' in k))k.avatarCustom=false;
+    if(!k.color)k.color=defaultPersonColor(nm);
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
 
@@ -4707,15 +4900,9 @@ function getPersons(){
 }
 function personColor(who){
   const w=who||'공통';
-  if(w==='공통')return '#8E8E93';
-  if(w==='아빠')return '#007AFF';
-  if(w==='엄마')return '#FF2D55';
-  if(w==='초이')return '#34C759';
-  if(w==='도미')return '#FF9500';
-  const arr=getPersons();
-  const idx=Math.max(0,arr.indexOf(w));
-  const extra=['#5856D6','#00C7BE','#AF52DE','#FF6B00','#111827'];
-  return extra[idx%extra.length];
+  const p=(family||[]).find(x=>(x.name||'').trim()===w);
+  if(p&&p.color)return p.color;
+  return defaultPersonColor(w);
 }
 function personCls(who){
   const arr=getPersons();
@@ -4907,8 +5094,6 @@ function uniquePersonsForDay(evs,mems){
     p=p||'공통';
     if(!people.includes(p))people.push(p);
   };
-  // 달력 점 색상은 사람만 의미합니다.
-  // 기념/생일은 별도 🎂 아이콘으로 표시하므로 대상자 점과 중복하지 않습니다.
   (evs||[]).forEach(n=>add(n.who||'공통'));
   return people;
 }
@@ -5436,9 +5621,9 @@ function dueRequestsForDate(key){
   return (requests||[]).filter(r=>!isDone(r)&&r.dueDate===key);
 }
 function toggleCalendarRoutineLayer(){
-  showRoutineInCalendar=!showRoutineInCalendar;
+  calViewMode=calViewMode==='routine'?'all':'routine';
   render({preserveScroll:true});
-  showToast(showRoutineInCalendar?'달력에 루틴을 표시해요.':'달력에서 루틴을 숨겼어요.');
+  showToast(calViewMode==='routine'?'루틴 보기로 전환했어요.':'전체 보기로 전환했어요.');
 }
 function isRoutineCalendarEvent(n){
   return !!(n&&(n.repeat||n._autoFamilyInfo));
@@ -6316,6 +6501,7 @@ function renderC(){
   let g='';
   DAYS.forEach((d,idx)=>{g+=`<div class="cal-dname${idx===0?' sun-dname':idx===6?' sat-dname':''}">${d}</div>`});
   for(let i=0;i<firstDay;i++)g+=`<div></div>`;
+
   for(let d=1;d<=dInM;d++){
     const key=dk(y,m,d);
     const dayOfWeek=new Date(y,m,d).getDay();
@@ -6326,16 +6512,17 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const evsForDots=showRoutineInCalendar?evs:evs.filter(n=>!isRoutineCalendarEvent(n));
-    const personDots=renderCalendarAvatars(uniquePersonsForDay(evsForDots,mems));
-    const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
+    const dots=renderCalendarDots(evs,mems);
     const hasCalSearch=!!String(searchQ||'').trim();
     const q=normText(searchQ);
     const searchHit=!hasCalSearch || evs.some(n=>matchSearchNote(n)) || mems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
     const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
+    const shiftHtml=shouldShowShiftBadgeInCalendar()
+      ? (cur?`<span class="shift-one ${SCLS[cur]} ${calViewMode==='shift'?'shift-one-big':''}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>')
+      : '<span style="display:inline-block;height:2px"></span>';
 
-    g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
+    g+=`<div class="cal-cell compact-cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}${calViewMode==='shift'?' shift-view-cell':''}"
       onclick="${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
       onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
@@ -6343,9 +6530,9 @@ function renderC(){
       ontouchstart="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
-      <div class="cal-date-line">${birthTop}<div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
-      <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>'}</div>
-      <div class="cal-dots">${personDots}</div>
+      <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
+      <div class="cal-shift-line">${shiftHtml}</div>
+      <div class="cal-dots">${dots}</div>
     </div>`;
   }
 
@@ -6359,7 +6546,6 @@ function renderC(){
     evHtml=`<div class="ev-card" id="selected-day-panel">
       <div class="ev-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
-        
       </div>
       <div class="shift-picker">
         <span class="shift-picker-title">근무 편집</span>
@@ -6376,15 +6562,14 @@ function renderC(){
     </div>`;
   }
 
-  const legend=getPersons().map(p=>`<div class="leg avatar-leg"><span class="target-avatar">${avatarMarkup(personAvatar(p),p)}</span>${escapeHtml(p)}</div>`).join('');
+  const legend=getPersons().map(p=>`<div class="leg color-leg"><span class="leg-dot" style="background:${personColor(p)}"></span>${escapeHtml(p)}</div>`).join('');
 
   return`<div class="cal-outer">
-    <div class="cal-top-select-row calendar-control-line">
-      <button class="sec-chip-btn on cal-target-btn" onclick="openCalendarTargetSheet()">${targetLabel(calWhoF)}</button>
-      ${renderCalendarShiftCounts()}
-      <button class="sec-chip-btn${showRoutineInCalendar?' on':''} cal-routine-btn" onclick="toggleCalendarRoutineLayer()">${showRoutineInCalendar?'🔄 루틴 표시':'🔄 루틴 숨김'}</button>
+    <div class="cal-view-tabs">
+      ${[['all','전체'],['shift','근무'],['schedule','일정'],['routine','루틴']].map(v=>`<button class="cal-view-chip${calViewMode===v[0]?' on':''}" onclick="setCalViewMode('${v[0]}')">${v[1]}</button>`).join('')}
       <button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
     </div>
+    ${renderCalendarShiftCounts()}
     ${renderShiftBulkBar()}
     <div class="cal-card">
       <div class="cal-nav">
@@ -6392,10 +6577,8 @@ function renderC(){
         <div class="cal-nav-title">${y}년 ${m+1}월</div>
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
-      <div class="cal-grid">${g}</div>
-      <div class="cal-legend target-legend">
-        ${legend}
-      </div>
+      <div class="cal-grid compact-month-grid">${g}</div>
+      <div class="cal-legend target-legend">${legend}<div class="leg"><span class="leg-dot" style="background:#FF9500"></span>기념</div></div>
     </div>
     ${evHtml}
   </div>`;
@@ -7189,7 +7372,7 @@ function cancelLongAdd(){
   setTimeout(()=>{longAddOpened=false;},80);
 }
 function notesForCalendarDay(y,m,d){
-  return notesOnDateAll(y,m,d).filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+  return notesOnDateAll(y,m,d);
 }
 function openRepeatExceptions(id){
   const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
@@ -8373,6 +8556,7 @@ function editKid(i){
   if(!k)return;
   if(!Array.isArray(k.vacations))k.vacations=[];
   const curAvatar=AVATAR_IMAGE_IDS.has(k.avatar||'')?k.avatar:defaultAvatarForName(k.name);
+  const curColor=k.color||defaultPersonColor(k.name);
   const vacHtml=(k.vacations||[]).map((v,vi)=>{
     const idp=`${i}-${vi}`;
     return `<div class="vacation-row">
@@ -8395,6 +8579,13 @@ function editKid(i){
       <div class="modal-ind"></div>
       <div class="modal-hd">기본 정보 수정</div>
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
+
+      <div class="ml">달력 점 색상</div>
+      <input type="hidden" id="k-color" value="${escapeAttr(curColor)}"/>
+      <div class="color-choice-row">
+        ${PERSON_COLOR_PALETTE.map(c=>`<button type="button" class="color-choice${c===curColor?' on':''}" data-color="${c}" onclick="selectKidColor('${c}')" style="background:${c}"></button>`).join('')}
+      </div>
+
       <div class="ml">달력 아이콘</div>
       <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
       <input type="hidden" id="k-avatar-custom" value="${k.avatarCustom?'1':''}"/>
@@ -8428,7 +8619,7 @@ function editKid(i){
 function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
-  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacations:[]});
+  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,color:defaultPersonColor(name),grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacations:[]});
   saveAll();editKid(family.length-1);
 }
 function saveKid(i){
@@ -8443,6 +8634,7 @@ function saveKid(i){
     name,
     avatar,
     avatarCustom:custom,
+    color:(document.getElementById('k-color')||{}).value||old.color||defaultPersonColor(name),
     grade:document.getElementById('k-g').value,
     year:document.getElementById('k-y').value,
     cls:document.getElementById('k-c').value,
