@@ -4231,9 +4231,132 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   object-fit:contain !important;
 }
 
+
+/* v1.0.42 vacation / briefing / calendar search */
+.vacation-title-row{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:8px !important;
+}
+.vacation-title-row em{
+  font-style:normal;
+  font-size:10px;
+  color:var(--t3);
+  margin-left:4px;
+}
+.vacation-box{
+  background:var(--bg);
+  border-radius:14px;
+  padding:9px 10px;
+  margin-bottom:10px;
+}
+.vacation-row{
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+  padding:5px 0;
+}
+.vacation-date-field{
+  flex:1 1 0;
+  min-width:0;
+}
+.vacation-row .picker-field{
+  height:36px !important;
+  font-size:11px !important;
+  border-radius:10px !important;
+  padding:0 6px !important;
+}
+.vacation-wave{
+  color:var(--t3);
+  font-weight:950;
+  padding-bottom:10px;
+}
+.vacation-del{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  border:none;
+  background:var(--pink-bg);
+  color:var(--pink-t);
+  font-size:13px;
+  font-weight:950;
+  margin-bottom:3px;
+  font-family:inherit;
+}
+.compact-empty{
+  padding:12px 0 !important;
+  font-size:12px !important;
+}
+.brief-copy-btn{
+  height:25px;
+  padding:0 10px;
+  border-radius:999px;
+  border:1.5px solid rgba(0,122,255,.22);
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:11px;
+  font-weight:950;
+  font-family:inherit;
+}
+.today-dashboard-right{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-left:auto;
+}
+.cal-cell.search-dim{
+  opacity:.22;
+  filter:grayscale(.2);
+}
+.cal-cell.search-hit{
+  background:var(--yellow-bg) !important;
+  outline:2px solid var(--yellow) !important;
+  opacity:1 !important;
+}
+.cal-cell.search-hit .cal-num{
+  color:var(--t1);
+  font-weight:950;
+}
+
+
+/* v1.0.43 오늘 루틴 위치 / 상단 날짜 가독성 / 빈 상태 랜덤 문구 */
+.shift-widget-5dates .shift-mini-card{
+  min-height:82px !important;
+  padding:12px 4px !important;
+}
+.shift-widget-5dates .widget-title,
+.shift-widget-5dates .shift-date-label{
+  font-size:13px !important;
+  line-height:1.15 !important;
+  margin-bottom:9px !important;
+  letter-spacing:-.5px !important;
+  font-weight:950 !important;
+}
+.shift-widget-5dates .widget-main{
+  font-size:16px !important;
+}
+.shift-widget-5dates .shift-one{
+  min-width:42px !important;
+  height:31px !important;
+  border-radius:12px !important;
+  font-size:14px !important;
+  padding:0 9px !important;
+}
+.shift-nav-plain{
+  font-size:30px !important;
+}
+.routine-dashboard{
+  margin-top:0 !important;
+}
+.empty-state .empty-sub{
+  min-height:34px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <script>
 (function(){
@@ -4287,15 +4410,13 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.41';
+const APP_VERSION='v1.0.43';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '서비스워커 캐시 안정화',
-  '아바타 WebP 전환 및 안전 캐싱',
-  '일정 수정 시 개인/회사 구분 유지',
-  '날짜 선택 범위 확대',
-  '음력 라이브러리 오프라인 캐시 보강',
-  '달력 선택일 자동 스크롤 보정'
+  '오늘 루틴 위치 조정',
+  '상단 기준 날짜 카드 가독성 확대',
+  '일정 없음 문구 20종 랜덤 표시',
+  '대시보드 빈 상태 문구 랜덤화'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4518,7 +4639,7 @@ function ensureBaseTargets(){
     if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
-      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def,vacationStart:'',vacationEnd:''});
+      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def,vacations:[]});
     }
   });
   family.forEach(k=>{
@@ -4528,8 +4649,13 @@ function ensureBaseTargets(){
     if(!('avatarCustom' in k))k.avatarCustom=false;
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
-    if(!('vacationStart' in k))k.vacationStart='';
-    if(!('vacationEnd' in k))k.vacationEnd='';
+
+    if(!Array.isArray(k.vacations))k.vacations=[];
+    if((k.vacationStart||k.vacationEnd) && !k.vacations.some(v=>v.start===k.vacationStart&&v.end===k.vacationEnd)){
+      k.vacations.push({start:k.vacationStart||'',end:k.vacationEnd||''});
+    }
+    delete k.vacationStart;
+    delete k.vacationEnd;
   });
 }
 function getPersons(){
@@ -4886,12 +5012,7 @@ function familyInfoEventsOnDate(y,m,d){
     if(r.repeatEnd && date>r.repeatEnd)return;
     if(Array.isArray(r.skipDates) && r.skipDates.includes(date))return;
 
-    if(r.pauseOnVacation){
-      const personObj=(family||[]).find(f=>(f.name||'').trim()===(r.who||'공통'));
-      if(personObj && personObj.vacationStart && personObj.vacationEnd){
-        if(date>=personObj.vacationStart && date<=personObj.vacationEnd)return;
-      }
-    }
+    if(r.pauseOnVacation && isPersonVacation(r.who||'공통',date))return;
 
     out.push({
       id:`auto-${r.id}-${date}`,
@@ -5563,6 +5684,7 @@ function openManageCenter(){
         <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
         <button class="toss-btn" onclick="openRestore()">백업 복구</button>
         <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
+      <button class="toss-btn" onclick="saveCalendarImage()">달력 이미지 저장</button>
         <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
         <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
         <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
@@ -5824,7 +5946,7 @@ function refreshEmptyStatePick(){
 }
 function pickScheduleEmpty(title,sub){
   const base=EMPTY_SCHEDULE_VARIANTS[EMPTY_SCHEDULE_PICK]||EMPTY_SCHEDULE_VARIANTS[0];
-  return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
+  return {emoji:base.emoji,title:title||base.title,sub:base.sub};
 }
 
 function renderEmptyState(kind,title,sub=''){
@@ -6050,9 +6172,13 @@ function renderC(){
     const cur=shiftData[key]||'';
     const personDots=renderCalendarAvatars(uniquePersonsForDay(evs,mems));
     const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
+    const hasCalSearch=!!String(searchQ||'').trim();
+    const q=normText(searchQ);
+    const searchHit=!hasCalSearch || evs.some(n=>matchSearchNote(n)) || mems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
+    const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
-    g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}"
+    g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
       onclick="${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
       onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
@@ -6276,7 +6402,7 @@ function renderI(){
           </div>
         </div>
         <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
-        ${(kid.vacationStart||kid.vacationEnd)?`<div class="fi-row"><span class="fi-key">방학</span><span style="font-size:12px;font-weight:900;color:var(--green-t);text-align:right">${kid.vacationStart?dateLabel(kid.vacationStart):'시작일'} ~ ${kid.vacationEnd?dateLabel(kid.vacationEnd):'종료일'}</span></div>`:'' }
+        ${vacationSummary(kid)?`<div class="fi-row"><span class="fi-key">방학</span><span style="font-size:12px;font-weight:900;color:var(--green-t);text-align:right">${escapeHtml(vacationSummary(kid))}</span></div>`:'' }
       </div>`;
     });
   }else{
@@ -6706,8 +6832,8 @@ function clearSearch(){
   render();
 }
 function renderSearchBox(){
-  if(main!=='s' && main!=='r')return '';
-  const ph=main==='s'?'일정 검색':'부탁 검색';
+  if(main!=='s' && main!=='r' && main!=='c')return '';
+  const ph=main==='s'?'일정 검색':main==='r'?'부탁 검색':'달력 검색';
   const cur=searchDraft||searchQ;
   return `<div class="search-wrap">
     <div class="search-line">
@@ -7391,12 +7517,15 @@ function renderTodayListDashboard(title,allEvents){
   });
   const body=rows.length
     ? `<div class="today-list-card">${rows.join('')}</div>`
-    : renderEmptyState('schedule','오늘 일정이 없어요','가족과 여유로운 하루를 보내기 좋은 날이에요.');
+    : renderEmptyState('schedule','오늘 일정이 없어요');
+  const copyBtn=String(title||'').includes('오늘 일정')
+    ? `<button class="brief-copy-btn" onclick="event.stopPropagation();copyTodayBriefing()">복사</button>`
+    : '';
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard">
       <div class="today-dashboard-head inline-count">
         <div class="widget-title">${escapeHtml(title)}</div>
-        <div class="today-dashboard-count hot">${filtered.length}</div>
+        <div class="today-dashboard-right">${copyBtn}<div class="today-dashboard-count hot">${filtered.length}</div></div>
       </div>
       ${body}
     </div>
@@ -7560,6 +7689,48 @@ function familyInfoEventsForKey(k){
   return familyInfoEventsOnDate(y,m-1,d);
 }
 
+function getBriefingEvents(baseKey=scheduleBaseKey()){
+  const normal=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,baseKey));
+  const manual=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
+    .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
+  return sortByStartTime([...normal,...familyInfoEventsForKey(baseKey),...manual]);
+}
+function copyTodayBriefing(){
+  const key=scheduleBaseKey();
+  const [y,m,d]=key.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  const title=`[${m}월 ${d}일 (${DAYS[dt.getDay()]}) 가족 브리핑 🔔]`;
+  const lines=[title];
+  const shift=shiftData[key]||'';
+  if(shift)lines.push(`근무: ${shift}${STXT[shift]?` (${STXT[shift]})`:''}`);
+
+  const evs=getBriefingEvents(key);
+  if(evs.length){
+    evs.forEach(n=>{
+      const who=n.who||'공통';
+      const time=todayTimeOnly(n);
+      lines.push(`${personAvatar(who).startsWith('family_')?'🏠':'•'} ${who}: ${n.title||'일정'}${time?` (${time})`:''}`);
+    });
+  }else{
+    lines.push('오늘 등록된 일정은 없어요.');
+  }
+
+  const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
+    if(!!b.important!==!!a.important)return b.important?1:-1;
+    return (b.createdAt||0)-(a.createdAt||0);
+  })[0];
+  if(notice)lines.push(`📌 공지: ${notice.title||'가족 공지'}`);
+
+  const txt=lines.join('\n');
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>showToast('오늘의 브리핑을 복사했어요.'));
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');showToast('오늘의 브리핑을 복사했어요.')}catch(e){alert(txt)}
+    ta.remove();
+  }
+}
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const baseKey=scheduleBaseKey();
@@ -7568,7 +7739,7 @@ function renderHomeWidgets(){
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  return `${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderUpcomingPreview()}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}`;
+  return `${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}${renderUpcomingPreview()}`;
 }
 
 function renderManualNotice(){
@@ -7962,9 +8133,64 @@ function saveEditNote(id){
   saveNoteOnly(n);closeM();render({preserveScroll:true});
 }
 
+function addKidVacation(ki){
+  if(!requireEditMode())return;
+  if(!family[ki])return;
+  if(!Array.isArray(family[ki].vacations))family[ki].vacations=[];
+  family[ki].vacations.push({start:'',end:''});
+  saveAll();
+  editKid(ki);
+}
+function delKidVacation(ki,vi){
+  if(!requireEditMode())return;
+  if(!family[ki]||!Array.isArray(family[ki].vacations))return;
+  family[ki].vacations.splice(vi,1);
+  saveAll();
+  editKid(ki);
+}
+function updateFamilyVacationPicker(id,val){
+  if(!id||!id.startsWith('kv-'))return;
+  const parts=id.split('-');
+  const kind=parts[1];
+  const ki=+parts[2];
+  const vi=+parts[3];
+  if(family[ki]&&Array.isArray(family[ki].vacations)&&family[ki].vacations[vi]){
+    if(kind==='sd')family[ki].vacations[vi].start=val||'';
+    if(kind==='ed')family[ki].vacations[vi].end=val||'';
+    saveAll();
+  }
+}
+function isPersonVacation(personName,date){
+  const personObj=(family||[]).find(f=>(f.name||'').trim()===(personName||'공통'));
+  if(!personObj)return false;
+  const vacations=Array.isArray(personObj.vacations)?personObj.vacations:[];
+  return vacations.some(v=>v.start&&v.end&&date>=v.start&&date<=v.end);
+}
+function vacationSummary(kid){
+  const list=Array.isArray(kid.vacations)?kid.vacations:[];
+  return list.filter(v=>v.start||v.end).map(v=>`${v.start?dateLabel(v.start):'시작일'} ~ ${v.end?dateLabel(v.end):'종료일'}`).join(' · ');
+}
 function editKid(i){
   const k=family[i];
+  if(!k)return;
+  if(!Array.isArray(k.vacations))k.vacations=[];
   const curAvatar=AVATAR_IMAGE_IDS.has(k.avatar||'')?k.avatar:defaultAvatarForName(k.name);
+  const vacHtml=(k.vacations||[]).map((v,vi)=>{
+    const idp=`${i}-${vi}`;
+    return `<div class="vacation-row">
+      <div class="vacation-date-field">
+        <div class="sublabel">시작일</div>
+        <input class="picker-field${v.start?'':' empty'}" id="kv-sd-${idp}" readonly data-val="${v.start||''}" value="${v.start?dateLabel(v.start):'시작일'}" onclick="openDatePicker('kv-sd-${idp}')"/>
+      </div>
+      <span class="vacation-wave">~</span>
+      <div class="vacation-date-field">
+        <div class="sublabel">개학일</div>
+        <input class="picker-field${v.end?'':' empty'}" id="kv-ed-${idp}" readonly data-val="${v.end||''}" value="${v.end?dateLabel(v.end):'종료일'}" onclick="openDatePicker('kv-ed-${idp}')"/>
+      </div>
+      <button class="vacation-del" onclick="event.stopPropagation();delKidVacation(${i},${vi})">✕</button>
+    </div>`;
+  }).join('');
+
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -7980,11 +8206,15 @@ function editKid(i){
           <div class="avatar-options">${g.items.map(ic=>`<button type="button" class="avatar-choice${ic===curAvatar?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${avatarMarkup(ic,g.label)}</button>`).join('')}</div>
         </div>`).join('')}
       </div>
-      <div class="ml">🌴 방학 기간</div>
-      <div class="mi-2">
-        <div><div class="sublabel">방학 시작일</div><input class="picker-field${k.vacationStart?'':' empty'}" id="k-vs" readonly data-val="${k.vacationStart||''}" value="${k.vacationStart?dateLabel(k.vacationStart):'시작일'}" onclick="openDatePicker('k-vs')"/></div>
-        <div><div class="sublabel">개학일</div><input class="picker-field${k.vacationEnd?'':' empty'}" id="k-ve" readonly data-val="${k.vacationEnd||''}" value="${k.vacationEnd?dateLabel(k.vacationEnd):'종료일'}" onclick="openDatePicker('k-ve')"/></div>
+
+      <div class="ml vacation-title-row">
+        <span>🌴 방학 기간 <em>루틴 쉴 때 적용</em></span>
+        <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">+ 추가</button>
       </div>
+      <div class="vacation-box">
+        ${vacHtml || '<div class="empty compact-empty">등록된 방학이 없어요</div>'}
+      </div>
+
       <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
       <div class="ml">학년 · 반 · 번호</div>
       <div class="mi-3">
@@ -8000,7 +8230,7 @@ function editKid(i){
 function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
-  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacationStart:'',vacationEnd:''});
+  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacations:[]});
   saveAll();editKid(family.length-1);
 }
 function saveKid(i){
@@ -8019,9 +8249,10 @@ function saveKid(i){
     year:document.getElementById('k-y').value,
     cls:document.getElementById('k-c').value,
     num:document.getElementById('k-u').value,
-    vacationStart:getPickerVal('k-vs'),
-    vacationEnd:getPickerVal('k-ve')
+    vacations:Array.isArray(old.vacations)?old.vacations:[]
   };
+  delete family[i].vacationStart;
+  delete family[i].vacationEnd;
   saveAll();closeM();render();
 }
 
@@ -8048,6 +8279,7 @@ function setPickerField(id,val,label,emptyText){
   el.value=val?label:emptyText;
   el.classList.toggle('empty',!val);
   updateRepeatPicker(id,val||'');
+  updateFamilyVacationPicker(id,val||'');
 }
 function updateRepeatPicker(id,val){
   if(!id || !id.startsWith('rp-'))return;
@@ -8178,6 +8410,29 @@ function saveTimePicker(id){
 }
 
 function closeM(e){if(!e||e.target.classList.contains('modal-bg'))document.getElementById('modal').innerHTML=''}
+async function saveCalendarImage(){
+  if(main!=='c'){
+    setMain('c');
+    setTimeout(saveCalendarImage,350);
+    return;
+  }
+  const el=document.querySelector('.cal-card');
+  if(!el)return alert('저장할 달력이 없어요.');
+  if(!window.html2canvas)return alert('이미지 저장 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+  try{
+    const canvas=await html2canvas(el,{backgroundColor:null,scale:2,useCORS:true});
+    const a=document.createElement('a');
+    const now=new Date();
+    const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    a.href=canvas.toDataURL('image/png');
+    a.download=`패스_달력_${calY}-${String(calM+1).padStart(2,'0')}_${stamp}.png`;
+    a.click();
+    showToast('캘린더 이미지를 저장했어요.');
+  }catch(e){
+    console.warn(e);
+    alert('캘린더 이미지 저장에 실패했어요.');
+  }
+}
 function openExport(){
   const now=new Date();
   const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
