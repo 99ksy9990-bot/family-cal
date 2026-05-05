@@ -1,4 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.0.61';
+const CACHE_NAME = 'pass-cal-v1.0.62';
+const PASS_SW_BUILD_VERSION = 'v1.0.62-force-refresh';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CORE_ASSETS = [
@@ -50,16 +51,30 @@ const APP_SHELL = [
   './assets/avatars/teenM_5.webp'
 ];
 
+async function cacheFresh(cache, url){
+  const sep = String(url).includes('?') ? '&' : '?';
+  const requestUrl = `${url}${sep}cache=${encodeURIComponent(CACHE_NAME)}`;
+  const response = await fetch(requestUrl, {cache:'reload'});
+  if(!response || !response.ok) throw new Error(`cache failed: ${url}`);
+  await cache.put(url, response.clone());
+}
+
+async function cacheFreshOptional(cache, url){
+  try{
+    await cacheFresh(cache, url);
+  }catch(e){}
+}
+
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      // 핵심 파일은 반드시 캐시합니다.
-      await cache.addAll(CORE_ASSETS);
+      // 핵심 파일은 브라우저 HTTP 캐시를 우회해서 최신본으로 캐시합니다.
+      await Promise.all(CORE_ASSETS.map(u => cacheFresh(cache, u)));
 
-      // 아바타와 외부 음력 라이브러리는 실패해도 앱 설치를 계속합니다.
+      // 아바타/폰트/CDN은 실패해도 앱 설치를 계속합니다.
       const optionalAssets = APP_SHELL.filter(u => u.includes('/avatars/') || u.includes('/fonts/') || u === LUNAR_CDN || u === HTML2CANVAS_CDN);
-      await Promise.allSettled(optionalAssets.map(u => cache.add(u).catch(() => {})));
+      await Promise.allSettled(optionalAssets.map(u => cacheFreshOptional(cache, u)));
     })
   );
 });
@@ -89,10 +104,13 @@ self.addEventListener('fetch', event => {
 
   if (req.mode === 'navigate') {
     event.respondWith(
-      fetch(req)
+      fetch(new Request(req, {cache:'reload'}))
         .then(response => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put('./index.html', copy));
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put('./index.html', copy.clone());
+            cache.put('./', copy.clone());
+          });
           return response;
         })
         .catch(() => caches.match('./index.html').then(cached => cached || caches.match('./') || new Response('offline', {status: 503, statusText: 'offline'})))
