@@ -5570,6 +5570,63 @@ select{
   border-color:#1C3A5E !important;
 }
 
+
+/* v1.0.68 오늘 일정/루틴 폰트 통일 */
+.today-list-title,
+.today-list-time,
+.merged-routine-title,
+.merged-routine-time,
+.today-event-title,
+.today-event-time{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  letter-spacing:-.22px !important;
+}
+
+.today-list-time,
+.merged-routine-time,
+.today-event-time{
+  color:var(--t2) !important;
+  text-align:right !important;
+  white-space:nowrap !important;
+}
+
+.today-list-title,
+.merged-routine-title,
+.today-event-title{
+  color:var(--t1) !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 일정/루틴 행 간격도 같은 폰트에 맞춰 정리 */
+.merged-today-row{
+  min-height:28px !important;
+  padding:7px 0 !important;
+}
+
+.merged-routine-row{
+  min-height:34px !important;
+  padding:7px 0 !important;
+}
+
+.merged-routine-box{
+  padding:8px 12px !important;
+}
+
+/* 미리 보는 다음 일정과 시각 톤 맞춤 */
+.upcoming-title{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  letter-spacing:-.22px !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5627,13 +5684,13 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.67';
-const PASS_BUILD_VERSION='v1.0.67-shift-white-minimal';
+const APP_VERSION='v1.0.68';
+const PASS_BUILD_VERSION='v1.0.68-font-unify';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '달력 근무 D/E/N 글자색 흰색 통일',
-  '근무 뱃지 블루 계열 유지',
-  '업로드 파일 최소화 패키지'
+  '오늘 일정/루틴 제목 폰트 통일',
+  '오늘 일정/루틴 시간 폰트 통일',
+  '미리 보는 다음 일정과 동일 톤 적용'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
