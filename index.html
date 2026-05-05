@@ -4861,6 +4861,29 @@ select{
   }
 }
 
+
+/* v1.0.57 update notice / hidden routine hints */
+.hidden-routine-note{
+  margin:10px 0 0;
+  padding:10px 12px;
+  border-radius:14px;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:700;
+  line-height:1.4;
+}
+.hidden-routine-note button{
+  border:none;
+  background:transparent;
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+  text-decoration:underline;
+  padding:0 2px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4918,15 +4941,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.56';
+const APP_VERSION='v1.0.57';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '달력 4개 뷰 모드 적용',
-  '달력 칸 아바타 완전 제거',
-  '전체 모드 루틴 숨김',
-  '날짜 칸 점 최대 3개 표시',
-  '일괄 선택 편집 모드 전용',
-  '사람 필터 하단/상세 패널 이동'
+  '서비스워커 새 버전 알림',
+  '근무표 2026년 5월 마이그레이션 코드 정리',
+  '공휴일 루틴 숨김 안내 표시',
+  '설정 변경 저장 경로 최적화',
+  '달력 레이어 구조 보강'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -5120,9 +5142,69 @@ function selectKidAvatar(icon){
     b.classList.toggle('on',b.dataset.avatar===icon);
   });
 }
+
+function occursOnIgnoringHoliday(n,key){
+  if(!n.start)return false;
+  if(n.repeatEnd && key>n.repeatEnd)return false;
+  if(Array.isArray(n.skipDates) && n.skipDates.includes(key))return false;
+
+  if(!n.repeat){
+    if(!n.end || n.end===n.start)return n.start===key;
+    return n.start<=key && key<=n.end;
+  }
+
+  if(key<n.start)return false;
+  const start=new Date(n.start+'T00:00:00');
+  const cur=new Date(key+'T00:00:00');
+  const diff=Math.round((cur-start)/86400000);
+  if(n.repeat==='daily')return diff>=0;
+  if(n.repeat==='weekly')return diff>=0 && diff%7===0;
+  if(n.repeat==='monthly')return n.start.slice(8,10)===key.slice(8,10);
+  return false;
+}
+function holidayHiddenRoutineCount(dateKey){
+  if(!holidayName(dateKey))return 0;
+  const [y,m,d]=dateKey.split('-').map(Number);
+  const dow=new Date(y,m-1,d).getDay();
+  let cnt=0;
+
+  (notes||[]).forEach(n=>{
+    if(isDone(n)||!n.repeat)return;
+    if(occursOnIgnoringHoliday(n,dateKey))cnt++;
+  });
+
+  (repeatItems||[]).forEach(r=>{
+    const title=String(r.title||'').trim();
+    const days=Array.isArray(r.days)?r.days:[];
+    if(!title || !days.includes(dow))return;
+    if(r.start && dateKey<r.start)return;
+    if(r.repeatEnd && dateKey>r.repeatEnd)return;
+    if(Array.isArray(r.skipDates) && r.skipDates.includes(dateKey))return;
+    if(r.pauseOnVacation && isPersonVacation(r.who||'공통',dateKey))return;
+    cnt++;
+  });
+
+  return cnt;
+}
+function calendarHiddenRoutineNotice(selDate){
+  const holidayCnt=holidayHiddenRoutineCount(selDate);
+  const oneOffModeHidden=(calViewMode==='all');
+  const [y,m,d]=selDate.split('-').map(Number);
+  const routines=notesOnDateAll(y,m-1,d).filter(n=>isRoutineCalendarEvent(n)).length;
+  let html='';
+  if(holidayCnt){
+    html+=`<div class="hidden-routine-note">💡 공휴일이라 루틴 ${holidayCnt}개가 자동으로 쉬어요.</div>`;
+  }
+  if(oneOffModeHidden && routines){
+    html+=`<div class="hidden-routine-note">💡 전체 모드에서는 달력 칸의 루틴 점을 숨겨요. 아래 상세에는 루틴이 모두 표시됩니다. <button onclick="setCalendarViewMode('routine')">루틴 보기</button></div>`;
+  }
+  return html;
+}
+
 function renderSelectedDayList(mems,evs,selDate,sp){
+  const notice=calendarHiddenRoutineNotice(selDate);
   if(!mems.length && !evs.length){
-    return renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.');
+    return renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')+notice;
   }
 
   let html='';
@@ -5181,7 +5263,7 @@ function renderSelectedDayList(mems,evs,selDate,sp){
     });
   }
 
-  return html;
+  return html+notice;
 }
 
 function setCalendarViewMode(mode){
@@ -5416,9 +5498,6 @@ function isHolidayKey(k){return !!holidayName(k)}
 
 
 let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[];
-let shiftKeepOnlyMay2026Done_v3=false;
-let shiftKeepOnlyMay2026Done_v4=false;
-let shiftKeepOnlyMay2026NeedsSave=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -5684,30 +5763,7 @@ function autoInfoMatchesFilter(n){
   if(subF==='all')return true;
   return (n.who||'공통')===subF;
 }
-function keepOnlyMay2026Shifts(){
-  let changed=false;
-  Object.keys(shiftData||{}).forEach(k=>{
-    if(!k.startsWith('2026-05-')){
-      delete shiftData[k];
-      changed=true;
-    }
-  });
-  return changed;
-}
-function applyMay2026ShiftMigration(){
-  if(shiftKeepOnlyMay2026Done_v3)return false;
-  const changed=keepOnlyMay2026Shifts();
-  shiftKeepOnlyMay2026Done_v3=true;
-  shiftKeepOnlyMay2026NeedsSave=true;
-  return changed;
-}
-function applyMay2026ShiftMigrationV4(){
-  if(shiftKeepOnlyMay2026Done_v4)return false;
-  const changed=keepOnlyMay2026Shifts();
-  shiftKeepOnlyMay2026Done_v4=true;
-  shiftKeepOnlyMay2026NeedsSave=true;
-  return changed;
-}
+
 
 
 
@@ -5780,15 +5836,10 @@ function normalizeData(d){
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
   customHolidays.forEach(h=>{if(!h.id)h.id=Date.now()+Math.random(); if(!h.name)h.name='공휴일';});
   purgeOldTrash(false);
-  shiftKeepOnlyMay2026Done_v3=d.shiftKeepOnlyMay2026Done_v3===true;
-  shiftKeepOnlyMay2026Done_v4=d.shiftKeepOnlyMay2026Done_v4===true;
-  shiftKeepOnlyMay2026NeedsSave=false;
   shiftData=d.shiftData&& !subMode ? d.shiftData : (subMode?shiftData:(d.shiftData||{}));
   shiftData=shiftData||{};
-  applyMay2026ShiftMigration();
-  applyMay2026ShiftMigrationV4();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,changeLogs,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,changeLogs,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -5796,7 +5847,6 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 function currentSettingsData(){
   return {
     family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
-    shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,
     storageMode:'subcollections',
     updatedAt:Date.now()
   };
@@ -6024,7 +6074,7 @@ function clearChangeLog(){
   if(!requireEditMode())return;
   if(!confirm('최근 변경 기록을 비울까요?'))return;
   changeLogs=[];
-  saveAll();
+  saveSettingsOnly();
   openChangeLog();
 }
 function requestDueLabel(r){
@@ -6093,7 +6143,6 @@ function saveAll(){
 async function initData(){
   try{
     normalizeData(loadLocal()||DEFAULT_DATA);
-    if(shiftKeepOnlyMay2026NeedsSave){saveLocal();}
     hydrated=true;
     render();
 
@@ -6131,11 +6180,6 @@ async function initData(){
         if(!hadSub && (Array.isArray(root.notes)||Array.isArray(root.requests)||root.shiftData)){
           await saveRemoteSubcollections(api);
           updateSyncPill('데이터 구조 최적화 완료');
-        }
-
-        if(shiftKeepOnlyMay2026NeedsSave){
-          shiftKeepOnlyMay2026NeedsSave=false;
-          await saveRemoteSubcollections(api);
         }
 
         saveLocal();
@@ -6491,7 +6535,7 @@ async function syncHolidayYear(year=calY){
     const list=normalizeHolidayApiResponse(data,year);
     if(!list.length)throw new Error('공휴일 데이터가 비어 있음');
     list.forEach(h=>{holidayCache[h.date]=h.name});
-    saveAll();
+    saveSettingsOnly();
     render({preserveScroll:true});
     showToast(`${year}년 공휴일 ${list.length}개를 갱신했어요.`);
   }catch(e){
@@ -6987,7 +7031,7 @@ function skipRoutineInstance(routineId,dateKey){
   if(!confirm('이 날짜의 루틴만 삭제할까요?'))return;
   if(!Array.isArray(r.skipDates))r.skipDates=[];
   if(!r.skipDates.includes(dateKey))r.skipDates.push(dateKey);
-  saveAll();
+  saveSettingsOnly();
   render({preserveScroll:true});
   showToast('해당 날짜의 루틴을 삭제했습니다.');
 }
@@ -7175,26 +7219,26 @@ function addRepeatItem(){
   if(!requireEditMode())return;
   routineOpen=true;
   repeatItems.unshift({id:Date.now(),who:getPersons()[0]||'공통',title:'',days:[],start:'',sT:'',eT:'',repeatEnd:''});
-  saveAll();render();
+  saveSettingsOnly();render();
 }
 function delRepeatItem(ii){
   if(!requireEditMode())return;
   if(!confirmDelete('이 루틴 일정을 삭제할까요?'))return;
   repeatItems.splice(ii,1);
-  saveAll();render();
+  saveSettingsOnly();render();
 }
 function togglePauseOnVacation(ii){
   if(!requireEditMode())return;
   if(!repeatItems[ii])return;
   repeatItems[ii].pauseOnVacation=!repeatItems[ii].pauseOnVacation;
-  saveAll();
+  saveSettingsOnly();
   render({preserveScroll:true});
 }
 function updRepeatVal(ii,key,val){
   if(!requireEditMode())return;
   if(!repeatItems[ii])return;
   repeatItems[ii][key]=val;
-  saveAll();
+  saveSettingsOnly();
 }
 function toggleRepeatDay(ii,di){
   if(!requireEditMode())return;
@@ -7203,7 +7247,7 @@ function toggleRepeatDay(ii,di){
   const idx=item.days.indexOf(di);
   if(idx>=0)item.days.splice(idx,1);else item.days.push(di);
   item.days.sort((a,b)=>a-b);
-  saveAll();render();
+  saveSettingsOnly();render();
 }
 
 function toggleBasicInfo(){
@@ -7225,7 +7269,8 @@ function reorderListItem(listName,id,targetId){
   if(from<0||to<0)return;
   const [item]=arr.splice(from,1);
   arr.splice(to,0,item);
-  saveAll();
+  if(listName==='notes'||listName==='requests')saveAll();
+  else saveSettingsOnly();
   render();
 }
 function touchReorderStart(e,listName,id){
@@ -7272,14 +7317,14 @@ function toggleFamilyToday(ki){
   if(!requireEditMode())return;
   if(!family[ki])return;
   family[ki].showToday=!family[ki].showToday;
-  saveAll();
+  saveSettingsOnly();
   render();
 }
 function toggleFamilyRoutine(ki){
   if(!requireEditMode())return;
   if(!family[ki])return;
   family[ki].showRoutine=!family[ki].showRoutine;
-  saveAll();
+  saveSettingsOnly();
   render();
 }
 function renderI(){
@@ -7392,28 +7437,28 @@ function saveCatLabel(ki,ci){
   if(!cat)return;
   const name=(document.getElementById('cat-name')||{}).value||'';
   cat.label=name.trim()||'루틴';
-  saveAll();
+  saveSettingsOnly();
   closeM();
   render();
 }
 function toggleDay(ki,ci,ii,di){
   if(!requireEditMode())return;
-const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveAll();render()}
+const a=family[ki].cats[ci].items[ii].days;const idx=a.indexOf(di);if(idx>=0)a.splice(idx,1);else a.push(di);a.sort((x,y)=>x-y);saveSettingsOnly();render()}
 function updVal(ki,ci,ii,v){
   if(!requireEditMode())return;
-family[ki].cats[ci].items[ii].val=v;saveAll()}
+family[ki].cats[ci].items[ii].val=v;saveSettingsOnly()}
 function addRow(ki,ci){
   if(!requireEditMode())return;
   family[ki].cats[ci].items.push({days:[], val:'', start:'', sT:'', eT:'', repeatEnd:''});
-  saveAll();render();
+  saveSettingsOnly();render();
   setTimeout(()=>{const ins=document.querySelectorAll('.fi-input');if(ins.length)ins[ins.length-1].focus()},50);
 }
 function delRow(ki,ci,ii){
   if(!requireEditMode())return;
-if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveAll();render()}
+if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveSettingsOnly();render()}
 function delCat(ki,ci){
   if(!requireEditMode())return;
-if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveAll();render()}
+if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveSettingsOnly();render()}
 function delKid(i){
   if(!requireEditMode())return;
   if(!family[i])return;
@@ -7643,7 +7688,7 @@ function saveMemory(id){
   }else{
     memories.push({id:Date.now(),name:name.trim(),birth,memo,icon,isLunar,calendarType,lunar});
   }
-  saveAll();closeM();render();
+  saveSettingsOnly();closeM();render();
 }
 
 
@@ -7975,8 +8020,6 @@ function clearShiftData(){
   Object.keys(shiftData||{}).forEach(k=>{
     shiftData[k]='';
   });
-
-  if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
   saveAll();
   render();
   alert('근무표 전체 초기화 완료');
@@ -8123,8 +8166,6 @@ function applyBulkShift(t){
     }
   });
 
-  if(typeof shiftKeepOnlyMay2026Done_v3!=='undefined')shiftKeepOnlyMay2026Done_v3=true;
-
   saveAll();
 
   // 적용 완료 후 선택 상태 초기화
@@ -8176,13 +8217,13 @@ function saveCustomHoliday(){
   const name=(document.getElementById('hol-name')||{}).value||'';
   if(!date||!name.trim())return alert('날짜와 이름을 입력해 주세요.');
   customHolidays.push({id:Date.now(),date,name:name.trim()});
-  saveAll();openHolidayManager();render();
+  saveSettingsOnly();openHolidayManager();render();
 }
 function delCustomHoliday(id){
   if(!requireEditMode())return;
   if(!confirm('이 공휴일을 삭제할까요?'))return;
   customHolidays=customHolidays.filter(h=>String(h.id)!==String(id));
-  saveAll();openHolidayManager();render();
+  saveSettingsOnly();openHolidayManager();render();
 }
 
 function copyNoteWithDate(id){
@@ -8857,14 +8898,14 @@ function markNoticeRead(id){
   if(!requireEditMode())return;
 
   const n=(notices||[]).find(x=>String(x.id)===String(id));
-  if(n){n.read=true;saveAll();render();}
+  if(n){n.read=true;saveSettingsOnly();render();}
 }
 function delNotice(id){
   if(!requireEditMode())return;
   const idx=(notices||[]).findIndex(x=>String(x.id)===String(id));
   if(idx<0)return;
   notices.splice(idx,1);
-  saveAll();
+  saveSettingsOnly();
   openNoticeList();
   render();
   showToast('공지를 삭제했습니다.');
@@ -8902,7 +8943,7 @@ function saveNotice(id){
   }else{
     notices.unshift({id:Date.now(),title:title.trim(),body,important,read:false,createdAt:Date.now()});
   }
-  saveAll();closeM();render();
+  saveSettingsOnly();closeM();render();
 }
 
 function monthlyStats(){
@@ -9217,14 +9258,14 @@ function addKidVacation(ki){
   if(!family[ki])return;
   if(!Array.isArray(family[ki].vacations))family[ki].vacations=[];
   family[ki].vacations.push({start:'',end:''});
-  saveAll();
+  saveSettingsOnly();
   editKid(ki);
 }
 function delKidVacation(ki,vi){
   if(!requireEditMode())return;
   if(!family[ki]||!Array.isArray(family[ki].vacations))return;
   family[ki].vacations.splice(vi,1);
-  saveAll();
+  saveSettingsOnly();
   editKid(ki);
 }
 function updateFamilyVacationPicker(id,val){
@@ -9236,7 +9277,7 @@ function updateFamilyVacationPicker(id,val){
   if(family[ki]&&Array.isArray(family[ki].vacations)&&family[ki].vacations[vi]){
     if(kind==='sd')family[ki].vacations[vi].start=val||'';
     if(kind==='ed')family[ki].vacations[vi].end=val||'';
-    saveAll();
+    saveSettingsOnly();
   }
 }
 function isPersonVacation(personName,date){
@@ -9310,7 +9351,7 @@ function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
   family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacations:[]});
-  saveAll();editKid(family.length-1);
+  saveSettingsOnly();editKid(family.length-1);
 }
 function saveKid(i){
   if(!requireEditMode())return;
@@ -9332,7 +9373,7 @@ function saveKid(i){
   };
   delete family[i].vacationStart;
   delete family[i].vacationEnd;
-  saveAll();closeM();render();
+  saveSettingsOnly();closeM();render();
 }
 
 function getPickerVal(id){
@@ -9371,7 +9412,7 @@ function updateRepeatPicker(id,val){
   const key=map[kind];
   if(!key)return;
   item[key]=val||'';
-  saveAll();
+  saveSettingsOnly();
 }
 function updateFamilyRepeatPicker(id,val){}
 function pickerRoot(){
@@ -9610,6 +9651,23 @@ function hideSplash(){
   }
 }
 
+
+function setupServiceWorkerUpdateNotice(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.addEventListener('message',event=>{
+    const data=event.data||{};
+    if(data.type==='PASS_SW_UPDATED'){
+      showToast('새 버전이 있어요. 새로고침할까요?','새로고침',()=>location.reload(),9000);
+    }
+  });
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg=>console.log('Service Worker registered',reg))
+      .catch(err=>console.warn('Service Worker registration failed',err));
+  });
+}
+
+setupServiceWorkerUpdateNotice();
 initData();
 setTimeout(hideSplash,3000);
 window.addEventListener('load', hideSplash);

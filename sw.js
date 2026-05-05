@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.56';
+const CACHE_NAME = 'pass-cal-v1.0.57';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CORE_ASSETS = [
@@ -113,10 +113,18 @@ self.addEventListener('fetch', event => {
   );
 });
 
+async function notifyClientsOfUpdate(){
+  const clientList = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+  clientList.forEach(client=>{
+    client.postMessage({type:'PASS_SW_UPDATED', cacheName:CACHE_NAME});
+  });
+}
+
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async()=>{
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+    await self.clients.claim();
+    await notifyClientsOfUpdate();
+  })());
 });
