@@ -60,6 +60,8 @@
   }
 </script>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -5147,6 +5149,118 @@ select{
   }
 }
 
+
+/* v1.0.65 design unification: shift colors / font / tab border / person palette */
+:root{
+  --shift-d-bg:#007AFF;
+  --shift-d-t:#FFFFFF;
+  --shift-e-bg:#5AC8FA;
+  --shift-e-t:#003A6B;
+  --shift-n-bg:#1C3A5E;
+  --shift-n-t:#8EC5FF;
+  --shift-off-bg:#F2F2F7;
+  --shift-off-t:#8E8E93;
+}
+
+/* 근무 뱃지는 블루 계열 + OFF 회색으로 통일 */
+.s-d{
+  background:var(--shift-d-bg) !important;
+  color:var(--shift-d-t) !important;
+  border:1px solid var(--shift-d-bg) !important;
+}
+.s-e{
+  background:var(--shift-e-bg) !important;
+  color:var(--shift-e-t) !important;
+  border:1px solid rgba(0,58,107,.10) !important;
+}
+.s-n{
+  background:var(--shift-n-bg) !important;
+  color:var(--shift-n-t) !important;
+  border:1px solid var(--shift-n-bg) !important;
+}
+.s-off{
+  background:var(--shift-off-bg) !important;
+  color:var(--shift-off-t) !important;
+  border:1px solid #E5E5EA !important;
+}
+
+/* 숫자/카운트/일괄선택 안의 근무 뱃지도 같은 색상 사용 */
+.leg-chip.s-d,
+.leg-chip.s-e,
+.leg-chip.s-n,
+.leg-chip.s-off,
+.shift-bulk-chip.s-d,
+.shift-bulk-chip.s-e,
+.shift-bulk-chip.s-n,
+.shift-bulk-chip.s-off{
+  box-shadow:none !important;
+}
+
+/* Pretendard 우선, 기존 Freesentation은 안전 fallback */
+body,
+button,
+input,
+textarea,
+select{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+}
+
+/* 탭은 선택 전 테두리/배경을 하나의 규칙으로 통일 */
+.tab:not(.on){
+  background:rgba(255,255,255,.86) !important;
+  border-color:var(--border) !important;
+  color:var(--t1) !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.04) !important;
+}
+.tab.on{
+  background:var(--blue) !important;
+  border-color:var(--blue) !important;
+  color:#fff !important;
+  box-shadow:0 8px 18px rgba(0,122,255,.23) !important;
+}
+
+/* 가족 구성원 색상 중복 방지 강화 */
+.person-mom{
+  background:#FFF0F3 !important;
+  color:#C0002C !important;
+}
+.person-domi{
+  background:#FFF4E5 !important;
+  color:#7A3800 !important;
+}
+.target-legend .leg .target-dot[style*="#FF2D55"],
+.person-leg .target-dot[style*="#FF2D55"]{
+  box-shadow:0 0 0 1px rgba(255,45,85,.18);
+}
+.target-legend .leg .target-dot[style*="#FF9500"],
+.person-leg .target-dot[style*="#FF9500"]{
+  box-shadow:0 0 0 1px rgba(255,149,0,.20);
+}
+
+/* 달력 안에서는 근무 뱃지를 정보로만 보이게 처리 */
+.cal-cell .shift-one{
+  letter-spacing:-.2px !important;
+  box-shadow:none !important;
+}
+
+/* 관리/정렬/선택 칩도 탭과 같은 border 기준 사용 */
+.sec-chip-btn,
+.period-chip,
+.fold-btn,
+.today-toggle-pill,
+.toss-btn:not(.primary):not(.danger){
+  border-color:var(--border) !important;
+}
+
+/* 텍스트 가독성 보정 */
+.c-title,
+.ev-title,
+.today-list-title,
+.merged-routine-title,
+.routine-group-title{
+  letter-spacing:-.25px;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5204,13 +5318,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.64';
-const PASS_BUILD_VERSION='v1.0.64-avatar-repair';
+const APP_VERSION='v1.0.65';
+const PASS_BUILD_VERSION='v1.0.65-design-unify';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '아바타 이미지 복구 패키지',
-  'assets/avatars WebP 파일 포함',
-  '이미지 로드 실패 시 PNG 폴백 추가'
+  '근무 뱃지 블루 계열 통일',
+  '탭 미선택 테두리 색상 정리',
+  '도미/엄마 색상 중복 방지 강화',
+  'Pretendard 우선 적용 및 Freesentation fallback',
+  '디자인 최종 오버라이드 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}

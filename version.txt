@@ -1,1 +1,2 @@
-PASS_BUILD=v1.0.64-avatar-repair-2
+PASS_VERSION=v1.0.65
+PASS_BUILD=v1.0.65-design-unify
