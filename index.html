@@ -4466,6 +4466,60 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 .memory-actions{display:none !important;}
 .memory-swipe-action-grid{grid-template-columns:1fr 1fr !important;}
 
+
+/* v1.0.51 Freesentation font */
+@font-face{
+  font-family:'Freesentation';
+  src:url('./assets/fonts/Freesentation-4Regular.ttf') format('truetype');
+  font-weight:400;
+  font-style:normal;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Freesentation';
+  src:url('./assets/fonts/Freesentation-6SemiBold.ttf') format('truetype');
+  font-weight:600;
+  font-style:normal;
+  font-display:swap;
+}
+body,
+button,
+input,
+textarea,
+select{
+  font-family:'Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-weight:400;
+}
+.app-name,
+.tab,
+.sec,
+.c-title,
+.ev-title,
+.fi-name,
+.modal-hd,
+.widget-main,
+.cal-nav-title,
+.primary-btn,
+.toss-btn,
+.chip,
+.person-chip,
+.memory-title-text,
+.today-target-name,
+.today-list-title{
+  font-family:'Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-weight:600 !important;
+}
+.c-body,
+.c-meta,
+.ev-sub,
+.widget-sub,
+.fi-row,
+.detail-row,
+.empty-sub{
+  font-family:'Freesentation',-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif !important;
+  font-weight:400 !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4523,14 +4577,12 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.50';
+const APP_VERSION='v1.0.51';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '스와이프 시 색상/문구 노출 제거',
-  '기본 정보 수정/삭제 버튼 제거 및 스와이프 메뉴 적용',
-  '기념 카드 수정/삭제 버튼 제거 및 스와이프 메뉴 적용',
-  '기념 탭 양력/음력 칩 삭제',
-  '기념 제목 폰트 크기 정리'
+  'Freesentation 폰트 적용',
+  '4 Regular 본문 적용',
+  '6 SemiBold 제목/강조 영역 적용'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}

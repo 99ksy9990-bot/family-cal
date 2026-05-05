@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.50';
+const CACHE_NAME = 'pass-cal-v1.0.51';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CORE_ASSETS = [
@@ -11,6 +11,8 @@ const APP_SHELL = [
   ...CORE_ASSETS,
   LUNAR_CDN,
   HTML2CANVAS_CDN,
+  './assets/fonts/Freesentation-4Regular.ttf',
+  './assets/fonts/Freesentation-6SemiBold.ttf',
   './assets/avatars/adultF_1.webp',
   './assets/avatars/adultF_2.webp',
   './assets/avatars/adultF_3.webp',
@@ -56,7 +58,7 @@ self.addEventListener('install', event => {
       await cache.addAll(CORE_ASSETS);
 
       // 아바타와 외부 음력 라이브러리는 실패해도 앱 설치를 계속합니다.
-      const optionalAssets = APP_SHELL.filter(u => u.includes('/avatars/') || u === LUNAR_CDN || u === HTML2CANVAS_CDN);
+      const optionalAssets = APP_SHELL.filter(u => u.includes('/avatars/') || u.includes('/fonts/') || u === LUNAR_CDN || u === HTML2CANVAS_CDN);
       await Promise.allSettled(optionalAssets.map(u => cache.add(u).catch(() => {})));
     })
   );
