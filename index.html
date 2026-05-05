@@ -4211,6 +4211,19 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   .avatar-choice img{width:52px !important;height:52px !important}
 }
 
+
+/* v1.0.40 final avatar refresh + memory birth inline */
+.memory-title-line{display:flex !important;align-items:center !important;justify-content:flex-start !important;gap:8px !important;flex-wrap:wrap !important;}
+.memory-title-line > span,.memory-title-text{flex:0 0 auto !important;min-width:0;}
+.mem-card .memory-title-line{justify-content:flex-start !important;}
+.memory-birth-inline{flex:0 0 auto !important;margin-left:0 !important;font-style:normal;white-space:nowrap !important;}
+.avatar-group{padding:12px 12px 14px !important;}
+.avatar-options{grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:10px !important;}
+.avatar-choice{min-height:76px !important;height:76px !important;padding:6px !important;display:flex !important;align-items:center !important;justify-content:center !important;overflow:hidden !important;}
+.avatar-choice img,.avatar-choice .avatar-img{width:64px !important;height:64px !important;object-fit:contain !important;display:block !important;margin:auto !important;}
+.target-avatar,.person-avatar-inline,.ev-avatar,.cal-avatar{background:transparent !important;box-shadow:none !important;}
+@media (max-width:480px){.avatar-choice{height:70px !important;min-height:70px !important;padding:5px !important;}.avatar-choice img,.avatar-choice .avatar-img{width:58px !important;height:58px !important;}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -6509,7 +6522,7 @@ function makeMemoryCard(x){
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
         <div class="c-title memory-title-line">
-          <span>${escapeHtml(x.name)}</span>
+          <span class="memory-title-text">${escapeHtml(x.name)}</span>
           ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)} ${isLunar?'(음)':'(양)'}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
