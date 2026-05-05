@@ -3976,19 +3976,19 @@ const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500'
 
 
 const PERSON_AVATAR_GROUPS=[
-  {key:'adultM',label:'성인 남자',items:['👨🏻','👨🏽','👨‍🦱','👨‍🦰','👨‍💼']},
-  {key:'adultF',label:'성인 여자',items:['👩🏻','👩🏽','👩‍🦱','👩‍🦰','👩‍💼']},
-  {key:'teenM',label:'청소년 남자',items:['🧑‍🎓','👨‍🎓','🧑‍💻','🧑‍🎤','🏃‍♂️']},
-  {key:'teenF',label:'청소년 여자',items:['👩‍🎓','🧑‍🎓','👩‍💻','👩‍🎤','🏃‍♀️']},
-  {key:'childM',label:'초등학생 남자',items:['👦🏻','👦🏽','🧒🏻','🧒🏽','🤓']},
-  {key:'childF',label:'초등학생 여자',items:['👧🏻','👧🏽','🧒🏻','🧒🏽','🎀']}
+  {key:'adultM',label:'성인 남자',items:['👨🏻','👨🏻‍💼','👨🏻‍🏫','👨🏻‍💻','🙋🏻‍♂️']},
+  {key:'adultF',label:'성인 여자',items:['👩🏻','👩🏻‍💼','👩🏻‍🏫','👩🏻‍💻','🙋🏻‍♀️']},
+  {key:'teenM',label:'청소년 남자',items:['🧑🏻‍🎓','👨🏻‍🎓','🧑🏻','🙋🏻‍♂️','🙎🏻‍♂️']},
+  {key:'teenF',label:'청소년 여자',items:['👩🏻‍🎓','🧑🏻‍🎓','🧑🏻','🙋🏻‍♀️','🙎🏻‍♀️']},
+  {key:'childM',label:'어린이 남자',items:['👦🏻','🧒🏻','🙋🏻‍♂️','🤸🏻‍♂️','⛹🏻‍♂️']},
+  {key:'childF',label:'어린이 여자',items:['👧🏻','🧒🏻','🙋🏻‍♀️','🤸🏻‍♀️','⛹🏻‍♀️']}
 ];
 function defaultAvatarForName(name){
   const n=(name||'').trim();
   if(n==='공통')return '👨‍👩‍👧‍👦';
-  if(n==='아빠')return '👨🏻';
+  if(n==='아빠')return '👨🏻‍💼';
   if(n==='엄마')return '👩🏻';
-  if(n==='초이')return '👦🏻';
+  if(n==='초이')return '🧒🏻';
   if(n==='도미')return '👧🏻';
   return '👤';
 }
