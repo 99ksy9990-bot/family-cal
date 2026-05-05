@@ -4884,6 +4884,61 @@ select{
   padding:0 2px;
 }
 
+
+/* v1.0.58 routine basic info compact / hidden pill / calendar detail avatar label */
+.fi-outer .sec-cnt{
+  min-width:28px !important;
+  height:28px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+.today-toggle-pill.off,
+.routine-toggle-pill.off{
+  border:1.5px solid #F0C9D4 !important;
+  background:#FFF2F6 !important;
+  color:#D96988 !important;
+  box-shadow:none !important;
+}
+.basic-info-card{
+  display:grid !important;
+  grid-template-columns:64px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:flex-start !important;
+  padding:14px 16px !important;
+}
+.basic-info-card .swipe-bg{background:transparent !important;color:transparent !important;box-shadow:none !important;}
+.basic-info-avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:2;}
+.basic-info-avatar{width:44px !important;height:44px !important;flex:0 0 44px !important;}
+.basic-info-person{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
+.basic-info-main{min-width:0;position:relative;z-index:2;padding-top:2px;}
+.basic-info-top{display:flex;justify-content:flex-end;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.basic-info-card .fi-hd-btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;}
+.basic-info-meta,
+.basic-info-vacation{font-size:12.5px;font-weight:800;line-height:1.45;color:var(--t2);text-align:right;word-break:keep-all;}
+.basic-info-vacation{margin-top:4px;color:var(--green-t);}
+.basic-info-collapsed{cursor:pointer;}
+.oneoff-selected-event{display:grid !important;grid-template-columns:64px minmax(0,1fr) !important;gap:12px !important;align-items:flex-start !important;}
+.oneoff-avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.oneoff-avatar{width:44px !important;height:44px !important;flex:0 0 44px !important;}
+.oneoff-person.under-avatar{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
+.oneoff-info{min-width:0;}
+.oneoff-box{padding:12px 16px;border-radius:16px;background:var(--bg2);}
+.oneoff-main{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.oneoff-title{font-size:15px !important;font-weight:800 !important;white-space:normal !important;overflow:visible !important;text-overflow:clip !important;}
+.oneoff-time{font-size:15px !important;font-weight:700 !important;white-space:nowrap;}
+.oneoff-selected-event .ev-alert{margin-top:8px;}
+@media (max-width:560px){
+  .basic-info-card,.oneoff-selected-event{grid-template-columns:58px minmax(0,1fr) !important;gap:10px !important;}
+  .basic-info-avatar,.oneoff-avatar{width:40px !important;height:40px !important;flex-basis:40px !important;}
+  .basic-info-person,.oneoff-person.under-avatar{font-size:13px !important;}
+  .basic-info-meta,.basic-info-vacation,.oneoff-title,.oneoff-time{font-size:14px !important;}
+  .basic-info-card{padding:12px 14px !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4941,14 +4996,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.57';
+const APP_VERSION='v1.0.58';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '서비스워커 새 버전 알림',
-  '근무표 2026년 5월 마이그레이션 코드 정리',
-  '공휴일 루틴 숨김 안내 표시',
-  '설정 변경 저장 경로 최적화',
-  '달력 레이어 구조 보강'
+  '루틴 기본정보 카드 축소 및 대상자 하단 배치',
+  '루틴/오늘 숨김 버튼 디자인 통일',
+  '루틴 탭 숫자 배지 스타일 개선',
+  '접힘 안내 클릭 시 펼치기 추가',
+  '달력 세부일정 대상자 하단 배치'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -7082,18 +7137,21 @@ function calendarEventItem(n,selDate){
   const who=escapeHtml(whoRaw);
   const tm=calendarTimeOnly(n);
   const title=highlightText(n.title||'일정');
-  const overline=`<span class="oneoff-kind">일정</span><span class="oneoff-sep">·</span><span class="oneoff-person">${who}</span>`;
   const clickAttr=`onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
 
   return `<div class="ev-item cal-selected-event oneoff-selected-event" ${clickAttr}>
-    <div class="ev-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
-    <div class="ev-info">
-      <div class="oneoff-overline">${overline}</div>
-      <div class="oneoff-main">
-        <div class="ev-title oneoff-title">${title}</div>
-        ${tm&&tm!=='시간 미정'?`<div class="ev-meta-time oneoff-time">${escapeHtml(tm)}</div>`:''}
+    <div class="oneoff-avatar-col">
+      <div class="ev-avatar oneoff-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
+      <div class="oneoff-person under-avatar">${who}</div>
+    </div>
+    <div class="ev-info oneoff-info">
+      <div class="oneoff-box">
+        <div class="oneoff-main">
+          <div class="ev-title oneoff-title">${title}</div>
+          ${tm&&tm!=='시간 미정'?`<div class="ev-meta-time oneoff-time">${escapeHtml(tm)}</div>`:''}
+        </div>
+        ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
       </div>
-      ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
     </div>
   </div>`;
 }
@@ -7334,7 +7392,8 @@ function renderI(){
   `)}`;
   if(basicInfoOpen){
     family.forEach((kid,ki)=>{
-      const memo=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
+      const info=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
+      const vacation=vacationSummary(kid);
       h+=`<div class="fi-card basic-info-card reorder-card swipe-card"
         draggable="true"
         data-reorder-list="family" data-reorder-id="${kid.id}"
@@ -7345,18 +7404,24 @@ function renderI(){
         ontouchstart="startItemSwipe(event,'family','${kid.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
         onmousedown="startItemSwipe(event,'family','${kid.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
         <div class="swipe-bg swipe-bg-left"></div>
-        <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</span>${escapeHtml(kid.name||'대상')}</div>
-          <div class="fi-hd-btns">
-            <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
-            <button class="today-toggle-pill routine-toggle-pill${kid.showRoutine?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
-          </div>
+        <div class="basic-info-avatar-col">
+          <div class="ev-avatar basic-info-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
+          <div class="basic-info-person">${escapeHtml(kid.name||'대상')}</div>
         </div>
-        <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
-        ${vacationSummary(kid)?`<div class="fi-row"><span class="fi-key">방학</span><span style="font-size:12px;font-weight:900;color:var(--green-t);text-align:right">${escapeHtml(vacationSummary(kid))}</span></div>`:'' }
+        <div class="basic-info-main">
+          <div class="basic-info-top">
+            <div class="fi-hd-btns">
+              <button class="today-toggle-pill${kid.showToday?' on':' off'}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
+              <button class="today-toggle-pill routine-toggle-pill${kid.showRoutine?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
+            </div>
+          </div>
+          <div class="basic-info-meta">${escapeHtml(info||'미입력')}</div>
+          ${vacation?`<div class="basic-info-vacation">${escapeHtml(vacation)}</div>`:''}
+        </div>
       </div>`;
     });
   }else{
-    h+=`<div class="basic-info-collapsed">기본 정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleBasicInfo()">기본 정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
   }
 
   h+=`${sectionHeader('루틴 일정',repeatItems.length,routineOpen,'toggleRoutine',`
@@ -7411,7 +7476,7 @@ function renderI(){
     });
     if(!repeatItems.length)h+=`<div class="empty">등록된 루틴 일정이 없어요</div>`;
   }else{
-    h+=`<div class="basic-info-collapsed">루틴 일정이 접혀 있어요. 펼치면 핸들을 꾹 눌러 순서를 이동할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">루틴 일정이 접혀 있어요. 펼치면 핸들을 꾹 눌러 순서를 이동할 수 있어요.</div>`;
   }
   h+=`</div>`;
   return h;
