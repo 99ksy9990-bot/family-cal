@@ -4353,6 +4353,43 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   min-height:34px;
 }
 
+
+/* v1.0.44 conflict/change/request/routine-layer */
+.change-log-row{
+  padding:11px 0;
+  border-bottom:1px solid var(--bg);
+}
+.change-log-row:last-child{border-bottom:none}
+.change-log-title{
+  font-size:13px;
+  font-weight:900;
+  color:var(--t1);
+  line-height:1.35;
+}
+.change-log-time{
+  font-size:11px;
+  color:var(--t3);
+  font-weight:750;
+  margin-top:4px;
+}
+.request-due-chip{
+  background:#FFF0F3;
+  color:#C0002C;
+  font-weight:950;
+}
+.cal-routine-btn{
+  white-space:nowrap !important;
+}
+.calendar-control-line{
+  align-items:center !important;
+}
+@media (max-width:430px){
+  .cal-routine-btn{
+    font-size:9.5px !important;
+    padding:0 7px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4410,13 +4447,14 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.43';
+const APP_VERSION='v1.0.44';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '오늘 루틴 위치 조정',
-  '상단 기준 날짜 카드 가독성 확대',
-  '일정 없음 문구 20종 랜덤 표시',
-  '대시보드 빈 상태 문구 랜덤화'
+  '일정 겹침 경고 추가',
+  '최근 변경사항 기록 추가',
+  '부탁 마감일/브리핑 연동',
+  '달력 루틴 표시 토글 추가',
+  '달력 루틴 상세 패널 유지'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4527,7 +4565,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0;
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -4778,7 +4816,7 @@ function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return 
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[];
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[];
 let shiftKeepOnlyMay2026Done_v3=false;
 let shiftKeepOnlyMay2026Done_v4=false;
 let shiftKeepOnlyMay2026NeedsSave=false;
@@ -5094,11 +5132,12 @@ function normalizeData(d){
   notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo=''; if(!n.type)n.type='family'; if(!n.end)n.end='';});
   requests=Array.isArray(d.requests)?d.requests:(subMode?requests:(base.requests||[]));
   requests=Array.isArray(requests)?requests:[];
-  requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
+  requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.dueDate)r.dueDate=''; if(!r.dueTime)r.dueTime=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
   memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂'; if(!x.calendarType)x.calendarType=(x.isLunar||x.lunar)?'lunar':'solar'; x.isLunar=x.calendarType==='lunar'||x.isLunar===true; x.lunar=x.isLunar;});
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
+  changeLogs=Array.isArray(d.changeLogs)?d.changeLogs:[];
   customHolidays=Array.isArray(d.customHolidays)?d.customHolidays:(base.customHolidays||[]);
   holidayCache=(d.holidayCache&&typeof d.holidayCache==='object')?d.holidayCache:(base.holidayCache||{});
   family=Array.isArray(d.family)?d.family:base.family;
@@ -5150,14 +5189,14 @@ function normalizeData(d){
   applyMay2026ShiftMigration();
   applyMay2026ShiftMigrationV4();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
+function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,changeLogs,shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,updatedAt:Date.now()}}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
 
 function currentSettingsData(){
   return {
-    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,
+    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
     shiftKeepOnlyMay2026Done_v3,shiftKeepOnlyMay2026Done_v4,
     storageMode:'subcollections',
     updatedAt:Date.now()
@@ -5297,6 +5336,114 @@ function deleteRemoteDoc(pathName,id){
       .finally(finishSaving);
   }
 }
+
+function minuteOf(t){
+  if(!t)return null;
+  const [h,m]=String(t).split(':').map(Number);
+  if(Number.isNaN(h)||Number.isNaN(m))return null;
+  return h*60+m;
+}
+function scheduleTimeRange(n){
+  const s=minuteOf(n.sT);
+  const e=minuteOf(n.eT);
+  if(s===null && e===null)return {start:0,end:1440,allDay:true};
+  if(s!==null && e===null)return {start:s,end:s+1,allDay:false};
+  if(s===null && e!==null)return {start:0,end:e,allDay:false};
+  return {start:s,end:Math.max(e,s+1),allDay:false};
+}
+function timeRangesOverlap(a,b){
+  const A=scheduleTimeRange(a), B=scheduleTimeRange(b);
+  if(A.allDay||B.allDay)return true;
+  return A.start < B.end && B.start < A.end;
+}
+function scheduleWindow(n,fromKey=scheduleBaseKey ? scheduleBaseKey() : todayKey()){
+  const start=n.start||fromKey;
+  let end=n.end||n.start||fromKey;
+  if(n.repeat){
+    end=n.repeatEnd||addDaysStr(start,60);
+  }
+  if(end<start)end=start;
+  return {start,end};
+}
+function datesInWindow(n,limit=90){
+  const w=scheduleWindow(n);
+  const out=[];
+  for(let k=w.start,i=0;k<=w.end && i<limit;k=addDaysStr(k,1),i++){
+    if(occursOn(n,k))out.push(k);
+  }
+  return out;
+}
+function findScheduleConflicts(candidate,ignoreId=''){
+  const candWho=candidate.who||'공통';
+  const dates=datesInWindow(candidate,90);
+  const conflicts=[];
+  (notes||[]).forEach(n=>{
+    if(String(n.id)===String(ignoreId))return;
+    if(isDone(n))return;
+    if((n.who||'공통')!==candWho)return;
+    for(const k of dates){
+      if(occursOn(n,k) && timeRangesOverlap(candidate,{...n,start:k,end:k})){
+        conflicts.push({date:k,item:n});
+        break;
+      }
+    }
+  });
+  return conflicts.slice(0,5);
+}
+function confirmScheduleConflicts(candidate,ignoreId=''){
+  const conflicts=findScheduleConflicts(candidate,ignoreId);
+  if(!conflicts.length)return true;
+  const lines=conflicts.map(c=>{
+    const n=c.item;
+    const t=todayTimeOnly(n)||dateTimeRange(n)||'시간 미정';
+    return `${dateLabel(c.date)} · ${t} · ${n.title||'일정'}`;
+  }).join('\n');
+  return confirm(`같은 대상의 일정이 겹칠 수 있어요.\n\n${lines}\n\n그래도 저장할까요?`);
+}
+function addChangeLog(text,kind='change'){
+  if(!Array.isArray(changeLogs))changeLogs=[];
+  changeLogs.unshift({id:Date.now()+Math.random(),kind,text:String(text||''),at:Date.now()});
+  changeLogs=changeLogs.slice(0,80);
+}
+function openChangeLog(){
+  const list=Array.isArray(changeLogs)?changeLogs:[];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">최근 변경사항</div>
+      ${list.length?list.map(x=>`<div class="change-log-row">
+        <div class="change-log-title">${escapeHtml(x.text||'변경사항')}</div>
+        <div class="change-log-time">${new Date(x.at||Date.now()).toLocaleString()}</div>
+      </div>`).join(''):renderEmptyState('generic','최근 변경사항이 없어요','일정을 추가하거나 수정하면 여기에 기록돼요.')}
+      ${list.length?`<button class="cancel-link" onclick="clearChangeLog()">기록 비우기</button>`:''}
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function clearChangeLog(){
+  if(!requireEditMode())return;
+  if(!confirm('최근 변경 기록을 비울까요?'))return;
+  changeLogs=[];
+  saveAll();
+  openChangeLog();
+}
+function requestDueLabel(r){
+  if(!r.dueDate&&!r.dueTime)return '';
+  return `${r.dueDate?dateLabel(r.dueDate):'마감일 없음'}${r.dueTime?` ${timeLabel(r.dueTime)}`:''}`;
+}
+function dueRequestsForDate(key){
+  return (requests||[]).filter(r=>!isDone(r)&&r.dueDate===key);
+}
+function toggleCalendarRoutineLayer(){
+  showRoutineInCalendar=!showRoutineInCalendar;
+  render({preserveScroll:true});
+  showToast(showRoutineInCalendar?'달력에 루틴을 표시해요.':'달력에서 루틴을 숨겼어요.');
+}
+function isRoutineCalendarEvent(n){
+  return !!(n&&(n.repeat||n._autoFamilyInfo));
+}
+
 function saveNoteOnly(n){saveRemoteDoc('notes',n)}
 function saveRequestOnly(r){saveRemoteDoc('requests',r)}
 function saveAfterSoftDelete(kind,arr,idx,label){
@@ -5461,7 +5608,11 @@ function notesOnDate(y,m,d){
 function toggleNote(id){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));
-  if(n){n.done=!n.done;saveNoteOnly(n);render({preserveScroll:true})}
+  if(n){
+    n.done=!isDone(n);
+    addChangeLog(`${n.done?'일정 완료':'일정 완료 취소'}: ${n.title||'일정'}`);
+    saveNoteOnly(n);render({preserveScroll:true});
+  }
 }
 
 function skipRepeatInstance(id,dateKey){
@@ -5477,8 +5628,12 @@ function skipRepeatInstance(id,dateKey){
 
 function delNote(id){
   if(!requireEditMode())return;
+  if(!confirmDelete('이 일정을 삭제할까요?'))return;
   const idx=notes.findIndex(x=>String(x.id)===String(id));
-  softDelete('note',notes,idx,'일정을');
+  if(idx>=0){
+    addChangeLog(`일정 삭제: ${notes[idx].who||'공통'} · ${notes[idx].title||'일정'}`);
+    softDelete('note',notes,idx,'일정을');
+  }
 }
 
 
@@ -5678,6 +5833,7 @@ function openManageCenter(){
         <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
         <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
         <button class="toss-btn" onclick="openTrash()">휴지통</button>
+      <button class="toss-btn" onclick="openChangeLog()">최근 변경</button>
         <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
         <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
@@ -6170,7 +6326,8 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const personDots=renderCalendarAvatars(uniquePersonsForDay(evs,mems));
+    const evsForDots=showRoutineInCalendar?evs:evs.filter(n=>!isRoutineCalendarEvent(n));
+    const personDots=renderCalendarAvatars(uniquePersonsForDay(evsForDots,mems));
     const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
     const hasCalSearch=!!String(searchQ||'').trim();
     const q=normText(searchQ);
@@ -6225,6 +6382,7 @@ function renderC(){
     <div class="cal-top-select-row calendar-control-line">
       <button class="sec-chip-btn on cal-target-btn" onclick="openCalendarTargetSheet()">${targetLabel(calWhoF)}</button>
       ${renderCalendarShiftCounts()}
+      <button class="sec-chip-btn${showRoutineInCalendar?' on':''} cal-routine-btn" onclick="toggleCalendarRoutineLayer()">${showRoutineInCalendar?'🔄 루틴 표시':'🔄 루틴 숨김'}</button>
       <button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
     </div>
     ${renderShiftBulkBar()}
@@ -6524,16 +6682,22 @@ function toggleReq(id){
   if(r){
     r.done=!isDone(r);
     r.doneAt=r.done?todayKey():'';
+    addChangeLog(`${r.done?'부탁 완료':'부탁 완료 취소'}: ${r.title||'부탁'}`);
     saveRequestOnly(r);render({preserveScroll:true});
   }
 }
 function delReq(id){
   if(!requireEditMode())return;
+  if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;
   const idx=requests.findIndex(x=>String(x.id)===String(id));
-  softDelete('request',requests,idx,'부탁을');
+  if(idx>=0){
+    addChangeLog(`부탁 삭제: ${requests[idx].title||'부탁'}`);
+    softDelete('request',requests,idx,'부탁을');
+  }
 }
 
 function makeReqCard(r){
+  const due=requestDueLabel(r);
   return`<div class="card" draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)">
     <div class="c-row">
       <div class="chk${isDone(r)?' on':''}" onclick="toggleReq('${r.id}')">
@@ -6545,6 +6709,7 @@ function makeReqCard(r){
           ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
           <span class="chip chip-g">부탁</span>
           ${r.requestDate?`<span class="chip request-date-chip">요청 ${dateLabel(r.requestDate)}</span>`:''}
+          ${due?`<span class="chip request-due-chip">마감 ${escapeHtml(due)}</span>`:''}
           ${isDone(r)&&r.doneAt?`<span class="chip done-date-chip">완료 ${dateLabel(r.doneAt)}</span>`:''}
         </div>
         ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 메모</button>`}
@@ -6595,6 +6760,11 @@ function openReqModal(id){
       <input class="mi" id="rq-wr" placeholder="예: 첫째, 둘째, 엄마" value="${r?escapeAttr(r.writer||''):''}"/>
       <div class="ml">요청 일자</div>
       <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
+      <div class="ml">마감</div>
+      <div class="mi-2">
+        <div><div class="sublabel">마감일</div><input class="picker-field${r&&r.dueDate?'':' empty'}" id="rq-due-date" readonly data-val="${r&&r.dueDate?r.dueDate:''}" value="${r&&r.dueDate?dateLabel(r.dueDate):'마감일 없음'}" onclick="openDatePicker('rq-due-date')"/></div>
+        <div><div class="sublabel">마감 시간</div><input class="picker-field${r&&r.dueTime?'':' empty'}" id="rq-due-time" readonly data-val="${r&&r.dueTime?r.dueTime:''}" value="${r&&r.dueTime?timeLabel(r.dueTime):'시간 없음'}" onclick="openTimePicker('rq-due-time')"/></div>
+      </div>
       ${r&&isDone(r)?`<div class="ml">완료 일자</div><input class="picker-field${r.doneAt?'':' empty'}" id="rq-done" readonly data-val="${r.doneAt||''}" value="${r.doneAt?dateLabel(r.doneAt):'완료일 없음'}" onclick="openDatePicker('rq-done')"/>`:''}
       <div class="ml">메모</div>
       <textarea class="ta" id="rq-cm" placeholder="진행 상황이나 메모를 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
@@ -6611,14 +6781,19 @@ function saveReq(id){
   const writer=(document.getElementById('rq-wr')||{}).value||'';
   const comment=(document.getElementById('rq-cm')||{}).value||'';
   const requestDate=getPickerVal('rq-date')||todayKey();
+  const dueDate=getPickerVal('rq-due-date');
+  const dueTime=getPickerVal('rq-due-time');
   let r=null;
   if(id){
     r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
-    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment; r.requestDate=requestDate;
+    const oldTitle=r.title;
+    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
+    addChangeLog(`부탁 수정: ${oldTitle||r.title} → ${r.title}`);
   }else{
-    r={id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,done:false,doneAt:'',comment};
+    r={id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
     requests.push(r);
+    addChangeLog(`부탁 추가: ${r.title}`);
   }
   saveRequestOnly(r);closeM();render({preserveScroll:true});
 }
@@ -6963,6 +7138,8 @@ function repairData(){
     if(!r.id || seen.has('r'+r.id)){r.id=Date.now()+Math.random();fixed++}
     seen.add('r'+r.id);
     if(!r.title){r.title='제목 없는 부탁';fixed++}
+    if(!r.dueDate)r.dueDate='';
+    if(!r.dueTime)r.dueTime='';
     if(!('done' in r))r.done=false;
   });
 
@@ -7329,13 +7506,16 @@ function onWidgetClick(el){
 
 function renderNoticeBanner(){
   if(main!=='s')return '';
-  const td=notes.filter(n=>!isDone(n)&&occursOn(n,todayKey()));
+  const base=scheduleBaseKey ? scheduleBaseKey() : todayKey();
+  const td=notes.filter(n=>!isDone(n)&&occursOn(n,base));
   const req=requests.filter(r=>!isDone(r));
-  if(!td.length && !req.length)return '';
+  const due=dueRequestsForDate(base);
+  if(!td.length && !req.length && !due.length)return '';
   const parts=[];
   if(td.length)parts.push(`오늘 일정 ${td.length}개`);
-  if(req.length)parts.push(`부탁 ${req.length}개`);
-  const canGo=req.length>0;
+  if(due.length)parts.push(`오늘 마감 부탁 ${due.length}개`);
+  else if(req.length)parts.push(`부탁 ${req.length}개`);
+  const canGo=req.length>0||due.length>0;
   return `<div class="notice-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🔔 ${parts.join(' · ')} 확인해 주세요${canGo?` <span class="notice-go">›</span>`:''}</div>`;
 }
 
@@ -7715,6 +7895,11 @@ function copyTodayBriefing(){
     lines.push('오늘 등록된 일정은 없어요.');
   }
 
+  const dueReqs=dueRequestsForDate(key);
+  dueReqs.forEach(r=>{
+    lines.push(`📌 오늘까지 부탁: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
+  });
+
   const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
     if(!!b.important!==!!a.important)return b.important?1:-1;
     return (b.createdAt||0)-(a.createdAt||0);
@@ -8057,7 +8242,7 @@ function saveNote(){
     id:Date.now(),
     title:ti.trim(),
     who:_mWho,
-    type:'family',
+    type:_mType,
     repeat:(document.getElementById('m-rp')||{}).value||'',
     repeatEnd:getPickerVal('m-re'),
     start:getPickerVal('m-sd'),
@@ -8070,7 +8255,9 @@ function saveNote(){
   };
   const dup=notes.some(n=>!isDone(n)&&n.title===newNote.title&&n.start===newNote.start&&(n.who||'공통')===newNote.who);
   if(dup && !confirm('같은 날짜에 같은 일정이 있어요. 그래도 추가할까요?'))return;
+  if(!confirmScheduleConflicts(newNote,''))return;
   notes.push(newNote);
+  addChangeLog(`일정 추가: ${newNote.who||'공통'} · ${newNote.title}`);
   saveNoteOnly(newNote);closeM();render({preserveScroll:true});
 }
 
@@ -8119,17 +8306,28 @@ function openEditNote(id){
 function saveEditNote(id){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
-  n.title=document.getElementById('e-ti').value;
-  n.type=_mType||n.type||'family';
-  n.who=_mWho;
-  n.repeat=(document.getElementById('e-rp')||{}).value||'';
-  n.repeatEnd=getPickerVal('e-re');
-  n.start=getPickerVal('e-sd');
-  n.end=getPickerVal('e-ed');
-  n.sT=getPickerVal('e-st');
-  n.eT=getPickerVal('e-et');
-  n.alertMemo=(document.getElementById('e-alert')||{}).value||'';
-  n.comment=document.getElementById('e-cm').value;
+  const before={...n};
+  const next={
+    ...n,
+    title:document.getElementById('e-ti').value,
+    type:_mType||n.type||'family',
+    who:_mWho,
+    repeat:(document.getElementById('e-rp')||{}).value||'',
+    repeatEnd:getPickerVal('e-re'),
+    start:getPickerVal('e-sd'),
+    end:getPickerVal('e-ed'),
+    sT:getPickerVal('e-st'),
+    eT:getPickerVal('e-et'),
+    alertMemo:(document.getElementById('e-alert')||{}).value||'',
+    comment:document.getElementById('e-cm').value
+  };
+  if(!confirmScheduleConflicts(next,id))return;
+  Object.assign(n,next);
+  const changed=[];
+  if(before.title!==n.title)changed.push(`제목 ${before.title||''} → ${n.title||''}`);
+  if(before.start!==n.start||before.sT!==n.sT||before.eT!==n.eT)changed.push(`시간 ${dateTimeRange(before)||'미정'} → ${dateTimeRange(n)||'미정'}`);
+  if(before.who!==n.who)changed.push(`대상 ${before.who||'공통'} → ${n.who||'공통'}`);
+  addChangeLog(`일정 수정: ${n.title||'일정'}${changed.length?` (${changed.join(', ')})`:''}`);
   saveNoteOnly(n);closeM();render({preserveScroll:true});
 }
 
