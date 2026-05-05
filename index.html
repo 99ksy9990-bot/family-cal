@@ -3778,6 +3778,99 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   grid-template-columns:1fr 1fr !important;
 }
 
+
+/* v1.0.36 avatar / centered date widget / spacing */
+.shift-widget-5nav{
+  grid-template-columns:.54fr 1fr 1fr 1fr .54fr !important;
+  gap:5px !important;
+}
+.shift-widget-5nav .shift-mini-card{
+  min-height:64px !important;
+  padding:8px 4px !important;
+}
+.shift-widget-5nav .widget-title{
+  font-size:10.5px !important;
+  white-space:nowrap !important;
+}
+.shift-widget-5nav .center-date{
+  outline:2px solid rgba(0,122,255,.20);
+}
+.shift-nav-card{
+  border:none !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:23px !important;
+  font-weight:950 !important;
+  color:var(--blue) !important;
+  cursor:pointer;
+}
+.cal-dots{
+  min-height:17px !important;
+  max-height:34px !important;
+  overflow:hidden !important;
+  gap:1px !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.cal-avatar{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:16px;
+  height:16px;
+  font-size:13px;
+  line-height:1;
+  border-radius:50%;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+}
+.cal-avatar-more{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:16px;
+  min-width:16px;
+  padding:0 3px;
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--t2);
+  font-size:8px;
+  font-weight:950;
+}
+.ev-avatar{
+  width:24px;
+  min-width:24px;
+  height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  border-radius:10px;
+  background:var(--bg);
+}
+.target-avatar{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+}
+.avatar-options{
+  grid-template-columns:repeat(7,1fr) !important;
+  gap:4px !important;
+}
+.avatar-choice{
+  height:34px !important;
+  border-radius:11px !important;
+  font-size:20px !important;
+  padding:0 !important;
+}
+.schedule-card-list{
+  gap:13px !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -3976,21 +4069,39 @@ const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500'
 
 
 const PERSON_AVATAR_GROUPS=[
-  {key:'adultM',label:'성인 남자',items:['👨🏻','👨🏻‍💼','👨🏻‍🏫','👨🏻‍💻','🙋🏻‍♂️']},
-  {key:'adultF',label:'성인 여자',items:['👩🏻','👩🏻‍💼','👩🏻‍🏫','👩🏻‍💻','🙋🏻‍♀️']},
-  {key:'teenM',label:'청소년 남자',items:['🧑🏻‍🎓','👨🏻‍🎓','🧑🏻','🙋🏻‍♂️','🙎🏻‍♂️']},
-  {key:'teenF',label:'청소년 여자',items:['👩🏻‍🎓','🧑🏻‍🎓','🧑🏻','🙋🏻‍♀️','🙎🏻‍♀️']},
-  {key:'childM',label:'어린이 남자',items:['👦🏻','🧒🏻','🙋🏻‍♂️','🤸🏻‍♂️','⛹🏻‍♂️']},
-  {key:'childF',label:'어린이 여자',items:['👧🏻','🧒🏻','🙋🏻‍♀️','🤸🏻‍♀️','⛹🏻‍♀️']}
+  {key:'adultM',label:'성인 남자',items:['👨🏻‍💼','👨🏻‍🏫','👨🏻‍💻','👨🏻‍⚕️','👨🏻‍🍳','👨🏻‍🔧','👨🏻‍🎨']},
+  {key:'adultF',label:'성인 여자',items:['👩🏻‍💼','👩🏻‍🏫','👩🏻‍💻','👩🏻‍⚕️','👩🏻‍🍳','👩🏻‍🔧','👩🏻‍🎨']},
+  {key:'teenM',label:'청소년 남자',items:['👨🏻‍🎓','🧑🏻‍🎓','🧑🏻‍💻','🙋🏻‍♂️','🏃🏻‍♂️','🚴🏻‍♂️','🎧']},
+  {key:'teenF',label:'청소년 여자',items:['👩🏻‍🎓','🧑🏻‍🎓','👩🏻‍💻','🙋🏻‍♀️','🏃🏻‍♀️','🚴🏻‍♀️','🎀']},
+  {key:'childM',label:'어린이 남자',items:['👦🏻','🧒🏻','🙋🏻‍♂️','🤸🏻‍♂️','⛹🏻‍♂️','🏃🏻‍♂️','🎒']},
+  {key:'childF',label:'어린이 여자',items:['👧🏻','🧒🏻','🙋🏻‍♀️','🤸🏻‍♀️','⛹🏻‍♀️','🏃🏻‍♀️','🌸']}
 ];
+function avatarItems(key){
+  return (PERSON_AVATAR_GROUPS.find(g=>g.key===key)||{}).items||[];
+}
+function randomFrom(arr){
+  return arr[Math.floor(Math.random()*arr.length)] || '👤';
+}
+function randomYouthAvatar(name=''){
+  const n=String(name||'');
+  if(/남|아들|형|오빠|boy|male/i.test(n))return randomFrom([...avatarItems('teenM'),...avatarItems('childM')]);
+  if(/여|딸|누나|언니|girl|female/i.test(n))return randomFrom([...avatarItems('teenF'),...avatarItems('childF')]);
+  return randomFrom([...avatarItems('teenM'),...avatarItems('teenF'),...avatarItems('childM'),...avatarItems('childF')]);
+}
 function defaultAvatarForName(name){
   const n=(name||'').trim();
   if(n==='공통')return '👨‍👩‍👧‍👦';
   if(n==='아빠')return '👨🏻‍💼';
-  if(n==='엄마')return '👩🏻';
-  if(n==='초이')return '🧒🏻';
-  if(n==='도미')return '👧🏻';
-  return '👤';
+  if(n==='엄마')return '👩🏻‍💼';
+  if(n==='초이')return '👩🏻‍🎓';   // 초이: 청소년 여자
+  if(n==='도미')return '👧🏻';     // 도미: 어린이 여자
+  return randomYouthAvatar(n);
+}
+function shouldAutoReplaceAvatar(k){
+  if(!k)return true;
+  if(k.avatarCustom)return false;
+  const legacy=['👨🏻','👩🏻','👦🏻','👧🏻','👤','👨‍💼','👩‍💼'];
+  return !k.avatar || legacy.includes(k.avatar);
 }
 function personAvatar(name){
   const n=(name||'공통').trim();
@@ -4000,9 +4111,18 @@ function personAvatar(name){
 function selectKidAvatar(icon){
   const el=document.getElementById('k-avatar');
   if(el)el.value=icon;
+  const custom=document.getElementById('k-avatar-custom');
+  if(custom)custom.value='1';
   document.querySelectorAll('.avatar-choice').forEach(b=>{
     b.classList.toggle('on',b.dataset.avatar===icon);
   });
+}
+function renderCalendarAvatars(people){
+  const arr=(people||[]).filter(Boolean);
+  const shown=arr.slice(0,3);
+  const more=arr.length-shown.length;
+  return shown.map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${escapeHtml(personAvatar(p))}</span>`).join('')+
+    (more>0?`<span class="cal-avatar-more">+${more}</span>`:'');
 }
 
 function isHiddenBasePerson(name){
@@ -4026,13 +4146,14 @@ function ensureBaseTargets(){
     if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
-      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
+      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
     }
   });
   family.forEach(k=>{
     const nm=(k.name||'').trim();
     const def=['아빠','엄마','초이','도미'].includes(nm);
-    if(!k.avatar)k.avatar=defaultAvatarForName(nm);
+    if(shouldAutoReplaceAvatar(k))k.avatar=defaultAvatarForName(nm);
+    if(!('avatarCustom' in k))k.avatarCustom=false;
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
   });
@@ -5194,22 +5315,23 @@ function sortByStartTime(arr){
 }
 
 function activePeriodEnd(){
+  const base=scheduleBaseKey();
   if(activePer==='all')return '9999-12-31';
-  if(activePer==='today')return todayKey();
-  if(activePer==='1w')return addDaysStr(todayKey(),6);
-  if(activePer==='1m')return addMonthsStr(todayKey(),1);
-  if(activePer==='3m')return addMonthsStr(todayKey(),3);
-  return todayKey();
+  if(activePer==='today')return base;
+  if(activePer==='1w')return addDaysStr(base,6);
+  if(activePer==='1m')return addMonthsStr(base,1);
+  if(activePer==='3m')return addMonthsStr(base,3);
+  return base;
 }
 function activeInPeriod(n){
   if(activePer==='all')return true;
-  const today=todayKey();
+  const base=scheduleBaseKey();
   const end=activePeriodEnd();
-  if(activePer==='today')return occursOn(n,today);
-  const k=n.repeat?nextOccurrence(n,today):(n.start||'');
+  if(activePer==='today')return occursOn(n,base);
+  const k=n.repeat?nextOccurrence(n,base):(n.start||'');
   if(!k)return true;
-  if(n.end && n.end>=today && (n.start||k)<=end)return true;
-  return k>=today && k<=end;
+  if(n.end && n.end>=base && (n.start||k)<=end)return true;
+  return k>=base && k<=end;
 }
 function setActivePer(t){
   activePer=t;
@@ -5291,21 +5413,33 @@ function setScheduleTarget(t){
 
 
 const EMPTY_SCHEDULE_VARIANTS=[
-  {emoji:'📭', title:'오늘 일정이 없어요', sub:'여유로운 하루네요. 잠시 숨을 고르며 천천히 쉬어가요.'},
-  {emoji:'🫖', title:'오늘 일정이 없어요', sub:'따뜻한 차 한 잔처럼 부드럽고 느긋한 하루가 기다리고 있어요.'},
-  {emoji:'🧺', title:'오늘 일정이 없어요', sub:'빈 바구니처럼 가벼운 날이에요. 마음도 한결 편안하게 보내보세요.'},
-  {emoji:'☕', title:'오늘 일정이 없어요', sub:'잠깐 쉬어가기 좋은 타이밍이에요. 느긋하게 하루를 시작해도 좋아요.'},
-  {emoji:'🌿', title:'오늘 일정이 없어요', sub:'바람처럼 가볍게 흘러가는 하루예요. 여유를 마음껏 누려보세요.'},
-  {emoji:'🪴', title:'오늘 일정이 없어요', sub:'작은 식물처럼 천천히 숨 고르기 좋은 날이에요.'},
-  {emoji:'🛋️', title:'오늘 일정이 없어요', sub:'소파에 기대듯 편안한 하루예요. 쉬어도 괜찮아요.'},
-  {emoji:'🌤️', title:'오늘 일정이 없어요', sub:'가족과 웃으며 보내기 좋은 맑은 하루예요.'},
-  {emoji:'🕊️', title:'오늘 일정이 없어요', sub:'조용하고 포근한 하루예요. 잠시 여백을 즐겨보세요.'},
-  {emoji:'🍪', title:'오늘 일정이 없어요', sub:'달콤한 간식처럼 기분 좋은 여유가 있는 날이에요.'}
+  {emoji:'📭', title:'일정이 없어요', sub:'여유로운 하루네요. 잠시 숨을 고르며 천천히 쉬어가요.'},
+  {emoji:'🫖', title:'일정이 없어요', sub:'따뜻한 차 한 잔처럼 부드럽고 느긋한 하루가 기다리고 있어요.'},
+  {emoji:'🧺', title:'일정이 없어요', sub:'빈 바구니처럼 가벼운 날이에요. 마음도 한결 편안하게 보내보세요.'},
+  {emoji:'☕', title:'일정이 없어요', sub:'잠깐 쉬어가기 좋은 타이밍이에요. 느긋하게 하루를 시작해도 좋아요.'},
+  {emoji:'🌿', title:'일정이 없어요', sub:'바람처럼 가볍게 흘러가는 하루예요. 여유를 마음껏 누려보세요.'},
+  {emoji:'🪴', title:'일정이 없어요', sub:'작은 식물처럼 천천히 숨 고르기 좋은 날이에요.'},
+  {emoji:'🛋️', title:'일정이 없어요', sub:'소파에 기대듯 편안한 하루예요. 쉬어도 괜찮아요.'},
+  {emoji:'🌤️', title:'일정이 없어요', sub:'가족과 웃으며 보내기 좋은 맑은 하루예요.'},
+  {emoji:'🕊️', title:'일정이 없어요', sub:'조용하고 포근한 하루예요. 잠시 여백을 즐겨보세요.'},
+  {emoji:'🍪', title:'일정이 없어요', sub:'달콤한 간식처럼 기분 좋은 여유가 있는 날이에요.'},
+  {emoji:'📚', title:'일정이 없어요', sub:'책갈피를 잠시 덮어두듯 쉬어가기 좋은 시간이에요.'},
+  {emoji:'🧸', title:'일정이 없어요', sub:'포근한 인형처럼 마음이 말랑해지는 하루예요.'},
+  {emoji:'🏡', title:'일정이 없어요', sub:'집 안의 작은 평화가 반가운 날이에요.'},
+  {emoji:'🌈', title:'일정이 없어요', sub:'무지개처럼 기분 좋은 여유가 살짝 걸려 있어요.'},
+  {emoji:'🍵', title:'일정이 없어요', sub:'따뜻한 차를 마시며 가족과 느긋하게 보내보세요.'},
+  {emoji:'🧁', title:'일정이 없어요', sub:'작은 디저트처럼 달콤한 빈 시간이 생겼어요.'},
+  {emoji:'🌙', title:'일정이 없어요', sub:'조용한 달빛처럼 차분하게 쉬어갈 수 있어요.'},
+  {emoji:'🧡', title:'일정이 없어요', sub:'가족과 마음을 나누기 좋은 여백이 있어요.'},
+  {emoji:'🎈', title:'일정이 없어요', sub:'가벼운 풍선처럼 부담 없는 하루예요.'},
+  {emoji:'🐻', title:'일정이 없어요', sub:'곰돌이처럼 느긋하고 포근한 하루를 보내요.'}
 ];
-const EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
+let EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
+function refreshEmptyStatePick(){
+  EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
+}
 function pickScheduleEmpty(title,sub){
   const base=EMPTY_SCHEDULE_VARIANTS[EMPTY_SCHEDULE_PICK]||EMPTY_SCHEDULE_VARIANTS[0];
-  if(title && !String(title).includes('오늘 일정'))return {emoji:'🗓️',title,sub:sub||'여유로운 하루네요. 잠시 숨을 고르세요.'};
   return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
 }
 
@@ -5342,15 +5476,16 @@ function renderFab(){
 }
 
 function renderS(){
+  const baseKey=scheduleBaseKey();
   let active=notes.filter(n=>{
     if(isDone(n)) return false;
     if(!matchSearchNote(n)) return false;
-    if(filterToday) return occursOn(n,todayKey());
+    if(filterToday) return occursOn(n,baseKey);
     return (subF==='all'||(n.who||'공통')===subF) && activeInPeriod(n);
   });
 
   const autoActive=(activePer==='today'||filterToday)
-    ? familyInfoEventsForKey(todayKey()).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
+    ? familyInfoEventsForKey(baseKey).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
     : familyInfoUpcomingEvents(90).filter(n=>{
         if(!autoInfoMatchesFilter(n))return false;
         if(!matchSearchNote(n))return false;
@@ -5368,16 +5503,16 @@ function renderS(){
   doneFilt=sortScheduleList(doneFilt);
 
   const activeCards = activeOpen
-    ? `<div class="card-wrap schedule-card-list">${renderScheduleCardList(active,'진행 중인 일정이 없어요')}</div>`
-    : `<div class="schedule-collapsed-hint">진행 중 목록이 접혀 있어요</div>`;
+    ? `<div class="card-wrap schedule-card-list">${renderScheduleCardList(active,'등록 일정이 없어요')}</div>`
+    : `<div class="schedule-collapsed-hint">등록 일정 목록이 접혀 있어요</div>`;
 
   const doneCards = doneOpen
     ? `<div class="card-wrap schedule-card-list" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : renderEmptyState('done','완료된 일정이 없어요','완료한 일정은 이곳에 모여요.')}</div>`
     : '';
 
   return`
-    ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">오늘 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    ${sectionHeader('진행 중',active.length,activeOpen,'toggleActive',`
+    ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
+    ${sectionHeader('등록 일정',active.length,activeOpen,'toggleActive',`
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
       <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
@@ -5529,9 +5664,7 @@ function renderC(){
     const evs=notesForCalendarDay(y,m,d);
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
-    const personDots=uniquePersonsForDay(evs,mems).slice(0,5)
-      .map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${escapeHtml(personAvatar(p))}</span>`)
-      .join('');
+    const personDots=renderCalendarAvatars(uniquePersonsForDay(evs,mems));
     const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
@@ -6635,6 +6768,7 @@ function saveCopyNoteWithDate(id){
 }
 
 function setMain(t){
+  if(t==='s')refreshEmptyStatePick();
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
   main=t;
@@ -6689,7 +6823,7 @@ function scheduleBaseSuffix(){
   return ` · ${m}/${d} (${DAYS[new Date(y,m-1,d).getDay()]})`;
 }
 function moveScheduleBase(step=1){
-  scheduleBaseOffset=Math.max(0,(scheduleBaseOffset||0)+step);
+  scheduleBaseOffset=(scheduleBaseOffset||0)+step;
   render({preserveScroll:true});
 }
 function daysBetween(fromKey,toKey){
@@ -6699,8 +6833,9 @@ function daysBetween(fromKey,toKey){
 function renderShiftWidget(){
   if(main!=='s')return '';
   const base=scheduleBaseKey();
-  const keys=Array.from({length:5},(_,i)=>addDaysStr(base,i));
-  return `<div class="widget-wrap shift-widget-6 compact-shift-widget">
+  const keys=[addDaysStr(base,-1),base,addDaysStr(base,1)];
+  return `<div class="widget-wrap shift-widget-5nav compact-shift-widget">
+    <button class="widget-card shift-mini-card shift-nav-card" onclick="moveScheduleBase(-1)" aria-label="이전 날짜 보기">‹</button>
     ${keys.map((k,i)=>{
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
@@ -6709,12 +6844,12 @@ function renderShiftWidget(){
       const dow=d.getDay();
       const cls=(h||dow===0)?' shift-date-holiday':(dow===6?' shift-date-sat':'');
       const title=`${mm}/${dd} (${DAYS[dow]})`;
-      return `<div class="widget-card shift-mini-card">
+      return `<div class="widget-card shift-mini-card${i===1?' center-date':''}">
         <div class="widget-title shift-date-label${cls}">${title}</div>
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
       </div>`;
     }).join('')}
-    <button class="widget-card shift-mini-card shift-next-card" onclick="moveScheduleBase(1)" aria-label="다음 날짜 보기">›</button>
+    <button class="widget-card shift-mini-card shift-nav-card" onclick="moveScheduleBase(1)" aria-label="다음 날짜 보기">›</button>
   </div>`;
 }
 
@@ -7420,6 +7555,7 @@ function editKid(i){
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
       <div class="ml">달력 아이콘</div>
       <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
+      <input type="hidden" id="k-avatar-custom" value="${k.avatarCustom?'1':''}"/>
       <div class="avatar-select-grid">
         ${PERSON_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
           <div class="avatar-group-title">${escapeHtml(g.label)}</div>
@@ -7440,15 +7576,22 @@ function editKid(i){
 }
 function addKid(){
   if(!requireEditMode())return;
-  family.push({id:Date.now(),name:'새 대상',avatar:'👤',grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});
+  const name='새 대상';
+  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});
   saveAll();editKid(family.length-1);
 }
 function saveKid(i){
   if(!requireEditMode())return;
+  const old=family[i]||{};
   const name=document.getElementById('k-n').value;
-  family[i]={...family[i],
+  const custom=(document.getElementById('k-avatar-custom')||{}).value==='1';
+  let avatar=(document.getElementById('k-avatar')||{}).value||'';
+  if(!custom && (old.name||'')!==name)avatar=defaultAvatarForName(name);
+  if(!avatar)avatar=defaultAvatarForName(name);
+  family[i]={...old,
     name,
-    avatar:(document.getElementById('k-avatar')||{}).value||defaultAvatarForName(name),
+    avatar,
+    avatarCustom:custom,
     grade:document.getElementById('k-g').value,
     year:document.getElementById('k-y').value,
     cls:document.getElementById('k-c').value,
