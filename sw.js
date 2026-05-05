@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pass-cal-v1.0.38-vacation-avatar';
+const CACHE_NAME = 'pass-cal-v1.0.39-avatar-routine-widget';
 
 const APP_SHELL = [
   './',
