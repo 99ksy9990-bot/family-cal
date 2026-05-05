@@ -5261,6 +5261,265 @@ select{
   letter-spacing:-.25px;
 }
 
+
+/* v1.0.66 schedule page density / routine compact / desktop width */
+@media (min-width:700px){
+  .app{
+    max-width:520px !important;
+  }
+}
+@media (min-width:900px){
+  .app{
+    max-width:520px !important;
+  }
+}
+
+/* 오늘 일정 카드 높이 자동 축소 */
+.merged-today-dashboard{
+  padding:13px 14px 12px !important;
+}
+.merged-dashboard-head{
+  margin-bottom:8px !important;
+}
+.merged-schedule-card:not(.merged-empty-card){
+  min-height:0 !important;
+  height:auto !important;
+  padding:8px 12px !important;
+  border-radius:16px !important;
+}
+.today-list-card:not(.merged-empty-card){
+  min-height:0 !important;
+}
+.merged-today-row{
+  min-height:30px !important;
+  padding:8px 0 !important;
+  grid-template-columns:54px minmax(0,1fr) auto !important;
+}
+.merged-today-row:first-child{
+  padding-top:4px !important;
+}
+.merged-today-row:last-child{
+  padding-bottom:4px !important;
+}
+
+/* 일정/루틴 섹션명은 같은 크기와 톤 */
+.merged-section-label,
+.merged-section-label.routine{
+  font-size:13.5px !important;
+  font-weight:950 !important;
+  color:var(--t3) !important;
+  margin:9px 0 7px !important;
+}
+
+/* 오늘 일정/루틴 카운트: D-3 칩 스타일 */
+.merged-count,
+.today-dashboard-count,
+.today-dashboard-count.hot{
+  min-width:28px !important;
+  height:26px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+  border:0 !important;
+  box-shadow:none !important;
+  font-size:12.5px !important;
+  font-weight:950 !important;
+}
+.merged-dashboard-summary{
+  gap:8px !important;
+}
+.merged-summary-label{
+  font-size:14.5px !important;
+  font-weight:950 !important;
+}
+
+/* 오늘 일정/루틴 제목·시간 폰트 통일 */
+.today-list-person{
+  font-size:12.5px !important;
+  font-weight:950 !important;
+}
+.today-list-title,
+.today-list-time,
+.merged-routine-title,
+.merged-routine-time{
+  font-size:13.2px !important;
+  line-height:1.3 !important;
+  font-weight:900 !important;
+  letter-spacing:-.18px !important;
+}
+.today-list-time,
+.merged-routine-time{
+  color:var(--t2) !important;
+  white-space:nowrap !important;
+}
+
+/* 루틴 아바타는 현재의 약 70% 크기로 축소 */
+.merged-routine-group{
+  grid-template-columns:46px minmax(0,1fr) !important;
+  gap:9px !important;
+  align-items:flex-start !important;
+}
+.merged-routine-head{
+  gap:5px !important;
+}
+.merged-routine-avatar{
+  width:31px !important;
+  height:31px !important;
+  flex:0 0 31px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.merged-routine-avatar .avatar-img{
+  width:31px !important;
+  height:31px !important;
+  object-fit:contain !important;
+}
+.merged-routine-person.under-avatar{
+  font-size:11.5px !important;
+  font-weight:950 !important;
+  line-height:1.15 !important;
+}
+
+/* 루틴 오른쪽 박스 컴팩트 + 각 행 동일 비율 */
+.merged-routine-wrap{
+  gap:10px !important;
+}
+.merged-routine-box{
+  padding:9px 12px !important;
+  border-radius:15px !important;
+}
+.merged-routine-row{
+  min-height:38px !important;
+  padding:9px 0 !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.merged-routine-row:first-child{
+  padding-top:4px !important;
+}
+.merged-routine-row:last-child{
+  padding-bottom:4px !important;
+}
+
+/* Empty State는 하나의 레이아웃 안에서 중앙·중간 정렬 유지 */
+.merged-empty-card{
+  min-height:108px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:10px !important;
+}
+.brief-empty-state{
+  width:100% !important;
+  min-height:96px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  padding:14px 12px !important;
+}
+.brief-empty-art{
+  font-size:30px !important;
+}
+.brief-empty-title{
+  font-size:13px !important;
+}
+.brief-empty-sub{
+  font-size:11px !important;
+  line-height:1.4 !important;
+}
+
+/* 접힘 안내는 최소 높이로 */
+.schedule-collapsed-hint,
+.basic-info-collapsed{
+  margin:0 16px !important;
+  padding:8px 12px !important;
+  min-height:0 !important;
+  border-radius:13px !important;
+  font-size:11px !important;
+  line-height:1.25 !important;
+  color:var(--t3) !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.045) !important;
+}
+
+/* 미리 보는 다음 일정 슬림화 */
+.upcoming-wrap{
+  padding-top:7px !important;
+}
+.refreshed-upcoming-card,
+.upcoming-card{
+  padding:11px 12px !important;
+  border-radius:20px !important;
+}
+.upcoming-dashboard-head{
+  margin-bottom:7px !important;
+}
+.refreshed-upcoming-card .merged-summary-label{
+  font-size:13.5px !important;
+}
+.refreshed-upcoming-card .upcoming-list{
+  gap:5px !important;
+}
+.refreshed-upcoming-row,
+.upcoming-row{
+  min-height:32px !important;
+  padding:6px 8px !important;
+  border-radius:12px !important;
+}
+.upcoming-dday{
+  min-width:42px !important;
+  font-size:11px !important;
+  padding:3px 7px !important;
+}
+.upcoming-title{
+  font-size:12px !important;
+  font-weight:900 !important;
+}
+.upcoming-meta{
+  font-size:10.5px !important;
+}
+
+/* FAB 겹침 방지 */
+.fab-add{
+  width:54px !important;
+  height:54px !important;
+  right:max(18px,calc((100vw - 520px)/2 + 18px)) !important;
+  bottom:calc(22px + env(safe-area-inset-bottom,0px)) !important;
+  font-size:30px !important;
+  z-index:80 !important;
+}
+.schedule-swipe-sync{
+  padding-bottom:76px !important;
+}
+.app{
+  padding-bottom:116px !important;
+}
+
+/* 좁은 모바일에서는 루틴 더 컴팩트 */
+@media (max-width:420px){
+  .merged-routine-group{
+    grid-template-columns:42px minmax(0,1fr) !important;
+    gap:8px !important;
+  }
+  .merged-routine-avatar,
+  .merged-routine-avatar .avatar-img{
+    width:29px !important;
+    height:29px !important;
+  }
+  .merged-routine-person.under-avatar{
+    font-size:11px !important;
+  }
+  .today-list-title,
+  .today-list-time,
+  .merged-routine-title,
+  .merged-routine-time{
+    font-size:12.8px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5318,15 +5577,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.65';
-const PASS_BUILD_VERSION='v1.0.65-design-unify';
+const APP_VERSION='v1.0.66';
+const PASS_BUILD_VERSION='v1.0.66-layout-polish';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '근무 뱃지 블루 계열 통일',
-  '탭 미선택 테두리 색상 정리',
-  '도미/엄마 색상 중복 방지 강화',
-  'Pretendard 우선 적용 및 Freesentation fallback',
-  '디자인 최종 오버라이드 정리'
+  '오늘 일정 카드 높이 자동 축소',
+  '루틴 그룹 박스 컴팩트 정리',
+  '미리 보는 다음 일정 슬림화',
+  'FAB 겹침 방지',
+  '데스크톱 폭 520px 보정',
+  '오늘 일정/루틴 카운트 강조'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -7425,7 +7685,7 @@ function renderS(){
 
   const activeCards = activeOpen
     ? `<div class="card-wrap schedule-card-list">${renderScheduleCardList(active,'등록 일정이 없어요')}</div>`
-    : `<div class="schedule-collapsed-hint">등록 일정 목록이 접혀 있어요</div>`;
+    : `<div class="schedule-collapsed-hint">접혀 있음</div>`;
 
   const doneCards = doneOpen
     ? `<div class="card-wrap schedule-card-list" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : renderEmptyState('done','완료된 일정이 없어요','완료한 일정은 이곳에 모여요.')}</div>`
@@ -7866,7 +8126,7 @@ function renderI(){
       </div>`;
     });
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleBasicInfo()">기본 정보가 접혀 있어요. 펼치면 오늘 하루 표시 대상과 루틴 표시 대상을 따로 설정할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleBasicInfo()">접혀 있음</div>`;
   }
 
   h+=`${sectionHeader('루틴 일정',repeatItems.length,routineOpen,'toggleRoutine',`
@@ -7921,7 +8181,7 @@ function renderI(){
     });
     if(!repeatItems.length)h+=`<div class="empty">등록된 루틴 일정이 없어요</div>`;
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">루틴 일정이 접혀 있어요. 펼치면 핸들을 꾹 눌러 순서를 이동할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">접혀 있음</div>`;
   }
   h+=`</div>`;
   return h;
@@ -8041,7 +8301,7 @@ function renderR(){
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest',`
       <button class="toss-btn primary" onclick="event.stopPropagation();openReqModal()">+ 추가</button>
     `)}
-    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
+    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">접혀 있음</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
     ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 부탁이 없어요','완료 기록이 생기면 이곳에 차곡차곡 모여요.')}</div>`:''}
