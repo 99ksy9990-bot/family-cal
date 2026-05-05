@@ -4745,6 +4745,122 @@ select{
   .merged-routine-title,.merged-routine-time,.routine-group-title,.routine-group-time{font-size:14px !important;}
 }
 
+
+/* v1.0.56 calendar view-mode and dot-only cells */
+.calendar-view-control-line{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+}
+.calendar-view-mode-row{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  flex:1 1 auto;
+  min-width:0;
+}
+.cal-view-chip{
+  height:32px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+  white-space:nowrap;
+}
+.cal-view-chip.on{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+  box-shadow:0 6px 14px rgba(0,122,255,.16);
+}
+.calendar-view-control-line .cal-bulk-btn{
+  flex:0 0 auto;
+}
+.calendar-count-inline{
+  margin:0 10px 9px !important;
+  justify-content:center;
+}
+.cal-date-line{
+  justify-content:center !important;
+  min-height:20px;
+}
+.cal-shift-line{
+  min-height:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.cal-dots{
+  min-height:10px !important;
+  margin-top:2px !important;
+  gap:3px !important;
+  align-items:center;
+}
+.person-cal-dot,
+.cal-dot{
+  width:5px !important;
+  height:5px !important;
+  border-radius:50% !important;
+  display:inline-block !important;
+  flex:0 0 auto !important;
+}
+.cal-dot-more{
+  font-size:8.5px;
+  font-weight:950;
+  color:var(--t3);
+  line-height:1;
+  margin-left:1px;
+}
+.cal-birthday-dot,
+.cal-avatar,
+.cal-avatar-more{
+  display:none !important;
+}
+.person-filter-legend{
+  justify-content:center !important;
+  gap:6px !important;
+  overflow-x:auto;
+}
+.person-filter-legend .person-leg{
+  border:1.5px solid transparent;
+  background:transparent;
+  height:26px;
+  border-radius:999px;
+  padding:0 7px;
+  font-family:inherit;
+  cursor:pointer;
+}
+.person-filter-legend .person-leg.on{
+  background:var(--bg);
+  border-color:var(--border);
+  color:var(--t1);
+  font-weight:950;
+}
+.selected-day-hd{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.detail-target-btn{
+  flex:0 0 auto;
+  height:28px !important;
+  font-size:11px !important;
+  padding:0 10px !important;
+}
+@media (max-width:390px){
+  .cal-view-chip{
+    font-size:11px;
+    height:30px;
+  }
+  .calendar-view-mode-row{
+    gap:4px;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4802,16 +4918,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.55';
+const APP_VERSION='v1.0.56';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '일정 탭 상단 5일 클릭 연동',
-  '오늘 일정·루틴 통합 카드 적용',
-  '루틴 대상자별 그룹 표시',
-  '미리 보는 다음 일정 스타일 정리',
-  '일정 탭 스와이프 범위 축소',
-  '루틴 숨김 토글 디자인 조정',
-  '일정/달력 루틴 상세 레이아웃 통일'
+  '달력 4개 뷰 모드 적용',
+  '달력 칸 아바타 완전 제거',
+  '전체 모드 루틴 숨김',
+  '날짜 칸 점 최대 3개 표시',
+  '일괄 선택 편집 모드 전용',
+  '사람 필터 하단/상세 패널 이동'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4922,7 +5037,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -5068,6 +5183,70 @@ function renderSelectedDayList(mems,evs,selDate,sp){
 
   return html;
 }
+
+function setCalendarViewMode(mode){
+  calViewMode=mode||'all';
+  if(calViewMode!=='work' && shiftSelectMode){
+    shiftSelectMode=false;
+    shiftSelectedDates=[];
+  }
+  render({preserveScroll:true});
+}
+function calendarViewLabel(mode){
+  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'루틴':'전체';
+}
+function renderCalendarViewModeChips(){
+  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','루틴']];
+  return `<div class="calendar-view-mode-row">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
+}
+function filterCalendarEventsByTarget(evs){
+  return (evs||[]).filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+}
+function filterCalendarMemoriesByTarget(mems){
+  return (mems||[]).filter(x=>calWhoF==='all'||memoryPerson(x)===calWhoF);
+}
+function calendarDotCandidates(evs,mems){
+  const oneOffs=(evs||[]).filter(n=>!isRoutineCalendarEvent(n));
+  const routines=(evs||[]).filter(n=>isRoutineCalendarEvent(n));
+  let out=[];
+  const add=(key,color,title,rank=100)=>{
+    if(!out.some(x=>x.key===key))out.push({key,color,title,rank});
+  };
+
+  if(calViewMode==='work')return [];
+
+  if(calViewMode==='all' || calViewMode==='schedule'){
+    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, 'var(--orange)', x.name||'기념', 1));
+    oneOffs.sort(calendarDetailSort).forEach(n=>{
+      const who=n.who||'공통';
+      const rank=who==='공통'?2:10+personRank(n);
+      add(`person-${who}`, personColor(who), who, rank);
+    });
+  }else if(calViewMode==='routine'){
+    routines.sort(calendarDetailSort).forEach(n=>{
+      const who=n.who||'공통';
+      add(`routine-${who}`, personColor(who), who, 20+personRank(n));
+    });
+  }
+
+  out.sort((a,b)=>a.rank-b.rank);
+  return out;
+}
+function renderCalendarCellDots(evs,mems){
+  const items=calendarDotCandidates(evs,mems);
+  const shown=items.slice(0,3);
+  const more=items.length-shown.length;
+  return shown.map(x=>`<span class="cal-dot person-cal-dot" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`).join('')+
+    (more>0?`<span class="cal-dot-more">+${more}</span>`:'');
+}
+function renderCalendarPersonLegend(){
+  const people=getPersons();
+  return `<div class="cal-legend target-legend person-filter-legend">
+    <button class="leg person-leg${calWhoF==='all'?' on':''}" onclick="setCalendarTarget('all')"><span class="target-dot" style="background:var(--t3)"></span>전체</button>
+    ${people.map(p=>`<button class="leg person-leg${calWhoF===p?' on':''}" onclick="setCalendarTarget(${onclickArg(p)})"><span class="target-dot" style="background:${personColor(p)}"></span>${escapeHtml(p)}</button>`).join('')}
+  </div>`;
+}
+
 function renderCalendarAvatars(people){
   const arr=(people||[]).filter(Boolean);
   const shown=arr.slice(0,3);
@@ -6878,6 +7057,10 @@ function calendarEventItem(n,selDate){
 function renderC(){
   const y=calY,m=calM;
   ensureHolidayYear(y);
+  if(!isEditMode() && shiftSelectMode){
+    shiftSelectMode=false;
+    shiftSelectedDates=[];
+  }
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
   let g='';
@@ -6890,15 +7073,16 @@ function renderC(){
     const isToday=y===TY&&m===TM&&d===TD;
     const isSel=selDate===key;
     const isBulk=shiftSelectedDates.includes(key);
-    const evs=notesForCalendarDay(y,m,d);
-    const mems=memoriesOnDate(y,m,d);
+    const allEvs=notesOnDateAll(y,m,d);
+    const allMems=memoriesOnDate(y,m,d);
+    const evs=filterCalendarEventsByTarget(allEvs);
+    const mems=filterCalendarMemoriesByTarget(allMems);
     const cur=shiftData[key]||'';
-    const evsForDots=showRoutineInCalendar?evs:evs.filter(n=>!isRoutineCalendarEvent(n));
-    const personDots=renderCalendarAvatars(uniquePersonsForDay(evsForDots,mems));
-    const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
+    const showShift=(calViewMode==='all'||calViewMode==='work');
+    const dotHtml=renderCalendarCellDots(evs,mems);
     const hasCalSearch=!!String(searchQ||'').trim();
     const q=normText(searchQ);
-    const searchHit=!hasCalSearch || evs.some(n=>matchSearchNote(n)) || mems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
+    const searchHit=!hasCalSearch || allEvs.some(n=>matchSearchNote(n)) || allMems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
     const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
@@ -6910,9 +7094,9 @@ function renderC(){
       ontouchstart="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
-      <div class="cal-date-line">${birthTop}<div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
-      <div>${cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>'}</div>
-      <div class="cal-dots">${personDots}</div>
+      <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
+      <div class="cal-shift-line">${showShift&&cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>'}</div>
+      <div class="cal-dots">${dotHtml}</div>
     </div>`;
   }
 
@@ -6920,13 +7104,15 @@ function renderC(){
   if(selDate && !shiftSelectMode){
     const sp=selDate.split('-');
     const cur=shiftData[selDate]||'';
-    const evs=notesForCalendarDay(+sp[0],+sp[1]-1,+sp[2]);
-    const mems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
+    const allEvs=notesOnDateAll(+sp[0],+sp[1]-1,+sp[2]);
+    const allMems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
+    const evs=filterCalendarEventsByTarget(allEvs);
+    const mems=filterCalendarMemoriesByTarget(allMems);
     const selHoliday=holidayName(selDate);
     evHtml=`<div class="ev-card" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
-      <div class="ev-hd">
+      <div class="ev-hd selected-day-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
-        
+        <button class="sec-chip-btn detail-target-btn" onclick="openCalendarTargetSheet()">대상 ${targetLabel(calWhoF)}</button>
       </div>
       <div class="shift-picker">
         <span class="shift-picker-title">근무 편집</span>
@@ -6939,15 +7125,12 @@ function renderC(){
     </div>`;
   }
 
-  const legend=getPersons().map(p=>`<div class="leg avatar-leg"><span class="target-avatar">${avatarMarkup(personAvatar(p),p)}</span>${escapeHtml(p)}</div>`).join('');
-
   return`<div class="cal-outer">
-    <div class="cal-top-select-row calendar-control-line">
-      <button class="sec-chip-btn on cal-target-btn" onclick="openCalendarTargetSheet()">${targetLabel(calWhoF)}</button>
-      ${renderCalendarShiftCounts()}
-      <button class="sec-chip-btn${showRoutineInCalendar?' on':''} cal-routine-btn" onclick="toggleCalendarRoutineLayer()">${showRoutineInCalendar?'🔄 루틴 표시':'🔄 루틴 숨김'}</button>
-      <button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>
+    <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
+      ${renderCalendarViewModeChips()}
+      ${isEditMode()?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 완료':'일괄 선택'}</button>`:''}
     </div>
+    ${renderCalendarShiftCounts()}
     ${renderShiftBulkBar()}
     <div class="cal-card" ontouchstart="startLayerSwipe(event,\'calendar\',\'.cal-card\')" ontouchmove="moveLayerSwipe(event)" ontouchend="endLayerSwipe(event)" onmousedown="startLayerSwipe(event,\'calendar\',\'.cal-card\')" onmousemove="moveLayerSwipe(event)" onmouseup="endLayerSwipe(event)" onmouseleave="endLayerSwipe(event)">
       <div class="cal-nav">
@@ -6956,9 +7139,7 @@ function renderC(){
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
-      <div class="cal-legend target-legend">
-        ${legend}
-      </div>
+      ${renderCalendarPersonLegend()}
     </div>
     ${evHtml}
   </div>`;
@@ -7902,9 +8083,11 @@ async function clearAppCache(){
 
 
 function toggleShiftSelectMode(){
+  if(!requireEditMode())return;
   shiftSelectMode=!shiftSelectMode;
   shiftSelectedDates=[];
   selDate=null;
+  if(shiftSelectMode)calViewMode='work';
   render();
   if(shiftSelectMode){
     try{showToast('날짜를 여러 개 선택한 뒤 근무 버튼을 눌러 주세요.')}catch(e){}
@@ -7951,7 +8134,7 @@ function applyBulkShift(t){
   render();
 }
 function renderShiftBulkBar(){
-  if(!shiftSelectMode)return '';
+  if(!isEditMode() || !shiftSelectMode)return '';
   return `<div class="shift-bulk-bar selecting">
     <div class="shift-bulk-guide">날짜를 여러 개 선택한 뒤 D · E · N · OFF 또는 미입력을 눌러 한 번에 적용해요.</div>
     <div class="shift-bulk-actions">
