@@ -1,2 +1,1 @@
-PASS_VERSION=v1.0.64
-PASS_BUILD=v1.0.64-avatar-repair
+PASS_BUILD=v1.0.64-avatar-repair-2
