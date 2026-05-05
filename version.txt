@@ -1,2 +1,2 @@
-PASS_VERSION=v1.0.63
-PASS_BUILD=v1.0.63-hard-reset
+PASS_VERSION=v1.0.64
+PASS_BUILD=v1.0.64-avatar-repair

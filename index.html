@@ -5204,13 +5204,13 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.63';
-const PASS_BUILD_VERSION='v1.0.63-hard-reset';
+const APP_VERSION='v1.0.64';
+const PASS_BUILD_VERSION='v1.0.64-avatar-repair';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '서비스워커 강제 초기화 패키지',
-  'index.html 캐시 우회 갱신',
-  '좀비 캐시 재생성 방지'
+  '아바타 이미지 복구 패키지',
+  'assets/avatars WebP 파일 포함',
+  '이미지 로드 실패 시 PNG 폴백 추가'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -5369,10 +5369,30 @@ function randomYouthAvatar(name=''){
 function avatarSrc(id){
   return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
 }
+function avatarFallbackSrc(id){
+  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.png`:'';
+}
+function handleAvatarError(img,id){
+  if(!img)return;
+  const tried=img.dataset.fallbackTried==='1';
+  if(!tried){
+    img.dataset.fallbackTried='1';
+    img.src=avatarFallbackSrc(id);
+    return;
+  }
+  img.style.display='none';
+  const parent=img.parentElement;
+  if(parent && !parent.querySelector('.avatar-fallback')){
+    const span=document.createElement('span');
+    span.className='avatar-fallback';
+    span.textContent='👤';
+    parent.appendChild(span);
+  }
+}
 function avatarMarkup(id, alt='', cls='avatar-img'){
   const token=String(id||'');
   if(AVATAR_IMAGE_IDS.has(token)){
-    return `<img class="${cls}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy"/>`;
+    return `<img class="${cls}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
   }
   return `<span class="avatar-fallback">${escapeHtml(token||'👤')}</span>`;
 }
