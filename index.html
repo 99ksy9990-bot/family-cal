@@ -4458,6 +4458,53 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   touch-action:pan-y;
 }
 
+
+/* v1.0.47 request swipe menu */
+.request-swipe-card .c-row{
+  padding-right:0 !important;
+}
+.request-swipe-action-grid{
+  grid-template-columns:1fr 1fr !important;
+}
+.request-swipe-card .swipe-bg-left{
+  width:112px;
+}
+
+
+/* v1.0.48 memory swipe actions */
+.mem-card .memory-title-line{
+  justify-content:flex-start !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+}
+.mem-card .memory-title-line > span,
+.memory-title-text{
+  flex:0 0 auto !important;
+  min-width:0 !important;
+  max-width:58% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+.mem-card .memory-birth-inline{
+  flex:0 0 auto !important;
+  margin-left:0 !important;
+  white-space:nowrap !important;
+}
+.memory-actions{
+  display:none !important;
+}
+.memory-swipe-card{
+  touch-action:pan-y;
+}
+.memory-swipe-card .swipe-bg-left{
+  background:#111 !important;
+}
+.memory-swipe-action-grid{
+  grid-template-columns:1fr 1fr !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4515,15 +4562,12 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.46';
+const APP_VERSION='v1.0.48';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '달력 월 이동 스와이프',
-  '상단 날짜 기준 스와이프 고급화',
-  '대시보드 동기화 슬라이드',
-  '부탁 카드 스와이프 액션',
-  '일정 카드 스와이프 액션',
-  '하단 상세 패널 아래 스와이프 닫기'
+  '기념 카드 인라인 버튼 제거',
+  '기념 카드 왼쪽 스와이프 수정/삭제 메뉴',
+  '생년월일 제목 옆 표시 보정'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -5754,12 +5798,17 @@ function endItemSwipe(e){
   if(itemSwipe.active&&(actionRight||actionLeft))swipeTapUntil=Date.now()+500;
   itemSwipe=null;
   if(actionRight){
-    if(kind==='request')toggleReq(id);
-    if(kind==='note')toggleNote(id);
-    showToast(kind==='request'?'완료 상태를 변경했어요.':'일정 완료 상태를 변경했어요.');
+    if(kind==='request'){
+      toggleReq(id);
+      showToast('완료 상태를 변경했어요.');
+    }else if(kind==='note'){
+      toggleNote(id);
+      showToast('일정 완료 상태를 변경했어요.');
+    }
   }else if(actionLeft){
     if(kind==='request')openSwipeReqActions(id);
     if(kind==='note')openSwipeNoteActions(id);
+    if(kind==='memory')openSwipeMemoryActions(id);
   }
 }
 function openSwipeNoteActions(id){
@@ -5786,12 +5835,26 @@ function openSwipeReqActions(id){
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(r.title||'부탁')}</div>
-      <div class="action-grid">
-        <button class="toss-btn primary" onclick="toggleReq('${id}');closeM()">완료</button>
-        <button class="toss-btn" onclick="openEditReq('${id}')">메모/수정</button>
+      <div class="action-grid request-swipe-action-grid">
+        <button class="toss-btn primary" onclick="openEditReq('${id}')">수정</button>
         <button class="toss-btn danger" onclick="delReq('${id}');closeM()">삭제</button>
-        <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function openSwipeMemoryActions(id){
+  const x=memories.find(v=>String(v.id)===String(id));if(!x)return;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(x.name||'기념')}</div>
+      <div class="action-grid memory-swipe-action-grid">
+        <button class="toss-btn primary" onclick="openMemoryModal('${id}')">수정</button>
+        <button class="toss-btn danger" onclick="delMemory('${id}');closeM()">삭제</button>
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
   </div>`;
 }
@@ -6888,11 +6951,11 @@ function delReq(id){
 
 function makeReqCard(r){
   const due=requestDueLabel(r);
-  return`<div class="card swipe-card" 
+  return`<div class="card swipe-card request-swipe-card" 
     ontouchstart="startItemSwipe(event,'request','${r.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'request','${r.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
     draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)">
-    <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
+    <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
     <div class="c-row">
       <div class="chk${isDone(r)?' on':''}" onclick="toggleReq('${r.id}')">
         <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -6907,10 +6970,6 @@ function makeReqCard(r){
           ${isDone(r)&&r.doneAt?`<span class="chip done-date-chip">완료 ${dateLabel(r.doneAt)}</span>`:''}
         </div>
         ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 메모</button>`}
-      </div>
-      <div class="c-right">
-        <button class="small-link" onclick="event.stopPropagation();openEditReq('${r.id}')">수정</button>
-        <button class="small-link" onclick="event.stopPropagation();delReq('${r.id}')">삭제</button>
       </div>
     </div>
   </div>`;
@@ -7009,22 +7068,21 @@ function makeMemoryCard(x){
     const dow=DAYS[new Date(ny,nm-1,nd).getDay()];
     upcomingLabel=`${nm}/${nd}(${dow})`;
   }
-  return`<div class="card mem-card reorder-card"
+  return`<div class="card mem-card swipe-card memory-swipe-card reorder-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
+    ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
+    onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
     ondragstart="dragStart(event,'memories','${x.id}')"
     ondragover="dragOver(event)"
     ondrop="dropItem(event,'memories','${x.id}')"
-    ondragend="dragEnd(event)"
-    ontouchstart="touchReorderStart(event,'memories','${x.id}')"
-    ontouchmove="touchReorderMove(event)"
-    ontouchend="touchReorderEnd(event)"
-    ontouchcancel="touchReorderCancel()">
+    ondragend="dragEnd(event)">
+    <div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
     <div class="c-row memory-row">
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
         <div class="c-title memory-title-line">
-          <span>${escapeHtml(x.name)}</span>
+          <span class="memory-title-text">${escapeHtml(x.name)}</span>
           ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)} ${isLunar?'(음)':'(양)'}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
@@ -7033,10 +7091,6 @@ function makeMemoryCard(x){
           ${x.birth?`<span class="chip mem-dday">${escapeHtml(upcomingLabel)} ┃ ${escapeHtml(nb.dday)}</span>`:''}
         </div>
         ${x.memo?`<button class="comment-pill" onclick="event.stopPropagation();openMemoryModal('${x.id}')">${escapeHtml(x.memo)}</button>`:''}
-      </div>
-      <div class="c-right memory-actions">
-        <button class="memory-action edit" onclick="event.stopPropagation();openMemoryModal('${x.id}')">수정</button>
-        <button class="memory-action del" onclick="event.stopPropagation();delMemory('${x.id}')">삭제</button>
       </div>
     </div>
   </div>`;
