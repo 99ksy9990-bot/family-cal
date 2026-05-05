@@ -4688,181 +4688,61 @@ select{
 }
 
 
-/* v1.0.53 schedule dashboard merge + lighter swipe scope */
-.merged-today-dashboard{
-  padding:14px 14px 12px !important;
-}
-.merged-dashboard-head,
-.upcoming-dashboard-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:10px;
-}
-.merged-dashboard-summary{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  min-width:0;
-  flex-wrap:wrap;
-}
-.merged-summary-label{
-  font-size:14px;
-  font-weight:700;
-  color:var(--t1);
-}
-.merged-summary-label.routine{
-  color:var(--purple-t);
-}
-.merged-count{
-  min-width:28px !important;
-  height:28px !important;
-  padding:0 10px !important;
-  background:var(--card) !important;
-  color:var(--t3) !important;
-  font-size:13px !important;
-  font-weight:950 !important;
-  box-shadow:0 1px 4px rgba(0,0,0,.04);
-}
-.merged-section-label{
-  font-size:12px;
-  font-weight:700;
-  color:var(--t3);
-  margin:8px 0 7px;
-  letter-spacing:.02em;
-}
-.merged-section-label.routine{
-  color:var(--purple-t);
-  margin-top:12px;
-}
-.merged-schedule-card{
-  background:var(--bg) !important;
-  border-radius:16px;
-  padding:8px 10px;
-  box-shadow:none !important;
-}
-.merged-empty-card{
-  padding:12px 10px;
-}
-.merged-today-row{
-  grid-template-columns:58px minmax(0,1fr) auto !important;
-  gap:8px !important;
-  padding:7px 2px;
-  border-bottom:1px solid var(--border);
-}
-.merged-today-row:last-child{
-  border-bottom:none;
-}
-.merged-routine-wrap{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.merged-routine-group{
-  display:grid;
-  grid-template-columns:46px minmax(0,1fr);
-  gap:10px;
-  align-items:flex-start;
-}
-.merged-routine-avatar .avatar-wrap{
-  width:36px !important;
-  height:36px !important;
-}
-.merged-routine-head{
-  display:contents;
-}
-.merged-routine-headline{
-  align-self:center;
-  display:flex;
-  align-items:center;
-  gap:5px;
-  font-size:14px;
-  font-weight:700;
-  color:var(--t1);
-  margin:3px 0 6px;
-}
-.merged-routine-kicker{
-  color:var(--purple-t);
-  font-weight:800;
-}
-.merged-routine-dot{
-  color:var(--t3);
-}
-.merged-routine-person{
-  color:var(--t1);
-  font-weight:700;
-}
-.merged-routine-box{
-  grid-column:2;
-  background:var(--bg);
-  border-radius:16px;
-  padding:8px 12px;
-}
-.merged-routine-row{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  gap:10px;
-  align-items:center;
-  padding:8px 0;
-  border-bottom:1px solid var(--border);
-}
-.merged-routine-row:last-child{
-  border-bottom:none;
-}
-.merged-routine-title{
-  min-width:0;
-  font-size:13px;
-  font-weight:700;
-  color:var(--t1);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.merged-routine-time{
-  font-size:12.5px;
-  font-weight:700;
-  color:var(--t2);
-  white-space:nowrap;
-}
-.refreshed-upcoming-card{
-  padding:14px !important;
-}
-.refreshed-upcoming-row{
-  background:var(--bg) !important;
-  border-radius:14px;
-  padding:8px 10px;
-}
-.refreshed-upcoming-card .upcoming-list{
-  gap:8px;
-}
-.refreshed-upcoming-card .upcoming-dday{
-  min-width:48px;
-  text-align:center;
-  font-weight:800;
-}
-.refreshed-upcoming-card .upcoming-title{
-  font-weight:700 !important;
-}
-.refreshed-upcoming-card .upcoming-meta{
-  font-weight:700 !important;
-}
-.shift-widget-5dates .shift-mini-card{
-  cursor:pointer;
-}
-@media (max-width:420px){
-  .merged-today-row{
-    grid-template-columns:52px minmax(0,1fr) auto !important;
-    gap:6px !important;
-  }
-  .merged-routine-group{
-    grid-template-columns:40px minmax(0,1fr);
-    gap:8px;
-  }
-  .merged-routine-avatar .avatar-wrap{
-    width:32px !important;
-    height:32px !important;
-  }
+/* v1.0.55 regenerated routine layout + toggle + schedule merge */
+.merged-today-dashboard{padding:14px 14px 12px !important;}
+.merged-dashboard-head,.upcoming-dashboard-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.merged-dashboard-summary{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;}
+.merged-summary-label{font-size:14px;font-weight:700;color:var(--t1);}
+.merged-summary-label.routine{color:var(--purple-t);}
+.merged-count{min-width:28px !important;height:28px !important;padding:0 10px !important;background:var(--card) !important;color:var(--t3) !important;font-size:13px !important;font-weight:950 !important;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.merged-section-label{font-size:12px;font-weight:700;color:var(--t3);margin:8px 0 7px;letter-spacing:.02em;}
+.merged-section-label.routine{font-size:14px !important;font-weight:800 !important;color:var(--purple-t);margin-top:12px;}
+.merged-schedule-card{background:var(--bg) !important;border-radius:16px;padding:8px 10px;box-shadow:none !important;}
+.merged-empty-card{padding:12px 10px;}
+.merged-today-row{grid-template-columns:58px minmax(0,1fr) auto !important;gap:8px !important;padding:7px 2px;border-bottom:1px solid var(--border);}
+.merged-today-row:last-child{border-bottom:none;}
+.merged-routine-wrap{display:flex;flex-direction:column;gap:12px;}
+.merged-routine-group{display:grid;grid-template-columns:64px minmax(0,1fr) !important;gap:12px !important;align-items:flex-start;}
+.merged-routine-head{display:flex !important;flex-direction:column;align-items:center;gap:6px;}
+.merged-routine-avatar .avatar-wrap{width:44px !important;height:44px !important;}
+.merged-routine-person.under-avatar{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
+.merged-routine-headline,.merged-routine-kicker,.merged-routine-dot{display:none !important;}
+.merged-routine-box{grid-column:2;background:var(--bg);border-radius:16px;padding:12px 16px;}
+.merged-routine-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:14px 0 !important;border-bottom:1px solid var(--border);}
+.merged-routine-row:last-child{border-bottom:none;}
+.merged-routine-title{min-width:0;font-size:15px !important;font-weight:800 !important;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.merged-routine-time{font-size:15px !important;font-weight:700 !important;color:var(--t2);white-space:nowrap;}
+.refreshed-upcoming-card{padding:14px !important;}
+.refreshed-upcoming-row{background:var(--bg) !important;border-radius:14px;padding:8px 10px;}
+.refreshed-upcoming-card .upcoming-list{gap:8px;}
+.refreshed-upcoming-card .upcoming-dday{min-width:48px;text-align:center;font-weight:800;}
+.refreshed-upcoming-card .upcoming-title{font-weight:700 !important;}
+.refreshed-upcoming-card .upcoming-meta{font-weight:700 !important;}
+.shift-widget-5dates .shift-mini-card{cursor:pointer;}
+
+.routine-toggle-pill.off{border:1.7px solid #F0C9D4 !important;background:#FFFDFE !important;color:#D96988 !important;box-shadow:0 1px 3px rgba(217,105,136,.08);}
+.routine-toggle-pill.off:active{transform:translateY(1px);}
+
+.routine-group-card{display:grid !important;grid-template-columns:64px minmax(0,1fr) !important;gap:12px !important;align-items:flex-start;padding:8px 0 10px !important;}
+.routine-group-avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.routine-group-avatar{width:44px !important;height:44px !important;flex:0 0 44px !important;}
+.routine-group-person.under-avatar{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
+.routine-group-overline,.routine-kind,.routine-sep{display:none !important;}
+.routine-group-info{min-width:0;}
+.routine-group-box{padding:12px 16px !important;border-radius:16px !important;}
+.routine-group-row{padding:14px 0 !important;}
+.routine-group-title{font-size:15px !important;font-weight:800 !important;}
+.routine-group-time{font-size:15px !important;font-weight:700 !important;}
+
+.basic-info-card .person-avatar-inline{width:34px !important;height:34px !important;flex:0 0 34px !important;margin-right:8px !important;}
+.basic-info-card .fi-name{gap:0 !important;}
+
+@media (max-width:480px){
+  .merged-today-row{grid-template-columns:52px minmax(0,1fr) auto !important;gap:6px !important;}
+  .merged-routine-group,.routine-group-card{grid-template-columns:58px minmax(0,1fr) !important;gap:10px !important;}
+  .merged-routine-avatar .avatar-wrap,.routine-group-avatar{width:40px !important;height:40px !important;flex-basis:40px !important;}
+  .merged-routine-person.under-avatar,.routine-group-person.under-avatar,.merged-section-label.routine{font-size:13px !important;}
+  .merged-routine-title,.merged-routine-time,.routine-group-title,.routine-group-time{font-size:14px !important;}
 }
 
 </style>
@@ -4922,14 +4802,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.53';
+const APP_VERSION='v1.0.55';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
   '일정 탭 상단 5일 클릭 연동',
   '오늘 일정·루틴 통합 카드 적용',
   '루틴 대상자별 그룹 표시',
   '미리 보는 다음 일정 스타일 정리',
-  '일정 탭 스와이프 범위 축소'
+  '일정 탭 스와이프 범위 축소',
+  '루틴 숨김 토글 디자인 조정',
+  '일정/달력 루틴 상세 레이아웃 통일'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -5173,11 +5055,11 @@ function renderSelectedDayList(mems,evs,selDate,sp){
       }).join('');
 
       html += `<div class="ev-item cal-selected-event routine-group-card">
-        <div class="ev-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-        <div class="ev-info">
-          <div class="routine-group-overline">
-            <span class="routine-kind">루틴</span><span class="routine-sep">·</span><span class="routine-person">${escapeHtml(who)}</span>
-          </div>
+        <div class="routine-group-avatar-col">
+          <div class="ev-avatar routine-group-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+          <div class="routine-group-person under-avatar">${escapeHtml(who)}</div>
+        </div>
+        <div class="ev-info routine-group-info">
           <div class="routine-group-box">${itemsHtml}</div>
         </div>
       </div>`;
@@ -7240,7 +7122,7 @@ function renderI(){
         <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</span>${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
             <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
-            <button class="today-toggle-pill${kid.showRoutine?' on':''}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
+            <button class="today-toggle-pill routine-toggle-pill${kid.showRoutine?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
           </div>
         </div>
         <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
@@ -8499,7 +8381,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     ? groupKeys.map(who=>`<div class="merged-routine-group">
         <div class="merged-routine-head">
           <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="merged-routine-headline"><span class="merged-routine-kicker">루틴</span><span class="merged-routine-dot">·</span><span class="merged-routine-person">${escapeHtml(who)}</span></div>
+          <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
         </div>
         <div class="merged-routine-box">${routineGroups[who].map(n=>`<div class="merged-routine-row">
           <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
