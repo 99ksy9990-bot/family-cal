@@ -4885,16 +4885,45 @@ select{
 }
 
 
-/* v1.0.58 routine basic info compact / hidden pill / calendar detail avatar label */
-.fi-outer .sec-cnt{
+/* v1.0.61 quick color / compact routine info / today empty capture */
+.color-choice-row{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:10px 0 14px;
+}
+.color-choice{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:3px solid transparent;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);
+  cursor:pointer;
+}
+.color-choice.on{
+  border-color:#fff;
+  outline:3px solid var(--blue);
+}
+.quick-color-desc{
+  font-size:13px;
+  color:var(--t2);
+  margin-bottom:8px;
+  font-weight:700;
+  line-height:1.45;
+}
+.fi-outer .sec-cnt,
+.merged-count{
   min-width:28px !important;
   height:28px !important;
   padding:0 10px !important;
   border-radius:999px !important;
-  background:var(--blue-bg) !important;
-  color:var(--blue-t) !important;
+  background:var(--card) !important;
+  color:var(--t3) !important;
   border:none !important;
   box-shadow:none !important;
+  font-size:13px !important;
+  font-weight:950 !important;
 }
 .today-toggle-pill.off,
 .routine-toggle-pill.off{
@@ -4910,37 +4939,125 @@ select{
   align-items:flex-start !important;
   padding:14px 16px !important;
 }
-.basic-info-card .swipe-bg{background:transparent !important;color:transparent !important;box-shadow:none !important;}
-.basic-info-avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:2;}
-.basic-info-avatar{width:44px !important;height:44px !important;flex:0 0 44px !important;}
-.basic-info-person{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
-.basic-info-main{min-width:0;position:relative;z-index:2;padding-top:2px;}
-.basic-info-top{display:flex;justify-content:flex-end;align-items:flex-start;gap:8px;margin-bottom:8px;}
-.basic-info-card .fi-hd-btns{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;}
-.basic-info-meta,
-.basic-info-vacation{font-size:12.5px;font-weight:800;line-height:1.45;color:var(--t2);text-align:right;word-break:keep-all;}
-.basic-info-vacation{margin-top:4px;color:var(--green-t);}
-.basic-info-collapsed{cursor:pointer;}
-.oneoff-selected-event{display:grid !important;grid-template-columns:64px minmax(0,1fr) !important;gap:12px !important;align-items:flex-start !important;}
-.oneoff-avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.oneoff-avatar{width:44px !important;height:44px !important;flex:0 0 44px !important;}
-.oneoff-person.under-avatar{width:100%;font-size:14px;font-weight:800;line-height:1.2;text-align:center;color:var(--t1);word-break:keep-all;}
-.oneoff-info{min-width:0;}
-.oneoff-box{padding:12px 16px;border-radius:16px;background:var(--bg2);}
-.oneoff-main{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.oneoff-title{font-size:15px !important;font-weight:800 !important;white-space:normal !important;overflow:visible !important;text-overflow:clip !important;}
-.oneoff-time{font-size:15px !important;font-weight:700 !important;white-space:nowrap;}
-.oneoff-selected-event .ev-alert{margin-top:8px;}
-@media (max-width:560px){
-  .basic-info-card,.oneoff-selected-event{grid-template-columns:58px minmax(0,1fr) !important;gap:10px !important;}
-  .basic-info-avatar,.oneoff-avatar{width:40px !important;height:40px !important;flex-basis:40px !important;}
-  .basic-info-person,.oneoff-person.under-avatar{font-size:13px !important;}
-  .basic-info-meta,.basic-info-vacation,.oneoff-title,.oneoff-time{font-size:14px !important;}
-  .basic-info-card{padding:12px 14px !important;}
+.basic-info-avatar-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  position:relative;
+  z-index:2;
 }
-
-
-/* v1.0.59 memory sort and birth-inline */
+.basic-info-avatar{
+  width:44px !important;
+  height:44px !important;
+  flex:0 0 44px !important;
+}
+.basic-info-person{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  width:100%;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.2;
+  color:var(--t1);
+  cursor:pointer;
+  word-break:keep-all;
+}
+.quick-color-dot{
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);
+  flex:0 0 10px;
+}
+.quick-color-arrow{
+  font-size:9px;
+  color:var(--t3);
+}
+.basic-info-main{
+  min-width:0;
+  position:relative;
+  z-index:2;
+  padding-top:2px;
+}
+.basic-info-top{
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-start;
+  gap:8px;
+  margin-bottom:8px;
+}
+.basic-info-card .fi-hd-btns{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+.basic-info-meta,
+.basic-info-vacation{
+  font-size:12.5px;
+  font-weight:800;
+  line-height:1.45;
+  color:var(--t2);
+  text-align:right;
+  word-break:keep-all;
+}
+.basic-info-vacation{
+  margin-top:4px;
+  color:var(--green-t);
+}
+.basic-info-collapsed{
+  cursor:pointer;
+}
+.oneoff-selected-event{
+  display:grid !important;
+  grid-template-columns:64px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:flex-start !important;
+}
+.oneoff-avatar-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+}
+.oneoff-avatar{
+  width:44px !important;
+  height:44px !important;
+  flex:0 0 44px !important;
+}
+.oneoff-person.under-avatar{
+  width:100%;
+  font-size:14px;
+  font-weight:800;
+  line-height:1.2;
+  text-align:center;
+  color:var(--t1);
+  word-break:keep-all;
+}
+.oneoff-info{
+  min-width:0;
+}
+.oneoff-box{
+  padding:12px 16px;
+  border-radius:16px;
+  background:var(--bg);
+}
+.oneoff-title{
+  font-size:15px !important;
+  font-weight:800 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+.oneoff-time{
+  font-size:15px !important;
+  font-weight:700 !important;
+  white-space:nowrap;
+}
 .mem-card .memory-title-line{
   justify-content:flex-start !important;
   align-items:center !important;
@@ -4959,43 +5076,35 @@ select{
   border-radius:999px !important;
   white-space:nowrap !important;
 }
-
-
-/* v1.0.60 today briefing image / empty variants */
-.merged-count{
-  min-width:28px !important;
-  height:28px !important;
-  padding:0 10px !important;
-  border-radius:999px !important;
-  background:var(--card) !important;
-  color:var(--t3) !important;
-  border:none !important;
-  box-shadow:none !important;
-  font-size:13px !important;
-  font-weight:950 !important;
+.merged-summary-label,
+.merged-summary-label.routine{
+  color:var(--t1) !important;
 }
-.merged-summary-label.routine{color:var(--t1) !important;}
 .merged-section-label,
 .merged-section-label.routine{
   font-size:14px !important;
   font-weight:900 !important;
+  color:var(--t3) !important;
   margin:10px 0 8px !important;
 }
-.merged-section-label{color:var(--t3) !important;}
-.merged-section-label.routine{color:var(--t3) !important;}
-.today-briefing-capture{overflow:hidden;}
-.brief-copy-btn{white-space:nowrap;}
+.today-briefing-capture{
+  overflow:hidden;
+}
+.brief-copy-btn{
+  white-space:nowrap;
+}
 .brief-empty-state{
   display:flex;
   flex-direction:column;
-  align-items:flex-start;
+  align-items:center;
   justify-content:center;
   gap:8px;
   min-height:132px;
-  padding:16px 14px;
+  padding:18px 14px;
   border-radius:20px;
   background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,248,252,.98));
   border:1px dashed rgba(142,142,147,.28);
+  text-align:center;
 }
 .brief-empty-art{
   font-size:34px;
@@ -5012,6 +5121,30 @@ select{
   font-weight:700;
   color:var(--t3);
   line-height:1.5;
+  max-width:260px;
+}
+.merged-empty-single{
+  margin-top:8px;
+}
+.card-wrap .empty-state{
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  min-height:170px !important;
+}
+@media (max-width:560px){
+  .basic-info-card,.oneoff-selected-event{
+    grid-template-columns:58px minmax(0,1fr) !important;
+    gap:10px !important;
+  }
+  .basic-info-avatar,.oneoff-avatar{
+    width:40px !important;
+    height:40px !important;
+    flex-basis:40px !important;
+  }
+  .basic-info-person,.oneoff-person.under-avatar{
+    font-size:13px !important;
+  }
 }
 
 </style>
@@ -5071,12 +5204,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.60';
+const APP_VERSION='v1.0.61';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '오늘 일정 요약 숫자/라벨 디자인 정리',
-  '복사 버튼으로 일정+루틴 요약 이미지 저장',
-  '일정/루틴/부탁 빈 화면 랜덤 멘트·일러스트 강화'
+  '대상자 빠른 색상 변경',
+  '오늘 일정/루틴 빈 화면 통합',
+  '오늘 브리핑 이미지 저장',
+  '부탁 빈 화면 랜덤 문구',
+  '기념일 디데이 가까운 순 정렬',
+  '루틴 기본정보 카드 컴팩트 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -5207,6 +5343,7 @@ const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳
 
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
+const PERSON_COLOR_PALETTE=['#8E8E93','#007AFF','#FF2D55','#34C759','#FF9500','#7C3AED','#00C7BE','#5856D6','#AF52DE','#FF6B00','#111827','#A2845E'];
 
 
 const PERSON_AVATAR_GROUPS=[
@@ -5514,7 +5651,7 @@ function getPersons(){
   BASE_PERSONS.forEach(n=>{if(!isHiddenBasePerson(n) && !names.includes(n))names.push(n)});
   return names;
 }
-function personColor(who){
+function defaultPersonColor(who){
   const w=who||'공통';
   if(w==='공통')return '#8E8E93';
   if(w==='아빠')return '#007AFF';
@@ -5525,6 +5662,12 @@ function personColor(who){
   const idx=Math.max(0,arr.indexOf(w));
   const extra=['#5856D6','#00C7BE','#AF52DE','#FF6B00','#111827'];
   return extra[idx%extra.length];
+}
+function personColor(who){
+  const w=who||'공통';
+  const person=(family||[]).find(x=>(x.name||'').trim()===String(w).trim());
+  if(person&&person.color)return person.color;
+  return defaultPersonColor(w);
 }
 function personCls(who){
   const arr=getPersons();
@@ -7018,69 +7161,49 @@ const EMPTY_SCHEDULE_VARIANTS=[
   {emoji:'🐻', title:'일정이 없어요', sub:'곰돌이처럼 느긋하고 포근한 하루를 보내요.'}
 ];
 let EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
-function refreshEmptyStatePick(){
-  EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
-}
-function pickScheduleEmpty(title,sub){
-  const base=EMPTY_SCHEDULE_VARIANTS[EMPTY_SCHEDULE_PICK]||EMPTY_SCHEDULE_VARIANTS[0];
-  return {emoji:base.emoji,title:title||base.title,sub:base.sub};
-}
-
-function renderEmptyState(kind,title,sub=''){
-  const cfg={
-    schedule:pickScheduleEmpty(title,sub),
-    request:{emoji:'📭',title:title||'부탁할 일이 없어요',sub:sub||'비어 있는 바구니처럼 한결 가벼운 상태예요.'},
-    done:{emoji:'✅',title:title||'완료된 항목이 없어요',sub:sub||'기록은 아직 없지만 지금부터 차곡차곡 쌓아볼 수 있어요.'},
-    generic:{emoji:'🌿',title:title||'표시할 내용이 없어요',sub:sub||'조금 더 편안한 화면이에요.'}
-  };
-  const c=cfg[kind]||cfg.generic;
-  return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
-}
-
-
 const EMPTY_ROUTINE_VARIANTS=[
   {emoji:'🎒', title:'루틴이 없어요', sub:'오늘은 정해진 루틴이 잠시 쉬어가는 날이에요.'},
-  {emoji:'🪁', title:'루틴이 없어요', sub:'바람 따라 가볍게 흘러가는 하루예요. 조금 느슨해도 좋아요.'},
+  {emoji:'🪁', title:'루틴이 없어요', sub:'바람 따라 가볍게 흘러가는 하루예요.'},
   {emoji:'📘', title:'루틴이 없어요', sub:'정해진 순서가 비어 있어 마음도 한결 여유로워요.'},
-  {emoji:'🎧', title:'루틴이 없어요', sub:'루틴이 비어 있어 좋아하는 음악처럼 편안한 리듬으로 보낼 수 있어요.'},
-  {emoji:'🧩', title:'루틴이 없어요', sub:'오늘은 꼭 맞춰야 할 조각이 없어요. 조금 더 자유롭게 움직여보세요.'},
+  {emoji:'🎧', title:'루틴이 없어요', sub:'편안한 리듬으로 보내도 좋은 날이에요.'},
+  {emoji:'🧩', title:'루틴이 없어요', sub:'오늘은 꼭 맞춰야 할 조각이 없어요.'},
   {emoji:'🌼', title:'루틴이 없어요', sub:'꽃처럼 가볍게 쉬어가는 일정이에요.'},
-  {emoji:'🛴', title:'루틴이 없어요', sub:'정해진 동선이 없어 발걸음이 한결 가벼워요.'},
-  {emoji:'🍎', title:'루틴이 없어요', sub:'학원이나 등교 준비 없이 숨 돌리기 좋은 날이에요.'},
-  {emoji:'🎨', title:'루틴이 없어요', sub:'정해진 루틴 대신 하고 싶은 것을 채워 넣어보세요.'},
+  {emoji:'🛴', title:'루틴이 없어요', sub:'정해진 동선이 없어 발걸음이 가벼워요.'},
+  {emoji:'🍎', title:'루틴이 없어요', sub:'학원이나 등교 준비 없이 숨 돌리기 좋아요.'},
+  {emoji:'🎨', title:'루틴이 없어요', sub:'정해진 루틴 대신 하고 싶은 걸 채워봐요.'},
   {emoji:'⛅', title:'루틴이 없어요', sub:'조금 느긋한 템포로 보내기 좋은 하루예요.'},
-  {emoji:'🫧', title:'루틴이 없어요', sub:'비눗방울처럼 가볍고 산뜻한 여백이 생겼어요.'},
-  {emoji:'🪵', title:'루틴이 없어요', sub:'탄탄한 루틴 대신 편안한 휴식이 들어온 날이에요.'},
-  {emoji:'🍀', title:'루틴이 없어요', sub:'반복 일정 없이 운 좋게 생긴 여유예요.'},
-  {emoji:'🎈', title:'루틴이 없어요', sub:'오늘은 묶여 있지 않은 풍선처럼 유연하게 움직여도 돼요.'},
-  {emoji:'🕶️', title:'루틴이 없어요', sub:'조금 더 가볍고 멋지게 쉬어갈 수 있는 날이에요.'},
-  {emoji:'🏕️', title:'루틴이 없어요', sub:'정해진 루틴 대신 캠핑처럼 느긋한 분위기를 즐겨보세요.'},
-  {emoji:'🧺', title:'루틴이 없어요', sub:'비어 있는 시간 바구니에 휴식을 담아보세요.'},
-  {emoji:'🌙', title:'루틴이 없어요', sub:'차분한 호흡으로 하루를 보내기 좋은 리듬이에요.'},
-  {emoji:'🧸', title:'루틴이 없어요', sub:'포근한 인형처럼 말랑하게 쉬어가는 하루예요.'},
-  {emoji:'🥛', title:'루틴이 없어요', sub:'따뜻한 우유 한 잔처럼 부드러운 템포의 하루예요.'}
+  {emoji:'🫧', title:'루틴이 없어요', sub:'가볍고 산뜻한 여백이 생겼어요.'},
+  {emoji:'🪵', title:'루틴이 없어요', sub:'편안한 휴식이 들어온 날이에요.'},
+  {emoji:'🍀', title:'루틴이 없어요', sub:'운 좋게 생긴 여유를 즐겨보세요.'},
+  {emoji:'🎈', title:'루틴이 없어요', sub:'풍선처럼 유연하게 움직여도 돼요.'},
+  {emoji:'🕶️', title:'루틴이 없어요', sub:'조금 더 가볍고 멋지게 쉬어갈 수 있어요.'},
+  {emoji:'🏕️', title:'루틴이 없어요', sub:'캠핑처럼 느긋한 분위기를 즐겨보세요.'},
+  {emoji:'🧺', title:'루틴이 없어요', sub:'빈 시간 바구니에 휴식을 담아보세요.'},
+  {emoji:'🌙', title:'루틴이 없어요', sub:'차분한 호흡으로 보내기 좋은 리듬이에요.'},
+  {emoji:'🧸', title:'루틴이 없어요', sub:'포근하게 쉬어가는 하루예요.'},
+  {emoji:'🥛', title:'루틴이 없어요', sub:'부드러운 템포의 하루예요.'}
 ];
 const EMPTY_REQUEST_VARIANTS=[
   {emoji:'📭', title:'부탁할 일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
-  {emoji:'🧺', title:'부탁할 일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어 한결 가벼워요.'},
-  {emoji:'☕', title:'부탁할 일이 없어요', sub:'해야 할 부탁이 없어 차 한 잔의 여유를 누리기 좋아요.'},
-  {emoji:'🌿', title:'부탁할 일이 없어요', sub:'잔잔하게 흘러가는 하루예요. 천천히 쉬어가도 좋아요.'},
-  {emoji:'🫖', title:'부탁할 일이 없어요', sub:'따뜻한 티타임처럼 부탁 없는 여유가 찾아왔어요.'},
+  {emoji:'🧺', title:'부탁할 일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어요.'},
+  {emoji:'☕', title:'부탁할 일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
+  {emoji:'🌿', title:'부탁할 일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
+  {emoji:'🫖', title:'부탁할 일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
   {emoji:'🍪', title:'부탁할 일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
-  {emoji:'🕊️', title:'부탁할 일이 없어요', sub:'부탁이 없어 마음이 한결 가볍고 포근해요.'},
-  {emoji:'🏡', title:'부탁할 일이 없어요', sub:'집 안에 평화가 머무는 조용한 하루예요.'},
-  {emoji:'🧡', title:'부탁할 일이 없어요', sub:'서로 부탁 대신 미소를 나누기 좋은 날이에요.'},
-  {emoji:'🎈', title:'부탁할 일이 없어요', sub:'부담이 적어 풍선처럼 가볍게 흘러가는 하루예요.'},
-  {emoji:'📚', title:'부탁할 일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워보세요.'},
+  {emoji:'🕊️', title:'부탁할 일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
+  {emoji:'🏡', title:'부탁할 일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
+  {emoji:'🧡', title:'부탁할 일이 없어요', sub:'부탁 대신 미소를 나누기 좋은 날이에요.'},
+  {emoji:'🎈', title:'부탁할 일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
+  {emoji:'📚', title:'부탁할 일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
   {emoji:'🌤️', title:'부탁할 일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
-  {emoji:'🛋️', title:'부탁할 일이 없어요', sub:'소파에 기대듯 편안한 하루를 보내보세요.'},
-  {emoji:'🍵', title:'부탁할 일이 없어요', sub:'차분한 한숨 돌리기에 딱 좋은 타이밍이에요.'},
-  {emoji:'🌈', title:'부탁할 일이 없어요', sub:'해야 할 부탁 대신 기분 좋은 여백이 생겼어요.'},
-  {emoji:'🪴', title:'부탁할 일이 없어요', sub:'작은 화분처럼 천천히 쉬어가기 좋은 날이에요.'},
-  {emoji:'🧁', title:'부탁할 일이 없어요', sub:'오늘은 부탁 대신 달콤한 여유가 놓여 있어요.'},
-  {emoji:'🧸', title:'부탁할 일이 없어요', sub:'포근하게 마음을 풀어놓기 좋은 하루예요.'},
-  {emoji:'🐻', title:'부탁할 일이 없어요', sub:'곰돌이처럼 느긋하고 포근한 하루를 보내요.'},
-  {emoji:'🌙', title:'부탁할 일이 없어요', sub:'차분하게 숨 고르며 보내기 좋은 조용한 시간이에요.'}
+  {emoji:'🛋️', title:'부탁할 일이 없어요', sub:'소파에 기대듯 편안히 쉬어보세요.'},
+  {emoji:'🍵', title:'부탁할 일이 없어요', sub:'한숨 돌리기에 딱 좋은 타이밍이에요.'},
+  {emoji:'🌈', title:'부탁할 일이 없어요', sub:'기분 좋은 여백이 생겼어요.'},
+  {emoji:'🪴', title:'부탁할 일이 없어요', sub:'작은 화분처럼 천천히 쉬어가요.'},
+  {emoji:'🧁', title:'부탁할 일이 없어요', sub:'달콤한 여유가 놓여 있어요.'},
+  {emoji:'🧸', title:'부탁할 일이 없어요', sub:'포근하게 마음을 풀어놓기 좋아요.'},
+  {emoji:'🐻', title:'부탁할 일이 없어요', sub:'느긋하고 포근한 하루를 보내요.'},
+  {emoji:'🌙', title:'부탁할 일이 없어요', sub:'차분하게 숨 고르기 좋은 시간이에요.'}
 ];
 let EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
 let EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
@@ -7089,6 +7212,11 @@ function refreshEmptyStatePick(kind='all'){
   if(kind==='all' || kind==='routine')EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
   if(kind==='all' || kind==='request')EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
 }
+function pickScheduleEmpty(title,sub){
+  const base=EMPTY_SCHEDULE_VARIANTS[EMPTY_SCHEDULE_PICK]||EMPTY_SCHEDULE_VARIANTS[0];
+  return {emoji:base.emoji,title:title||base.title,sub:base.sub};
+}
+
 function pickRoutineEmpty(title,sub){
   const base=EMPTY_ROUTINE_VARIANTS[EMPTY_ROUTINE_PICK]||EMPTY_ROUTINE_VARIANTS[0];
   return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
@@ -7096,6 +7224,10 @@ function pickRoutineEmpty(title,sub){
 function pickRequestEmpty(title,sub){
   const base=EMPTY_REQUEST_VARIANTS[EMPTY_REQUEST_PICK]||EMPTY_REQUEST_VARIANTS[0];
   return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
+}
+function renderBriefEmptyState(kind,title,sub=''){
+  const c=kind==='routine'?pickRoutineEmpty(title,sub):kind==='request'?pickRequestEmpty(title,sub):pickScheduleEmpty(title,sub);
+  return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${c.emoji}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div><div class="brief-empty-sub">${escapeHtml(c.sub)}</div></div>`;
 }
 function renderEmptyState(kind,title,sub=''){
   const cfg={
@@ -7108,10 +7240,7 @@ function renderEmptyState(kind,title,sub=''){
   const c=cfg[kind]||cfg.generic;
   return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
 }
-function renderBriefEmptyState(kind,title,sub=''){
-  const c=(kind==='routine'?pickRoutineEmpty(title,sub):pickScheduleEmpty(title,sub));
-  return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${c.emoji}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div><div class="brief-empty-sub">${escapeHtml(c.sub)}</div></div>`;
-}
+
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
   if(!list.length)return renderEmptyState('schedule',emptyText);
   const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
@@ -7533,6 +7662,36 @@ function toggleFamilyRoutine(ki){
   saveSettingsOnly();
   render();
 }
+function openQuickColorPicker(ki){
+  if(!requireEditMode())return;
+  const k=family[ki];
+  if(!k)return;
+  const curColor=k.color||defaultPersonColor(k.name);
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(k.name||'대상')} 달력 색상</div>
+      <div class="quick-color-desc">달력 점과 일정 표시 색상을 선택하세요.</div>
+      <div class="color-choice-row">
+        ${PERSON_COLOR_PALETTE.map(c=>`
+          <button type="button" class="color-choice${c===curColor?' on':''}" data-color="${c}" onclick="saveQuickColor(${ki},'${c}')" style="background:${c}"></button>
+        `).join('')}
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function saveQuickColor(ki,color){
+  if(!requireEditMode())return;
+  if(!family[ki])return;
+  family[ki].color=color;
+  saveSettingsOnly();
+  closeM();
+  render({preserveScroll:true});
+  showToast('색상을 변경했어요.');
+}
+
 function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo',`
@@ -7554,7 +7713,11 @@ function renderI(){
         <div class="swipe-bg swipe-bg-left"></div>
         <div class="basic-info-avatar-col">
           <div class="ev-avatar basic-info-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
-          <div class="basic-info-person">${escapeHtml(kid.name||'대상')}</div>
+          <div class="basic-info-person" onclick="event.stopPropagation();openQuickColorPicker(${ki})">
+            <span class="quick-color-dot" style="background:${personColor(kid.name||'공통')}"></span>
+            <span class="basic-info-person-name">${escapeHtml(kid.name||'대상')}</span>
+            <span class="quick-color-arrow">▾</span>
+          </div>
         </div>
         <div class="basic-info-main">
           <div class="basic-info-top">
@@ -7744,7 +7907,7 @@ function renderR(){
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest',`
       <button class="toss-btn primary" onclick="event.stopPropagation();openReqModal()">+ 추가</button>
     `)}
-    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요','잠시 여유를 즐겨도 괜찮아요.')}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
+    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">부탁 목록이 접혀 있어요</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
     ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 부탁이 없어요','완료 기록이 생기면 이곳에 차곡차곡 모여요.')}</div>`:''}
@@ -7820,11 +7983,10 @@ function sortedMemoriesForDisplay(){
   return [...memories].sort((a,b)=>{
     const da=memoryUpcomingDiff(a), db=memoryUpcomingDiff(b);
     if(da!==db)return da-db;
-    const na=String(a?.name||'');
-    const nb=String(b?.name||'');
-    return na.localeCompare(nb,'ko');
+    return String(a?.name||'').localeCompare(String(b?.name||''),'ko');
   });
 }
+
 function makeMemoryCard(x){
   const calType=memoryCalendarType(x);
   const isLunar=calType==='lunar';
@@ -8813,6 +8975,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const baseKey=scheduleBaseKey();
   const [yy,mm,dd]=baseKey.split('-').map(Number);
   const dateSuffix=baseKey===todayKey()?'' : ` · ${mm}/${dd} (${DAYS[new Date(yy,mm-1,dd).getDay()]})`;
+  const bothEmpty=!schedule.length&&!routines.length;
 
   const scheduleBody=schedule.length
     ? `<div class="today-list-card merged-schedule-card">${schedule.map(n=>{
@@ -8845,6 +9008,10 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
       </div>`).join('')
     : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','루틴 없음')}</div>`;
 
+  const body=bothEmpty
+    ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 루틴이 없어요')}</div>`
+    : `<div class="merged-section-label">일정</div>${scheduleBody}<div class="merged-section-label routine">루틴</div><div class="merged-routine-wrap">${routineBody}</div>`;
+
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture" id="today-briefing-capture">
       <div class="merged-dashboard-head">
@@ -8856,10 +9023,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
         </div>
         <button class="brief-copy-btn" onclick="event.stopPropagation();saveTodayBriefingImage()">복사</button>
       </div>
-      <div class="merged-section-label">일정</div>
-      ${scheduleBody}
-      <div class="merged-section-label routine">루틴</div>
-      <div class="merged-routine-wrap">${routineBody}</div>
+      ${body}
     </div>
   </div>`;
 }
@@ -9088,11 +9252,10 @@ async function saveTodayBriefingImage(){
     a.click();
     showToast('오늘 일정 이미지를 저장했어요.');
   }catch(e){
-    console.error(e);
+    console.warn(e);
     showToast('이미지 저장 중 오류가 발생했어요.');
   }
 }
-
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const baseKey=scheduleBaseKey();
