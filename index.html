@@ -5204,13 +5204,13 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.62';
-const PASS_BUILD_VERSION='v1.0.62-force-refresh';
+const APP_VERSION='v1.0.63';
+const PASS_BUILD_VERSION='v1.0.63-hard-reset';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '서비스워커 강제 갱신 보정',
-  'index.html 캐시 재사용 방지',
-  '새 버전 반영 안정화'
+  '서비스워커 강제 초기화 패키지',
+  'index.html 캐시 우회 갱신',
+  '좀비 캐시 재생성 방지'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}

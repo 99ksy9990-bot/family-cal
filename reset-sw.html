@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>패스 캐시 초기화</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F7;color:#111;margin:0;padding:28px}
+.box{max-width:420px;margin:40px auto;background:#fff;border-radius:22px;padding:22px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+h1{font-size:22px;margin:0 0 12px}
+p{color:#666;line-height:1.5}
+.log{font-size:13px;color:#007AFF;font-weight:800;margin-top:12px;white-space:pre-line}
+button{width:100%;height:48px;border:0;border-radius:16px;background:#007AFF;color:white;font-size:16px;font-weight:900;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>패스 캐시 초기화</h1>
+<p>서비스워커와 앱 캐시만 정리합니다. 가족 일정 데이터는 지우지 않습니다.</p>
+<div class="log" id="log">준비 중...</div>
+<button onclick="hardReset()">다시 초기화 실행</button>
+</div>
+<script>
+async function hardReset(){
+  const log=document.getElementById('log');
+  const lines=[];
+  const add=t=>{lines.push(t);log.textContent=lines.join('\n')};
+
+  try{
+    add('1) 서비스워커 등록 해제 중...');
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+      add('   등록 해제 완료: '+regs.length+'개');
+    }else add('   서비스워커 미지원');
+  }catch(e){add('   서비스워커 해제 실패: '+e.message)}
+
+  try{
+    add('2) Cache Storage 삭제 중...');
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+      add('   캐시 삭제 완료: '+keys.length+'개');
+    }else add('   캐시 미지원');
+  }catch(e){add('   캐시 삭제 실패: '+e.message)}
+
+  try{
+    add('3) 새 index.html로 이동 중...');
+    const url='./index.html?hardReset='+Date.now();
+    setTimeout(()=>location.replace(url),500);
+  }catch(e){add('   이동 실패: '+e.message)}
+}
+hardReset();
+</script>
+</body>
+</html>
