@@ -4687,6 +4687,184 @@ select{
   font-weight:600 !important;
 }
 
+
+/* v1.0.53 schedule dashboard merge + lighter swipe scope */
+.merged-today-dashboard{
+  padding:14px 14px 12px !important;
+}
+.merged-dashboard-head,
+.upcoming-dashboard-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.merged-dashboard-summary{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+  flex-wrap:wrap;
+}
+.merged-summary-label{
+  font-size:14px;
+  font-weight:700;
+  color:var(--t1);
+}
+.merged-summary-label.routine{
+  color:var(--purple-t);
+}
+.merged-count{
+  min-width:28px !important;
+  height:28px !important;
+  padding:0 10px !important;
+  background:var(--card) !important;
+  color:var(--t3) !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.merged-section-label{
+  font-size:12px;
+  font-weight:700;
+  color:var(--t3);
+  margin:8px 0 7px;
+  letter-spacing:.02em;
+}
+.merged-section-label.routine{
+  color:var(--purple-t);
+  margin-top:12px;
+}
+.merged-schedule-card{
+  background:var(--bg) !important;
+  border-radius:16px;
+  padding:8px 10px;
+  box-shadow:none !important;
+}
+.merged-empty-card{
+  padding:12px 10px;
+}
+.merged-today-row{
+  grid-template-columns:58px minmax(0,1fr) auto !important;
+  gap:8px !important;
+  padding:7px 2px;
+  border-bottom:1px solid var(--border);
+}
+.merged-today-row:last-child{
+  border-bottom:none;
+}
+.merged-routine-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.merged-routine-group{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  gap:10px;
+  align-items:flex-start;
+}
+.merged-routine-avatar .avatar-wrap{
+  width:36px !important;
+  height:36px !important;
+}
+.merged-routine-head{
+  display:contents;
+}
+.merged-routine-headline{
+  align-self:center;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:14px;
+  font-weight:700;
+  color:var(--t1);
+  margin:3px 0 6px;
+}
+.merged-routine-kicker{
+  color:var(--purple-t);
+  font-weight:800;
+}
+.merged-routine-dot{
+  color:var(--t3);
+}
+.merged-routine-person{
+  color:var(--t1);
+  font-weight:700;
+}
+.merged-routine-box{
+  grid-column:2;
+  background:var(--bg);
+  border-radius:16px;
+  padding:8px 12px;
+}
+.merged-routine-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+.merged-routine-row:last-child{
+  border-bottom:none;
+}
+.merged-routine-title{
+  min-width:0;
+  font-size:13px;
+  font-weight:700;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.merged-routine-time{
+  font-size:12.5px;
+  font-weight:700;
+  color:var(--t2);
+  white-space:nowrap;
+}
+.refreshed-upcoming-card{
+  padding:14px !important;
+}
+.refreshed-upcoming-row{
+  background:var(--bg) !important;
+  border-radius:14px;
+  padding:8px 10px;
+}
+.refreshed-upcoming-card .upcoming-list{
+  gap:8px;
+}
+.refreshed-upcoming-card .upcoming-dday{
+  min-width:48px;
+  text-align:center;
+  font-weight:800;
+}
+.refreshed-upcoming-card .upcoming-title{
+  font-weight:700 !important;
+}
+.refreshed-upcoming-card .upcoming-meta{
+  font-weight:700 !important;
+}
+.shift-widget-5dates .shift-mini-card{
+  cursor:pointer;
+}
+@media (max-width:420px){
+  .merged-today-row{
+    grid-template-columns:52px minmax(0,1fr) auto !important;
+    gap:6px !important;
+  }
+  .merged-routine-group{
+    grid-template-columns:40px minmax(0,1fr);
+    gap:8px;
+  }
+  .merged-routine-avatar .avatar-wrap{
+    width:32px !important;
+    height:32px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4744,14 +4922,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.52';
+const APP_VERSION='v1.0.53';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '달력 선택일 상세 그룹핑 복구',
-  '기념일 · 단발성 일정 · 루틴 그룹 분리',
-  '루틴 대상자별 묶음 표시',
-  '전체 폰트 굵기 강화',
-  'Freesentation 굵기 적용 보정'
+  '일정 탭 상단 5일 클릭 연동',
+  '오늘 일정·루틴 통합 카드 적용',
+  '루틴 대상자별 그룹 표시',
+  '미리 보는 다음 일정 스타일 정리',
+  '일정 탭 스와이프 범위 축소'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8126,7 +8304,7 @@ function endLayerSwipe(e){
   }
 }
 function startShiftSwipe(e){
-  startLayerSwipe(e,'shift','.shift-widget-5dates','.dashboard-swipe-sync,.schedule-swipe-sync');
+  startLayerSwipe(e,'shift','.shift-widget-5dates','');
 }
 function moveShiftSwipe(e){moveLayerSwipe(e)}
 function endShiftSwipe(e){endLayerSwipe(e)}
@@ -8151,7 +8329,7 @@ function renderShiftWidget(){
         const dow=d.getDay();
         const cls=(h||dow===0)?' shift-date-holiday':(dow===6?' shift-date-sat':'');
         const title=`${mm}/${dd} (${DAYS[dow]})`;
-        return `<div class="widget-card shift-mini-card${i===2?' center-date':''}">
+        return `<div class="widget-card shift-mini-card${i===2?' center-date':''}" onclick="event.stopPropagation();moveScheduleBase(${i-2})">
           <div class="widget-title shift-date-label${cls}">${title}</div>
           <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
         </div>`;
@@ -8255,43 +8433,96 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
   </div>`;
 }
 
-function renderTodayListDashboard(title,allEvents){
-  let filtered=(allEvents||[]).filter(n=>{
+function renderTodayListDashboard(title,allEvents,routineEvents=[]){
+  const schedule=(allEvents||[]).filter(n=>{
     const who=n.who||'공통';
     if(subF!=='all'&&who!==subF)return false;
     return true;
   });
-  const targetOrder=[...new Set([...selectedTodayTargets().map(x=>x.label),...getPersons(),...filtered.map(n=>n.who||'공통')])];
-  filtered.sort((a,b)=>{
-    const ia=targetOrder.indexOf(a.who||'공통');
-    const ib=targetOrder.indexOf(b.who||'공통');
-    const ga=ia<0?999:ia, gb=ib<0?999:ib;
-    if(ga!==gb)return ga-gb;
+  const routines=(routineEvents||[]).filter(n=>{
+    const who=n.who||'공통';
+    if(subF!=='all'&&who!==subF)return false;
+    return true;
+  });
+
+  const targetOrder=[...new Set([
+    ...selectedTodayTargets().map(x=>x.label),
+    ...selectedRoutineTargets().map(x=>x.label),
+    ...getPersons(),
+    ...schedule.map(n=>n.who||'공통'),
+    ...routines.map(n=>n.who||'공통')
+  ])];
+  const personIdx=who=>{
+    const i=targetOrder.indexOf(who||'공통');
+    return i<0?999:i;
+  };
+
+  schedule.sort((a,b)=>{
+    const pa=personIdx(a.who||'공통'), pb=personIdx(b.who||'공통');
+    if(pa!==pb)return pa-pb;
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
     if(ta!==tb)return ta.localeCompare(tb);
     return String(a.title||'').localeCompare(String(b.title||''));
   });
-  const rows=filtered.map(n=>{
-    const who=n.who||'공통';
-    return `<div class="today-list-row">
-      <div class="today-list-person" style="color:${personColor(who)}">${escapeHtml(who)}</div>
-      <div class="today-list-title">${escapeHtml(n.title||'일정')}</div>
-      <div class="today-list-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
-    </div>`;
+
+  routines.sort((a,b)=>{
+    const pa=personIdx(a.who||'공통'), pb=personIdx(b.who||'공통');
+    if(pa!==pb)return pa-pb;
+    const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+    if(ta!==tb)return ta.localeCompare(tb);
+    return String(a.title||'').localeCompare(String(b.title||''));
   });
-  const body=rows.length
-    ? `<div class="today-list-card">${rows.join('')}</div>`
-    : renderEmptyState('schedule','오늘 일정이 없어요');
-  const copyBtn=String(title||'').includes('오늘 일정')
-    ? `<button class="brief-copy-btn" onclick="event.stopPropagation();copyTodayBriefing()">복사</button>`
-    : '';
+
+  const baseKey=scheduleBaseKey();
+  const [yy,mm,dd]=baseKey.split('-').map(Number);
+  const dateSuffix=baseKey===todayKey()?'' : ` · ${mm}/${dd} (${DAYS[new Date(yy,mm-1,dd).getDay()]})`;
+
+  const scheduleBody=schedule.length
+    ? `<div class="today-list-card merged-schedule-card">${schedule.map(n=>{
+        const who=n.who||'공통';
+        return `<div class="today-list-row merged-today-row">
+          <div class="today-list-person" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+          <div class="today-list-title">${escapeHtml(n.title||'일정')}</div>
+          <div class="today-list-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
+        </div>`;
+      }).join('')}</div>`
+    : `<div class="today-list-card merged-schedule-card merged-empty-card"><div class="today-event-empty">등록 일정 없음</div></div>`;
+
+  const routineGroups={};
+  routines.forEach(n=>{
+    const who=n.who||'공통';
+    if(!routineGroups[who])routineGroups[who]=[];
+    routineGroups[who].push(n);
+  });
+  const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
+  const routineBody=groupKeys.length
+    ? groupKeys.map(who=>`<div class="merged-routine-group">
+        <div class="merged-routine-head">
+          <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+          <div class="merged-routine-headline"><span class="merged-routine-kicker">루틴</span><span class="merged-routine-dot">·</span><span class="merged-routine-person">${escapeHtml(who)}</span></div>
+        </div>
+        <div class="merged-routine-box">${routineGroups[who].map(n=>`<div class="merged-routine-row">
+          <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
+          <div class="merged-routine-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
+        </div>`).join('')}</div>
+      </div>`).join('')
+    : `<div class="today-list-card merged-schedule-card merged-empty-card"><div class="today-event-empty">루틴 없음</div></div>`;
+
   return `<div class="widget-wrap dashboard-wrap">
-    <div class="widget-card today-dashboard">
-      <div class="today-dashboard-head inline-count">
-        <div class="widget-title">${escapeHtml(title)}</div>
-        <div class="today-dashboard-right">${copyBtn}<div class="today-dashboard-count hot">${filtered.length}</div></div>
+    <div class="widget-card today-dashboard merged-today-dashboard">
+      <div class="merged-dashboard-head">
+        <div class="merged-dashboard-summary">
+          <span class="merged-summary-label">오늘 일정${dateSuffix}</span>
+          <span class="sec-cnt merged-count">${schedule.length}</span>
+          <span class="merged-summary-label routine">루틴</span>
+          <span class="sec-cnt merged-count">${routines.length}</span>
+        </div>
+        <button class="brief-copy-btn" onclick="event.stopPropagation();copyTodayBriefing()">복사</button>
       </div>
-      ${body}
+      <div class="merged-section-label">일정</div>
+      ${scheduleBody}
+      <div class="merged-section-label routine">루틴</div>
+      <div class="merged-routine-wrap">${routineBody}</div>
     </div>
   </div>`;
 }
@@ -8390,16 +8621,18 @@ function renderUpcomingPreview(){
   const list=upcomingEvents(7,baseKey);
   if(!list.length)return '';
   return `<div class="widget-wrap dashboard-wrap upcoming-wrap">
-    <div class="widget-card upcoming-card">
-      <div class="today-dashboard-head inline-count">
-        <div class="widget-title">미리 보는 다음 일정 (D-7)</div>
-        <div class="today-dashboard-count">${list.length}</div>
+    <div class="widget-card upcoming-card refreshed-upcoming-card">
+      <div class="merged-dashboard-head upcoming-dashboard-head">
+        <div class="merged-dashboard-summary">
+          <span class="merged-summary-label">미리 보는 다음 일정 (D-7)</span>
+          <span class="sec-cnt merged-count">${list.length}</span>
+        </div>
       </div>
       <div class="upcoming-list">
         ${list.map(n=>{
           const d=daysBetween(baseKey,n.start);
           const dd=d===1?'다음날':`D-${d}`;
-          return `<div class="upcoming-row">
+          return `<div class="upcoming-row refreshed-upcoming-row">
             <span class="upcoming-dday">${dd}</span>
             <span class="upcoming-title">${escapeHtml(n.title||'일정')}</span>
             <span class="upcoming-meta">${escapeHtml(n.who||'공통')}</span>
@@ -8503,12 +8736,11 @@ function copyTodayBriefing(){
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const baseKey=scheduleBaseKey();
-  const suffix=scheduleBaseSuffix();
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,baseKey));
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  return `<div class="dashboard-swipe-sync">${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}${renderUpcomingPreview()}</div>`;
+  return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}${renderUpcomingPreview()}</div>`;
 }
 
 function renderManualNotice(){
