@@ -3871,6 +3871,121 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   gap:13px !important;
 }
 
+
+/* 이미지 아바타 + 방학 루틴 스위치 */
+.cal-dots{
+  min-height:17px !important;
+  max-height:34px !important;
+  overflow:hidden !important;
+  gap:1px !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.cal-avatar{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:17px;
+  height:17px;
+  border-radius:50%;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.12);
+}
+.cal-avatar-more{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:16px;
+  min-width:16px;
+  padding:0 3px;
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--t2);
+  font-size:8px;
+  font-weight:950;
+}
+.ev-avatar{
+  width:28px;
+  min-width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#fff;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.10);
+  margin-top:0;
+}
+.target-avatar{
+  width:20px;
+  height:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+}
+.person-avatar-inline{
+  display:inline-flex;
+  width:24px;
+  height:24px;
+  align-items:center;
+  justify-content:center;
+  margin-right:6px;
+  vertical-align:-5px;
+  border-radius:50%;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.10);
+}
+.avatar-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.avatar-fallback{
+  font-size:14px;
+  line-height:1;
+}
+.avatar-options{
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:8px !important;
+}
+.avatar-choice{
+  height:52px !important;
+  border-radius:14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+.avatar-choice img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.routine-target-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  margin-bottom:4px;
+}
+.vacation-toggle{
+  margin:0 !important;
+  height:22px !important;
+  font-size:10px !important;
+  padding:0 8px !important;
+  white-space:nowrap;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -4069,18 +4184,20 @@ const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500'
 
 
 const PERSON_AVATAR_GROUPS=[
-  {key:'adultM',label:'성인 남자',items:['👨🏻‍💼','👨🏻‍🏫','👨🏻‍💻','👨🏻‍⚕️','👨🏻‍🍳','👨🏻‍🔧','👨🏻‍🎨']},
-  {key:'adultF',label:'성인 여자',items:['👩🏻‍💼','👩🏻‍🏫','👩🏻‍💻','👩🏻‍⚕️','👩🏻‍🍳','👩🏻‍🔧','👩🏻‍🎨']},
-  {key:'teenM',label:'청소년 남자',items:['👨🏻‍🎓','🧑🏻‍🎓','🧑🏻‍💻','🙋🏻‍♂️','🏃🏻‍♂️','🚴🏻‍♂️','🎧']},
-  {key:'teenF',label:'청소년 여자',items:['👩🏻‍🎓','🧑🏻‍🎓','👩🏻‍💻','🙋🏻‍♀️','🏃🏻‍♀️','🚴🏻‍♀️','🎀']},
-  {key:'childM',label:'어린이 남자',items:['👦🏻','🧒🏻','🙋🏻‍♂️','🤸🏻‍♂️','⛹🏻‍♂️','🏃🏻‍♂️','🎒']},
-  {key:'childF',label:'어린이 여자',items:['👧🏻','🧒🏻','🙋🏻‍♀️','🤸🏻‍♀️','⛹🏻‍♀️','🏃🏻‍♀️','🌸']}
+  {key:'family',label:'가족',items:['family_1','family_2','family_3','family_4','family_5','family_6','family_7']},
+  {key:'adultM',label:'성인 남자',items:['adultM_1','adultM_2','adultM_3','adultM_4','adultM_5','adultM_6','adultM_7']},
+  {key:'adultF',label:'성인 여자',items:['adultF_1','adultF_2','adultF_3','adultF_4','adultF_5','adultF_6','adultF_7']},
+  {key:'teenM',label:'청소년 남자',items:['teenM_1','teenM_2','teenM_3','teenM_4','teenM_5','teenM_6','teenM_7']},
+  {key:'teenF',label:'청소년 여자',items:['teenF_1','teenF_2','teenF_3','teenF_4','teenF_5','teenF_6','teenF_7']},
+  {key:'childM',label:'어린이 남자',items:['childM_1','childM_2','childM_3','childM_4','childM_5','childM_6','childM_7']},
+  {key:'childF',label:'어린이 여자',items:['childF_1','childF_2','childF_3','childF_4','childF_5','childF_6','childF_7']}
 ];
+const AVATAR_IMAGE_IDS=new Set(PERSON_AVATAR_GROUPS.flatMap(g=>g.items));
 function avatarItems(key){
   return (PERSON_AVATAR_GROUPS.find(g=>g.key===key)||{}).items||[];
 }
 function randomFrom(arr){
-  return arr[Math.floor(Math.random()*arr.length)] || '👤';
+  return arr[Math.floor(Math.random()*arr.length)] || 'childM_1';
 }
 function randomYouthAvatar(name=''){
   const n=String(name||'');
@@ -4088,25 +4205,35 @@ function randomYouthAvatar(name=''){
   if(/여|딸|누나|언니|girl|female/i.test(n))return randomFrom([...avatarItems('teenF'),...avatarItems('childF')]);
   return randomFrom([...avatarItems('teenM'),...avatarItems('teenF'),...avatarItems('childM'),...avatarItems('childF')]);
 }
+function avatarSrc(id){
+  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.png`:'';
+}
+function avatarMarkup(id, alt='', cls='avatar-img'){
+  const token=String(id||'');
+  if(AVATAR_IMAGE_IDS.has(token)){
+    return `<img class="${cls}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy"/>`;
+  }
+  return `<span class="avatar-fallback">${escapeHtml(token||'👤')}</span>`;
+}
 function defaultAvatarForName(name){
   const n=(name||'').trim();
-  if(n==='공통')return '👨‍👩‍👧‍👦';
-  if(n==='아빠')return '👨🏻‍💼';
-  if(n==='엄마')return '👩🏻‍💼';
-  if(n==='초이')return '👩🏻‍🎓';   // 초이: 청소년 여자
-  if(n==='도미')return '👧🏻';     // 도미: 어린이 여자
+  if(n==='공통')return 'family_1';
+  if(n==='아빠')return 'adultM_1';
+  if(n==='엄마')return 'adultF_1';
+  if(n==='초이')return 'teenF_2';
+  if(n==='도미')return 'childF_3';
   return randomYouthAvatar(n);
 }
 function shouldAutoReplaceAvatar(k){
   if(!k)return true;
-  if(k.avatarCustom)return false;
-  const legacy=['👨🏻','👩🏻','👦🏻','👧🏻','👤','👨‍💼','👩‍💼'];
-  return !k.avatar || legacy.includes(k.avatar);
+  if(k.avatarCustom && AVATAR_IMAGE_IDS.has(k.avatar))return false;
+  return !AVATAR_IMAGE_IDS.has(k.avatar||'');
 }
 function personAvatar(name){
   const n=(name||'공통').trim();
   const p=(family||[]).find(x=>(x.name||'').trim()===n);
-  return (p&&p.avatar)||defaultAvatarForName(n);
+  const token=(p&&p.avatar)||defaultAvatarForName(n);
+  return AVATAR_IMAGE_IDS.has(token) ? token : defaultAvatarForName(n);
 }
 function selectKidAvatar(icon){
   const el=document.getElementById('k-avatar');
@@ -4121,7 +4248,7 @@ function renderCalendarAvatars(people){
   const arr=(people||[]).filter(Boolean);
   const shown=arr.slice(0,3);
   const more=arr.length-shown.length;
-  return shown.map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${escapeHtml(personAvatar(p))}</span>`).join('')+
+  return shown.map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${avatarMarkup(personAvatar(p),p)}</span>`).join('')+
     (more>0?`<span class="cal-avatar-more">+${more}</span>`:'');
 }
 
@@ -4146,7 +4273,7 @@ function ensureBaseTargets(){
     if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
-      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
+      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def,vacationStart:'',vacationEnd:''});
     }
   });
   family.forEach(k=>{
@@ -4156,6 +4283,8 @@ function ensureBaseTargets(){
     if(!('avatarCustom' in k))k.avatarCustom=false;
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
+    if(!('vacationStart' in k))k.vacationStart='';
+    if(!('vacationEnd' in k))k.vacationEnd='';
   });
 }
 function getPersons(){
@@ -4511,6 +4640,14 @@ function familyInfoEventsOnDate(y,m,d){
     if(r.start && date<r.start)return;
     if(r.repeatEnd && date>r.repeatEnd)return;
     if(Array.isArray(r.skipDates) && r.skipDates.includes(date))return;
+
+    if(r.pauseOnVacation){
+      const personObj=(family||[]).find(f=>(f.name||'').trim()===(r.who||'공통'));
+      if(personObj && personObj.vacationStart && personObj.vacationEnd){
+        if(date>=personObj.vacationStart && date<=personObj.vacationEnd)return;
+      }
+    }
+
     out.push({
       id:`auto-${r.id}-${date}`,
       _originalRoutineId:r.id,
@@ -4617,7 +4754,8 @@ function normalizeData(d){
             start:item.start||'',
             sT:item.sT||'',
             eT:item.eT||'',
-            repeatEnd:item.repeatEnd||''
+            repeatEnd:item.repeatEnd||'',
+            pauseOnVacation:item.pauseOnVacation||false
           });
         });
       });
@@ -4632,6 +4770,7 @@ function normalizeData(d){
     if(!('eT' in r))r.eT='';
     if(!('repeatEnd' in r))r.repeatEnd='';
     if(!Array.isArray(r.skipDates))r.skipDates=[];
+    if(!('pauseOnVacation' in r))r.pauseOnVacation=false;
   });
 
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
@@ -5637,7 +5776,7 @@ function calendarEventItem(n,selDate){
     : `onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
 
   return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${clickAttr}>
-    <div class="ev-avatar">${escapeHtml(personAvatar(whoRaw))}</div>
+    <div class="ev-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
     <div class="ev-info">
       <div class="ev-title">${title}</div>
       <div class="ev-sub">${meta}</div>
@@ -5709,7 +5848,7 @@ function renderC(){
     </div>`;
   }
 
-  const legend=getPersons().map(p=>`<div class="leg avatar-leg"><span class="target-avatar">${escapeHtml(personAvatar(p))}</span>${escapeHtml(p)}</div>`).join('');
+  const legend=getPersons().map(p=>`<div class="leg avatar-leg"><span class="target-avatar">${avatarMarkup(personAvatar(p),p)}</span>${escapeHtml(p)}</div>`).join('');
 
   return`<div class="cal-outer">
     <div class="cal-top-select-row calendar-control-line">
@@ -5764,6 +5903,13 @@ function delRepeatItem(ii){
   if(!confirmDelete('이 루틴 일정을 삭제할까요?'))return;
   repeatItems.splice(ii,1);
   saveAll();render();
+}
+function togglePauseOnVacation(ii){
+  if(!requireEditMode())return;
+  if(!repeatItems[ii])return;
+  repeatItems[ii].pauseOnVacation=!repeatItems[ii].pauseOnVacation;
+  saveAll();
+  render({preserveScroll:true});
 }
 function updRepeatVal(ii,key,val){
   if(!requireEditMode())return;
@@ -5876,7 +6022,7 @@ function renderI(){
         ontouchmove="touchReorderMove(event)"
         ontouchend="touchReorderEnd(event)"
         ontouchcancel="touchReorderCancel()">
-        <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${escapeHtml(personAvatar(kid.name||'대상'))}</span>${escapeHtml(kid.name||'대상')}</div>
+        <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</span>${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
             <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
             <button class="today-toggle-pill${kid.showRoutine?' on':''}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
@@ -5885,6 +6031,7 @@ function renderI(){
           </div>
         </div>
         <div class="fi-row"><span class="fi-key">메모</span><span style="font-size:12px;font-weight:800;color:var(--t2);text-align:right">${escapeHtml(memo||'미입력')}</span></div>
+        ${(kid.vacationStart||kid.vacationEnd)?`<div class="fi-row"><span class="fi-key">방학</span><span style="font-size:12px;font-weight:900;color:var(--green-t);text-align:right">${kid.vacationStart?dateLabel(kid.vacationStart):'시작일'} ~ ${kid.vacationEnd?dateLabel(kid.vacationEnd):'종료일'}</span></div>`:'' }
       </div>`;
     });
   }else{
@@ -5917,7 +6064,12 @@ function renderI(){
         </div>
         <div class="routine-compact-line routine-target-days-line">
           <div class="routine-target-group">
-            <div class="ml inline-lbl">대상</div>
+            <div class="routine-target-head">
+              <div class="ml inline-lbl">대상</div>
+              <button class="today-toggle-pill vacation-toggle${item.pauseOnVacation?' on':''}" onclick="event.stopPropagation();togglePauseOnVacation(${ii})">
+                ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
+              </button>
+            </div>
             <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
               ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
             </select>
@@ -7546,7 +7698,7 @@ function saveEditNote(id){
 
 function editKid(i){
   const k=family[i];
-  const curAvatar=k.avatar||defaultAvatarForName(k.name);
+  const curAvatar=AVATAR_IMAGE_IDS.has(k.avatar||'')?k.avatar:defaultAvatarForName(k.name);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -7559,8 +7711,13 @@ function editKid(i){
       <div class="avatar-select-grid">
         ${PERSON_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
           <div class="avatar-group-title">${escapeHtml(g.label)}</div>
-          <div class="avatar-options">${g.items.map(ic=>`<button class="avatar-choice${ic===curAvatar?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${escapeHtml(ic)}</button>`).join('')}</div>
+          <div class="avatar-options">${g.items.map(ic=>`<button type="button" class="avatar-choice${ic===curAvatar?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${avatarMarkup(ic,g.label)}</button>`).join('')}</div>
         </div>`).join('')}
+      </div>
+      <div class="ml">🌴 방학 기간</div>
+      <div class="mi-2">
+        <div><div class="sublabel">방학 시작일</div><input class="picker-field${k.vacationStart?'':' empty'}" id="k-vs" readonly data-val="${k.vacationStart||''}" value="${k.vacationStart?dateLabel(k.vacationStart):'시작일'}" onclick="openDatePicker('k-vs')"/></div>
+        <div><div class="sublabel">개학일</div><input class="picker-field${k.vacationEnd?'':' empty'}" id="k-ve" readonly data-val="${k.vacationEnd||''}" value="${k.vacationEnd?dateLabel(k.vacationEnd):'종료일'}" onclick="openDatePicker('k-ve')"/></div>
       </div>
       <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
       <div class="ml">학년 · 반 · 번호</div>
@@ -7577,7 +7734,7 @@ function editKid(i){
 function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
-  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});
+  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacationStart:'',vacationEnd:''});
   saveAll();editKid(family.length-1);
 }
 function saveKid(i){
@@ -7595,7 +7752,9 @@ function saveKid(i){
     grade:document.getElementById('k-g').value,
     year:document.getElementById('k-y').value,
     cls:document.getElementById('k-c').value,
-    num:document.getElementById('k-u').value
+    num:document.getElementById('k-u').value,
+    vacationStart:getPickerVal('k-vs'),
+    vacationEnd:getPickerVal('k-ve')
   };
   saveAll();closeM();render();
 }
