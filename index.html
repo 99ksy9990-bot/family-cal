@@ -4960,6 +4960,60 @@ select{
   white-space:nowrap !important;
 }
 
+
+/* v1.0.60 today briefing image / empty variants */
+.merged-count{
+  min-width:28px !important;
+  height:28px !important;
+  padding:0 10px !important;
+  border-radius:999px !important;
+  background:var(--card) !important;
+  color:var(--t3) !important;
+  border:none !important;
+  box-shadow:none !important;
+  font-size:13px !important;
+  font-weight:950 !important;
+}
+.merged-summary-label.routine{color:var(--t1) !important;}
+.merged-section-label,
+.merged-section-label.routine{
+  font-size:14px !important;
+  font-weight:900 !important;
+  margin:10px 0 8px !important;
+}
+.merged-section-label{color:var(--t3) !important;}
+.merged-section-label.routine{color:var(--t3) !important;}
+.today-briefing-capture{overflow:hidden;}
+.brief-copy-btn{white-space:nowrap;}
+.brief-empty-state{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:8px;
+  min-height:132px;
+  padding:16px 14px;
+  border-radius:20px;
+  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,248,252,.98));
+  border:1px dashed rgba(142,142,147,.28);
+}
+.brief-empty-art{
+  font-size:34px;
+  line-height:1;
+}
+.brief-empty-title{
+  font-size:14px;
+  font-weight:900;
+  color:var(--t2);
+  line-height:1.35;
+}
+.brief-empty-sub{
+  font-size:12px;
+  font-weight:700;
+  color:var(--t3);
+  line-height:1.5;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -5017,12 +5071,12 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.59';
+const APP_VERSION='v1.0.60';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '기념일 카드 디데이 가까운 순 자동 정렬',
-  '기념일 생년월일 제목 옆 배치 및 폰트 축소',
-  '기념일 카드 레이아웃 미세 조정'
+  '오늘 일정 요약 숫자/라벨 디자인 정리',
+  '복사 버튼으로 일정+루틴 요약 이미지 저장',
+  '일정/루틴/부탁 빈 화면 랜덤 멘트·일러스트 강화'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -6983,6 +7037,81 @@ function renderEmptyState(kind,title,sub=''){
   return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
 }
 
+
+const EMPTY_ROUTINE_VARIANTS=[
+  {emoji:'🎒', title:'루틴이 없어요', sub:'오늘은 정해진 루틴이 잠시 쉬어가는 날이에요.'},
+  {emoji:'🪁', title:'루틴이 없어요', sub:'바람 따라 가볍게 흘러가는 하루예요. 조금 느슨해도 좋아요.'},
+  {emoji:'📘', title:'루틴이 없어요', sub:'정해진 순서가 비어 있어 마음도 한결 여유로워요.'},
+  {emoji:'🎧', title:'루틴이 없어요', sub:'루틴이 비어 있어 좋아하는 음악처럼 편안한 리듬으로 보낼 수 있어요.'},
+  {emoji:'🧩', title:'루틴이 없어요', sub:'오늘은 꼭 맞춰야 할 조각이 없어요. 조금 더 자유롭게 움직여보세요.'},
+  {emoji:'🌼', title:'루틴이 없어요', sub:'꽃처럼 가볍게 쉬어가는 일정이에요.'},
+  {emoji:'🛴', title:'루틴이 없어요', sub:'정해진 동선이 없어 발걸음이 한결 가벼워요.'},
+  {emoji:'🍎', title:'루틴이 없어요', sub:'학원이나 등교 준비 없이 숨 돌리기 좋은 날이에요.'},
+  {emoji:'🎨', title:'루틴이 없어요', sub:'정해진 루틴 대신 하고 싶은 것을 채워 넣어보세요.'},
+  {emoji:'⛅', title:'루틴이 없어요', sub:'조금 느긋한 템포로 보내기 좋은 하루예요.'},
+  {emoji:'🫧', title:'루틴이 없어요', sub:'비눗방울처럼 가볍고 산뜻한 여백이 생겼어요.'},
+  {emoji:'🪵', title:'루틴이 없어요', sub:'탄탄한 루틴 대신 편안한 휴식이 들어온 날이에요.'},
+  {emoji:'🍀', title:'루틴이 없어요', sub:'반복 일정 없이 운 좋게 생긴 여유예요.'},
+  {emoji:'🎈', title:'루틴이 없어요', sub:'오늘은 묶여 있지 않은 풍선처럼 유연하게 움직여도 돼요.'},
+  {emoji:'🕶️', title:'루틴이 없어요', sub:'조금 더 가볍고 멋지게 쉬어갈 수 있는 날이에요.'},
+  {emoji:'🏕️', title:'루틴이 없어요', sub:'정해진 루틴 대신 캠핑처럼 느긋한 분위기를 즐겨보세요.'},
+  {emoji:'🧺', title:'루틴이 없어요', sub:'비어 있는 시간 바구니에 휴식을 담아보세요.'},
+  {emoji:'🌙', title:'루틴이 없어요', sub:'차분한 호흡으로 하루를 보내기 좋은 리듬이에요.'},
+  {emoji:'🧸', title:'루틴이 없어요', sub:'포근한 인형처럼 말랑하게 쉬어가는 하루예요.'},
+  {emoji:'🥛', title:'루틴이 없어요', sub:'따뜻한 우유 한 잔처럼 부드러운 템포의 하루예요.'}
+];
+const EMPTY_REQUEST_VARIANTS=[
+  {emoji:'📭', title:'부탁할 일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
+  {emoji:'🧺', title:'부탁할 일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어 한결 가벼워요.'},
+  {emoji:'☕', title:'부탁할 일이 없어요', sub:'해야 할 부탁이 없어 차 한 잔의 여유를 누리기 좋아요.'},
+  {emoji:'🌿', title:'부탁할 일이 없어요', sub:'잔잔하게 흘러가는 하루예요. 천천히 쉬어가도 좋아요.'},
+  {emoji:'🫖', title:'부탁할 일이 없어요', sub:'따뜻한 티타임처럼 부탁 없는 여유가 찾아왔어요.'},
+  {emoji:'🍪', title:'부탁할 일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
+  {emoji:'🕊️', title:'부탁할 일이 없어요', sub:'부탁이 없어 마음이 한결 가볍고 포근해요.'},
+  {emoji:'🏡', title:'부탁할 일이 없어요', sub:'집 안에 평화가 머무는 조용한 하루예요.'},
+  {emoji:'🧡', title:'부탁할 일이 없어요', sub:'서로 부탁 대신 미소를 나누기 좋은 날이에요.'},
+  {emoji:'🎈', title:'부탁할 일이 없어요', sub:'부담이 적어 풍선처럼 가볍게 흘러가는 하루예요.'},
+  {emoji:'📚', title:'부탁할 일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워보세요.'},
+  {emoji:'🌤️', title:'부탁할 일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
+  {emoji:'🛋️', title:'부탁할 일이 없어요', sub:'소파에 기대듯 편안한 하루를 보내보세요.'},
+  {emoji:'🍵', title:'부탁할 일이 없어요', sub:'차분한 한숨 돌리기에 딱 좋은 타이밍이에요.'},
+  {emoji:'🌈', title:'부탁할 일이 없어요', sub:'해야 할 부탁 대신 기분 좋은 여백이 생겼어요.'},
+  {emoji:'🪴', title:'부탁할 일이 없어요', sub:'작은 화분처럼 천천히 쉬어가기 좋은 날이에요.'},
+  {emoji:'🧁', title:'부탁할 일이 없어요', sub:'오늘은 부탁 대신 달콤한 여유가 놓여 있어요.'},
+  {emoji:'🧸', title:'부탁할 일이 없어요', sub:'포근하게 마음을 풀어놓기 좋은 하루예요.'},
+  {emoji:'🐻', title:'부탁할 일이 없어요', sub:'곰돌이처럼 느긋하고 포근한 하루를 보내요.'},
+  {emoji:'🌙', title:'부탁할 일이 없어요', sub:'차분하게 숨 고르며 보내기 좋은 조용한 시간이에요.'}
+];
+let EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
+let EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
+function refreshEmptyStatePick(kind='all'){
+  if(kind==='all' || kind==='schedule')EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
+  if(kind==='all' || kind==='routine')EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
+  if(kind==='all' || kind==='request')EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
+}
+function pickRoutineEmpty(title,sub){
+  const base=EMPTY_ROUTINE_VARIANTS[EMPTY_ROUTINE_PICK]||EMPTY_ROUTINE_VARIANTS[0];
+  return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
+}
+function pickRequestEmpty(title,sub){
+  const base=EMPTY_REQUEST_VARIANTS[EMPTY_REQUEST_PICK]||EMPTY_REQUEST_VARIANTS[0];
+  return {emoji:base.emoji,title:title||base.title,sub:sub||base.sub};
+}
+function renderEmptyState(kind,title,sub=''){
+  const cfg={
+    schedule:pickScheduleEmpty(title,sub),
+    routine:pickRoutineEmpty(title,sub),
+    request:pickRequestEmpty(title,sub),
+    done:{emoji:'✅',title:title||'완료된 항목이 없어요',sub:sub||'완료 기록이 생기면 이곳에 차곡차곡 모여요.'},
+    generic:{emoji:'🌿',title:title||'표시할 내용이 없어요',sub:sub||'조금 더 편안한 화면이에요.'}
+  };
+  const c=cfg[kind]||cfg.generic;
+  return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
+}
+function renderBriefEmptyState(kind,title,sub=''){
+  const c=(kind==='routine'?pickRoutineEmpty(title,sub):pickScheduleEmpty(title,sub));
+  return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${c.emoji}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div><div class="brief-empty-sub">${escapeHtml(c.sub)}</div></div>`;
+}
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
   if(!list.length)return renderEmptyState('schedule',emptyText);
   const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
@@ -8357,7 +8486,8 @@ function saveCopyNoteWithDate(id){
 }
 
 function setMain(t){
-  if(t==='s')refreshEmptyStatePick();
+  if(t==='s')refreshEmptyStatePick('all');
+  if(t==='r')refreshEmptyStatePick('request');
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
   main=t;
@@ -8693,7 +8823,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           <div class="today-list-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
         </div>`;
       }).join('')}</div>`
-    : `<div class="today-list-card merged-schedule-card merged-empty-card"><div class="today-event-empty">등록 일정 없음</div></div>`;
+    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('schedule','등록 일정 없음')}</div>`;
 
   const routineGroups={};
   routines.forEach(n=>{
@@ -8713,18 +8843,18 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           <div class="merged-routine-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
         </div>`).join('')}</div>
       </div>`).join('')
-    : `<div class="today-list-card merged-schedule-card merged-empty-card"><div class="today-event-empty">루틴 없음</div></div>`;
+    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','루틴 없음')}</div>`;
 
   return `<div class="widget-wrap dashboard-wrap">
-    <div class="widget-card today-dashboard merged-today-dashboard">
+    <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture" id="today-briefing-capture">
       <div class="merged-dashboard-head">
         <div class="merged-dashboard-summary">
           <span class="merged-summary-label">오늘 일정${dateSuffix}</span>
           <span class="sec-cnt merged-count">${schedule.length}</span>
-          <span class="merged-summary-label routine">루틴</span>
+          <span class="merged-summary-label">루틴</span>
           <span class="sec-cnt merged-count">${routines.length}</span>
         </div>
-        <button class="brief-copy-btn" onclick="event.stopPropagation();copyTodayBriefing()">복사</button>
+        <button class="brief-copy-btn" onclick="event.stopPropagation();saveTodayBriefingImage()">복사</button>
       </div>
       <div class="merged-section-label">일정</div>
       ${scheduleBody}
@@ -8940,6 +9070,29 @@ function copyTodayBriefing(){
     ta.remove();
   }
 }
+async function saveTodayBriefingImage(){
+  if(main!=='s'){
+    setMain('s');
+    setTimeout(saveTodayBriefingImage,350);
+    return;
+  }
+  const el=document.getElementById('today-briefing-capture')||document.querySelector('.today-briefing-capture');
+  if(!el)return alert('저장할 오늘 일정 카드가 없어요.');
+  if(!window.html2canvas)return alert('이미지 저장 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
+  try{
+    const canvas=await html2canvas(el,{backgroundColor:null,scale:2,useCORS:true});
+    const a=document.createElement('a');
+    const base=scheduleBaseKey?String(scheduleBaseKey()):todayKey();
+    a.href=canvas.toDataURL('image/png');
+    a.download=`패스_오늘일정_${base}.png`;
+    a.click();
+    showToast('오늘 일정 이미지를 저장했어요.');
+  }catch(e){
+    console.error(e);
+    showToast('이미지 저장 중 오류가 발생했어요.');
+  }
+}
+
 function renderHomeWidgets(){
   if(main!=='s')return '';
   const baseKey=scheduleBaseKey();
