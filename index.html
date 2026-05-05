@@ -4212,17 +4212,24 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* v1.0.40 final avatar refresh + memory birth inline */
-.memory-title-line{display:flex !important;align-items:center !important;justify-content:flex-start !important;gap:8px !important;flex-wrap:wrap !important;}
-.memory-title-line > span,.memory-title-text{flex:0 0 auto !important;min-width:0;}
-.mem-card .memory-title-line{justify-content:flex-start !important;}
-.memory-birth-inline{flex:0 0 auto !important;margin-left:0 !important;font-style:normal;white-space:nowrap !important;}
-.avatar-group{padding:12px 12px 14px !important;}
-.avatar-options{grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:10px !important;}
-.avatar-choice{min-height:76px !important;height:76px !important;padding:6px !important;display:flex !important;align-items:center !important;justify-content:center !important;overflow:hidden !important;}
-.avatar-choice img,.avatar-choice .avatar-img{width:64px !important;height:64px !important;object-fit:contain !important;display:block !important;margin:auto !important;}
-.target-avatar,.person-avatar-inline,.ev-avatar,.cal-avatar{background:transparent !important;box-shadow:none !important;}
-@media (max-width:480px){.avatar-choice{height:70px !important;min-height:70px !important;padding:5px !important;}.avatar-choice img,.avatar-choice .avatar-img{width:58px !important;height:58px !important;}}
+/* v1.0.41 안정화 보정 */
+#selected-day-panel{
+  scroll-margin-top:18px;
+}
+.shift-bulk-guide{
+  font-size:11px;
+  font-weight:850;
+  color:var(--blue-t);
+  background:var(--blue-bg);
+  border:1px solid rgba(0,122,255,.13);
+  border-radius:12px;
+  padding:7px 9px;
+  margin-bottom:7px;
+  line-height:1.35;
+}
+.avatar-img{
+  object-fit:contain !important;
+}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
@@ -4280,15 +4287,15 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 
 <script>
 
-const APP_VERSION='v1.0.0';
-const APP_UPDATED='2026-05-03';
+const APP_VERSION='v1.0.41';
+const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '편집 모드 / 보기 모드 추가',
-  '버전 표시 / 업데이트 내역 추가',
-  '데이터 점검 강화',
-  '중복 일정 방지',
-  '근무표 저장 최적화',
-  '공지 / 휴지통 / 백업 / QR 공유 기능 정리'
+  '서비스워커 캐시 안정화',
+  '아바타 WebP 전환 및 안전 캐싱',
+  '일정 수정 시 개인/회사 구분 유지',
+  '날짜 선택 범위 확대',
+  '음력 라이브러리 오프라인 캐시 보강',
+  '달력 선택일 자동 스크롤 보정'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -4444,7 +4451,7 @@ function randomYouthAvatar(name=''){
   return randomFrom([...avatarItems('teenM'),...avatarItems('teenF'),...avatarItems('childM'),...avatarItems('childF')]);
 }
 function avatarSrc(id){
-  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.png`:'';
+  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
 }
 function avatarMarkup(id, alt='', cls='avatar-img'){
   const token=String(id||'');
@@ -6124,8 +6131,8 @@ function selCal(k){
   if(selDate){
     setTimeout(()=>{
       const el=document.getElementById('selected-day-panel');
-      if(el && el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'});
-    },60);
+      if(el && el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});
+    },80);
   }
 }
 function chCal(d){calM+=d;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}selDate=null;render()}
@@ -6522,7 +6529,7 @@ function makeMemoryCard(x){
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
       <div class="c-body">
         <div class="c-title memory-title-line">
-          <span class="memory-title-text">${escapeHtml(x.name)}</span>
+          <span>${escapeHtml(x.name)}</span>
           ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)} ${isLunar?'(음)':'(양)'}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
@@ -7036,6 +7043,9 @@ function toggleShiftSelectMode(){
   shiftSelectedDates=[];
   selDate=null;
   render();
+  if(shiftSelectMode){
+    try{showToast('날짜를 여러 개 선택한 뒤 근무 버튼을 눌러 주세요.')}catch(e){}
+  }
 }
 function toggleShiftDate(k){
   const idx=shiftSelectedDates.indexOf(k);
@@ -7080,6 +7090,7 @@ function applyBulkShift(t){
 function renderShiftBulkBar(){
   if(!shiftSelectMode)return '';
   return `<div class="shift-bulk-bar selecting">
+    <div class="shift-bulk-guide">날짜를 여러 개 선택한 뒤 D · E · N · OFF 또는 미입력을 눌러 한 번에 적용해요.</div>
     <div class="shift-bulk-actions">
       <span class="shift-bulk-count">${shiftSelectedDates.length}개 선택</span>
       <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
@@ -7894,7 +7905,7 @@ function saveNote(){
 
 function openEditNote(id){
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
-  _mType='family';
+  _mType=n.type||'family';
   _mWho=n.who||getPersons()[0]||'공통';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
@@ -7938,7 +7949,7 @@ function saveEditNote(id){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
   n.title=document.getElementById('e-ti').value;
-  n.type='family';
+  n.type=_mType||n.type||'family';
   n.who=_mWho;
   n.repeat=(document.getElementById('e-rp')||{}).value||'';
   n.repeatEnd=getPickerVal('e-re');
@@ -8109,7 +8120,7 @@ function openDatePicker(id){
   const cur=getPickerVal(id)||new Date().toISOString().slice(0,10);
   const [cy,cm,cd]=cur.split('-').map(Number);
   const years=[];
-  for(let y=TY-2;y<=TY+10;y++)years.push(y);
+  for(let y=TY-5;y<=TY+5;y++)years.push(y);
   const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
   pickerRoot().innerHTML=`
   <div class="picker-bg" onclick="closePicker()">
