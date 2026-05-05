@@ -3649,6 +3649,135 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   gap:12px !important;
 }
 
+
+/* 캐릭터 이모지 기반 달력 표시 */
+.shift-widget-6{
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:5px !important;
+}
+.shift-widget-6 .shift-mini-card{
+  min-height:64px !important;
+  padding:8px 3px !important;
+}
+.shift-widget-6 .widget-title{
+  font-size:10px !important;
+  white-space:nowrap !important;
+}
+.shift-next-card{
+  border:none !important;
+  font-size:24px !important;
+  font-weight:950 !important;
+  color:var(--blue) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  cursor:pointer;
+}
+.cal-dots{
+  min-height:16px !important;
+  gap:1px !important;
+  align-items:center !important;
+}
+.cal-avatar{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:15px;
+  height:15px;
+  font-size:13px;
+  line-height:1;
+  border-radius:50%;
+  background:rgba(255,255,255,.72);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.10));
+}
+.ev-avatar{
+  width:24px;
+  min-width:24px;
+  height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  line-height:1;
+  border-radius:10px;
+  background:var(--bg);
+  margin-top:0;
+}
+.target-avatar{
+  width:18px;
+  height:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  line-height:1;
+}
+.avatar-leg{
+  gap:4px !important;
+}
+.person-avatar-inline{
+  display:inline-flex;
+  width:22px;
+  height:22px;
+  align-items:center;
+  justify-content:center;
+  margin-right:6px;
+  font-size:18px;
+  vertical-align:-3px;
+}
+.avatar-select-grid{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.avatar-group{
+  padding:8px;
+  border-radius:14px;
+  background:var(--bg);
+}
+.avatar-group-title{
+  font-size:11px;
+  font-weight:950;
+  color:var(--t2);
+  margin-bottom:6px;
+}
+.avatar-options{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+}
+.avatar-choice{
+  height:38px;
+  border-radius:12px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  font-size:22px;
+  line-height:1;
+  font-family:inherit;
+}
+.avatar-choice.on{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+  box-shadow:0 0 0 3px rgba(0,122,255,.12);
+}
+.memory-title-line{
+  justify-content:space-between !important;
+  gap:8px !important;
+}
+.memory-birth-inline{
+  flex:0 0 auto;
+  font-style:normal;
+  font-size:10px;
+  font-weight:950;
+  color:var(--t3);
+  background:var(--bg);
+  padding:2px 6px;
+  border-radius:999px;
+}
+.notice-action-grid-2{
+  grid-template-columns:1fr 1fr !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -3824,7 +3953,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person';
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',scheduleSort='person',scheduleBaseOffset=0;
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -3844,6 +3973,37 @@ const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳
 
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
+
+
+const PERSON_AVATAR_GROUPS=[
+  {key:'adultM',label:'성인 남자',items:['👨🏻','👨🏽','👨‍🦱','👨‍🦰','👨‍💼']},
+  {key:'adultF',label:'성인 여자',items:['👩🏻','👩🏽','👩‍🦱','👩‍🦰','👩‍💼']},
+  {key:'teenM',label:'청소년 남자',items:['🧑‍🎓','👨‍🎓','🧑‍💻','🧑‍🎤','🏃‍♂️']},
+  {key:'teenF',label:'청소년 여자',items:['👩‍🎓','🧑‍🎓','👩‍💻','👩‍🎤','🏃‍♀️']},
+  {key:'childM',label:'초등학생 남자',items:['👦🏻','👦🏽','🧒🏻','🧒🏽','🤓']},
+  {key:'childF',label:'초등학생 여자',items:['👧🏻','👧🏽','🧒🏻','🧒🏽','🎀']}
+];
+function defaultAvatarForName(name){
+  const n=(name||'').trim();
+  if(n==='공통')return '👨‍👩‍👧‍👦';
+  if(n==='아빠')return '👨🏻';
+  if(n==='엄마')return '👩🏻';
+  if(n==='초이')return '👦🏻';
+  if(n==='도미')return '👧🏻';
+  return '👤';
+}
+function personAvatar(name){
+  const n=(name||'공통').trim();
+  const p=(family||[]).find(x=>(x.name||'').trim()===n);
+  return (p&&p.avatar)||defaultAvatarForName(n);
+}
+function selectKidAvatar(icon){
+  const el=document.getElementById('k-avatar');
+  if(el)el.value=icon;
+  document.querySelectorAll('.avatar-choice').forEach(b=>{
+    b.classList.toggle('on',b.dataset.avatar===icon);
+  });
+}
 
 function isHiddenBasePerson(name){
   return Array.isArray(hiddenBasePersons) && hiddenBasePersons.includes((name||'').trim());
@@ -3866,12 +4026,13 @@ function ensureBaseTargets(){
     if(isHiddenBasePerson(name))return;
     if(!family.some(x=>(x.name||'').trim()===name)){
       const def=['아빠','엄마','초이','도미'].includes(name);
-      family.push({id:Date.now()+Math.random(),name,grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
+      family.push({id:Date.now()+Math.random(),name,avatar:defaultAvatarForName(name),grade:'',year:'',cls:'',num:'',cats:[],showToday:def,showRoutine:def});
     }
   });
   family.forEach(k=>{
     const nm=(k.name||'').trim();
     const def=['아빠','엄마','초이','도미'].includes(nm);
+    if(!k.avatar)k.avatar=defaultAvatarForName(nm);
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
   });
@@ -5341,7 +5502,7 @@ function calendarEventItem(n,selDate){
     : `onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
 
   return `<div class="ev-item cal-selected-event${isRoutine?' routine-selected-event':''}" ${clickAttr}>
-    <div class="ev-dot" style="background:${personColor(whoRaw)}"></div>
+    <div class="ev-avatar">${escapeHtml(personAvatar(whoRaw))}</div>
     <div class="ev-info">
       <div class="ev-title">${title}</div>
       <div class="ev-sub">${meta}</div>
@@ -5369,7 +5530,7 @@ function renderC(){
     const mems=memoriesOnDate(y,m,d);
     const cur=shiftData[key]||'';
     const personDots=uniquePersonsForDay(evs,mems).slice(0,5)
-      .map(p=>`<div class="cal-dot" title="${escapeAttr(p)}" style="background:${personColor(p)}"></div>`)
+      .map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${escapeHtml(personAvatar(p))}</span>`)
       .join('');
     const birthTop=mems.length?mems.slice(0,2).map(x=>`<div class="cal-birthday-dot" title="${escapeAttr(x.name||'기념')}">${escapeHtml(memoryIcon(x))}</div>`).join(''):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
@@ -5415,7 +5576,7 @@ function renderC(){
     </div>`;
   }
 
-  const legend=getPersons().map(p=>`<div class="leg"><span class="target-dot" style="background:${personColor(p)}"></span>${escapeHtml(p)}</div>`).join('');
+  const legend=getPersons().map(p=>`<div class="leg avatar-leg"><span class="target-avatar">${escapeHtml(personAvatar(p))}</span>${escapeHtml(p)}</div>`).join('');
 
   return`<div class="cal-outer">
     <div class="cal-top-select-row calendar-control-line">
@@ -5582,7 +5743,7 @@ function renderI(){
         ontouchmove="touchReorderMove(event)"
         ontouchend="touchReorderEnd(event)"
         ontouchcancel="touchReorderCancel()">
-        <div class="fi-hd"><div class="fi-name">${escapeHtml(kid.name||'대상')}</div>
+        <div class="fi-hd"><div class="fi-name"><span class="person-avatar-inline">${escapeHtml(personAvatar(kid.name||'대상'))}</span>${escapeHtml(kid.name||'대상')}</div>
           <div class="fi-hd-btns">
             <button class="today-toggle-pill${kid.showToday?' on':''}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
             <button class="today-toggle-pill${kid.showRoutine?' on':''}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
@@ -5839,6 +6000,7 @@ function makeMemoryCard(x){
       <div class="c-body">
         <div class="c-title memory-title-line">
           <span>${escapeHtml(x.name)}</span>
+          ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)}</em>`:''}
         </div>
         <div class="c-meta memory-meta-line">
           ${x.birth?`<span class="chip ${isLunar?'lunar-chip':'solar-chip'}">${isLunar?'음력':'양력'}</span>`:''}
@@ -6516,10 +6678,29 @@ function renderNoticeBanner(){
   return `<div class="notice-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🔔 ${parts.join(' · ')} 확인해 주세요${canGo?` <span class="notice-go">›</span>`:''}</div>`;
 }
 
+
+function scheduleBaseKey(){
+  return addDaysStr(todayKey(),scheduleBaseOffset||0);
+}
+function scheduleBaseSuffix(){
+  if(!scheduleBaseOffset)return '';
+  const k=scheduleBaseKey();
+  const [y,m,d]=k.split('-').map(Number);
+  return ` · ${m}/${d} (${DAYS[new Date(y,m-1,d).getDay()]})`;
+}
+function moveScheduleBase(step=1){
+  scheduleBaseOffset=Math.max(0,(scheduleBaseOffset||0)+step);
+  render({preserveScroll:true});
+}
+function daysBetween(fromKey,toKey){
+  return Math.ceil((new Date(toKey+'T00:00:00')-new Date(fromKey+'T00:00:00'))/86400000);
+}
+
 function renderShiftWidget(){
   if(main!=='s')return '';
-  const keys=Array.from({length:5},(_,i)=>addDaysStr(todayKey(),i));
-  return `<div class="widget-wrap shift-widget-5 compact-shift-widget">
+  const base=scheduleBaseKey();
+  const keys=Array.from({length:5},(_,i)=>addDaysStr(base,i));
+  return `<div class="widget-wrap shift-widget-6 compact-shift-widget">
     ${keys.map((k,i)=>{
       const s=shiftData[k]||'';
       const [yy,mm,dd]=k.split('-').map(Number);
@@ -6533,6 +6714,7 @@ function renderShiftWidget(){
         <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
       </div>`;
     }).join('')}
+    <button class="widget-card shift-mini-card shift-next-card" onclick="moveScheduleBase(1)" aria-label="다음 날짜 보기">›</button>
   </div>`;
 }
 
@@ -6742,13 +6924,12 @@ function memoryAgeLabel(x){
   if(title.includes('생일') || title.includes('탄생'))return `만 ${age}세`;
   return `${age}년째`;
 }
-function upcomingEvents(days=7){
-  const today=todayKey();
-  const end=addDaysStr(today,days);
+function upcomingEvents(days=7,baseKey=scheduleBaseKey()){
+  const end=addDaysStr(baseKey,days);
   return notes.filter(n=>{
     if(isDone(n)||n.repeat)return false;
     const k=n.start||'';
-    if(!k || k<=today || k>end)return false;
+    if(!k || k<=baseKey || k>end)return false;
     if(subF!=='all' && (n.who||'공통')!==subF)return false;
     return true;
   }).sort((a,b)=>{
@@ -6759,7 +6940,8 @@ function upcomingEvents(days=7){
 }
 function renderUpcomingPreview(){
   if(main!=='s')return '';
-  const list=upcomingEvents(7);
+  const baseKey=scheduleBaseKey();
+  const list=upcomingEvents(7,baseKey);
   if(!list.length)return '';
   return `<div class="widget-wrap dashboard-wrap upcoming-wrap">
     <div class="widget-card upcoming-card">
@@ -6769,8 +6951,8 @@ function renderUpcomingPreview(){
       </div>
       <div class="upcoming-list">
         ${list.map(n=>{
-          const d=daysUntilDate(n.start);
-          const dd=d===1?'내일':`D-${d}`;
+          const d=daysBetween(baseKey,n.start);
+          const dd=d===1?'다음날':`D-${d}`;
           return `<div class="upcoming-row">
             <span class="upcoming-dday">${dd}</span>
             <span class="upcoming-title">${escapeHtml(n.title||'일정')}</span>
@@ -6827,12 +7009,13 @@ function familyInfoEventsForKey(k){
 
 function renderHomeWidgets(){
   if(main!=='s')return '';
-  const baseKey=todayKey();
+  const baseKey=scheduleBaseKey();
+  const suffix=scheduleBaseSuffix();
   const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,baseKey));
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  return `${renderTodayListDashboard('오늘 일정',normalToday)}${renderUpcomingPreview()}${renderTargetDashboard('오늘 루틴',routineToday,5,'routine-dashboard','routine')}`;
+  return `${renderTodayListDashboard(`오늘 일정${suffix}`,normalToday)}${renderUpcomingPreview()}${renderTargetDashboard(`오늘 루틴${suffix}`,routineToday,5,'routine-dashboard','routine')}`;
 }
 
 function renderManualNotice(){
@@ -6855,6 +7038,11 @@ function openNoticeList(){
     if(!!b.important!==!!a.important)return b.important?1:-1;
     return (b.createdAt||0)-(a.createdAt||0);
   });
+  let touched=false;
+  list.forEach(n=>{
+    if(!n.important && !n.read){n.read=true;touched=true;}
+  });
+  if(touched)saveSettingsOnly();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -6862,10 +7050,9 @@ function openNoticeList(){
       <div class="modal-hd">가족 공지</div>
       ${list.length?list.map(n=>`<div class="card" style="margin-bottom:8px">
         <div class="c-title">${n.important?'⭐ ':''}${escapeHtml(n.title||'가족 공지')}</div>
-        <div class="c-meta"><span class="chip chip-g">${n.read?'읽음':'새 공지'}</span>${n.important?`<span class="chip imp-chip">중요</span>`:''}</div>
+        <div class="c-meta">${n.important?`<span class="chip imp-chip">중요</span>`:''}</div>
         <div style="font-size:13px;color:var(--t2);line-height:1.45;margin-top:8px">${escapeHtml(n.body||'')}</div>
-        <div class="action-grid notice-action-grid">
-          <button class="toss-btn" onclick="markNoticeRead('${n.id}')">읽음</button>
+        <div class="action-grid notice-action-grid notice-action-grid-2">
           <button class="toss-btn primary" onclick="openNoticeModal('${n.id}')">수정</button>
           <button class="toss-btn danger" onclick="delNotice('${n.id}')">삭제</button>
         </div>
@@ -7224,12 +7411,21 @@ function saveEditNote(id){
 
 function editKid(i){
   const k=family[i];
+  const curAvatar=k.avatar||defaultAvatarForName(k.name);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">기본 정보 수정</div>
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
+      <div class="ml">달력 아이콘</div>
+      <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
+      <div class="avatar-select-grid">
+        ${PERSON_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
+          <div class="avatar-group-title">${escapeHtml(g.label)}</div>
+          <div class="avatar-options">${g.items.map(ic=>`<button class="avatar-choice${ic===curAvatar?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${escapeHtml(ic)}</button>`).join('')}</div>
+        </div>`).join('')}
+      </div>
       <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
       <div class="ml">학년 · 반 · 번호</div>
       <div class="mi-3">
@@ -7244,10 +7440,22 @@ function editKid(i){
 }
 function addKid(){
   if(!requireEditMode())return;
-family.push({id:Date.now(),name:'새 대상',grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});saveAll();editKid(family.length-1)}
+  family.push({id:Date.now(),name:'새 대상',avatar:'👤',grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false});
+  saveAll();editKid(family.length-1);
+}
 function saveKid(i){
   if(!requireEditMode())return;
-family[i]={...family[i],name:document.getElementById('k-n').value,grade:document.getElementById('k-g').value,year:document.getElementById('k-y').value,cls:document.getElementById('k-c').value,num:document.getElementById('k-u').value};saveAll();closeM();render()}
+  const name=document.getElementById('k-n').value;
+  family[i]={...family[i],
+    name,
+    avatar:(document.getElementById('k-avatar')||{}).value||defaultAvatarForName(name),
+    grade:document.getElementById('k-g').value,
+    year:document.getElementById('k-y').value,
+    cls:document.getElementById('k-c').value,
+    num:document.getElementById('k-u').value
+  };
+  saveAll();closeM();render();
+}
 
 function getPickerVal(id){
   const el=document.getElementById(id);
