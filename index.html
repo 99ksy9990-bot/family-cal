@@ -8871,10 +8871,280 @@ select{
   padding-top:10px !important;
 }
 
+
+/* v1.1.0 multi shift / private / confetti UX */
+.s-custom,
+.shift-one.s-custom,
+.multi-shift-option.s-custom,
+.shift-bulk-chip.s-custom,
+.selected-shift-chip.s-custom{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  border:1px solid rgba(0,122,255,.16) !important;
+}
+.multi-shift-widget-shell{
+  grid-template-columns:34px minmax(0,1fr) 34px !important;
+  gap:6px !important;
+  padding:12px 12px 0 !important;
+}
+.multi-shift-widget{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.04);
+  border-radius:20px;
+  box-shadow:0 4px 16px rgba(15,23,42,.04);
+  padding:10px 10px 12px;
+  overflow:hidden;
+}
+.multi-shift-date-row,
+.multi-shift-user-row{
+  display:grid;
+  grid-template-columns:46px repeat(5,minmax(0,1fr));
+  gap:5px;
+  align-items:center;
+}
+.multi-shift-date-row{
+  padding-bottom:7px;
+  border-bottom:1px solid rgba(0,0,0,.045);
+  margin-bottom:7px;
+}
+.multi-shift-date{
+  text-align:center;
+  font-size:11px;
+  font-weight:850;
+  line-height:1.2;
+  color:#8B95A1;
+  border-radius:10px;
+  padding:4px 0;
+}
+.multi-shift-date.today{
+  color:#333D4B;
+  background:var(--blue-bg);
+}
+.multi-shift-user-row + .multi-shift-user-row{
+  margin-top:7px;
+}
+.multi-shift-user{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  font-size:10.5px;
+  font-weight:900;
+  color:#333D4B;
+}
+.multi-shift-user .avatar-img-small{
+  width:26px !important;
+  height:26px !important;
+  object-fit:contain !important;
+}
+.multi-shift-user span{
+  max-width:46px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.multi-shift-cell{
+  height:34px;
+  border:0;
+  border-radius:11px;
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#F4F4F6;
+  color:#8B95A1;
+}
+.multi-shift-cell.today{
+  outline:2px solid rgba(0,122,255,.18);
+  outline-offset:-1px;
+}
+.multi-shift-cell.empty{
+  background:#F4F4F6 !important;
+  color:#B0B8C1 !important;
+}
+.multi-shift-sheet .modal-hd{
+  text-align:center;
+}
+.multi-shift-person{
+  padding:12px 0;
+  border-bottom:1px solid var(--bg);
+}
+.multi-shift-person:last-child{
+  border-bottom:none;
+}
+.multi-shift-person-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  color:#333D4B;
+  margin-bottom:10px;
+}
+.multi-shift-avatar .avatar-img-small{
+  width:28px !important;
+  height:28px !important;
+  object-fit:contain !important;
+}
+.multi-shift-options{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.multi-shift-option{
+  min-height:36px;
+  padding:0 13px;
+  border:0;
+  border-radius:999px;
+  background:#F4F4F6;
+  color:#8B95A1;
+  font-size:13px;
+  font-weight:950;
+  font-family:inherit;
+}
+.multi-shift-option.on{
+  background:var(--blue) !important;
+  color:#fff !important;
+  box-shadow:0 5px 13px rgba(0,122,255,.22);
+}
+.multi-shift-option.clear{
+  background:#fff;
+  color:var(--pink-t);
+  border:1px solid #E5E8EB;
+}
+.selected-shift-chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:0 0 12px;
+}
+.selected-shift-chip{
+  height:30px !important;
+  padding:0 10px !important;
+  font-size:11px !important;
+}
+.selected-shift-chip.empty{
+  background:#F4F4F6 !important;
+  color:#8B95A1 !important;
+  border:0 !important;
+}
+.shift-more{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:17px;
+  min-width:17px;
+  padding:0 3px;
+  border-radius:999px;
+  background:var(--bg);
+  color:var(--t3);
+  font-size:8px;
+  font-weight:950;
+}
+.shift-bulk-user-select{
+  height:28px;
+  border:1px solid var(--border);
+  background:#fff;
+  color:var(--t1);
+  border-radius:999px;
+  padding:0 8px;
+  font-size:11px;
+  font-weight:900;
+  font-family:inherit;
+}
+.shift-user-select-wrap{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:4px 0 6px;
+  scrollbar-width:none;
+}
+.shift-user-select-wrap::-webkit-scrollbar{display:none}
+.shift-user-choice{
+  flex:0 0 auto;
+  min-height:34px;
+  border:1.5px solid var(--border);
+  background:#F4F4F6;
+  color:#8B95A1;
+  border-radius:999px;
+  padding:0 10px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:12px;
+  font-weight:900;
+  font-family:inherit;
+}
+.shift-user-choice.on{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+.shift-label-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+.shift-label-input{
+  text-align:center;
+  padding:10px 4px;
+  border-radius:12px;
+  border:none;
+  background:#F4F4F6;
+  font-size:13px;
+  font-weight:900;
+  color:#333D4B;
+  font-family:inherit;
+}
+.private-chip{
+  background:#111 !important;
+  color:#fff !important;
+  margin-left:6px !important;
+  height:20px !important;
+  font-size:10px !important;
+  padding:0 6px !important;
+  vertical-align:1px;
+}
+.schedule-line-card.private .schedule-line-title,
+.oneoff-selected-event.private .oneoff-title{
+  color:#333D4B !important;
+}
+.smart-brief-banner{
+  font-size:13px !important;
+  line-height:1.45 !important;
+}
+@media (max-width:430px){
+  .multi-shift-widget-shell{
+    grid-template-columns:30px minmax(0,1fr) 30px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .multi-shift-widget{
+    padding:9px 8px 11px;
+  }
+  .multi-shift-date-row,
+  .multi-shift-user-row{
+    grid-template-columns:40px repeat(5,minmax(0,1fr));
+    gap:4px;
+  }
+  .multi-shift-user span{
+    max-width:40px;
+    font-size:9.8px;
+  }
+  .multi-shift-cell{
+    height:32px;
+    font-size:11px;
+    border-radius:10px;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <script>
 (function(){
@@ -8928,21 +9198,22 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.87';
-const PASS_BUILD_VERSION='v1.0.87-nav-profile-todo-memory-polish';
+const APP_VERSION='v1.1.0';
+const PASS_BUILD_VERSION='v1.1.0-multi-shift-ux';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '상단 탭 네이밍 변경: 반복 · 할일 · 축하',
-  '루틴 탭에서 기본 정보 분리',
-  '우측 상단 프로필 센터 추가',
-  '할일 탭 리스트형 UI 적용',
-  '축하 카드 일정 카드형으로 정리',
-  '5일 근무 위젯 색상 톤다운',
-  '오늘 루틴 대시보드 반응형 2열 적용',
-  '검색창은 달력 탭 전용으로 정리'
+  '다중 근무표 구조 전환',
+  '대상자별 5일 상태 위젯',
+  '상태 라벨 6개 커스텀',
+  '달력 다중 상태 편집 바텀시트',
+  '할일/일정 완료 폭죽 애니메이션',
+  '스마트 모닝 브리핑 문장형 배너',
+  '비공개 일정 표시 기능',
+  'PWA 푸시 알림 수신 로직 추가'
 ];
 let editUnlocked=false;
-try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
+let privateViewUnlocked=false;
+try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1';privateViewUnlocked=sessionStorage.getItem('pass_private_unlocked')==='1'}catch(e){editUnlocked=false;privateViewUnlocked=false}
 function isEditMode(){return editUnlocked}
 function requireEditMode(){
   if(editUnlocked)return true;
@@ -9051,7 +9322,7 @@ const DEFAULT_DATA={
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
 let main='s',subF='all',doneF='all',activePer='1m',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
-let shiftSelectMode=false,shiftSelectedDates=[];
+let shiftSelectMode=false,shiftSelectedDates=[],shiftBulkUser='';
 let weekOpen=false;
 let activeOpen=false;
 let requestOpen=false,requestDoneOpen=false;
@@ -9065,6 +9336,7 @@ let calY=TY,calM=TM,selDate=null;
 let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
+const DEFAULT_SHIFT_LABELS=['D','E','N','OFF','연차','반차'];
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳','💍','🏥','✈️','🏡','🍀','☕','📌'];
 
@@ -9295,15 +9567,29 @@ function shiftLabelForDate(k){
 }
 function openShiftPicker(dateKey){
   if(!requireEditMode())return;
-  const cur=shiftData[dateKey]||'';
+  normalizeShiftUsers();
+  const [y,m,d]=dateKey.split('-').map(Number);
+  const dow=DAYS[new Date(y,m-1,d).getDay()];
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet shift-edit-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet shift-edit-sheet multi-shift-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${dateLabel(dateKey)} 근무 변경</div>
-      <div class="shift-edit-grid">
-        <button class="shift-btn shift-edit-btn${!cur?' on':''}" style="background:var(--card);color:var(--t3)" onclick="setShiftFromModal('${dateKey}','')">미입력</button>
-        ${SHIFTS.map(s=>`<button class="shift-btn shift-edit-btn ${SCLS[s]}${cur===s?' on':''}" onclick="setShiftFromModal('${dateKey}','${s}')">${s}</button>`).join('')}
+      <div class="modal-hd">${m}월 ${d}일 (${dow}) 상태</div>
+      <div class="multi-shift-list">
+        ${shiftUsers.map(user=>{
+          const cur=shiftStatusFor(dateKey,user);
+          const p=(family||[]).find(f=>(f.name||'')===user);
+          return `<div class="multi-shift-person">
+            <div class="multi-shift-person-head">
+              <span class="multi-shift-avatar">${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}</span>
+              <b>${escapeHtml(user)}</b>
+            </div>
+            <div class="multi-shift-options">
+              ${shiftLabelList().map(label=>`<button class="multi-shift-option ${cur===label?'on':''} ${shiftBadgeClass(label)}" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},${onclickArg(label)},true)">${escapeHtml(label)}</button>`).join('')}
+              <button class="multi-shift-option clear" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},'',true)">비우기</button>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -9312,7 +9598,7 @@ function openShiftPicker(dateKey){
 function setShiftFromModal(k,t){
   setShift(k,t);
   closeM();
-  showToast('근무를 변경했어요.');
+  showToast('상태를 변경했어요.');
 }
 
 function renderCalendarViewModeChips(){
@@ -9542,7 +9828,7 @@ function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return 
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[];
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],notificationEnabled=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -9581,11 +9867,17 @@ function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
 function typeChip(t){return t==='work'?'chip-w':t==='family'?'chip-f':'chip-p'}
 function dotCls(t){return t==='work'?'dw':t==='family'?'df':'dp'}
 function getShiftCount(y,m){
-  const counts={D:0,E:0,N:0,OFF:0};
+  const counts={};
+  shiftLabelList().forEach(s=>counts[s]=0);
   const days=new Date(y,m+1,0).getDate();
   for(let d=1;d<=days;d++){
-    const s=shiftData[dk(y,m,d)];
-    if(counts[s]!==undefined)counts[s]++;
+    const key=dk(y,m,d);
+    shiftStatusesForDate(key).forEach(x=>{
+      if(x.status){
+        if(!(x.status in counts))counts[x.status]=0;
+        counts[x.status]++;
+      }
+    });
   }
   return counts;
 }
@@ -9823,13 +10115,144 @@ function autoInfoMatchesFilter(n){
 
 
 
+
+function shiftLabelList(){
+  const arr=Array.isArray(shiftLabels)?shiftLabels:DEFAULT_SHIFT_LABELS;
+  const clean=arr.map(x=>String(x||'').trim()).filter(Boolean);
+  return clean.length?clean:DEFAULT_SHIFT_LABELS;
+}
+function normalizeShiftUsers(){
+  const people=getPersons().filter(p=>p&&p!=='공통');
+  if(!Array.isArray(shiftUsers))shiftUsers=[];
+  shiftUsers=shiftUsers.filter(u=>people.includes(u));
+  if(!shiftUsers.length){
+    const preferred=people.filter(p=>['아빠','엄마'].includes(p));
+    shiftUsers=(preferred.length?preferred:people.slice(0,1));
+  }
+}
+function firstShiftUser(){
+  normalizeShiftUsers();
+  return shiftUsers[0] || getPersons().find(p=>p!=='공통') || getPersons()[0] || '공통';
+}
+function isShiftObject(v){
+  return v && typeof v==='object' && !Array.isArray(v);
+}
+function migrateShiftDataToMulti(){
+  normalizeShiftUsers();
+  const fallback=firstShiftUser();
+  const out={};
+  Object.keys(shiftData||{}).forEach(k=>{
+    const val=shiftData[k];
+    if(typeof val==='string'){
+      if(val)out[k]={[fallback]:val};
+    }else if(isShiftObject(val)){
+      const row={};
+      Object.keys(val).forEach(user=>{
+        const s=String(val[user]||'').trim();
+        if(s)row[user]=s;
+      });
+      if(Object.keys(row).length)out[k]=row;
+    }
+  });
+  shiftData=out;
+}
+function shiftStatusFor(dateKey,user){
+  const row=shiftData?.[dateKey];
+  if(typeof row==='string'){
+    return user===firstShiftUser()?row:'';
+  }
+  return isShiftObject(row)?(row[user]||''):'';
+}
+function shiftStatusesForDate(dateKey){
+  normalizeShiftUsers();
+  return shiftUsers.map(user=>({user,status:shiftStatusFor(dateKey,user)}));
+}
+function shiftHasAny(dateKey){
+  return shiftStatusesForDate(dateKey).some(x=>x.status);
+}
+function shiftBadgeClass(status){
+  return SCLS[status]||'s-custom';
+}
+function shiftStatusText(status){
+  return STXT[status]||status||'미입력';
+}
+function shiftStatusForBrief(status){
+  if(!status)return '';
+  if(status==='OFF')return '휴무';
+  return shiftStatusText(status);
+}
+function setShiftStatus(dateKey,user,status,refreshPicker=false){
+  if(!requireEditMode())return;
+  if(!dateKey||!user)return;
+  if(!shiftData[dateKey]||typeof shiftData[dateKey]==='string')shiftData[dateKey]={};
+  if(status){
+    shiftData[dateKey][user]=status;
+  }else{
+    delete shiftData[dateKey][user];
+    if(!Object.keys(shiftData[dateKey]).length)delete shiftData[dateKey];
+  }
+  saveShiftOnly(dateKey,status||'');
+  render({preserveScroll:true});
+  if(refreshPicker)openShiftPicker(dateKey);
+}
+function toggleShiftUser(name){
+  if(!requireEditMode())return;
+  const n=String(name||'').trim();
+  if(!n)return;
+  normalizeShiftUsers();
+  if(shiftUsers.includes(n))shiftUsers=shiftUsers.filter(x=>x!==n);
+  else shiftUsers.push(n);
+  normalizeShiftUsers();
+  saveSettingsOnly();
+  openManageCenter();
+  render({preserveScroll:true});
+}
+function updateShiftLabel(index,val){
+  if(!requireEditMode())return;
+  if(!Array.isArray(shiftLabels))shiftLabels=[...DEFAULT_SHIFT_LABELS];
+  shiftLabels[index]=String(val||'').trim();
+  saveSettingsOnly();
+}
+function renderShiftUserSelector(){
+  normalizeShiftUsers();
+  const people=getPersons().filter(p=>p!=='공통');
+  return `<div class="shift-user-select-wrap">${people.map(p=>`<button class="shift-user-choice${shiftUsers.includes(p)?' on':''}" onclick="toggleShiftUser(${onclickArg(p)})">${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span></button>`).join('')}</div>`;
+}
+function renderShiftLabelInputs(){
+  const labels=Array.from({length:6},(_,i)=>(shiftLabels&&shiftLabels[i])||DEFAULT_SHIFT_LABELS[i]||'');
+  return `<div class="shift-label-grid">${labels.map((lbl,idx)=>`<input class="shift-label-input" value="${escapeAttr(lbl)}" onchange="updateShiftLabel(${idx},this.value)" placeholder="라벨 ${idx+1}"/>`).join('')}</div>`;
+}
+function renderCalendarShiftBadges(dateKey){
+  const rows=shiftStatusesForDate(dateKey).filter(x=>x.status);
+  if(!rows.length)return '<span style="display:inline-block;height:15px"></span>';
+  const shown=rows.slice(0,2);
+  return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}">${escapeHtml(x.status)}</span>`).join('')+
+    (rows.length>2?`<span class="shift-more">+${rows.length-2}</span>`:'');
+}
+function renderSelectedDayShiftChips(dateKey){
+  normalizeShiftUsers();
+  if(!shiftUsers.length)return '';
+  return `<div class="selected-shift-chip-row">${shiftUsers.map(user=>{
+    const status=shiftStatusFor(dateKey,user);
+    return `<button class="sec-chip-btn selected-shift-chip ${status?shiftBadgeClass(status):'empty'}" onclick="openShiftPicker('${dateKey}')">${escapeHtml(user)}${status?`: ${escapeHtml(status)}`:' 상태'}</button>`;
+  }).join('')}</div>`;
+}
+
 function normalizeData(d){
   const base=deepCopy(DEFAULT_DATA);
   d=d||base;
   const subMode=d.storageMode==='subcollections';
   notes=Array.isArray(d.notes)?d.notes:(subMode?notes:base.notes);
   notes=Array.isArray(notes)?notes:[];
-  notes.forEach(n=>{if(!n.who)n.who='공통'; if(!('repeat' in n))n.repeat=''; if(!Array.isArray(n.skipDates))n.skipDates=[]; if(!n.alertMemo)n.alertMemo=''; if(!n.type)n.type='family'; if(!n.end)n.end='';});
+  notes.forEach(n=>{
+    if(!n.who)n.who='공통';
+    if(!('repeat' in n))n.repeat='';
+    if(!Array.isArray(n.skipDates))n.skipDates=[];
+    if(!n.alertMemo)n.alertMemo='';
+    if(!n.type)n.type='family';
+    if(!n.end)n.end='';
+    if(!('isPrivate' in n))n.isPrivate=false;
+  });
   requests=Array.isArray(d.requests)?d.requests:(subMode?requests:(base.requests||[]));
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.dueDate)r.dueDate=''; if(!r.dueTime)r.dueTime=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
@@ -9842,7 +10265,11 @@ function normalizeData(d){
   holidayCache=(d.holidayCache&&typeof d.holidayCache==='object')?d.holidayCache:(base.holidayCache||{});
   family=Array.isArray(d.family)?d.family:base.family;
   hiddenBasePersons=Array.isArray(d.hiddenBasePersons)?d.hiddenBasePersons:[];
+  shiftUsers=Array.isArray(d.shiftUsers)?d.shiftUsers:[];
+  shiftLabels=Array.isArray(d.shiftLabels)?d.shiftLabels:[...DEFAULT_SHIFT_LABELS];
+  notificationEnabled=!!d.notificationEnabled;
   ensureBaseTargets();
+  normalizeShiftUsers();
 
   repeatItems=Array.isArray(d.repeatItems)?d.repeatItems:[];
   if(!repeatItems.length){
@@ -9883,8 +10310,11 @@ function normalizeData(d){
   purgeOldTrash(false);
   shiftData=d.shiftData&& !subMode ? d.shiftData : (subMode?shiftData:(d.shiftData||{}));
   shiftData=shiftData||{};
+  migrateShiftDataToMulti();
 }
-function currentData(){return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,hiddenBasePersons,changeLogs,updatedAt:Date.now()}}
+function currentData(){
+  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
+}
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
@@ -9892,6 +10322,7 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 function currentSettingsData(){
   return {
     family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
+    shiftUsers,shiftLabels,notificationEnabled,
     storageMode:'subcollections',
     updatedAt:Date.now()
   };
@@ -9900,7 +10331,11 @@ function monthKeyOf(k){return String(k||'').slice(0,7)}
 function monthShiftMap(monthKey){
   const out={};
   Object.keys(shiftData||{}).forEach(k=>{
-    if(k.startsWith(monthKey+'-'))out[k]=shiftData[k]||'';
+    if(k.startsWith(monthKey+'-')){
+      const v=shiftData[k];
+      if(typeof v==='string')out[k]=v||'';
+      else if(isShiftObject(v))out[k]={...v};
+    }
   });
   return out;
 }
@@ -10293,13 +10728,81 @@ function notesOnDate(y,m,d){
   });
 }
 
+
+function isPrivateVisible(){
+  return !!privateViewUnlocked;
+}
+function togglePrivateView(){
+  privateViewUnlocked=!privateViewUnlocked;
+  try{
+    if(privateViewUnlocked)sessionStorage.setItem('pass_private_unlocked','1');
+    else sessionStorage.removeItem('pass_private_unlocked');
+  }catch(e){}
+  render({preserveScroll:true});
+  showToast(privateViewUnlocked?'비공개 일정을 표시해요.':'비공개 일정을 숨겨요.');
+}
+function displayNoteTitle(n){
+  if(n&&n.isPrivate&&!isPrivateVisible())return '비공개 일정';
+  return n?.title||'일정';
+}
+function noteIsMasked(n){
+  return !!(n&&n.isPrivate&&!isPrivateVisible());
+}
+function privateChip(n){
+  return n&&n.isPrivate?`<span class="chip private-chip">비공개</span>`:'';
+}
+function togglePrivateField(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.dataset.val=el.dataset.val==='1'?'':'1';
+  el.className='type-btn'+(el.dataset.val==='1'?' tf':'');
+  el.textContent=el.dataset.val==='1'?'🔒 비공개 ON':'🔓 비공개 OFF';
+}
+function launchDoneConfetti(){
+  try{
+    if(window.confetti){
+      window.confetti({particleCount:72,spread:68,origin:{y:.72},scalar:.82});
+      setTimeout(()=>window.confetti({particleCount:32,spread:50,origin:{y:.78},scalar:.62}),120);
+    }
+  }catch(e){}
+}
+function requestNotificationPermission(){
+  if(!('Notification' in window)){
+    showToast('이 브라우저는 알림을 지원하지 않아요.');
+    return;
+  }
+  Notification.requestPermission().then(p=>{
+    notificationEnabled=p==='granted';
+    saveSettingsOnly();
+    showToast(notificationEnabled?'알림 권한이 켜졌어요.':'알림 권한이 꺼져 있어요.');
+    openProfileCenter();
+  });
+}
+function openNotificationGuide(){
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">푸시 알림</div>
+      <div class="security-note">
+        앱에는 서비스워커의 push 알림 수신 로직을 추가했습니다. 실제로 가족 일정 D-1 알림을 자동 발송하려면 서버 또는 Firebase Cloud Messaging에서 push 메시지를 보내야 합니다.
+      </div>
+      <button class="primary-btn" onclick="requestNotificationPermission()">알림 권한 요청</button>
+      <button class="cancel-link" onclick="openProfileCenter()">돌아가기</button>
+    </div>
+  </div>`;
+}
+
 function toggleNote(id){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));
   if(n){
-    n.done=!isDone(n);
-    addChangeLog(`${n.done?'일정 완료':'일정 완료 취소'}: ${n.title||'일정'}`);
-    saveNoteOnly(n);render({preserveScroll:true});
+    const willDone=!isDone(n);
+    n.done=willDone;
+    addChangeLog(`${n.done?'일정 완료':'일정 완료 취소'}: ${displayNoteTitle(n)}`);
+    saveNoteOnly(n);
+    render({preserveScroll:true});
+    if(willDone)launchDoneConfetti();
   }
 }
 
@@ -10390,7 +10893,7 @@ function openSwipeNoteActions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(n.title||'일정')}</div>
+      <div class="modal-hd">${escapeHtml(displayNoteTitle(n))}</div>
       <div class="action-grid schedule-row-action-grid${missed?' has-postpone':''}">
         ${missed?`<button class="toss-btn primary" onclick="postponeNoteToToday('${id}')">오늘로 미루기</button>`:''}
         <button class="toss-btn primary" onclick="openEditNote('${id}')">수정</button>
@@ -10623,6 +11126,8 @@ function openProfileCenter(){
         <button class="toss-btn" onclick="copyShareLink()">공유 링크 복사</button>
         <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
+        <button class="toss-btn" onclick="togglePrivateView()">${isPrivateVisible()?'비공개 숨김':'비공개 보기'}</button>
+        <button class="toss-btn" onclick="openNotificationGuide()">알림 설정</button>
         <button class="toss-btn primary" onclick="openManageCenter()">관리 센터</button>
       </div>
 
@@ -11130,14 +11635,14 @@ function makeScheduleRowCard(n,opts={}){
     ontouchstart="startItemSwipe(event,'note','${id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'note','${id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"`;
   const drag=isAuto?'':`draggable="true" ondragstart="dragStart(event,'notes','${id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${id}')" ondragend="dragEnd(event)"`;
-  return `<div class="schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}" ${click} ${swipe} ${drag}>
+  return `<div class="schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}${n.isPrivate?' private':''}" ${click} ${swipe} ${drag}>
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
     <div class="schedule-line-grid">
       <div class="schedule-line-person">
         <div class="schedule-line-avatar">${avatarMarkup(personAvatar(who),who)}</div>
         <div class="schedule-line-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
       </div>
-      <div class="schedule-line-title${done?' done':''}">${highlightText(n.title||'일정')}</div>
+      <div class="schedule-line-title${done?' done':''}">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
       <div class="schedule-line-time">${escapeHtml(scheduleListDateTime(n)||'날짜 없음')}</div>
     </div>
   </div>`;
@@ -11373,10 +11878,10 @@ function calendarEventItem(n,selDate){
   const whoRaw=n.who||'공통';
   const who=escapeHtml(whoRaw);
   const tm=calendarTimeOnly(n);
-  const title=highlightText(n.title||'일정');
+  const title=highlightText(displayNoteTitle(n));
   const clickAttr=`onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
 
-  return `<div class="ev-item cal-selected-event oneoff-selected-event" ${clickAttr}>
+  return `<div class="ev-item cal-selected-event oneoff-selected-event${n.isPrivate?' private':''}" ${clickAttr}>
     <div class="oneoff-avatar-col">
       <div class="ev-avatar oneoff-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
       <div class="oneoff-person under-avatar">${who}</div>
@@ -11384,10 +11889,10 @@ function calendarEventItem(n,selDate){
     <div class="ev-info oneoff-info">
       <div class="oneoff-box">
         <div class="oneoff-main">
-          <div class="ev-title oneoff-title">${title}</div>
+          <div class="ev-title oneoff-title">${title}${privateChip(n)}</div>
           ${tm&&tm!=='시간 미정'?`<div class="ev-meta-time oneoff-time">${escapeHtml(tm)}</div>`:''}
         </div>
-        ${n.alertMemo?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
+        ${n.alertMemo && !noteIsMasked(n)?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
       </div>
     </div>
   </div>`;
@@ -11416,7 +11921,6 @@ function renderC(){
     const allMems=memoriesOnDate(y,m,d);
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
-    const cur=shiftData[key]||'';
     const showShift=(calViewMode==='all'||calViewMode==='work');
     const dotHtml=renderCalendarCellDots(evs,mems);
     const hasCalSearch=!!String(searchQ||'').trim();
@@ -11434,7 +11938,7 @@ function renderC(){
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
       <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
-      <div class="cal-shift-line">${showShift&&cur?`<span class="shift-one ${SCLS[cur]}">${cur}</span>`:'<span style="display:inline-block;height:15px"></span>'}</div>
+      <div class="cal-shift-line">${showShift?renderCalendarShiftBadges(key):'<span style="display:inline-block;height:15px"></span>'}</div>
       <div class="cal-dots">${dotHtml}</div>
     </div>`;
   }
@@ -11447,20 +11951,20 @@ function renderC(){
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     const selHoliday=holidayName(selDate);
-    const cur=shiftData[selDate]||'';
     evHtml=`<div class="ev-card" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
       <div class="ev-hd selected-day-hd">
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
         <div class="selected-day-actions">
           <button class="sec-chip-btn detail-target-btn" onclick="openCalendarTargetSheet()">대상 ${targetLabel(calWhoF)}</button>
-          <button class="sec-chip-btn shift-status-btn ${cur?SCLS[cur]:''}" onclick="openShiftPicker('${selDate}')">${shiftLabelForDate(selDate)}</button>
+          <button class="sec-chip-btn shift-status-btn" onclick="openShiftPicker('${selDate}')">상태 편집</button>
         </div>
       </div>
+      ${renderSelectedDayShiftChips(selDate)}
       ${renderSelectedDayList(mems,evs,selDate,sp)}
     </div>`;
   }
 
-  return`<div class="cal-outer cal-mode-${calViewMode}">
+  return`<div class="cal-outer">
     <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
       ${renderCalendarViewModeChips()}
       ${isEditMode() && calViewMode==='work'?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 중':'일괄 선택'}</button>`:''}
@@ -11480,10 +11984,7 @@ function renderC(){
   </div>`;
 }
 function setShift(k,t){
-  if(!requireEditMode())return;
-  shiftData[k]=t||'';
-  saveShiftOnly(k,t||'');
-  render();
+  setShiftStatus(k,firstShiftUser(),t||'',false);
 }
 function selCal(k){
   selDate=selDate===k?null:k;
@@ -11936,10 +12437,13 @@ function toggleReq(id){
   if(!requireEditMode())return;
   const r=requests.find(x=>String(x.id)===String(id));
   if(r){
-    r.done=!isDone(r);
+    const willDone=!isDone(r);
+    r.done=willDone;
     r.doneAt=r.done?todayKey():'';
-    addChangeLog(`${r.done?'부탁 완료':'부탁 완료 취소'}: ${r.title||'부탁'}`);
-    saveRequestOnly(r);render({preserveScroll:true});
+    addChangeLog(`${r.done?'할일 완료':'할일 완료 취소'}: ${r.title||'할일'}`);
+    saveRequestOnly(r);
+    render({preserveScroll:true});
+    if(willDone)launchDoneConfetti();
   }
 }
 function delReq(id){
@@ -12388,7 +12892,7 @@ function repairData(){
   if(!requireEditMode())return;
   const validTypes=['family','personal','work'];
   const validRepeats=['','daily','weekly','monthly'];
-  const validShifts=['','D','E','N','OFF'];
+  const validShifts=['',...shiftLabelList()];
   const isDate=v=>!v || /^\d{4}-\d{2}-\d{2}$/.test(v);
   const seen=new Set();
   let fixed=0;
@@ -12443,7 +12947,18 @@ function repairData(){
   });
 
   Object.keys(shiftData).forEach(k=>{
-    if(!isDate(k) || !validShifts.includes(shiftData[k])){delete shiftData[k];fixed++}
+    const val=shiftData[k];
+    if(!isDate(k)){delete shiftData[k];fixed++;return;}
+    if(typeof val==='string'){
+      if(val && !validShifts.includes(val)){delete shiftData[k];fixed++}
+      return;
+    }
+    if(isShiftObject(val)){
+      Object.keys(val).forEach(user=>{
+        if(val[user] && !validShifts.includes(val[user])){delete val[user];fixed++}
+      });
+      if(!Object.keys(val).length)delete shiftData[k];
+    }
   });
 
   purgeOldTrash(false);
@@ -12504,42 +13019,33 @@ function restoreRepeatException(id,k){
 
 function clearShiftData(){
   if(!requireEditMode())return;
-  const cnt=Object.keys(shiftData||{}).filter(k=>shiftData[k]).length;
+  const cnt=Object.keys(shiftData||{}).length;
   if(!cnt){
-    alert('초기화할 근무 데이터가 없어요.');
+    alert('초기화할 상태 데이터가 없어요.');
     return;
   }
-  if(!confirm(`근무표 데이터 ${cnt}개를 모두 미입력으로 초기화할까요?`))return;
-  autoBackupBefore('근무표 전체 초기화 전');
-
-  // Firebase merge:true에서는 빈 객체로 덮어도 서버의 기존 날짜 키가 지워지지 않음
-  // 그래서 모든 날짜 키를 빈 문자열로 명시 저장
-  Object.keys(shiftData||{}).forEach(k=>{
-    shiftData[k]='';
-  });
+  if(!confirm(`상태표 데이터 ${cnt}일치를 모두 초기화할까요?`))return;
+  autoBackupBefore('상태표 전체 초기화 전');
+  shiftData={};
   saveAll();
   render();
-  alert('근무표 전체 초기화 완료');
+  alert('상태표 전체 초기화 완료');
 }
 
 function prunePastShiftData(){
   if(!requireEditMode())return;
   const today=todayKey();
-  const keys=Object.keys(shiftData||{}).filter(k=>k<today && shiftData[k]);
+  const keys=Object.keys(shiftData||{}).filter(k=>k<today);
   if(!keys.length){
-    alert('정리할 과거 근무 데이터가 없어요.');
+    alert('정리할 과거 상태 데이터가 없어요.');
     return;
   }
-  if(!confirm(`오늘 이전 근무 데이터 ${keys.length}개를 미입력으로 정리할까요?`))return;
-  autoBackupBefore('과거 근무 정리 전');
-
-  keys.forEach(k=>{
-    shiftData[k]='';
-  });
-
+  if(!confirm(`오늘 이전 상태 데이터 ${keys.length}일치를 정리할까요?`))return;
+  autoBackupBefore('과거 상태 정리 전');
+  keys.forEach(k=>delete shiftData[k]);
   saveAll();
   render();
-  alert('과거 근무 데이터 정리 완료');
+  alert('과거 상태 데이터 정리 완료');
 }
 
 
@@ -12647,18 +13153,21 @@ function clearShiftSelected(){
 function applyBulkShift(t){
   if(!requireEditMode())return;
   if(!shiftSelectedDates.length){
-    alert('근무를 입력할 날짜를 선택해 주세요.');
+    alert('상태를 입력할 날짜를 선택해 주세요.');
     return;
   }
+  normalizeShiftUsers();
+  const user=shiftBulkUser || firstShiftUser();
   const label=t||'미입력';
-  if(!confirm(`선택한 날짜 ${shiftSelectedDates.length}개를 ${label}(으)로 변경할까요?`))return;
-  autoBackupBefore('근무 일괄 입력 전');
+  if(!confirm(`${escapeHtml(user)}의 선택 날짜 ${shiftSelectedDates.length}개를 ${label}(으)로 변경할까요?`))return;
+  autoBackupBefore('상태 일괄 입력 전');
 
   shiftSelectedDates.forEach(k=>{
-    if(t){
-      shiftData[k]=t;
-    }else{
-      shiftData[k]='';
+    if(!shiftData[k]||typeof shiftData[k]==='string')shiftData[k]={};
+    if(t)shiftData[k][user]=t;
+    else{
+      delete shiftData[k][user];
+      if(!Object.keys(shiftData[k]).length)delete shiftData[k];
     }
   });
 
@@ -12668,17 +13177,19 @@ function applyBulkShift(t){
   shiftSelectedDates=[];
   shiftSelectMode=false;
   render();
-  showToast(`${cnt}개 날짜의 근무를 변경했어요.`);
+  showToast(`${user}의 ${cnt}개 날짜 상태를 변경했어요.`);
 }
 function renderShiftBulkBar(){
   if(!isEditMode() || !shiftSelectMode)return '';
+  normalizeShiftUsers();
+  if(!shiftBulkUser || !shiftUsers.includes(shiftBulkUser))shiftBulkUser=firstShiftUser();
   return `<div class="shift-bulk-bar selecting compact-bulk-bar">
-    <div class="shift-bulk-actions">
+    <div class="shift-bulk-actions multi-bulk-actions">
       <span class="shift-bulk-count">선택 ${shiftSelectedDates.length}개</span>
-      <button class="shift-bulk-chip s-d" onclick="applyBulkShift('D')">D</button>
-      <button class="shift-bulk-chip s-e" onclick="applyBulkShift('E')">E</button>
-      <button class="shift-bulk-chip s-n" onclick="applyBulkShift('N')">N</button>
-      <button class="shift-bulk-chip s-off" onclick="applyBulkShift('OFF')">OFF</button>
+      <select class="shift-bulk-user-select" onchange="shiftBulkUser=this.value;render({preserveScroll:true})">
+        ${shiftUsers.map(u=>`<option value="${escapeAttr(u)}" ${shiftBulkUser===u?'selected':''}>${escapeHtml(u)}</option>`).join('')}
+      </select>
+      ${shiftLabelList().map(s=>`<button class="shift-bulk-chip ${shiftBadgeClass(s)}" onclick="applyBulkShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
       <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
       <button class="shift-bulk-chip clear" onclick="toggleShiftSelectMode()">취소</button>
     </div>
@@ -12790,13 +13301,18 @@ function renderNoticeBanner(){
   const td=notes.filter(n=>!isDone(n)&&occursOn(n,base));
   const req=requests.filter(r=>!isDone(r));
   const due=dueRequestsForDate(base);
-  if(!td.length && !req.length && !due.length)return '';
-  const parts=[];
-  if(td.length)parts.push(`오늘 일정 ${td.length}개`);
-  if(due.length)parts.push(`오늘 마감 부탁 ${due.length}개`);
-  else if(req.length)parts.push(`부탁 ${req.length}개`);
+  const lines=[];
+  const shiftLines=shiftStatusesForDate(base).filter(x=>x.status).slice(0,2).map(x=>{
+    const text=shiftStatusForBrief(x.status);
+    return `${x.user}는 오늘 ${text}예요`;
+  });
+  lines.push(...shiftLines);
+  if(td.length)lines.push(`오늘 일정 ${td.length}개가 있어요`);
+  if(due.length)lines.push(`오늘 마감 할일 ${due.length}개를 확인해 주세요`);
+  else if(req.length)lines.push(`할일 ${req.length}개가 남아 있어요`);
+  if(!lines.length)return '';
   const canGo=req.length>0||due.length>0;
-  return `<div class="notice-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🔔 ${parts.join(' · ')} 확인해 주세요${canGo?` <span class="notice-go">›</span>`:''}</div>`;
+  return `<div class="notice-banner smart-brief-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🌤️ ${escapeHtml(lines.slice(0,2).join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`;
 }
 
 
@@ -12916,24 +13432,34 @@ function consumeSwipeTap(){
 }
 function renderShiftWidget(){
   if(main!=='s')return '';
+  normalizeShiftUsers();
+  if(!shiftUsers.length)return '';
   const base=scheduleBaseKey();
   const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
-  return `<div class="shift-widget-shell" 
+  return `<div class="shift-widget-shell multi-shift-widget-shell"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
     <button class="shift-nav-plain" onclick="event.stopPropagation();moveScheduleBase(-1)" aria-label="이전 날짜 보기">‹</button>
-    <div class="widget-wrap shift-widget-5dates compact-shift-widget">
-      ${keys.map((k,i)=>{
-        const s=shiftData[k]||'';
-        const [yy,mm,dd]=k.split('-').map(Number);
-        const d=new Date(yy,mm-1,dd);
-        const h=holidayName(k);
-        const dow=d.getDay();
-        const cls=(h||dow===0)?' shift-date-holiday':(dow===6?' shift-date-sat':'');
-        const title=`${mm}/${dd} (${DAYS[dow]})`;
-        return `<div class="widget-card shift-mini-card${i===2?' center-date':''}" onclick="event.stopPropagation();moveScheduleBase(${i-2})">
-          <div class="widget-title shift-date-label${cls}">${title}</div>
-          <div class="widget-main">${s?`<span class="shift-one ${SCLS[s]}">${s}</span>`:'-'}</div>
+    <div class="multi-shift-widget">
+      <div class="multi-shift-date-row">
+        <div class="multi-shift-spacer"></div>
+        ${keys.map((k,i)=>{
+          const [yy,mm,dd]=k.split('-').map(Number);
+          const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
+          return `<div class="multi-shift-date ${i===2?'today':''}" onclick="event.stopPropagation();moveScheduleBase(${i-2})">${mm}/${dd}<br><span>(${dow})</span></div>`;
+        }).join('')}
+      </div>
+      ${shiftUsers.map(user=>{
+        const p=(family||[]).find(f=>(f.name||'')===user);
+        return `<div class="multi-shift-user-row">
+          <div class="multi-shift-user">
+            ${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}
+            <span>${escapeHtml(user)}</span>
+          </div>
+          ${keys.map((k,i)=>{
+            const status=shiftStatusFor(k,user);
+            return `<button class="multi-shift-cell ${i===2?'today':''} ${status?shiftBadgeClass(status):'empty'}" onclick="event.stopPropagation();openShiftPicker('${k}')">${escapeHtml(status||'-')}</button>`;
+          }).join('')}
         </div>`;
       }).join('')}
     </div>
@@ -13090,7 +13616,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
         </div>
         <div class="merged-routine-box merged-schedule-box">${groupedSchedule[who].map(n=>`<div class="merged-routine-row merged-schedule-row" onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer">
-          <div class="merged-routine-title merged-schedule-title">${highlightText(n.title||'일정')}</div>
+          <div class="merged-routine-title merged-schedule-title">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
           <div class="merged-routine-time merged-schedule-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
         </div>`).join('')}</div>
       </div>`).join('')
@@ -13278,11 +13804,9 @@ function setCalendarTarget(t){
 }
 function renderCalendarShiftCounts(){
   const sc=getShiftCount(calY,calM);
+  const labels=shiftLabelList();
   return `<div class="shift-count-row calendar-count-inline">
-    <span class="shift-count-item"><span class="leg-chip s-d">D</span>${sc.D}</span>
-    <span class="shift-count-item"><span class="leg-chip s-e">E</span>${sc.E}</span>
-    <span class="shift-count-item"><span class="leg-chip s-n">N</span>${sc.N}</span>
-    <span class="shift-count-item"><span class="leg-chip s-off">OFF</span>${sc.OFF}</span>
+    ${labels.map(s=>`<span class="shift-count-item"><span class="leg-chip ${shiftBadgeClass(s)}">${escapeHtml(s)}</span>${sc[s]||0}</span>`).join('')}
   </div>`;
 }
 
@@ -13664,6 +14188,8 @@ function openAddModal(dateVal){
         <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
         <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
       </div>
+      <div class="ml">비공개</div>
+      <button class="type-btn" id="m-private" data-val="" onclick="togglePrivateField('m-private')">🔓 비공개 OFF</button>
       <div class="ml">알림 메모</div>
       <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인"/>
       <button class="primary-btn" onclick="saveNote()">저장</button>
@@ -13703,6 +14229,7 @@ function saveNote(){
     eT:getPickerVal('m-et'),
     done:false,
     alertMemo:(document.getElementById('m-alert')||{}).value||'',
+    isPrivate:((document.getElementById('m-private')||{}).dataset||{}).val==='1',
     comment:''
   };
   const dup=notes.some(n=>!isDone(n)&&n.title===newNote.title&&n.start===newNote.start&&(n.who||'공통')===newNote.who);
@@ -13746,6 +14273,8 @@ function openEditNote(id){
         <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
         <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
       </div>
+      <div class="ml">비공개</div>
+      <button class="type-btn${n.isPrivate?' tf':''}" id="e-private" data-val="${n.isPrivate?'1':''}" onclick="togglePrivateField('e-private')">${n.isPrivate?'🔒 비공개 ON':'🔓 비공개 OFF'}</button>
       <div class="ml">알림 메모</div>
       <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
       <div class="ml">메모</div>
@@ -13771,6 +14300,7 @@ function saveEditNote(id){
     sT:getPickerVal('e-st'),
     eT:getPickerVal('e-et'),
     alertMemo:(document.getElementById('e-alert')||{}).value||'',
+    isPrivate:((document.getElementById('e-private')||{}).dataset||{}).val==='1',
     comment:document.getElementById('e-cm').value
   };
   if(!confirmScheduleConflicts(next,id))return;

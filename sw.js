@@ -1,7 +1,8 @@
-const CACHE_NAME = 'pass-cal-v1.0.87';
-const PASS_SW_BUILD_VERSION = 'v1.0.87-nav-profile-todo-memory-polish';
+const CACHE_NAME = 'pass-cal-v1.1.0';
+const PASS_SW_BUILD_VERSION = 'v1.1.0-multi-shift-ux';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
 
 const CORE_ASSETS = [
   './',
@@ -13,6 +14,7 @@ const CORE_ASSETS = [
 const OPTIONAL_ASSETS = [
   LUNAR_CDN,
   HTML2CANVAS_CDN,
+  CONFETTI_CDN,
   './assets/fonts/Freesentation-4Regular.ttf',
   './assets/fonts/Freesentation-6SemiBold.ttf',
   './assets/avatars/adultF_1.webp',
@@ -101,7 +103,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
 
   // 외부 요청은 서비스워커가 간섭하지 않습니다. 단, 사용하는 CDN 2개만 캐시 폴백을 둡니다.
-  if(url.href === LUNAR_CDN || url.href === HTML2CANVAS_CDN){
+  if(url.href === LUNAR_CDN || url.href === HTML2CANVAS_CDN || url.href === CONFETTI_CDN){
     event.respondWith(
       fetch(req).then(res=>{
         const copy=res.clone();
@@ -152,5 +154,37 @@ self.addEventListener('fetch', event => {
       const cachedIndex = await caches.match('./index.html');
       return cachedIndex || new Response('offline', {status:503, statusText:'offline'});
     }
+  })());
+});
+
+
+self.addEventListener('push', event => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch(e) { data = { title: '아워', body: event.data ? event.data.text() : '새 알림이 있어요.' }; }
+  const title = data.title || '아워';
+  const options = {
+    body: data.body || '가족 일정 알림이 있어요.',
+    icon: data.icon || './icon.png',
+    badge: data.badge || './icon.png',
+    data: data.url || './',
+    tag: data.tag || 'our-family-schedule',
+    renotify: true
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = event.notification.data || './';
+  event.waitUntil((async () => {
+    const allClients = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+    for (const client of allClients) {
+      if ('focus' in client) {
+        client.focus();
+        if (client.navigate) client.navigate(target);
+        return;
+      }
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(target);
   })());
 });
