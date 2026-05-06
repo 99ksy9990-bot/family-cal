@@ -6244,6 +6244,251 @@ select{
   bottom:calc(24px + env(safe-area-inset-bottom,0px)) !important;
 }
 
+
+/* v1.0.71 routine soft UI */
+.fi-outer{
+  gap:10px !important;
+}
+
+/* 루틴 카드: 점선 제거 + 다른 탭과 같은 소프트 카드 */
+.repeat-item-card{
+  border:1px solid rgba(0,0,0,.045) !important;
+  border-style:solid !important;
+  border-radius:18px !important;
+  background:var(--card) !important;
+  box-shadow:0 7px 18px rgba(15,23,42,.06) !important;
+  padding:12px 13px !important;
+  margin-bottom:0 !important;
+}
+
+/* 카드 헤더를 입력창이 아닌 제목처럼 */
+.repeat-item-card .fi-hd{
+  display:grid !important;
+  grid-template-columns:24px minmax(0,1fr) 22px !important;
+  gap:7px !important;
+  align-items:center !important;
+  margin-bottom:8px !important;
+}
+.routine-handle{
+  width:24px !important;
+  height:28px !important;
+  flex:0 0 24px !important;
+  background:transparent !important;
+  color:var(--t3) !important;
+  border-radius:8px !important;
+  font-size:15px !important;
+  box-shadow:none !important;
+}
+.repeat-title-input{
+  height:30px !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  text-align:left !important;
+  max-width:100% !important;
+  font-size:15px !important;
+  line-height:1.25 !important;
+  font-weight:950 !important;
+  letter-spacing:-.28px !important;
+  color:var(--t1) !important;
+}
+.repeat-title-input:focus{
+  background:transparent !important;
+  outline:none !important;
+  box-shadow:0 2px 0 rgba(0,122,255,.24) !important;
+}
+.repeat-item-card .row-del{
+  width:22px !important;
+  height:22px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:var(--t3) !important;
+  font-size:13px !important;
+}
+
+/* 대상 + 요일: 라벨은 작고 옅게, 한 줄 압축 */
+.routine-target-days-line{
+  display:grid !important;
+  grid-template-columns:minmax(116px,.72fr) minmax(0,1fr) !important;
+  gap:8px !important;
+  align-items:center !important;
+  margin-top:4px !important;
+  width:100% !important;
+}
+.routine-target-group{
+  display:grid !important;
+  grid-template-columns:auto minmax(0,1fr) auto !important;
+  align-items:center !important;
+  gap:5px !important;
+  min-width:0 !important;
+}
+.routine-target-head{
+  display:contents !important;
+}
+.routine-target-group .inline-lbl{
+  order:1;
+}
+.routine-target-group .repeat-target-select{
+  order:2;
+}
+.routine-target-group .vacation-toggle{
+  order:3;
+}
+.routine-days-group{
+  display:grid !important;
+  grid-template-columns:auto minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:5px !important;
+  min-width:0 !important;
+}
+.routine-target-days-line .inline-lbl{
+  margin:0 !important;
+  min-width:auto !important;
+  width:auto !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  color:var(--t3) !important;
+  letter-spacing:0 !important;
+  text-transform:none !important;
+  font-weight:850 !important;
+}
+.repeat-target-select{
+  height:30px !important;
+  min-width:0 !important;
+  border-radius:10px !important;
+  border:1px solid rgba(0,0,0,.075) !important;
+  background:#fff !important;
+  color:var(--t1) !important;
+  font-size:11px !important;
+  font-weight:850 !important;
+  padding:0 7px !important;
+  box-shadow:none !important;
+}
+.vacation-toggle{
+  height:28px !important;
+  max-width:74px !important;
+  padding:0 7px !important;
+  font-size:9.5px !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  margin:0 !important;
+}
+.routine-days-group .day-sel{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:2px !important;
+  flex-wrap:nowrap !important;
+  margin:0 !important;
+  min-width:0 !important;
+}
+.routine-days-group .day-btn{
+  width:23px !important;
+  height:23px !important;
+  min-width:23px !important;
+  border-width:1px !important;
+  background:#fff !important;
+  font-size:9.5px !important;
+  font-weight:900 !important;
+  color:var(--t2) !important;
+}
+.routine-days-group .day-btn.on{
+  background:var(--blue) !important;
+  border-color:var(--blue) !important;
+  color:#fff !important;
+}
+
+/* 시작일~종료시간: 한 줄 초압축, 회색 박스 느낌 완화 */
+.routine-time-line{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:5px !important;
+  margin-top:7px !important;
+  width:100% !important;
+}
+.routine-time-line .picker-field{
+  height:30px !important;
+  min-width:0 !important;
+  border-radius:10px !important;
+  border:1px solid rgba(0,0,0,.075) !important;
+  background:#fff !important;
+  color:var(--t1) !important;
+  font-size:9.8px !important;
+  font-weight:850 !important;
+  padding:0 3px !important;
+  letter-spacing:-.45px !important;
+  box-shadow:none !important;
+}
+.routine-time-line .picker-field.empty{
+  color:var(--t3) !important;
+  background:#fff !important;
+}
+.repeat-help{
+  display:none !important;
+}
+
+/* 루틴 탭 헤더도 버튼 제거 이후 여백을 정돈 */
+.fi-outer .unified-sec,
+.fi-outer .compact-sec{
+  padding:12px 16px 5px !important;
+  min-height:38px !important;
+}
+.fi-outer .sec-title{
+  font-size:13px !important;
+  font-weight:950 !important;
+}
+.fi-outer .sec-cnt{
+  height:25px !important;
+  min-width:26px !important;
+  font-size:12px !important;
+}
+.fi-outer .sec-actions:empty{
+  display:none !important;
+}
+
+/* 기본정보 카드와 루틴 카드 사이 결 맞춤 */
+.basic-info-card{
+  border:1px solid rgba(0,0,0,.045) !important;
+  border-radius:18px !important;
+  box-shadow:0 7px 18px rgba(15,23,42,.055) !important;
+}
+
+/* 좁은 화면에서도 대상/요일/시간이 과하게 늘어나지 않게 */
+@media (max-width:430px){
+  .repeat-item-card{
+    padding:11px 12px !important;
+    border-radius:17px !important;
+  }
+  .routine-target-days-line{
+    grid-template-columns:1fr !important;
+    gap:6px !important;
+  }
+  .routine-target-group{
+    grid-template-columns:auto minmax(0,1fr) auto !important;
+  }
+  .routine-days-group{
+    grid-template-columns:auto minmax(0,1fr) !important;
+  }
+  .routine-days-group .day-btn{
+    width:24px !important;
+    height:24px !important;
+    min-width:24px !important;
+  }
+  .routine-time-line{
+    gap:4px !important;
+  }
+  .routine-time-line .picker-field{
+    height:29px !important;
+    font-size:9.3px !important;
+    letter-spacing:-.58px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -6301,16 +6546,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.70';
-const PASS_BUILD_VERSION='v1.0.70-smart-fab-ui';
+const APP_VERSION='v1.0.71';
+const PASS_BUILD_VERSION='v1.0.71-routine-soft-ui';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '스마트 만능 FAB 적용',
-  '기념일/부탁/루틴 상단 추가 버튼 정리',
-  '일정 목록 카드 디자인 통일',
-  '검색바와 필터 UI 컴팩트화',
-  '기념일 카드 칩 다이어트',
-  '상단 근무 위젯 톤다운'
+  '루틴 카드 점선 테두리 제거',
+  '루틴 카드 소프트 섀도우 통일',
+  '루틴 제목 입력창 투명화',
+  '대상·요일·날짜·시간 입력 영역 모바일 압축',
+  '루틴 탭 설정 화면 느낌 완화'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
