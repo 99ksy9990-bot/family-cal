@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
 
 
-<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
-<link rel="icon" type="image/png" href="./icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
+<link rel="icon" type="image/png" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0D47A1">
+<meta name="theme-color" content="#007AFF">
 
-<title>아워 - 우리의 시간을 가볍게</title>
+<title>가족 일정 공유 캘린더 - 패스</title>
 <!-- 링크 미리보기 -->
-<meta property="og:title" content="아워 - 우리의 시간을 가볍게">
-<meta property="og:description" content="아워 - 우리의 시간을 가볍게">
+<meta property="og:title" content="가족 일정 공유 캘린더 - 패스">
+<meta property="og:description" content="Family Scheduler - 가족 일정 공유">
 <meta property="og:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <meta property="og:url" content="https://99ksy9990-bot.github.io/family-cal/">
 <meta property="og:type" content="website">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="아워 - 우리의 시간을 가볍게">
-<meta name="twitter:description" content="아워 - 우리의 시간을 가볍게">
+<meta name="twitter:title" content="가족 일정 공유 캘린더 - 패스">
+<meta name="twitter:description" content="Family Scheduler - 가족 일정 공유">
 <meta name="twitter:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <!--
 [중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
@@ -8490,98 +8490,385 @@ select{
 }
 
 
-/* v1.0.85 아워 브랜드 헤더 */
-.brand-head{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:11px;
-  min-height:58px;
+/* v1.0.87 nav/profile/todo/memory polish */
+
+/* 탭 네이밍 변경에 맞춘 균형 */
+.tab-bar{
+  gap:8px !important;
 }
-.brand-logo{
-  width:50px;
-  height:50px;
-  border-radius:15px;
-  object-fit:cover;
-  box-shadow:0 8px 22px rgba(13,71,161,.18);
-  flex:0 0 50px;
-}
-.brand-copy{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  min-width:0;
-}
-.topbar .app-name{
-  font-size:31px !important;
-  line-height:1.02 !important;
-  font-weight:950 !important;
-  letter-spacing:-1.4px !important;
-  color:#0D47A1 !important;
-  text-align:left !important;
-}
-.topbar .app-sub{
-  margin-top:5px !important;
-  font-size:13px !important;
-  line-height:1.2 !important;
-  font-weight:800 !important;
-  color:#8B95A1 !important;
-  letter-spacing:-.25px !important;
-  text-align:left !important;
-}
-.splash-title{
-  color:#0D47A1 !important;
-}
-.splash-icon{
-  border-radius:24px !important;
-  object-fit:cover !important;
-}
-@media (max-width:430px){
-  .brand-logo{width:46px;height:46px;flex-basis:46px;border-radius:14px}
-  .topbar .app-name{font-size:29px !important}
-  .topbar .app-sub{font-size:12.5px !important}
-  .brand-head{gap:10px;min-height:54px}
+.tab{
+  font-size:14px !important;
+  letter-spacing:-.35px !important;
 }
 
-
-/* v1.0.86 header text only + 3s splash */
-.topbar .brand-logo{
-  display:none !important;
-}
-.brand-head.brand-text-only{
+/* 우측 상단 프로필 진입 버튼 */
+.profile-entry-btn{
+  width:38px !important;
+  height:38px !important;
+  padding:0 !important;
+  border-radius:50% !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  gap:0 !important;
-  min-height:46px !important;
-  padding:2px 64px 0 !important;
-  text-align:center !important;
-}
-.brand-head.brand-text-only .top-slogan,
-.topbar .top-slogan{
-  display:block !important;
-  margin:0 !important;
   font-size:17px !important;
-  line-height:1.25 !important;
-  font-weight:900 !important;
-  color:#0D47A1 !important;
-  letter-spacing:-.35px !important;
-  text-align:center !important;
+}
+.profile-center-sheet .modal-hd{
+  margin-bottom:12px !important;
+}
+.profile-section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.profile-section-title{
+  font-size:14px;
+  font-weight:950;
+  color:var(--t1);
+}
+.profile-section-sub{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--t3);
+}
+.profile-family-list{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.045);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 4px 16px rgba(15,23,42,.04);
+}
+.profile-family-row{
+  width:100%;
+  min-height:62px;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) 18px;
+  gap:10px;
+  align-items:center;
+  padding:10px 14px;
+  border:none;
+  border-bottom:1px solid rgba(0,0,0,.05);
+  background:transparent;
+  font-family:inherit;
+  text-align:left;
+}
+.profile-family-row:last-child{
+  border-bottom:none;
+}
+.profile-family-avatar{
+  width:38px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.profile-family-avatar .avatar-img{
+  width:38px !important;
+  height:38px !important;
+  object-fit:contain !important;
+}
+.profile-family-main{
+  min-width:0;
+}
+.profile-family-name{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+  font-size:14px;
+  font-weight:950;
+  color:var(--t1);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.profile-family-sub{
+  margin-top:4px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--t3);
+}
+.profile-family-arrow{
+  color:var(--t3);
+  font-size:22px;
+  font-weight:900;
+}
+.profile-quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:12px;
+}
+
+/* 반복 탭은 루틴만: 기본 정보는 프로필 센터로 이동 */
+.routine-only-outer{
+  padding-top:8px !important;
+}
+
+/* --- 동적 2열 누적 레이아웃: 오늘 루틴에만 적용 --- */
+.merged-routine-wrap:not(.merged-schedule-wrap){
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:start !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-group{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:8px !important;
+  background:#F4F4F6 !important;
+  padding:16px 12px !important;
+  border-radius:18px !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-head{
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-top:0 !important;
+  width:100% !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-box{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-row{
+  display:flex !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  width:100% !important;
+  padding:10px 4px !important;
+  border-bottom:1px solid rgba(0,0,0,.06) !important;
+  min-height:auto !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-row:last-child{
+  border-bottom:none !important;
+}
+@media (max-width:380px){
+  .merged-routine-wrap:not(.merged-schedule-wrap){
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* 컬러 다이어트: 알림 배너와 5일 근무 위젯 */
+.notice-banner{
+  background:#FFF4E5 !important;
+  color:#7A3800 !important;
+  box-shadow:0 4px 12px rgba(255,149,0,.08) !important;
+}
+.shift-widget-5dates .center-date{
+  background:#ffffff !important;
+  outline:2px solid rgba(0,122,255,.18) !important;
+  outline-offset:-1px !important;
+  border:1px solid rgba(0,122,255,.08) !important;
+}
+.shift-widget-5dates .center-date .shift-date-label,
+.shift-widget-5dates .center-date .widget-title{
+  color:#333D4B !important;
+}
+.shift-nav-plain{
+  width:34px !important;
+  height:34px !important;
+  min-width:34px !important;
+  border-radius:50% !important;
+  background:#ffffff !important;
+  color:#8B95A1 !important;
+  font-size:22px !important;
+  font-weight:800 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 2px 8px rgba(0,0,0,.08) !important;
+  margin:0 6px !important;
+  padding-bottom:3px !important;
+  border:none !important;
+}
+.shift-nav-plain:active{
+  transform:scale(.92);
+  box-shadow:0 1px 4px rgba(0,0,0,.04) !important;
+}
+
+/* 할일(To-Do) 탭 UI 대공사 */
+.request-list-wrap{
+  background:#ffffff !important;
+  border-radius:20px !important;
+  padding:0 16px !important;
+  box-shadow:0 4px 16px rgba(15,23,42,.04) !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  gap:0 !important;
+  margin:0 16px;
+}
+.request-list-wrap .card{
+  box-shadow:none !important;
+  border:none !important;
+  border-bottom:1px solid rgba(0,0,0,.05) !important;
+  border-radius:0 !important;
+  padding:16px 0 !important;
+  margin:0 !important;
+  background:transparent !important;
+}
+.request-list-wrap .card:last-child{
+  border-bottom:none !important;
+}
+.request-swipe-card .chk{
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  border-radius:50% !important;
+  border:2px solid #D1D6DB !important;
+  background:transparent !important;
+  margin-top:2px !important;
+  transition:all .2s ease !important;
+  color:#ffffff !important;
+}
+.request-swipe-card .chk.on{
+  background:var(--blue) !important;
+  border-color:var(--blue) !important;
+}
+.request-swipe-card .c-body{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:4px !important;
+}
+.request-swipe-card .c-title{
+  font-size:14.5px !important;
+  font-weight:800 !important;
+  color:#333D4B !important;
+  letter-spacing:-.25px !important;
+}
+.request-swipe-card .c-meta{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  margin-top:2px !important;
+}
+.avatar-img-small{
+  width:18px !important;
+  height:18px !important;
+  border-radius:50%;
+  object-fit:contain;
+  margin-right:4px;
+}
+.request-swipe-card .person-chip{
+  display:inline-flex !important;
+  align-items:center !important;
+  font-size:12.5px !important;
+  font-weight:800 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:none !important;
+}
+.todo-memo{
+  font-size:12.5px !important;
+  color:#8B95A1 !important;
+  font-weight:600 !important;
+  margin-top:4px !important;
+  padding-left:2px !important;
+  line-height:1.4 !important;
+}
+.empty-memo{
+  color:#B0B8C1 !important;
+  font-weight:500 !important;
+}
+.request-swipe-card.done-card{
+  opacity:.5 !important;
+}
+.request-swipe-card.done-card .c-title{
+  text-decoration:line-through !important;
+  color:#8B95A1 !important;
+}
+
+/* 축하 탭 UI: 일정 카드와 통일 */
+.mem-card{
+  padding:12px 14px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  box-shadow:0 4px 16px rgba(15,23,42,.04) !important;
+  background:#ffffff !important;
+}
+.mem-card .memory-row{
+  display:grid !important;
+  grid-template-columns:40px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:center !important;
+  margin:0 !important;
+}
+.mem-card .memory-card-icon{
+  width:40px !important;
+  height:40px !important;
+  min-width:40px !important;
+  border-radius:50% !important;
+  background:#F4F4F6 !important;
+  font-size:20px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin:0 !important;
+}
+.memory-body-grid{
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:12px !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+.memory-info-col{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:4px !important;
+  min-width:0 !important;
+}
+.memory-title-text{
+  font-size:14.5px !important;
+  font-weight:800 !important;
+  color:#333D4B !important;
+  letter-spacing:-.25px !important;
   white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
-.brand-head.brand-text-only .app-name{
-  display:none !important;
+.memory-sub-text{
+  font-size:12px !important;
+  font-weight:600 !important;
+  color:#8B95A1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
-@media (max-width:430px){
-  .brand-head.brand-text-only{
-    min-height:44px !important;
-    padding:2px 64px 0 !important;
-  }
-  .brand-head.brand-text-only .top-slogan,
-  .topbar .top-slogan{
-    font-size:16px !important;
-  }
+.memory-date-col{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-end !important;
+  gap:6px !important;
+  flex-shrink:0 !important;
+}
+.memory-upcoming-date{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,sans-serif !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  color:#333D4B !important;
+}
+.memory-dday-chip{
+  background:#FFF0F3 !important;
+  color:#C0002C !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  padding:3px 8px !important;
+  border-radius:999px !important;
+  height:auto !important;
+}
+
+/* 검색은 달력 전용이므로 상단 공간이 과하지 않게 */
+.search-wrap{
+  padding-top:10px !important;
 }
 
 </style>
@@ -8610,28 +8897,29 @@ select{
 
 <div class="splash" id="splash">
   <div class="splash-box">
-    <img class="splash-icon" src="./icon.png" alt="아워 아이콘" />
-    <div class="splash-title">아워</div>
-    <div class="splash-sub">우리의 시간을 가볍게</div>
+    <img class="splash-icon" src="https://99ksy9990-bot.github.io/family-cal/icon.png" alt="패스 아이콘" />
+    <div class="splash-title">패스</div>
+    <div class="splash-sub">Family Scheduler</div>
     <div class="splash-loader"></div>
   </div>
 </div>
 
 <div class="app" id="app">
   <div class="topbar">
-    <div class="brand-head brand-text-only" aria-label="아워 브랜드 문구">
-      <div class="app-sub top-slogan">우리의 시간을 가볍게</div>
+    <div>
+      <div class="app-name">패스</div>
+      <div class="app-sub">Family Scheduler</div>
     </div>
-    <button class="manage-btn" onclick="openManageCenter()">관리</button>
+    <button class="manage-btn profile-entry-btn" onclick="openProfileCenter()" aria-label="가족 및 설정" title="가족 및 설정">👤</button>
     
   </div>
 
   <div class="tab-bar">
     <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
-    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">루틴</button>
+    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">반복</button>
     <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
-    <button class="tab tab-r" id="tab-r" onclick="setMain('r')">부탁</button>
-    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">기념</button>
+    <button class="tab tab-r" id="tab-r" onclick="setMain('r')">할일</button>
+    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">축하</button>
   </div>
 
   <div id="body"></div>
@@ -8640,14 +8928,18 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.86';
-const PASS_BUILD_VERSION='v1.0.86-header-text-splash-3s';
-const APP_UPDATED='2026-05-06';
+const APP_VERSION='v1.0.87';
+const PASS_BUILD_VERSION='v1.0.87-nav-profile-todo-memory-polish';
+const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '앱 상단 아이콘 이미지 제거',
-  '상단 문구를 우리의 시간을 가볍게로 단독 표시',
-  '스플래시 최소 노출 3초 적용',
-  '아워 브랜드 문구 정리'
+  '상단 탭 네이밍 변경: 반복 · 할일 · 축하',
+  '루틴 탭에서 기본 정보 분리',
+  '우측 상단 프로필 센터 추가',
+  '할일 탭 리스트형 UI 적용',
+  '축하 카드 일정 카드형으로 정리',
+  '5일 근무 위젯 색상 톤다운',
+  '오늘 루틴 대시보드 반응형 2열 적용',
+  '검색창은 달력 탭 전용으로 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8682,7 +8974,7 @@ function openUpdateLog(){
       <div class="modal-ind"></div>
       <div class="modal-hd">업데이트 내역</div>
       <div class="version-card">
-        <div class="version-title">아워 ${APP_VERSION}</div>
+        <div class="version-title">패스 ${APP_VERSION}</div>
         <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
       </div>
       <div class="log-list">${UPDATE_LOG.map(x=>`• ${escapeHtml(x)}`).join('<br>')}</div>
@@ -10297,6 +10589,49 @@ function openApiKeyGuide(){
     </div>
   </div>`;
 }
+
+function renderProfileFamilyRows(){
+  if(!family.length)return renderEmptyState('generic','등록된 대상이 없어요','오른쪽 아래 + 또는 대상 추가 버튼으로 가족을 추가해 보세요.');
+  return `<div class="profile-family-list">${family.map((kid,ki)=>`
+    <button class="profile-family-row" onclick="editKid(${ki})">
+      <div class="profile-family-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
+      <div class="profile-family-main">
+        <div class="profile-family-name"><span class="quick-color-dot" style="background:${personColor(kid.name||'공통')}"></span>${escapeHtml(kid.name||'대상')}</div>
+        <div class="profile-family-sub">아바타 · 색상 · 방학 기간 설정</div>
+      </div>
+      <span class="profile-family-arrow">›</span>
+    </button>`).join('')}</div>`;
+}
+function openProfileCenter(){
+  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet profile-center-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">가족과 설정</div>
+
+      <div class="profile-section-head">
+        <div>
+          <div class="profile-section-title">가족 기본 정보</div>
+          <div class="profile-section-sub">앱 전체에서 쓰는 이름, 아바타, 색상</div>
+        </div>
+        <button class="toss-btn primary" onclick="addKid()">+ 대상</button>
+      </div>
+      ${renderProfileFamilyRows()}
+
+      <div class="profile-quick-grid">
+        <button class="toss-btn" onclick="copyShareLink()">공유 링크 복사</button>
+        <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
+        <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
+        <button class="toss-btn primary" onclick="openManageCenter()">관리 센터</button>
+      </div>
+
+      <div class="sync-pill" id="sync-status" style="margin:10px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+
 function openManageCenter(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
@@ -10307,7 +10642,7 @@ function openManageCenter(){
 
       <div class="version-card manage-version-card">
         <div>
-          <div class="version-title">아워 ${APP_VERSION}</div>
+          <div class="version-title">패스 ${APP_VERSION}</div>
           <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
         </div>
         <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span>
@@ -11473,37 +11808,7 @@ function repeatCompactMeta(item){
 }
 
 function renderI(){
-  let h=`<div class="fi-outer">`;
-  h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo')}`;
-  if(basicInfoOpen){
-    family.forEach((kid,ki)=>{
-      h+=`<div class="fi-card basic-info-card modern-basic-card reorder-card swipe-card"
-        draggable="true"
-        data-reorder-list="family" data-reorder-id="${kid.id}"
-        ondragstart="dragStart(event,'family','${kid.id}')"
-        ondragover="dragOver(event)"
-        ondrop="dropItem(event,'family','${kid.id}')"
-        ondragend="dragEnd(event)"
-        ontouchstart="startItemSwipe(event,'family','${kid.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
-        onmousedown="startItemSwipe(event,'family','${kid.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
-        <div class="swipe-bg swipe-bg-left"></div>
-        <div class="basic-info-avatar-col">
-          <div class="ev-avatar basic-info-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
-        </div>
-        <div class="basic-info-main">
-          <div class="basic-info-line1">
-            <button class="basic-info-name" onclick="event.stopPropagation();openQuickColorPicker(${ki})">
-              <span class="quick-color-dot" style="background:${personColor(kid.name||'공통')}"></span>
-              <span class="basic-info-person-name">${escapeHtml(kid.name||'대상')}</span>
-              <span class="quick-color-arrow">▾</span>
-            </button>
-          </div>
-        </div>
-      </div>`;
-    });
-  }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleBasicInfo()">접혀 있음</div>`;
-  }
+  let h=`<div class="fi-outer routine-only-outer">`;
 
   const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
     if((routineTargetFilter||'all')==='all')return true;
@@ -11570,7 +11875,7 @@ function renderI(){
       h+=renderEmptyState('routine','등록된 루틴 일정이 없어요','오른쪽 아래 + 버튼으로 루틴을 추가해 보세요.');
     }
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">접혀 있음</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">루틴 일정이 접혀 있어요. 펼치면 꾹 눌러 순서를 이동할 수 있어요.</div>`;
   }
   h+=`</div>`;
   return h;
@@ -11648,26 +11953,30 @@ function delReq(id){
 }
 
 function makeReqCard(r){
-  const due=requestDueLabel(r);
-  return`<div class="card swipe-card request-swipe-card" 
+  const due = requestDueLabel(r);
+  const done = isDone(r);
+  const writer = r.writer || '공통';
+
+  return `<div class="card swipe-card request-swipe-card ${done ? 'done-card' : ''}" 
     ontouchstart="startItemSwipe(event,'request','${r.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'request','${r.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
-    draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)">
+    draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)"
+    onclick="if(!consumeSwipeTap())openEditReq('${r.id}')" style="cursor:pointer">
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
     <div class="c-row">
-      <div class="chk${isDone(r)?' on':''}" onclick="toggleReq('${r.id}')">
-        <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="c-body">
-        <div class="c-title${isDone(r)?' done':''}">${highlightText(r.title)}</div>
+        <div class="c-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
         <div class="c-meta">
-          ${r.writer?`<span class="chip chip-f">${escapeHtml(r.writer)}</span>`:''}
-          <span class="chip chip-g">부탁</span>
-          ${r.requestDate?`<span class="chip request-date-chip">요청 ${dateLabel(r.requestDate)}</span>`:''}
-          ${due?`<span class="chip request-due-chip">마감 ${escapeHtml(due)}</span>`:''}
-          ${isDone(r)&&r.doneAt?`<span class="chip done-date-chip">완료 ${dateLabel(r.doneAt)}</span>`:''}
+          <span class="person-chip" style="color:${personColor(writer)}">
+            ${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')} 
+            ${escapeHtml(writer)}
+          </span>
+          ${due ? `<span class="chip request-due-chip">마감 ${escapeHtml(due)}</span>` : ''}
         </div>
-        ${r.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">"${escapeHtml(r.comment)}"</button>`:`<button class="comment-pill" onclick="event.stopPropagation();openEditReq('${r.id}')">+ 메모</button>`}
+        ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : `<div class="todo-memo empty-memo">+ 메모 추가</div>`}
       </div>
     </div>
   </div>`;
@@ -11688,10 +11997,10 @@ function renderR(){
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   return`
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest')}
-    ${requestOpen?`<div class="card-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','부탁할 일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">접혀 있음</div>`}
+    ${requestOpen?`<div class="request-list-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','등록된 할일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">접혀 있음</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
-    ${requestDoneOpen?`<div class="card-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 부탁이 없어요','완료 기록이 생기면 이곳에 차곡차곡 모여요.')}</div>`:''}
+    ${requestDoneOpen?`<div class="request-list-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 할일이 없어요','끝낸 할일은 이곳에 차곡차곡 모여요.')}</div>`:''}
   `;
 }
 
@@ -11791,7 +12100,8 @@ function makeMemoryCard(x){
     const dow=DAYS[new Date(ny,nm-1,nd).getDay()];
     upcomingLabel=`${nm}/${nd}(${dow})`;
   }
-  return`<div class="card mem-card reorder-card swipe-card"
+
+  return `<div class="card mem-card reorder-card swipe-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
     ondragstart="dragStart(event,'memories','${x.id}')"
@@ -11801,27 +12111,30 @@ function makeMemoryCard(x){
     ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
     <div class="swipe-bg swipe-bg-left"></div>
-    <div class="c-row memory-row">
+    <div class="c-row memory-row" onclick="if(!consumeSwipeTap())openMemoryModal('${x.id}')" style="cursor:pointer">
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
-      <div class="c-body">
-        <div class="c-title memory-title-line">
-          <span>${escapeHtml(x.name)}</span>
-          ${x.birth?`<em class="memory-birth-inline">${dateLabel(x.birth)} ${isLunar?'(음)':'(양)'}</em>`:''}
+      <div class="memory-body-grid">
+        <div class="memory-info-col">
+          <div class="memory-title-text">${escapeHtml(x.name)}</div>
+          <div class="memory-sub-text">
+            ${x.birth ? `${escapeHtml(ageLabel)} · ${dateLabel(x.birth)}${isLunar?'(음)':''}` : ''}
+          </div>
         </div>
-        <div class="c-meta memory-meta-line">
-          ${x.birth?`<span class="chip mem-age">${escapeHtml(ageLabel)}</span>`:''}
-          ${x.birth?`<span class="chip mem-dday">${escapeHtml(upcomingLabel)} ┃ ${escapeHtml(nb.dday)}</span>`:''}
+        <div class="memory-date-col">
+          <div class="memory-upcoming-date">${escapeHtml(upcomingLabel)}</div>
+          ${x.birth ? `<div class="chip dday-chip memory-dday-chip">${escapeHtml(nb.dday)}</div>` : ''}
         </div>
-        ${x.memo?`<button class="comment-pill" onclick="event.stopPropagation();openMemoryModal('${x.id}')">${escapeHtml(x.memo)}</button>`:''}
       </div>
     </div>
   </div>`;
 }
+function noopSection(){}
+
 function renderM(){
   const memList=sortedMemoriesForDisplay();
   return`
-    <div class="sec memory-sec">기념일 <span class="sec-cnt">${memories.length}</span><span class="collapsed-hint">디데이 가까운 순 정렬</span></div>
-    <div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','기념일이 없어요','생일, 결혼기념일, 여행 기념일을 예쁘게 기록해 보세요.')}</div>
+    ${sectionHeader('축하',memories.length,true,'noopSection',`<span class="collapsed-hint">디데이 가까운 순</span>`)}
+    <div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','축하할 날이 없어요','생일, 기념일, 여행의 순간을 예쁘게 기록해 보세요.')}</div>
   `;
 }
 function openMemoryModal(id){
@@ -11978,12 +12291,11 @@ function clearSearch(){
   render();
 }
 function renderSearchBox(){
-  if(main!=='s' && main!=='r' && main!=='c')return '';
-  const ph=main==='s'?'일정 검색':main==='r'?'부탁 검색':'달력 검색';
+  if(main!=='c')return '';
   const cur=searchDraft||searchQ;
   return `<div class="search-wrap">
     <div class="search-line">
-      <input id="search-input" class="search-input" value="${escapeAttr(cur)}" placeholder="${ph}"
+      <input id="search-input" class="search-input" value="${escapeAttr(cur)}" placeholder="달력 검색"
         oncompositionstart="isComposing=true"
         oncompositionend="isComposing=false;searchDraft=this.value"
         oninput="searchDraft=this.value"
@@ -13049,7 +13361,7 @@ async function saveTodayBriefingImage(){
     const a=document.createElement('a');
     const base=scheduleBaseKey?String(scheduleBaseKey()):todayKey();
     a.href=canvas.toDataURL('image/png');
-    a.download=`아워_오늘일정_${base}.png`;
+    a.download=`패스_오늘일정_${base}.png`;
     a.click();
     showToast('오늘 일정 이미지를 저장했어요.');
   }catch(e){
@@ -13219,7 +13531,7 @@ function downloadBackup(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`아워_백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.download=`패스_백업_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -13291,7 +13603,7 @@ function openShareTools(){
 function shareNative(){
   const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   if(navigator.share){
-    navigator.share({title:'아워',text:'우리의 시간을 가볍게 링크',url});
+    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
   }else{
     copyShareLink();
   }
@@ -13306,7 +13618,7 @@ function render(opts={}){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderManualNotice()+renderNoticeBanner()+renderShiftWidget()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
+  document.getElementById('body').innerHTML=renderShiftWidget()+renderNoticeBanner()+renderManualNotice()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }
@@ -13756,7 +14068,7 @@ async function saveCalendarImage(){
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
     a.href=canvas.toDataURL('image/png');
-    a.download=`아워_달력_${calY}-${String(calM+1).padStart(2,'0')}_${stamp}.png`;
+    a.download=`패스_달력_${calY}-${String(calM+1).padStart(2,'0')}_${stamp}.png`;
     a.click();
     showToast('캘린더 이미지를 저장했어요.');
   }catch(e){
@@ -13853,20 +14165,9 @@ function escapeAttr(s){
 }
 
 
-const SPLASH_MIN_MS=3000;
-const SPLASH_STARTED_AT=Date.now();
 function hideSplash(){
   const s=document.getElementById('splash');
-  if(!s)return;
-  const remain=Math.max(0,SPLASH_MIN_MS-(Date.now()-SPLASH_STARTED_AT));
-  if(remain>0){
-    if(!s.dataset.hideScheduled){
-      s.dataset.hideScheduled='1';
-      setTimeout(hideSplash,remain);
-    }
-    return;
-  }
-  if(!s.dataset.hiding){
+  if(s && !s.dataset.hiding){
     s.dataset.hiding='1';
     setTimeout(()=>s.classList.add('hide'),300);
     setTimeout(()=>s.remove(),800);

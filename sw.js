@@ -1,5 +1,5 @@
-const CACHE_NAME = 'our-cal-v1.0.86';
-const PASS_SW_BUILD_VERSION = 'v1.0.86-header-text-splash-3s';
+const CACHE_NAME = 'pass-cal-v1.0.87';
+const PASS_SW_BUILD_VERSION = 'v1.0.87-nav-profile-todo-memory-polish';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
@@ -7,11 +7,6 @@ const CORE_ASSETS = [
   './',
   './index.html',
   './icon.png',
-  './icon-180.png',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-dark.png',
-  './og.png',
   './manifest.webmanifest'
 ];
 
