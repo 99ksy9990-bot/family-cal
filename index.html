@@ -7374,6 +7374,209 @@ select{
   }
 }
 
+
+/* v1.0.78 routine/schedule grid polish */
+
+/* 1. 아바타 영역 상단 정렬 및 여백 최적화 */
+.merged-routine-group,
+.merged-schedule-group,
+.routine-group-card,
+.oneoff-selected-event {
+  align-items: flex-start !important;
+  gap: 16px !important;
+  padding-top: 8px !important;
+  padding-bottom: 12px !important;
+}
+.merged-routine-head,
+.routine-group-avatar-col,
+.oneoff-avatar-col {
+  margin-top: 4px !important;
+}
+
+/* 2. 제목과 시간 간격 밀착 및 세로줄 칼각 정렬 */
+.merged-routine-row,
+.merged-schedule-row,
+.routine-group-main,
+.oneoff-main {
+  display: grid !important;
+  grid-template-columns: 140px 1fr !important;
+  gap: 12px !important;
+  padding: 10px 0 !important;
+  border-bottom: 1px solid rgba(0,0,0,0.04) !important;
+  min-height: auto !important;
+  align-items: center !important;
+}
+.merged-routine-row:last-child,
+.merged-schedule-row:last-child,
+.routine-group-row:last-child {
+  border-bottom: none !important;
+}
+
+/* 오늘 일정 요약 영역용 3단 그리드 */
+.today-list-row,
+.merged-today-row {
+  display: grid !important;
+  grid-template-columns: 42px 140px 1fr !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+/* 3. 제목 텍스트 다이어트 */
+.today-list-title,
+.merged-routine-title,
+.merged-schedule-title,
+.routine-group-title,
+.oneoff-title,
+.upcoming-title,
+.today-event-title,
+.ev-title {
+  font-family: 'Pretendard', 'Freesentation', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #333D4B !important;
+  letter-spacing: -0.3px !important;
+  line-height: 1.35 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+}
+
+/* 4. 시간 텍스트 정돈 */
+.today-list-time,
+.merged-routine-time,
+.merged-schedule-time,
+.routine-group-time,
+.oneoff-time,
+.today-event-time,
+.ev-meta-time {
+  font-family: 'Pretendard', 'Freesentation', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #8B95A1 !important;
+  text-align: left !important;
+  justify-self: start !important;
+  letter-spacing: 0 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* 5. 불필요하게 넓은 회색 박스 다이어트 */
+.merged-routine-box,
+.merged-schedule-box,
+.routine-group-box,
+.oneoff-box {
+  margin-right: 24px !important;
+  padding: 10px 14px !important;
+}
+
+/* 좁은 화면 보정 */
+@media (max-width:430px){
+  .merged-routine-group,
+  .merged-schedule-group,
+  .routine-group-card,
+  .oneoff-selected-event{
+    gap: 12px !important;
+  }
+  .merged-routine-row,
+  .merged-schedule-row,
+  .routine-group-main,
+  .oneoff-main{
+    grid-template-columns: 124px 1fr !important;
+    gap: 10px !important;
+  }
+  .today-list-row,
+  .merged-today-row{
+    grid-template-columns: 38px 124px 1fr !important;
+    gap: 10px !important;
+  }
+  .merged-routine-box,
+  .merged-schedule-box,
+  .routine-group-box,
+  .oneoff-box{
+    margin-right: 10px !important;
+    padding: 9px 12px !important;
+  }
+  .today-list-title,
+  .merged-routine-title,
+  .merged-schedule-title,
+  .routine-group-title,
+  .oneoff-title,
+  .upcoming-title,
+  .today-event-title,
+  .ev-title{
+    font-size: 13.5px !important;
+  }
+  .today-list-time,
+  .merged-routine-time,
+  .merged-schedule-time,
+  .routine-group-time,
+  .oneoff-time,
+  .today-event-time,
+  .ev-meta-time{
+    font-size: 12.5px !important;
+  }
+}
+
+
+/* v1.0.79 basic info clean */
+.modern-basic-card{
+  min-height:62px !important;
+  padding:10px 12px !important;
+  align-items:center !important;
+}
+.modern-basic-card .basic-info-main{
+  display:flex !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+.modern-basic-card .basic-info-line1{
+  width:100% !important;
+}
+.basic-info-subline,
+.basic-info-meta,
+.basic-info-vacation{
+  display:none !important;
+}
+.basic-info-name{
+  max-width:42% !important;
+  gap:4px !important;
+}
+.quick-color-arrow{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:22px !important;
+  height:22px !important;
+  min-width:22px !important;
+  border-radius:50% !important;
+  font-size:16px !important;
+  line-height:1 !important;
+  color:var(--t3) !important;
+  transform:translateY(1px) !important;
+}
+.basic-info-person-name{
+  font-weight:950 !important;
+}
+@media (max-width:430px){
+  .modern-basic-card{
+    min-height:58px !important;
+    padding:9px 11px !important;
+  }
+  .basic-info-name{
+    max-width:36% !important;
+  }
+  .quick-color-arrow{
+    width:24px !important;
+    height:24px !important;
+    min-width:24px !important;
+    font-size:17px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -7431,16 +7634,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.77';
-const PASS_BUILD_VERSION='v1.0.77-title-action-sync';
+const APP_VERSION='v1.0.79';
+const PASS_BUILD_VERSION='v1.0.79-basic-info-clean';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '일정/루틴 제목 폰트 upcoming-title 기준 동기화',
-  '대시보드 일정/루틴 섹션명 제거',
-  '대시보드 일정 제목 클릭 액션 팝업 추가',
-  '달력 세부 일정 액션 팝업 4탭 정리',
-  '루틴 제목 클릭 시 이번 회차 삭제 팝업 적용',
-  '시간 컬럼과 박스 폭 재정렬'
+  '루틴 기본정보 메모/학년/반/번호 표시 제거',
+  '기본정보 수정창 메모/학년/반/번호 입력 제거',
+  '대상자명 옆 역삼각형 버튼 확대',
+  '기본정보 카드 높이 추가 압축'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -10075,9 +10276,6 @@ function renderI(){
   h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo')}`;
   if(basicInfoOpen){
     family.forEach((kid,ki)=>{
-      const info=[kid.grade,kid.year?`${kid.year}학년`:'',kid.cls?`${kid.cls}반`:'',kid.num?`${kid.num}번`:'' ].filter(Boolean).join(' · ');
-      const vacation=vacationSummary(kid);
-      const sub=[info||'미입력',vacation?`방학 ${vacation}`:''].filter(Boolean).join('  ·  ');
       h+=`<div class="fi-card basic-info-card modern-basic-card reorder-card swipe-card"
         draggable="true"
         data-reorder-list="family" data-reorder-id="${kid.id}"
@@ -10104,7 +10302,6 @@ function renderI(){
               <button class="today-toggle-pill request-writer-toggle${kid.showRequestWriter?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRequestWriter(${ki})">부탁 ${kid.showRequestWriter?'표시':'숨김'}</button>
             </div>
           </div>
-          <div class="basic-info-subline">${escapeHtml(sub)}</div>
         </div>
       </div>`;
     });
@@ -12149,13 +12346,6 @@ function editKid(i){
         ${vacHtml || '<div class="empty compact-empty">등록된 방학이 없어요</div>'}
       </div>
 
-      <div class="ml">메모</div><input class="mi" id="k-g" value="${escapeAttr(k.grade)}" placeholder="학교, 과정 등 참고 메모"/>
-      <div class="ml">학년 · 반 · 번호</div>
-      <div class="mi-3">
-        <input class="mi" id="k-y" value="${escapeAttr(k.year)}" placeholder="학년"/>
-        <input class="mi" id="k-c" value="${escapeAttr(k.cls)}" placeholder="반"/>
-        <input class="mi" id="k-u" value="${escapeAttr(k.num)}" placeholder="번호"/>
-      </div>
       <button class="primary-btn" onclick="saveKid(${i})">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -12179,10 +12369,10 @@ function saveKid(i){
     name,
     avatar,
     avatarCustom:custom,
-    grade:document.getElementById('k-g').value,
-    year:document.getElementById('k-y').value,
-    cls:document.getElementById('k-c').value,
-    num:document.getElementById('k-u').value,
+    grade:'',
+    year:'',
+    cls:'',
+    num:'',
     vacations:Array.isArray(old.vacations)?old.vacations:[]
   };
   delete family[i].vacationStart;
