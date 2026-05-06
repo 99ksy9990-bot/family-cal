@@ -1,5 +1,5 @@
-const CACHE_NAME = 'our-cal-v1.0.85';
-const PASS_SW_BUILD_VERSION = 'v1.0.85-our-brand';
+const CACHE_NAME = 'our-cal-v1.0.86';
+const PASS_SW_BUILD_VERSION = 'v1.0.86-header-text-splash-3s';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 

@@ -13,14 +13,14 @@
 <title>아워 - 우리의 시간을 가볍게</title>
 <!-- 링크 미리보기 -->
 <meta property="og:title" content="아워 - 우리의 시간을 가볍게">
-<meta property="og:description" content="우리의 시간을 가볍게 - 우리의 시간을 가볍게">
+<meta property="og:description" content="아워 - 우리의 시간을 가볍게">
 <meta property="og:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <meta property="og:url" content="https://99ksy9990-bot.github.io/family-cal/">
 <meta property="og:type" content="website">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="아워 - 우리의 시간을 가볍게">
-<meta name="twitter:description" content="우리의 시간을 가볍게 - 우리의 시간을 가볍게">
+<meta name="twitter:description" content="아워 - 우리의 시간을 가볍게">
 <meta name="twitter:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <!--
 [중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
@@ -8544,6 +8544,46 @@ select{
   .brand-head{gap:10px;min-height:54px}
 }
 
+
+/* v1.0.86 header text only + 3s splash */
+.topbar .brand-logo{
+  display:none !important;
+}
+.brand-head.brand-text-only{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+  min-height:46px !important;
+  padding:2px 64px 0 !important;
+  text-align:center !important;
+}
+.brand-head.brand-text-only .top-slogan,
+.topbar .top-slogan{
+  display:block !important;
+  margin:0 !important;
+  font-size:17px !important;
+  line-height:1.25 !important;
+  font-weight:900 !important;
+  color:#0D47A1 !important;
+  letter-spacing:-.35px !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+.brand-head.brand-text-only .app-name{
+  display:none !important;
+}
+@media (max-width:430px){
+  .brand-head.brand-text-only{
+    min-height:44px !important;
+    padding:2px 64px 0 !important;
+  }
+  .brand-head.brand-text-only .top-slogan,
+  .topbar .top-slogan{
+    font-size:16px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -8579,12 +8619,8 @@ select{
 
 <div class="app" id="app">
   <div class="topbar">
-    <div class="brand-head" aria-label="아워 브랜드">
-      <img class="brand-logo" src="./icon.png" alt="아워 로고" />
-      <div class="brand-copy">
-        <div class="app-name">아워</div>
-        <div class="app-sub">우리의 시간을 가볍게</div>
-      </div>
+    <div class="brand-head brand-text-only" aria-label="아워 브랜드 문구">
+      <div class="app-sub top-slogan">우리의 시간을 가볍게</div>
     </div>
     <button class="manage-btn" onclick="openManageCenter()">관리</button>
     
@@ -8604,14 +8640,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.85';
-const PASS_BUILD_VERSION='v1.0.84-routine-grouped-list';
+const APP_VERSION='v1.0.86';
+const PASS_BUILD_VERSION='v1.0.86-header-text-splash-3s';
 const APP_UPDATED='2026-05-06';
 const UPDATE_LOG=[
-  '앱 이름을 아워로 변경',
-  '상단 로고를 아이콘 + HTML 텍스트 구조로 변경',
-  '앱 아이콘과 링크 미리보기 이미지 교체',
-  '브랜드 문구를 우리의 시간을 가볍게로 통일'
+  '앱 상단 아이콘 이미지 제거',
+  '상단 문구를 우리의 시간을 가볍게로 단독 표시',
+  '스플래시 최소 노출 3초 적용',
+  '아워 브랜드 문구 정리'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -13817,9 +13853,20 @@ function escapeAttr(s){
 }
 
 
+const SPLASH_MIN_MS=3000;
+const SPLASH_STARTED_AT=Date.now();
 function hideSplash(){
   const s=document.getElementById('splash');
-  if(s && !s.dataset.hiding){
+  if(!s)return;
+  const remain=Math.max(0,SPLASH_MIN_MS-(Date.now()-SPLASH_STARTED_AT));
+  if(remain>0){
+    if(!s.dataset.hideScheduled){
+      s.dataset.hideScheduled='1';
+      setTimeout(hideSplash,remain);
+    }
+    return;
+  }
+  if(!s.dataset.hiding){
     s.dataset.hiding='1';
     setTimeout(()=>s.classList.add('hide'),300);
     setTimeout(()=>s.remove(),800);
