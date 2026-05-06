@@ -10738,6 +10738,159 @@ body[data-theme="dark"] .toast{
   box-shadow:0 4px 12px rgba(0,122,255,.20) !important;
 }
 
+
+/* v1.1.8 modal form friendly writing */
+
+/* 1. 대상자 선택 영역: 무거운 박스 대신 아바타 칩 */
+.person-chip-selector,
+.request-writer-tabs{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin:0 0 8px !important;
+}
+.person-check-label,
+.rq-writer-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:40px !important;
+  padding:6px 14px 6px 6px !important;
+  background:transparent !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+  border-radius:24px !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  color:#8B95A1 !important;
+  transition:all .2s ease !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+input[type="checkbox"]:checked + .person-check-label,
+input[type="radio"]:checked + .person-check-label,
+.person-check-label.selected,
+.type-btn.tf.person-check-label,
+.rq-writer-btn.on{
+  background:#E8F3FF !important;
+  border:1px solid rgba(0,122,255,.30) !important;
+  color:var(--blue) !important;
+  box-shadow:0 2px 8px rgba(0,122,255,.08) !important;
+}
+.person-check-label .avatar-img-small,
+.rq-writer-btn .avatar-img-small{
+  width:28px !important;
+  height:28px !important;
+  margin:0 !important;
+  object-fit:contain !important;
+}
+.person-check-label:active,
+.rq-writer-btn:active{
+  transform:var(--press-scale) !important;
+}
+
+/* 2. 상세 설정 아코디언: 입력폼과 같은 부드러운 표면 */
+details.manage-accordion,
+details.detail-settings{
+  background:#F4F4F6 !important;
+  border:none !important;
+  border-radius:16px !important;
+  margin-top:16px !important;
+  overflow:hidden !important;
+  box-shadow:none !important;
+}
+details.detail-settings{
+  margin-bottom:4px !important;
+}
+details summary{
+  padding:16px !important;
+  font-size:15px !important;
+  font-weight:850 !important;
+  color:#333D4B !important;
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  cursor:pointer !important;
+  list-style:none !important;
+  user-select:none !important;
+}
+details summary::-webkit-details-marker{
+  display:none !important;
+}
+details summary::after{
+  content:'⌵';
+  font-size:18px;
+  color:#8B95A1;
+  font-weight:900;
+  transition:transform .3s ease;
+  margin-top:-4px;
+}
+details[open] summary::after{
+  transform:rotate(180deg);
+  margin-top:4px;
+}
+.detail-settings-panel,
+.manage-panel{
+  padding:0 14px 14px !important;
+}
+
+/* 3. 모달 입력폼 밀도/가독성 */
+.schedule-edit-sheet .mi,
+.routine-edit-sheet .mi,
+.modal-sheet .mi,
+.modal-sheet .ta,
+.modal-sheet select.mi{
+  border-radius:14px !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+  background:#fff !important;
+  font-size:15px !important;
+  font-weight:750 !important;
+}
+.schedule-edit-sheet .ml,
+.routine-edit-sheet .ml{
+  color:var(--t2) !important;
+  font-size:11px !important;
+  font-weight:900 !important;
+  letter-spacing:.03em !important;
+}
+.schedule-edit-sheet .primary-btn,
+.routine-edit-sheet .primary-btn{
+  margin-top:14px !important;
+}
+
+/* 다크모드 보정 */
+body[data-theme="dark"] .person-check-label,
+body[data-theme="dark"] .rq-writer-btn{
+  border-color:rgba(255,255,255,.10) !important;
+  color:var(--t2) !important;
+}
+body[data-theme="dark"] input[type="checkbox"]:checked + .person-check-label,
+body[data-theme="dark"] input[type="radio"]:checked + .person-check-label,
+body[data-theme="dark"] .person-check-label.selected,
+body[data-theme="dark"] .type-btn.tf.person-check-label,
+body[data-theme="dark"] .rq-writer-btn.on{
+  background:var(--blue-bg) !important;
+  border-color:rgba(102,178,255,.28) !important;
+  color:var(--blue-t) !important;
+}
+body[data-theme="dark"] details.manage-accordion,
+body[data-theme="dark"] details.detail-settings{
+  background:rgba(255,255,255,.05) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+body[data-theme="dark"] details summary{
+  color:var(--t1) !important;
+}
+body[data-theme="dark"] .schedule-edit-sheet .mi,
+body[data-theme="dark"] .routine-edit-sheet .mi,
+body[data-theme="dark"] .modal-sheet .mi,
+body[data-theme="dark"] .modal-sheet .ta,
+body[data-theme="dark"] .modal-sheet select.mi{
+  background:#1C1C1E !important;
+  border-color:rgba(255,255,255,.10) !important;
+  color:var(--t1) !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -10796,17 +10949,15 @@ body[data-theme="dark"] .toast{
 
 <script>
 
-const APP_VERSION='v1.1.7';
-const PASS_BUILD_VERSION='v1.1.7-tab-unified-visual-polish';
+const APP_VERSION='v1.1.8';
+const PASS_BUILD_VERSION='v1.1.8-modal-form-friendly-writing';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '탭바 아이콘 추가 및 선택 탭 부상 피드백',
-  '공통 디자인 토큰과 카드 그림자 통일',
-  '다크모드 카드 배경/테두리 보완',
-  '일정 대시보드 섹션 라벨/카운트 색상 정리',
-  '달력 셀 확대, 요일/오늘/점/상태 뱃지 가독성 개선',
-  '반복 탭 대상자 블록 헤더와 행 스타일 통일',
-  '할일·축하·관리 화면 카드/시간/눌림 피드백 정리'
+  '일정/루틴 입력 모달 대상자 칩 UI 적용',
+  '상세 설정 아코디언 디자인 통일',
+  '일정·루틴 입력 안내문을 다정한 말투로 변경',
+  '저장/삭제/필수 입력 메시지 UX 라이팅 정리',
+  '루틴 수정 모달에서 날짜·시간 저장 누락 보완'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -12646,7 +12797,7 @@ function skipRepeatInstance(id,dateKey){
 
 function delNote(id){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 일정을 삭제할까요?'))return;
+  if(!confirmDelete('이 일정을 지울까요?'))return;
   const idx=notes.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
     addChangeLog(`일정 삭제: ${notes[idx].who||'공통'} · ${notes[idx].title||'일정'}`);
@@ -13849,9 +14000,11 @@ function addRepeatItem(){
 }
 function delRepeatItem(ii){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 루틴 일정을 삭제할까요?'))return;
+  if(!confirmDelete('이 루틴을 지울까요?'))return;
   repeatItems.splice(ii,1);
-  saveSettingsOnly();render();
+  saveSettingsOnly();
+  render();
+  showToast('루틴을 지웠어요.');
 }
 function togglePauseOnVacation(ii){
   if(!requireEditMode())return;
@@ -14068,42 +14221,44 @@ function openRepeatEditModal(ii){
   const item=repeatItems[ii];
   if(!item)return;
   const idp=`${ii}`;
+  const who=item.who||'공통';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet routine-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">루틴 수정</div>
       <div class="ml">루틴 내용</div>
-      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="예: 학교(6교시), 수학, 영어"/>
-      <div class="routine-edit-topline">
-        <div>
-          <div class="ml">대상</div>
-          <select class="mi repeat-target-select-modal" id="re-who-${ii}">
-            ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-          </select>
-        </div>
-        <div>
-          <div class="ml">방학</div>
-          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${item.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
-            ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
-          </button>
-        </div>
+      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="어떤 루틴인가요?"/>
+      <div class="ml">대상</div>
+      <input type="hidden" id="re-who-${ii}" value="${escapeAttr(who)}"/>
+      <div class="type-sel person-chip-selector routine-person-selector">
+        ${repeatPersonChoiceButtons(ii,who)}
       </div>
 
       <div class="ml">요일 <span class="modal-summary" id="repeat-days-summary-${ii}">${escapeHtml(repeatDaysSummary(item.days))}</span></div>
       <div class="day-sel routine-edit-days">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" data-edit-day="${ii}-${di}" onclick="toggleRepeatModalDay(${ii},${di})">${d}</button>`).join('')}</div>
 
-      <div class="ml">날짜</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
-        <div><div class="sublabel">종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
-      </div>
+      <details class="detail-settings" open>
+        <summary>⚙️ 상세 설정 열기</summary>
+        <div class="detail-settings-panel">
+          <div class="ml">방학</div>
+          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${item.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
+            ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
+          </button>
 
-      <div class="ml">시간</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작 시간</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
-        <div><div class="sublabel">종료 시간</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
-      </div>
+          <div class="ml">날짜</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
+            <div><div class="sublabel">종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
+          </div>
+
+          <div class="ml">시간</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작 시간</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
+            <div><div class="sublabel">종료 시간</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+          </div>
+        </div>
+      </details>
 
       <div class="action-grid routine-edit-actions">
         <button class="toss-btn primary" onclick="saveRepeatEdit(${ii})">저장</button>
@@ -14117,12 +14272,21 @@ function saveRepeatEdit(ii){
   if(!requireEditMode())return;
   const item=repeatItems[ii];
   if(!item)return;
-  item.title=(document.getElementById(`re-title-${ii}`)||{}).value||'';
+  const title=(document.getElementById(`re-title-${ii}`)||{}).value||'';
+  if(!title.trim()){
+    alert('루틴 이름을 먼저 적어주세요!');
+    return;
+  }
+  item.title=title.trim();
   item.who=(document.getElementById(`re-who-${ii}`)||{}).value||'공통';
+  item.start=getPickerVal(`rp-sd-${ii}`);
+  item.repeatEnd=getPickerVal(`rp-re-${ii}`);
+  item.sT=getPickerVal(`rp-st-${ii}`);
+  item.eT=getPickerVal(`rp-et-${ii}`);
   saveSettingsOnly();
   closeM();
   render({preserveScroll:true});
-  showToast('루틴을 저장했어요.');
+  showToast('루틴을 저장했어요 👏');
 }
 
 
@@ -14375,7 +14539,10 @@ function openEditReq(id){openReqModal(id)}
 function saveReq(id){
   if(!requireEditMode())return;
   const title=(document.getElementById('rq-ti')||{}).value||'';
-  if(!title.trim())return;
+  if(!title.trim()){
+    alert('할일 이름을 먼저 적어주세요!');
+    return;
+  }
   const writerMode=(document.getElementById('rq-writer-mode')||{}).value||'__direct';
   const directWriter=(document.getElementById('rq-wr')||{}).value||'';
   const writer=writerMode==='__direct'?directWriter.trim():writerMode.trim();
@@ -14390,10 +14557,12 @@ function saveReq(id){
     r.title=title.trim(); r.writer=writer; r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
     addChangeLog(`할일 수정: ${oldTitle||r.title} → ${r.title}`);
+    showToast('할일을 저장했어요 👏');
   }else{
     r={id:Date.now(),title:title.trim(),writer,requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
     requests.push(r);
     addChangeLog(`할일 추가: ${r.title}`);
+    showToast('할일을 등록했어요 👏');
   }
   saveRequestOnly(r);closeM();render({preserveScroll:true});
 }
@@ -14598,7 +14767,9 @@ function softDelete(kind,arr,idx,label){
   saveAfterSoftDelete(kind,arr,idx,label);
 }
 
-function confirmDelete(msg){return true;}
+function confirmDelete(msg){
+  return confirm(msg || '삭제할까요?');
+}
 function normText(v){return String(v||'').toLowerCase().trim()}
 function matchSearchNote(n){
   if(!searchQ)return true;
@@ -15982,44 +16153,69 @@ function copyShareLink(){
   else{alert('주소창의 URL을 복사해서 가족에게 보내주세요:\n'+url);}
 }
 
+
+function personChoiceButtons(selected){
+  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label${p===selected?' selected tf':''}" id="who-${escapeAttr(p)}" onclick="selWho(${onclickArg(p)})">
+    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span>
+  </button>`).join('');
+}
+function repeatPersonChoiceButtons(ii,selected){
+  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label repeat-person-choice${p===selected?' selected tf':''}" data-repeat-who="${ii}" data-who="${escapeAttr(p)}" onclick="selectRepeatModalWho(${ii},${onclickArg(p)})">
+    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span>
+  </button>`).join('');
+}
+function selectRepeatModalWho(ii,who){
+  const hid=document.getElementById(`re-who-${ii}`);
+  if(hid)hid.value=who||'공통';
+  document.querySelectorAll(`[data-repeat-who="${ii}"]`).forEach(b=>{
+    b.classList.toggle('selected', b.dataset.who===String(who||'공통'));
+    b.classList.toggle('tf', b.dataset.who===String(who||'공통'));
+  });
+}
+
 function openAddModal(dateVal){
   _mType='family';
   _mWho=getPersons()[0]||'공통';
   const startDate=dateVal||todayKey();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">새 일정 추가</div>
       <div class="ml">제목</div>
-      <input class="mi" id="m-ti" placeholder="일정 내용을 입력하세요"/>
+      <input class="mi" id="m-ti" placeholder="어떤 일정인가요?"/>
       <div class="ml">대상</div>
-      <div class="type-sel">
-        ${getPersons().map(p=>`<button class="type-btn${p===_mWho?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
+      <div class="type-sel person-chip-selector">
+        ${personChoiceButtons(_mWho)}
       </div>
-      <div class="ml">루틴</div>
-      <select class="mi" id="m-rp">
-        <option value="">반복 없음</option>
-        <option value="daily">매일</option>
-        <option value="weekly">매주</option>
-        <option value="monthly">매월</option>
-      </select>
-      <div class="ml">루틴 종료일</div>
-      <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
-      <div class="ml">날짜</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
-        <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
-      </div>
-      <div class="ml">시간</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
-        <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
-      </div>
-      <div class="ml">비공개</div>
-      <button class="type-btn" id="m-private" data-val="" onclick="togglePrivateField('m-private')">🔓 비공개 OFF</button>
-      <div class="ml">알림 메모</div>
-      <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인"/>
+      <details class="detail-settings" open>
+        <summary>⚙️ 상세 설정 열기</summary>
+        <div class="detail-settings-panel">
+          <div class="ml">루틴</div>
+          <select class="mi" id="m-rp">
+            <option value="">반복 없음</option>
+            <option value="daily">매일</option>
+            <option value="weekly">매주</option>
+            <option value="monthly">매월</option>
+          </select>
+          <div class="ml">루틴 종료일</div>
+          <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+          <div class="ml">날짜</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
+            <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
+          </div>
+          <div class="ml">시간</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
+            <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
+          </div>
+          <div class="ml">비공개</div>
+          <button class="type-btn" id="m-private" data-val="" onclick="togglePrivateField('m-private')">🔓 비공개 OFF</button>
+          <div class="ml">알림 메모</div>
+          <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인"/>
+        </div>
+      </details>
       <button class="primary-btn" onclick="saveNote()">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -16036,14 +16232,25 @@ function selWho(w){
   _mWho=w;
   getPersons().forEach(p=>{
     const el=document.getElementById('who-'+p);
-    if(el)el.className='type-btn'+(p===w?' tf':'');
+    if(el){
+      el.classList.toggle('selected', p===w);
+      el.classList.toggle('tf', p===w);
+      if(el.classList.contains('person-check-label')){
+        el.className='type-btn person-check-label'+(p===w?' selected tf':'');
+      }else{
+        el.className='type-btn'+(p===w?' tf':'');
+      }
+    }
   });
 }
 
 function saveNote(){
   if(!requireEditMode())return;
   const ti=(document.getElementById('m-ti')||{}).value||'';
-  if(!ti.trim())return;
+  if(!ti.trim()){
+    alert('일정 이름을 먼저 적어주세요!');
+    return;
+  }
   const newNote={
     id:Date.now(),
     title:ti.trim(),
@@ -16065,7 +16272,10 @@ function saveNote(){
   if(!confirmScheduleConflicts(newNote,''))return;
   notes.push(newNote);
   addChangeLog(`일정 추가: ${newNote.who||'공통'} · ${newNote.title}`);
-  saveNoteOnly(newNote);closeM();render({preserveScroll:true});
+  saveNoteOnly(newNote);
+  closeM();
+  render({preserveScroll:true});
+  showToast('일정을 등록했어요 👏');
 }
 
 function openEditNote(id){
@@ -16074,39 +16284,45 @@ function openEditNote(id){
   _mWho=n.who||getPersons()[0]||'공통';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">일정 수정</div>
-      <div class="ml">제목</div><input class="mi" id="e-ti" value="${escapeAttr(n.title)}"/>
+      <div class="ml">제목</div>
+      <input class="mi" id="e-ti" value="${escapeAttr(n.title)}" placeholder="어떤 일정인가요?"/>
       <div class="ml">대상</div>
-      <div class="type-sel">
-        ${getPersons().map(p=>`<button class="type-btn${(n.who||'공통')===p?' tf':''}" id="who-${p}" onclick="selWho('${p}')">${p}</button>`).join('')}
+      <div class="type-sel person-chip-selector">
+        ${personChoiceButtons(_mWho)}
       </div>
-      <div class="ml">루틴</div>
-      <select class="mi" id="e-rp">
-        <option value="" ${!n.repeat?'selected':''}>반복 없음</option>
-        <option value="daily" ${n.repeat==='daily'?'selected':''}>매일</option>
-        <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
-        <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
-      </select>
-      <div class="ml">루틴 종료일</div>
-      <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
-      <div class="ml">날짜</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
-        <div><div class="sublabel">종료일</div><input class="picker-field${n.end?'':' empty'}" id="e-ed" readonly data-val="${n.end||''}" value="${n.end?dateLabel(n.end):'종료일 없음'}" onclick="openDatePicker('e-ed')"/></div>
-      </div>
-      <div class="ml">시간</div>
-      <div class="mi-2">
-        <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
-        <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
-      </div>
-      <div class="ml">비공개</div>
-      <button class="type-btn${n.isPrivate?' tf':''}" id="e-private" data-val="${n.isPrivate?'1':''}" onclick="togglePrivateField('e-private')">${n.isPrivate?'🔒 비공개 ON':'🔓 비공개 OFF'}</button>
-      <div class="ml">알림 메모</div>
-      <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
-      <div class="ml">메모</div>
-      <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
+      <details class="detail-settings" open>
+        <summary>⚙️ 상세 설정 열기</summary>
+        <div class="detail-settings-panel">
+          <div class="ml">루틴</div>
+          <select class="mi" id="e-rp">
+            <option value="" ${!n.repeat?'selected':''}>반복 없음</option>
+            <option value="daily" ${n.repeat==='daily'?'selected':''}>매일</option>
+            <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
+            <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
+          </select>
+          <div class="ml">루틴 종료일</div>
+          <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
+          <div class="ml">날짜</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
+            <div><div class="sublabel">종료일</div><input class="picker-field${n.end?'':' empty'}" id="e-ed" readonly data-val="${n.end||''}" value="${n.end?dateLabel(n.end):'종료일 없음'}" onclick="openDatePicker('e-ed')"/></div>
+          </div>
+          <div class="ml">시간</div>
+          <div class="mi-2">
+            <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
+            <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
+          </div>
+          <div class="ml">비공개</div>
+          <button class="type-btn${n.isPrivate?' tf':''}" id="e-private" data-val="${n.isPrivate?'1':''}" onclick="togglePrivateField('e-private')">${n.isPrivate?'🔒 비공개 ON':'🔓 비공개 OFF'}</button>
+          <div class="ml">알림 메모</div>
+          <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
+          <div class="ml">메모</div>
+          <textarea class="ta" id="e-cm" placeholder="메모나 후기를 남겨보세요">${escapeHtml(n.comment||'')}</textarea>
+        </div>
+      </details>
       <button class="primary-btn" onclick="saveEditNote('${id}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
@@ -16115,10 +16331,15 @@ function openEditNote(id){
 function saveEditNote(id){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
+  const title=(document.getElementById('e-ti')||{}).value||'';
+  if(!title.trim()){
+    alert('일정 이름을 먼저 적어주세요!');
+    return;
+  }
   const before={...n};
   const next={
     ...n,
-    title:document.getElementById('e-ti').value,
+    title:title.trim(),
     type:_mType||n.type||'family',
     who:_mWho,
     repeat:(document.getElementById('e-rp')||{}).value||'',
@@ -16138,7 +16359,10 @@ function saveEditNote(id){
   if(before.start!==n.start||before.sT!==n.sT||before.eT!==n.eT)changed.push(`시간 ${dateTimeRange(before)||'미정'} → ${dateTimeRange(n)||'미정'}`);
   if(before.who!==n.who)changed.push(`대상 ${before.who||'공통'} → ${n.who||'공통'}`);
   addChangeLog(`일정 수정: ${n.title||'일정'}${changed.length?` (${changed.join(', ')})`:''}`);
-  saveNoteOnly(n);closeM();render({preserveScroll:true});
+  saveNoteOnly(n);
+  closeM();
+  render({preserveScroll:true});
+  showToast('일정을 저장했어요 👏');
 }
 
 function addKidVacation(ki){
