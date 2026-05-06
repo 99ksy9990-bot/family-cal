@@ -7067,6 +7067,145 @@ select{
   font-weight:950 !important;
 }
 
+
+/* v1.0.76 dashboard tone cleanup */
+
+/* 1) 오늘 일정/루틴/미리보기 내부 그레이 박스 제거: 부모 흰 카드만 남김 */
+.merged-schedule-card:not(.merged-empty-card),
+.merged-routine-box,
+.merged-schedule-box,
+.today-list-card:not(.merged-empty-card){
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  min-height:0 !important;
+}
+
+.merged-routine-row,
+.merged-schedule-row,
+.merged-today-row{
+  border-bottom:1px solid rgba(0,0,0,.065) !important;
+  padding:8px 0 !important;
+  min-height:32px !important;
+}
+
+.merged-routine-row:last-child,
+.merged-schedule-row:last-child,
+.merged-today-row:last-child{
+  border-bottom:none !important;
+}
+
+.merged-routine-wrap,
+.merged-schedule-wrap{
+  gap:8px !important;
+}
+
+.merged-routine-group,
+.merged-schedule-group{
+  padding:0 !important;
+}
+
+/* 루틴/일정 섹션 사이만 살짝 구분 */
+.merged-section-label,
+.merged-section-label.routine{
+  margin:10px 0 6px !important;
+}
+
+/* 미리 보는 다음 일정도 내부 회색 캡슐 제거 */
+.refreshed-upcoming-row,
+.upcoming-row{
+  background:transparent !important;
+  border-radius:0 !important;
+  padding:8px 0 !important;
+  border-bottom:1px solid rgba(0,0,0,.065) !important;
+}
+
+.refreshed-upcoming-row:last-child,
+.upcoming-row:last-child{
+  border-bottom:none !important;
+}
+
+/* D-day 칩은 유지하되 나머지 행은 가볍게 */
+.upcoming-dday,
+.dday-chip{
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+}
+
+/* 2) 카운트 뱃지 톤다운: 경고 느낌의 핑크 제거 */
+.merged-count,
+.today-dashboard-count,
+.today-dashboard-count.hot,
+.upcoming-dashboard-head .sec-cnt,
+.merged-dashboard-head .sec-cnt{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  border:1px solid rgba(0,122,255,.16) !important;
+  box-shadow:none !important;
+  font-weight:950 !important;
+}
+
+/* D-day, 마감/긴급성 있는 칩은 핑크 유지 */
+.dday-chip,
+.upcoming-dday,
+.alert-chip.urgent,
+.request-due-chip{
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+}
+
+/* 3) 접혀 있음 영역: 입력창 같은 흰 박스 제거 */
+.schedule-collapsed-hint,
+.basic-info-collapsed{
+  margin:0 16px 4px !important;
+  padding:4px 0 8px !important;
+  min-height:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  color:var(--t3) !important;
+  font-size:11px !important;
+  font-weight:850 !important;
+  text-align:center !important;
+}
+
+/* 4) 5일 근무 위젯 주말/공휴일 빨강·파랑 제거 */
+.shift-widget-5dates .shift-date-label,
+.shift-widget-5dates .widget-title,
+.shift-widget-5dates .shift-date-holiday,
+.shift-widget-5dates .shift-date-sat,
+.shift-widget-5dates .center-date .shift-date-label{
+  color:var(--t1) !important;
+}
+
+.shift-widget-5dates .center-date{
+  outline-color:rgba(0,122,255,.24) !important;
+}
+
+.shift-widget-5dates .shift-mini-card{
+  background:rgba(255,255,255,.88) !important;
+}
+
+/* 상단 위젯은 날짜보다 근무 뱃지가 주인공이 되도록 */
+.shift-widget-5dates .shift-date-label{
+  opacity:.9 !important;
+  font-weight:950 !important;
+}
+
+.shift-widget-5dates .shift-one{
+  box-shadow:none !important;
+}
+
+/* 빈 상태는 이전 통일안 유지 */
+.brief-empty-state{
+  background:var(--bg) !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -7124,14 +7263,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.75';
-const PASS_BUILD_VERSION='v1.0.75-request-writer-memory-compact';
+const APP_VERSION='v1.0.76';
+const PASS_BUILD_VERSION='v1.0.76-dashboard-tone-cleanup';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '부탁 작성자 선택 칩 적용',
-  '기본 정보에서 부탁 작성자 노출 대상 설정',
-  '직접 입력 작성자 탭 추가',
-  '기념일 카드 초압축 다이어트'
+  '오늘 일정/루틴 내부 그레이 박스 다이어트',
+  '대시보드 숫자 뱃지 블루 톤다운',
+  '접혀 있음 안내 UI 슬림화',
+  '상단 5일 근무 위젯 주말 색상 제거'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
