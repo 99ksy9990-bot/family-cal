@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.0.71';
-const PASS_SW_BUILD_VERSION = 'v1.0.71-routine-soft-ui';
+const CACHE_NAME = 'pass-cal-v1.0.73';
+const PASS_SW_BUILD_VERSION = 'v1.0.73-empty-state-clean';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
