@@ -7577,6 +7577,180 @@ select{
   }
 }
 
+
+/* v1.0.80 schedule list polish */
+
+/* 1. 5일 근무 위젯 오늘 표시: 투박한 테두리 제거 & 연한 파랑 배경 적용 */
+.shift-widget-5dates .center-date {
+  outline: none !important;
+  background: var(--blue-bg) !important;
+  border: 1px solid rgba(0, 122, 255, 0.08) !important;
+}
+.shift-widget-5dates .center-date .widget-title,
+.shift-widget-5dates .center-date .shift-date-label {
+  color: var(--blue-t) !important;
+}
+
+/* 2. 오늘 일정 박스: 루틴과 칼각 정렬 & 알림 배너 스타일 적용 */
+.merged-schedule-group {
+  display: grid !important;
+  grid-template-columns: 42px minmax(0,1fr) !important;
+  gap: 8px !important;
+  align-items: flex-start !important;
+}
+.merged-schedule-box {
+  background: var(--blue-bg) !important;
+  border: 1px solid rgba(0, 122, 255, 0.08) !important;
+  border-radius: 16px !important;
+  padding: 10px 14px !important;
+  margin-right: 24px !important;
+}
+.merged-schedule-box .merged-schedule-title {
+  color: var(--blue-t) !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+}
+.merged-schedule-box .merged-schedule-time {
+  color: var(--blue) !important;
+  font-weight: 700 !important;
+}
+
+/* 3. 등록 일정 / 완료 리스트: 통합 리스트형 */
+.schedule-card-list {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 0 16px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  gap: 0 !important;
+}
+
+.schedule-card-list .card {
+  box-shadow: none !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 0 !important;
+  padding: 16px 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+.schedule-card-list .card:last-child {
+  border-bottom: none !important;
+}
+
+.schedule-card-list .c-row {
+  align-items: flex-start !important;
+  gap: 12px !important;
+}
+
+/* 4. 세련된 원형 체크박스 */
+.schedule-card-list .chk {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  border-radius: 50% !important;
+  border: 2px solid #D1D6DB !important;
+  background: transparent !important;
+  margin-top: 0 !important;
+  transition: all 0.2s ease !important;
+}
+.schedule-card-list .chk.on {
+  background: var(--blue) !important;
+  border-color: var(--blue) !important;
+}
+.schedule-card-list .chk.on svg path {
+  stroke: #ffffff !important;
+  stroke-width: 2.5 !important;
+}
+
+/* 5. 하단 태그(Meta 정보) 시각적 노이즈 다이어트 */
+.schedule-card-list .c-title {
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: #333D4B !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.25px !important;
+}
+.schedule-card-list .c-meta {
+  gap: 8px !important;
+  margin-top: 6px !important;
+  align-items: center !important;
+}
+.schedule-card-list .person-chip,
+.schedule-card-list .chip {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #8B95A1 !important;
+  box-shadow: none !important;
+  line-height: 1.25 !important;
+}
+.schedule-card-list .person-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+}
+.schedule-card-list .person-chip::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 5px;
+  transform: translateY(-1px);
+}
+
+/* D-day/긴급 정보만 컬러 칩 유지 */
+.schedule-card-list .dday-chip,
+.schedule-card-list .alert-chip.urgent,
+.schedule-card-list .request-due-chip {
+  background: var(--pink-bg) !important;
+  color: var(--pink-t) !important;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+}
+
+/* 6. 완료 영역은 뒤로 물러나게 */
+.schedule-card-list .card:has(.chk.on) {
+  opacity: 0.62 !important;
+}
+.schedule-card-list .card:has(.chk.on) .c-title {
+  color: var(--t3) !important;
+}
+
+/* 우측 복사/수정/삭제는 시각 노이즈를 줄임 */
+.schedule-card-list .c-right {
+  min-width: 34px !important;
+  gap: 8px !important;
+  opacity: .58 !important;
+}
+.schedule-card-list .c-right .small-link {
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  color: var(--t3) !important;
+}
+
+/* 좁은 화면 보정 */
+@media (max-width: 430px) {
+  .schedule-card-list {
+    padding: 0 14px !important;
+  }
+  .schedule-card-list .card {
+    padding: 14px 0 !important;
+  }
+  .merged-schedule-box {
+    margin-right: 10px !important;
+    padding: 9px 12px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -7634,14 +7808,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.79';
-const PASS_BUILD_VERSION='v1.0.79-basic-info-clean';
+const APP_VERSION='v1.0.80';
+const PASS_BUILD_VERSION='v1.0.80-schedule-list-polish';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '루틴 기본정보 메모/학년/반/번호 표시 제거',
-  '기본정보 수정창 메모/학년/반/번호 입력 제거',
-  '대상자명 옆 역삼각형 버튼 확대',
-  '기본정보 카드 높이 추가 압축'
+  '5일 근무 위젯 오늘 표시 톤다운',
+  '오늘 일정 박스 알림 배너 스타일 적용',
+  '등록 일정 리스트 통합 리스트형 적용',
+  '일정 카드 액션/태그 시각 노이즈 축소',
+  '완료 카드 원형 체크 + 톤다운'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
