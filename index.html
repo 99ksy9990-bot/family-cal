@@ -6837,6 +6837,143 @@ select{
   box-shadow: none !important;
 }
 
+
+/* v1.0.74 manage grouping + calendar dot position */
+.manage-sheet{
+  padding-bottom:28px !important;
+}
+.manage-version-card{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+}
+.manage-theme-row{
+  margin-top:8px !important;
+}
+.manage-quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:12px;
+}
+.manage-accordion{
+  margin-top:10px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:var(--card);
+  box-shadow:0 5px 15px rgba(15,23,42,.045);
+  overflow:hidden;
+}
+.manage-accordion summary{
+  list-style:none;
+  cursor:pointer;
+  min-height:52px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  font-family:inherit;
+}
+.manage-accordion summary::-webkit-details-marker{
+  display:none;
+}
+.manage-accordion summary span{
+  font-size:14px;
+  font-weight:950;
+  color:var(--t1);
+  letter-spacing:-.25px;
+}
+.manage-accordion summary em{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  flex:0 0 auto;
+  font-style:normal;
+  font-size:11px;
+  font-weight:850;
+  color:var(--t3);
+}
+.manage-accordion summary em::after{
+  content:'⌄';
+  display:inline-block;
+  font-size:14px;
+  line-height:1;
+  transform:translateY(-1px);
+  transition:transform .16s ease;
+}
+.manage-accordion[open] summary em::after{
+  transform:translateY(-1px) rotate(180deg);
+}
+.manage-panel{
+  padding:0 12px 12px;
+}
+.compact-share-banner{
+  border-radius:16px !important;
+  padding:12px 13px !important;
+  box-shadow:none !important;
+}
+.manage-grid-compact{
+  margin-top:8px !important;
+  gap:7px !important;
+}
+.manage-grid-compact .toss-btn{
+  height:38px !important;
+  border-radius:15px !important;
+  font-size:12px !important;
+  box-shadow:none !important;
+}
+.manage-grid-compact .toss-btn.primary{
+  box-shadow:0 5px 12px rgba(0,122,255,.14) !important;
+}
+
+/* 달력 일정/루틴 점 표시 확대 */
+.cal-dots{
+  gap:3.5px !important;
+}
+.person-cal-dot,
+.cal-dot{
+  width:6.8px !important;
+  height:6.8px !important;
+  min-width:6.8px !important;
+  flex:0 0 6.8px !important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.82) !important;
+}
+.cal-dot-more{
+  font-size:9px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  transform:translateY(-1px);
+}
+
+/* 달력의 일정/루틴 뷰에서는 근무 빈 줄을 줄여 점을 날짜 숫자에 가깝게 */
+.cal-mode-schedule .cal-shift-line,
+.cal-mode-routine .cal-shift-line{
+  min-height:4px !important;
+  height:4px !important;
+  margin:0 !important;
+}
+.cal-mode-schedule .cal-dots,
+.cal-mode-routine .cal-dots{
+  margin-top:0 !important;
+  min-height:9px !important;
+  transform:translateY(-1px);
+}
+.cal-mode-schedule .cal-cell,
+.cal-mode-routine .cal-cell{
+  padding-top:4px !important;
+}
+.cal-mode-schedule .cal-date-line,
+.cal-mode-routine .cal-date-line{
+  margin-bottom:0 !important;
+}
+
+/* 전체 뷰에서는 근무 뱃지와 점의 간격을 유지하되 점만 살짝 선명하게 */
+.cal-mode-all .cal-dots{
+  margin-top:2px !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -6894,13 +7031,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.73';
-const PASS_BUILD_VERSION='v1.0.73-empty-state-clean';
+const APP_VERSION='v1.0.74';
+const PASS_BUILD_VERSION='v1.0.74-manage-groups-calendar-dots';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '대시보드 빈 상태 점선 제거',
-  '일정 카드와 Empty State 배경 통일',
-  '빈 상태 높이와 이모지 크기 압축'
+  '관리 센터 메뉴 그룹핑 적용',
+  '시스템·백업·앱 정보 섹션 접기/펼치기 적용',
+  '달력 일정 점 크기 확대',
+  '일정/루틴 달력 뷰에서 점 위치를 날짜에 가깝게 조정'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8599,16 +8737,19 @@ function openManageCenter(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet manage-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">관리 센터</div>
-      <div class="version-card">
-        <div class="version-title">패스 ${APP_VERSION}</div>
-        <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
-        <div class="version-sub">편집 상태: <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span></div>
+
+      <div class="version-card manage-version-card">
+        <div>
+          <div class="version-title">패스 ${APP_VERSION}</div>
+          <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
+        </div>
+        <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span>
       </div>
 
-      <div class="theme-row">
+      <div class="theme-row manage-theme-row">
         <label>화면 테마</label>
         <select class="theme-select" onchange="setThemeMode(this.value)">
           <option value="system" ${themeMode==='system'?'selected':''}>시스템 설정</option>
@@ -8617,36 +8758,74 @@ function openManageCenter(){
         </select>
       </div>
 
-      <div class="manage-section-title">공유</div>
-      <div class="share-banner" style="margin:0">
-        <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
-        <button class="share-btn" onclick="copyShareLink()">복사</button>
-      </div>
-      <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
-
-      <div class="manage-section-title">관리</div>
-      <div class="manage-grid">
+      <div class="manage-quick-grid">
         <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
-        <button class="toss-btn" onclick="repairData()">데이터 점검</button>
-        <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
-        <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
-        <button class="toss-btn" onclick="openTrash()">휴지통</button>
-      <button class="toss-btn" onclick="openChangeLog()">최근 변경</button>
-        <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
-        <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
-        <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
-        <button class="toss-btn" onclick="openRestore()">백업 복구</button>
-        <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
-      <button class="toss-btn" onclick="saveCalendarImage()">달력 이미지 저장</button>
-        <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
-        <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
-        <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
-        <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
-        <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
-        <button class="toss-btn" onclick="openHolidaySyncGuide()">공휴일 API 안내</button>
-        <button class="toss-btn" onclick="syncHolidayYear(calY)">공휴일 갱신</button>
       </div>
+
+      <details class="manage-accordion manage-share-accordion" open>
+        <summary><span>공유</span><em>가족 초대와 QR</em></summary>
+        <div class="manage-panel">
+          <div class="share-banner compact-share-banner" style="margin:0">
+            <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
+            <button class="share-btn" onclick="copyShareLink()">복사</button>
+          </div>
+          <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="manage-accordion" open>
+        <summary><span>공휴일</span><em>달력 표시 기준</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
+            <button class="toss-btn" onclick="syncHolidayYear(calY)">공휴일 갱신</button>
+            <button class="toss-btn" onclick="openHolidaySyncGuide()">공휴일 API 안내</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="manage-accordion">
+        <summary><span>⚙️ 시스템 및 데이터</span><em>위험/신중</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+            <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
+            <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
+            <button class="toss-btn" onclick="openTrash()">휴지통</button>
+            <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
+            <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="manage-accordion">
+        <summary><span>💾 백업 및 내보내기</span><em>보관</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
+            <button class="toss-btn" onclick="openRestore()">백업 복구</button>
+            <button class="toss-btn" onclick="openAutoBackups()">자동 백업</button>
+            <button class="toss-btn" onclick="openExport()">엑셀 내보내기</button>
+            <button class="toss-btn" onclick="saveCalendarImage()">달력 이미지 저장</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="manage-accordion">
+        <summary><span>ℹ️ 앱 정보</span><em>기록과 안내</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
+            <button class="toss-btn" onclick="openChangeLog()">최근 변경</button>
+            <button class="toss-btn" onclick="openSecurityGuide()">보안 안내</button>
+          </div>
+        </div>
+      </details>
+
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
   </div>`;
@@ -9271,7 +9450,7 @@ function renderC(){
     </div>`;
   }
 
-  return`<div class="cal-outer">
+  return`<div class="cal-outer cal-mode-${calViewMode}">
     <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
       ${renderCalendarViewModeChips()}
       ${isEditMode() && calViewMode==='work'?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 중':'일괄 선택'}</button>`:''}
