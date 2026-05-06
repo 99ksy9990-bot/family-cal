@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.1.4';
-const PASS_SW_BUILD_VERSION = 'v1.1.4-resident-shift-dashboard-layout';
+const CACHE_NAME = 'pass-cal-v1.1.6';
+const PASS_SW_BUILD_VERSION = 'v1.1.6-dashboard-routine-brief-polish';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
@@ -55,17 +55,41 @@ const OPTIONAL_ASSETS = [
 ].filter(Boolean);
 
 async function fetchFresh(url){
-  const sep = String(url).includes('?') ? '&' : '?';
-  const freshUrl = `${url}${sep}swv=${encodeURIComponent(CACHE_NAME)}&t=${Date.now()}`;
-  return fetch(freshUrl, {cache:'reload'});
+  return fetch(url, {cache:'reload'});
+}
+
+async function safeCachePut(cache, key, res){
+  try{
+    if(res && (res.ok || res.type === 'opaque')){
+      await cache.put(key, res.clone());
+      return true;
+    }
+  }catch(e){}
+  return false;
 }
 
 async function cacheFresh(cache, url){
   const res = await fetchFresh(url);
   if(!res || (!res.ok && res.type !== 'opaque')) throw new Error('cache failed: '+url);
-  await cache.put(url, res.clone());
+  await safeCachePut(cache, url, res);
   return res;
 }
+
+async function staleWhileRevalidate(reqOrUrl, cacheKey=reqOrUrl){
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(cacheKey);
+  const network = fetch(reqOrUrl, {cache:'reload'}).then(async res=>{
+    await safeCachePut(cache, cacheKey, res);
+    return res;
+  }).catch(()=>cached);
+  return cached || network;
+}
+
+async function offlineFallback(){
+  const cached = await caches.match('./index.html') || await caches.match('./');
+  return cached || new Response('<!doctype html><meta charset="utf-8"><title>오프라인</title><body style="font-family:sans-serif;padding:24px">오프라인 상태예요. 연결 후 다시 열어 주세요.</body>', {headers:{'Content-Type':'text/html;charset=utf-8'}, status:503});
+}
+
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -102,61 +126,45 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
 
-  // 외부 요청은 서비스워커가 간섭하지 않습니다. 단, 사용하는 CDN 2개만 캐시 폴백을 둡니다.
+  // 외부 요청은 서비스워커가 간섭하지 않습니다. 단, 앱이 직접 쓰는 CDN은 stale-while-revalidate로 캐시합니다.
   if(url.href === LUNAR_CDN || url.href === HTML2CANVAS_CDN || url.href === CONFETTI_CDN){
-    event.respondWith(
-      fetch(req).then(res=>{
-        const copy=res.clone();
-        caches.open(CACHE_NAME).then(cache=>cache.put(req, copy));
-        return res;
-      }).catch(()=>caches.match(req))
-    );
+    event.respondWith(staleWhileRevalidate(req, url.href));
     return;
   }
 
   if(url.origin !== self.location.origin) return;
 
-  // reset 파일은 항상 네트워크 우선으로 통과시킵니다.
   if(url.pathname.endsWith('/reset-sw.html') || url.pathname.endsWith('/version.txt')){
-    event.respondWith(fetch(req, {cache:'reload'}));
+    event.respondWith(fetch(req, {cache:'reload'}).catch(()=>offlineFallback()));
     return;
   }
 
-  // 페이지 진입은 항상 네트워크 최신본 우선.
   if(req.mode === 'navigate'){
     event.respondWith((async()=>{
       try{
         const res = await fetch(req, {cache:'reload'});
-        const copy = res.clone();
         const cache = await caches.open(CACHE_NAME);
-        await cache.put('./index.html', copy.clone());
-        await cache.put('./', copy.clone());
+        await safeCachePut(cache, './index.html', res);
+        await safeCachePut(cache, './', res);
         return res;
       }catch(e){
-        const cached = await caches.match('./index.html') || await caches.match('./');
-        return cached || new Response('offline', {status:503, statusText:'offline'});
+        return offlineFallback();
       }
     })());
     return;
   }
 
+  // 정적 파일은 캐시 먼저 응답하고, 백그라운드에서 최신본으로 갱신합니다.
   event.respondWith((async()=>{
-    const cached = await caches.match(req);
-    if(cached) return cached;
-    try{
-      const res = await fetch(req);
-      if(res && res.status === 200){
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then(cache=>cache.put(req, copy));
-      }
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(req);
+    const update = fetch(req).then(async res=>{
+      await safeCachePut(cache, req, res);
       return res;
-    }catch(e){
-      const cachedIndex = await caches.match('./index.html');
-      return cachedIndex || new Response('offline', {status:503, statusText:'offline'});
-    }
+    }).catch(()=>cached);
+    return cached || update || offlineFallback();
   })());
 });
-
 
 self.addEventListener('push', event => {
   let data = {};

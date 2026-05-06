@@ -9834,6 +9834,260 @@ select{
   }
 }
 
+
+/* v1.1.5 settings/security/stability final overrides */
+
+/* 상태 라벨 색상 분리 */
+.s-custom-0,
+.shift-one.s-custom-0,
+.multi-shift-option.s-custom-0,
+.shift-bulk-chip.s-custom-0,
+.selected-shift-chip.s-custom-0{background:var(--blue-bg)!important;color:var(--blue-t)!important;border:1px solid rgba(0,122,255,.16)!important;}
+.s-custom-1,
+.shift-one.s-custom-1,
+.multi-shift-option.s-custom-1,
+.shift-bulk-chip.s-custom-1,
+.selected-shift-chip.s-custom-1{background:#E6F8FF!important;color:#006A8E!important;border:1px solid rgba(0,183,194,.18)!important;}
+.s-custom-2,
+.shift-one.s-custom-2,
+.multi-shift-option.s-custom-2,
+.shift-bulk-chip.s-custom-2,
+.selected-shift-chip.s-custom-2{background:#EEF0FF!important;color:#2F3E9E!important;border:1px solid rgba(88,86,214,.18)!important;}
+.s-custom-3,
+.shift-one.s-custom-3,
+.multi-shift-option.s-custom-3,
+.shift-bulk-chip.s-custom-3,
+.selected-shift-chip.s-custom-3{background:#F2F2F7!important;color:#6B6B6F!important;border:1px solid #E5E5EA!important;}
+.s-custom-4,
+.shift-one.s-custom-4,
+.multi-shift-option.s-custom-4,
+.shift-bulk-chip.s-custom-4,
+.selected-shift-chip.s-custom-4{background:var(--pink-bg)!important;color:var(--pink-t)!important;border:1px solid rgba(255,45,85,.18)!important;}
+.s-custom-5,
+.shift-one.s-custom-5,
+.multi-shift-option.s-custom-5,
+.shift-bulk-chip.s-custom-5,
+.selected-shift-chip.s-custom-5{background:var(--orange-bg)!important;color:var(--orange-t)!important;border:1px solid rgba(255,149,0,.18)!important;}
+
+/* 기본값/미입력 상태 구분 */
+.multi-shift-option.none,
+.shift-bulk-chip.clear{
+  background:var(--bg)!important;
+  color:var(--t2)!important;
+  border:1px solid var(--border)!important;
+}
+.default-state-note.none{
+  background:var(--bg)!important;
+  color:var(--t3)!important;
+}
+
+/* 함께 쉬는 날 / 시간이 맞는 날 */
+.sync-off-banner.partial,
+.sync-off-detail-banner.partial{
+  background:#F1FAF5!important;
+  color:#1A7A36!important;
+  border-color:rgba(52,199,89,.18)!important;
+}
+
+/* 프로필 센터가 설정 홈, 관리 도구는 도구함처럼 보이게 */
+.profile-accordion{
+  margin-top:12px!important;
+}
+.profile-center-sheet .manage-accordion summary span{
+  letter-spacing:-.25px;
+}
+.profile-center-sheet .security-note{
+  margin-top:10px;
+}
+
+/* 접힘 요약 문구 */
+.schedule-collapsed-hint.warm-collapsed-hint{
+  text-align:left!important;
+  color:var(--t2)!important;
+  background:rgba(255,255,255,.72)!important;
+  border:1px solid rgba(0,0,0,.035)!important;
+}
+
+/* 5일 상태 위젯 힌트: 첫 3회만 JS에서 출력 */
+.multi-shift-calendar-icon{
+  position:relative;
+}
+.shift-swipe-hint{
+  position:absolute;
+  right:-5px;
+  bottom:-5px;
+  min-width:17px;
+  height:17px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:#fff;
+  color:var(--blue-t);
+  border:1px solid rgba(0,122,255,.18);
+  font-size:10px;
+  font-weight:950;
+  box-shadow:0 2px 6px rgba(15,23,42,.08);
+}
+.shift-swipe-hint-text{
+  grid-column:1 / -1;
+  margin:-1px 0 4px 44px;
+  color:var(--t3);
+  font-size:10.5px;
+  font-weight:850;
+  line-height:1;
+}
+
+/* 관리 도구 내부 버튼 정돈 */
+.manage-sheet .manage-grid-compact .toss-btn{
+  white-space:normal!important;
+  line-height:1.2!important;
+}
+
+/* 비공개 안내 */
+.security-note{
+  word-break:keep-all;
+}
+
+
+/* v1.1.6 dashboard routine brief polish */
+
+/* 일정/반복 요약은 다시 파란 알림 레이아웃으로 */
+.schedule-routine-brief-banner{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  box-shadow:0 6px 16px rgba(0,122,255,.10) !important;
+  border:1px solid rgba(0,122,255,.10) !important;
+  margin-top:8px !important;
+}
+
+/* 대시보드 내부 '오늘 일정 / 루틴' 헤더 제거 */
+.no-dashboard-title .merged-dashboard-head,
+.merged-dashboard-head.no-count-head{
+  display:none !important;
+}
+.no-dashboard-title{
+  padding-top:18px !important;
+}
+
+/* 빈 상태 설명은 한 줄로만 표시 */
+.brief-empty-state{
+  min-height:120px !important;
+  padding:18px 14px !important;
+}
+.brief-empty-sub,
+.empty-sub{
+  max-width:100% !important;
+  width:100% !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  line-height:1.35 !important;
+  min-height:auto !important;
+}
+.brief-empty-title,
+.empty-title{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+/* 오늘 반복: 2열 카드형 복귀, 캐릭터 중앙 정렬 */
+.merged-routine-wrap:not(.merged-schedule-wrap){
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:start !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-group{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:8px !important;
+  background:#F4F4F6 !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  border-radius:18px !important;
+  padding:16px 12px !important;
+  min-width:0 !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-head{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  width:100% !important;
+  margin:0 !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-avatar{
+  width:38px !important;
+  height:38px !important;
+  flex:0 0 38px !important;
+  margin:0 auto !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-avatar .avatar-img{
+  width:38px !important;
+  height:38px !important;
+  object-fit:contain !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-person.under-avatar{
+  display:none !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-box{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-row{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  gap:8px !important;
+  align-items:center !important;
+  width:100% !important;
+  padding:9px 4px !important;
+  border-bottom:1px solid rgba(0,0,0,.055) !important;
+  min-height:auto !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-row:last-child{
+  border-bottom:none !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-title{
+  font-size:13px !important;
+  font-weight:900 !important;
+  color:#333D4B !important;
+  letter-spacing:-.25px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:left !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-time{
+  font-size:11.5px !important;
+  font-weight:850 !important;
+  color:#8B95A1 !important;
+  white-space:nowrap !important;
+  text-align:right !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+}
+
+/* 오늘 일정도 파란 캡슐 노이즈 제거 상태 유지 */
+.merged-schedule-box{
+  background:transparent !important;
+  border:none !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+
+/* 아주 좁은 화면에서만 1열로 안전 복귀 */
+@media (max-width:360px){
+  .merged-routine-wrap:not(.merged-schedule-wrap){
+    grid-template-columns:1fr !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -9892,19 +10146,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.1.4';
-const PASS_BUILD_VERSION='v1.1.4-resident-shift-dashboard-layout';
+const APP_VERSION='v1.1.6';
+const PASS_BUILD_VERSION='v1.1.6-dashboard-routine-brief-polish';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '상주 근무 기본값/예외만 기록 기능 추가',
-  '상주 기본 상태 숨김 옵션 추가',
-  '사람별 상태 라벨 세트 추가',
-  '함께 쉬는 날 상세 배너 추가',
-  '달력 검색창 제거',
-  '일정 탭 5일 상태 위젯 좌우 화살표 제거',
-  '5일 상태 위젯 폭을 탭 영역과 맞춤',
-  '5일 상태 위젯 왼쪽 달력 아이콘 추가',
-  '등록 일정/지나간 일정 리스트 폭 정렬'
+  '오늘 일정 대시보드 헤더 라벨 제거',
+  '일정/반복 요약을 파란 알림 배너로 분리',
+  '근무/할일 브리핑과 일정/반복 브리핑 순서 정리',
+  '빈 상태 설명 한 줄 처리',
+  '오늘 반복 대시보드 2열 카드형 복귀',
+  '반복 카드 캐릭터 중앙 정렬 및 제목/시간 하단 배치'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -9954,12 +10205,17 @@ function openSecurityGuide(){
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">보안 안내</div>
-      <div style="font-size:13px;color:var(--t2);line-height:1.55">
-        현재 보기/편집 모드는 앱 안에서 실수 수정을 막는 장치입니다.<br><br>
-        Firebase 규칙이 <b>allow read, write: if true</b>이면 링크를 아는 사람은 직접 데이터에 접근할 수 있어요.<br><br>
-        더 강한 보안은 Firebase Authentication 또는 서버 권한 설정이 필요합니다.
+      <div class="security-note">
+        Firebase 웹 API 키는 정적 웹앱에서 완전히 숨기는 값이 아닙니다. 실제 방어선은 Firestore 보안 규칙과 허용 도메인 제한입니다.
       </div>
-      <button class="cancel-link" onclick="closeM()">닫기</button>
+      <div style="font-size:13px;color:var(--t2);line-height:1.55;margin-top:12px">
+        권장 보완:<br>
+        1. Firebase Console에서 Firestore Rules를 가족 방/인증 기준으로 제한<br>
+        2. Google Cloud Console에서 API 키의 HTTP 참조자 제한 설정<br>
+        3. 공개 GitHub Pages 저장소에는 테스트용 규칙을 오래 두지 않기<br><br>
+        현재 앱의 비공개 일정은 <b>화면 표시를 숨기는 기능</b>입니다. 공유 방 데이터 자체를 암호화하는 기능은 아니에요.
+      </div>
+      <button class="cancel-link" onclick="openManageCenter()">돌아가기</button>
     </div>
   </div>`;
 }
@@ -10032,6 +10288,8 @@ let _mType='family', _mWho='공통';
 const DAYS=['일','월','화','수','목','금','토'];
 const SHIFTS=['D','E','N','OFF'];
 const DEFAULT_SHIFT_LABELS=['D','E','N','OFF','연차','반차'];
+const SHIFT_NONE='__NONE__';
+const SHIFT_DEFAULT='__DEFAULT__';
 const SCLS={D:'s-d',E:'s-e',N:'s-n',OFF:'s-off'};
 const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳','💍','🏥','✈️','🏡','🍀','☕','📌'];
 
@@ -10273,7 +10531,9 @@ function openShiftPicker(dateKey){
       <div class="multi-shift-list">
         ${shiftUsers.map(user=>{
           const cur=shiftStatusFor(dateKey,user);
-          const explicit=shiftExplicitStatusFor(dateKey,user);
+          const raw=shiftExplicitStatusFor(dateKey,user);
+          const explicit=raw && !isShiftNoneValue(raw);
+          const noneToday=isShiftNoneValue(raw);
           const defaultOnly=isShiftDefaultOnly(dateKey,user,cur);
           const p=(family||[]).find(f=>(f.name||'')===user);
           const labels=shiftPersonLabelList(user);
@@ -10281,11 +10541,12 @@ function openShiftPicker(dateKey){
             <div class="multi-shift-person-head">
               <span class="multi-shift-avatar">${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}</span>
               <b>${escapeHtml(user)}</b>
-              ${defaultOnly?`<span class="default-state-note">기본 ${escapeHtml(cur)}</span>`:''}
+              ${noneToday?`<span class="default-state-note none">오늘만 미입력</span>`:(defaultOnly?`<span class="default-state-note">기본 ${escapeHtml(cur)}</span>`:'')}
             </div>
             <div class="multi-shift-options">
-              ${labels.map(label=>`<button class="multi-shift-option ${cur===label?'on':''} ${shiftBadgeClass(label)}" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},${onclickArg(label)},true)">${escapeHtml(label)}</button>`).join('')}
-              <button class="multi-shift-option clear" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},'',true)">${explicit?'비우기':'예외 없음'}</button>
+              ${labels.map(label=>`<button class="multi-shift-option ${cur===label&&!noneToday?'on':''} ${shiftBadgeClass(label)}" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},${onclickArg(label)},true)">${escapeHtml(label)}</button>`).join('')}
+              <button class="multi-shift-option clear" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},SHIFT_DEFAULT,true)">기본값으로</button>
+              <button class="multi-shift-option none" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},SHIFT_NONE,true)">오늘만 미입력</button>
             </div>
           </div>`;
         }).join('')}
@@ -10942,8 +11203,69 @@ function renderShiftPersonLabelSettings(){
   }).join('')}</div>`;
 }
 function syncOffInfo(dateKey){
-  const rows=shiftStatusesForDate(dateKey,{includeHidden:true}).filter(x=>isRestShiftStatus(x.status));
-  return rows.length>=2?rows:[];
+  const rows=shiftStatusesForDate(dateKey,{includeHidden:true}).filter(x=>x.effective && (isFullRestShiftStatus(x.effective)||isPartialRestShiftStatus(x.effective)));
+  const full=rows.filter(x=>isFullRestShiftStatus(x.effective));
+  const partial=rows.filter(x=>isPartialRestShiftStatus(x.effective));
+  if(full.length>=2)return {type:'full',rows:full};
+  if(full.length>=1 && partial.length>=1)return {type:'partial',rows:[...full,...partial]};
+  if(partial.length>=2)return {type:'partial',rows:partial};
+  return {type:'',rows:[]};
+}
+
+
+function shiftLabelColorIndex(status){
+  const s=String(status||'').trim();
+  if(!s)return 0;
+  const known=['D','E','N','OFF','연차','반차','휴무','주간','야근','재택','출장'];
+  const idx=known.indexOf(s);
+  if(idx>=0)return idx%6;
+  let h=0;
+  for(const ch of s)h=(h*31+ch.charCodeAt(0))%997;
+  return h%6;
+}
+function isShiftNoneValue(v){
+  return String(v||'')===SHIFT_NONE;
+}
+function shiftSwipeHintInfo(){
+  let count=0;
+  try{count=Number(localStorage.getItem('pass_shift_swipe_hint_count')||'0')}catch(e){count=0}
+  const show=count<3;
+  if(show){
+    try{localStorage.setItem('pass_shift_swipe_hint_count',String(count+1))}catch(e){}
+  }
+  return show;
+}
+function isFullRestShiftStatus(status){
+  const s=String(status||'').trim().toUpperCase();
+  if(!s)return false;
+  return s==='OFF' || s==='O' || s.includes('휴') || s.includes('연차');
+}
+function isPartialRestShiftStatus(status){
+  const s=String(status||'').trim();
+  if(!s)return false;
+  return s.includes('반차') || s.includes('조퇴') || s.includes('재택');
+}
+function syncOffInfo(dateKey){
+  const rows=shiftStatusesForDate(dateKey,{includeHidden:true}).filter(x=>x.effective && (isFullRestShiftStatus(x.effective)||isPartialRestShiftStatus(x.effective)));
+  const full=rows.filter(x=>isFullRestShiftStatus(x.effective));
+  const partial=rows.filter(x=>isPartialRestShiftStatus(x.effective));
+  if(full.length>=2)return {type:'full',rows:full};
+  if(full.length>=1 && partial.length>=1)return {type:'partial',rows:[...full,...partial]};
+  if(partial.length>=2)return {type:'partial',rows:partial};
+  return {type:'',rows:[]};
+}
+function syncOffBannerLabel(info){
+  if(!info || !info.rows || !info.rows.length)return '';
+  return info.type==='full'?'함께 쉬는 날이에요':'시간이 맞는 날이에요';
+}
+function scheduleCollapsedSummary(list, count, type='active'){
+  if(count<=0){
+    return type==='done'?'최근 지나간 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
+  }
+  const first=(list||[]).find(x=>x&&x.title);
+  if(type==='done')return `최근 완료한 일정 ${count}개가 접혀 있어요.`;
+  const title=first?(first.title||'일정'):'일정';
+  return `${title}${count>1?` 외 ${count-1}개`:''}가 접혀 있어요.`;
 }
 
 function normalizeShiftUsers(){
@@ -10984,6 +11306,7 @@ function migrateShiftDataToMulti(){
 }
 function shiftStatusFor(dateKey,user){
   const explicit=shiftExplicitStatusFor(dateKey,user);
+  if(isShiftNoneValue(explicit))return '';
   if(explicit)return explicit;
   return shiftDefaultStatusFor(dateKey,user);
 }
@@ -10999,7 +11322,9 @@ function shiftHasAny(dateKey){
   return shiftStatusesForDate(dateKey).some(x=>x.status);
 }
 function shiftBadgeClass(status){
-  return SCLS[status]||'s-custom';
+  const s=String(status||'').trim();
+  if(SCLS[s])return SCLS[s];
+  return `s-custom s-custom-${shiftLabelColorIndex(s)}`;
 }
 function shiftStatusText(status){
   return STXT[status]||status||'미입력';
@@ -11013,12 +11338,16 @@ function setShiftStatus(dateKey,user,status,refreshPicker=false){
   if(!requireEditMode())return;
   if(!dateKey||!user)return;
   if(!shiftData[dateKey]||typeof shiftData[dateKey]==='string')shiftData[dateKey]={};
-  if(status){
+  if(status===SHIFT_DEFAULT){
+    delete shiftData[dateKey][user];
+  }else if(status===SHIFT_NONE){
+    shiftData[dateKey][user]=SHIFT_NONE;
+  }else if(status){
     shiftData[dateKey][user]=status;
   }else{
     delete shiftData[dateKey][user];
-    if(!Object.keys(shiftData[dateKey]).length)delete shiftData[dateKey];
   }
+  if(!Object.keys(shiftData[dateKey]).length)delete shiftData[dateKey];
   saveShiftOnly(dateKey,status||'');
   render({preserveScroll:true});
   if(refreshPicker)openShiftPicker(dateKey);
@@ -11062,7 +11391,7 @@ function isRestShiftStatus(status){
   return s==='OFF' || s==='O' || s.includes('휴') || s.includes('연차') || s.includes('반차');
 }
 function isSyncOffDay(dateKey){
-  return syncOffInfo(dateKey).length>=2;
+  return !!syncOffInfo(dateKey).type;
 }
 
 function renderCalendarShiftBadges(dateKey){
@@ -11076,7 +11405,7 @@ function renderSelectedDayShiftChips(dateKey){
   normalizeShiftUsers();
   if(!shiftUsers.length)return '';
   const sync=syncOffInfo(dateKey);
-  const syncHtml=sync.length?`<div class="sync-off-detail-banner">🎉 함께 쉬는 날 · ${sync.map(x=>`${escapeHtml(x.user)} ${escapeHtml(x.effective||x.status)}`).join(' · ')}</div>`:'';
+  const syncHtml=sync.type?`<div class="sync-off-detail-banner ${sync.type==='partial'?'partial':''}">${sync.type==='full'?'🎉':'🌿'} ${escapeHtml(syncOffBannerLabel(sync))} · ${sync.rows.map(x=>`${escapeHtml(x.user)} ${escapeHtml(x.effective||x.status)}`).join(' · ')}</div>`:'';
   const chips=`<div class="selected-shift-chip-row">${shiftUsers.map(user=>{
     const status=shiftDisplayStatusFor(dateKey,user);
     return `<button class="sec-chip-btn selected-shift-chip ${status?shiftBadgeClass(status):'empty'}" onclick="openShiftPicker('${dateKey}')">${escapeHtml(user)}${status?`: ${escapeHtml(status)}`:' 상태'}</button>`;
@@ -11756,7 +12085,7 @@ function openSwipeReqActions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(r.title||'부탁')}</div>
+      <div class="modal-hd">${escapeHtml(r.title||'할일')}</div>
       <div class="action-grid request-swipe-action-grid">
         <button class="toss-btn primary" onclick="openEditReq('${id}')">수정</button>
         <button class="toss-btn danger" onclick="delReq('${id}');closeM()">삭제</button>
@@ -11969,13 +12298,34 @@ function openProfileCenter(){
       </div>
       ${renderProfileFamilyRows()}
 
+      <details class="manage-accordion profile-accordion" open>
+        <summary><span>🏷️ 상태 위젯 설정</span><em>가족별 상태</em></summary>
+        <div class="manage-panel" style="padding-top:8px;">
+          <div class="manage-section-title" style="margin-top:0;">상태 위젯 대상자</div>
+          ${renderShiftUserSelector()}
+          <div class="manage-section-title" style="margin-top:16px;">사람별 상태 라벨 세트</div>
+          ${renderShiftPersonLabelSettings()}
+          <div class="manage-section-title" style="margin-top:16px;">상주 근무 기본값 / 예외만 기록</div>
+          ${renderShiftDefaultSettings()}
+        </div>
+      </details>
+
+      <details class="manage-accordion profile-accordion">
+        <summary><span>🔔 알림 설정</span><em>푸시와 비공개</em></summary>
+        <div class="manage-panel">
+          <div class="profile-quick-grid">
+            <button class="toss-btn" onclick="openNotificationGuide()">알림 설정</button>
+            <button class="toss-btn" onclick="togglePrivateView()">${isPrivateVisible()?'비공개 숨김':'비공개 보기'}</button>
+          </div>
+          <div class="security-note">비공개 일정은 화면에서 숨기는 기능입니다. 공유 방 데이터 자체를 암호화하지는 않아요.</div>
+        </div>
+      </details>
+
       <div class="profile-quick-grid">
         <button class="toss-btn" onclick="copyShareLink()">공유 링크 복사</button>
         <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
-        <button class="toss-btn" onclick="togglePrivateView()">${isPrivateVisible()?'비공개 숨김':'비공개 보기'}</button>
-        <button class="toss-btn" onclick="openNotificationGuide()">알림 설정</button>
-        <button class="toss-btn primary" onclick="openManageCenter()">관리 센터</button>
+        <button class="toss-btn primary" onclick="openManageCenter()">관리 도구</button>
       </div>
 
       <div class="sync-pill" id="sync-status" style="margin:10px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
@@ -11985,12 +12335,11 @@ function openProfileCenter(){
 }
 
 function openManageCenter(){
-  const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet manage-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">관리 센터</div>
+      <div class="modal-hd">관리 도구</div>
 
       <div class="version-card manage-version-card">
         <div>
@@ -12009,67 +12358,8 @@ function openManageCenter(){
         </select>
       </div>
 
-      <div class="manage-quick-grid">
-        <button class="toss-btn primary" onclick="openNoticeModal()">공지 추가</button>
-        <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
-      </div>
-
-
       <details class="manage-accordion" open>
-        <summary><span>🏷️ 상태 위젯 설정</span><em>위젯 대상 및 커스텀 라벨</em></summary>
-        <div class="manage-panel" style="padding-top:8px;">
-          <div class="manage-section-title" style="margin-top:0;">위젯에 표시할 가족 (여러 명 선택 가능)</div>
-          ${renderShiftUserSelector()}
-          <div class="manage-section-title" style="margin-top:16px;">공통 상태 라벨</div>
-          ${renderShiftLabelInputs()}
-          <div class="manage-section-title" style="margin-top:16px;">상주 근무 기본값 / 예외만 기록</div>
-          ${renderShiftDefaultSettings()}
-          <div class="manage-section-title" style="margin-top:16px;">사람별 상태 라벨 세트</div>
-          ${renderShiftPersonLabelSettings()}
-        </div>
-      </details>
-
-      <details class="manage-accordion manage-share-accordion" open>
-        <summary><span>공유</span><em>가족 초대와 QR</em></summary>
-        <div class="manage-panel">
-          <div class="share-banner compact-share-banner" style="margin:0">
-            <div><div class="share-txt">📎 가족 공유 링크</div><div class="share-sub">${shareUrl}</div></div>
-            <button class="share-btn" onclick="copyShareLink()">복사</button>
-          </div>
-          <div class="sync-pill" id="sync-status" style="margin:8px 0 0">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
-          <div class="manage-grid manage-grid-compact">
-            <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
-          </div>
-        </div>
-      </details>
-
-      <details class="manage-accordion" open>
-        <summary><span>공휴일</span><em>달력 표시 기준</em></summary>
-        <div class="manage-panel">
-          <div class="manage-grid manage-grid-compact">
-            <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
-            <button class="toss-btn" onclick="syncHolidayYear(calY)">공휴일 갱신</button>
-            <button class="toss-btn" onclick="openHolidaySyncGuide()">공휴일 API 안내</button>
-          </div>
-        </div>
-      </details>
-
-      <details class="manage-accordion">
-        <summary><span>⚙️ 시스템 및 데이터</span><em>위험/신중</em></summary>
-        <div class="manage-panel">
-          <div class="manage-grid manage-grid-compact">
-            <button class="toss-btn" onclick="repairData()">데이터 점검</button>
-            <button class="toss-btn" onclick="clearShiftData()">근무표 전체 초기화</button>
-            <button class="toss-btn" onclick="prunePastShiftData()">과거 근무 정리</button>
-            <button class="toss-btn" onclick="openTrash()">휴지통</button>
-            <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
-            <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
-          </div>
-        </div>
-      </details>
-
-      <details class="manage-accordion">
-        <summary><span>💾 백업 및 내보내기</span><em>보관</em></summary>
+        <summary><span>💾 백업 및 복구</span><em>보관</em></summary>
         <div class="manage-panel">
           <div class="manage-grid manage-grid-compact">
             <button class="toss-btn primary" onclick="downloadBackup()">백업 저장</button>
@@ -12081,8 +12371,33 @@ function openManageCenter(){
         </div>
       </details>
 
+      <details class="manage-accordion" open>
+        <summary><span>🧰 데이터 점검</span><em>정리와 캐시</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="repairData()">데이터 점검</button>
+            <button class="toss-btn" onclick="clearShiftData()">상태표 전체 초기화</button>
+            <button class="toss-btn" onclick="prunePastShiftData()">과거 상태 정리</button>
+            <button class="toss-btn" onclick="openTrash()">휴지통</button>
+            <button class="toss-btn" onclick="openDiagnostics()">앱 진단</button>
+            <button class="toss-btn" onclick="clearAppCache()">캐시 초기화</button>
+          </div>
+        </div>
+      </details>
+
       <details class="manage-accordion">
-        <summary><span>ℹ️ 앱 정보</span><em>기록과 안내</em></summary>
+        <summary><span>공휴일</span><em>달력 표시 기준</em></summary>
+        <div class="manage-panel">
+          <div class="manage-grid manage-grid-compact">
+            <button class="toss-btn" onclick="openHolidayManager()">공휴일 관리</button>
+            <button class="toss-btn" onclick="syncHolidayYear(calY)">공휴일 갱신</button>
+            <button class="toss-btn" onclick="openHolidaySyncGuide()">공휴일 API 안내</button>
+          </div>
+        </div>
+      </details>
+
+      <details class="manage-accordion">
+        <summary><span>ℹ️ 앱 정보와 보안</span><em>기록과 안내</em></summary>
         <div class="manage-panel">
           <div class="manage-grid manage-grid-compact">
             <button class="toss-btn" onclick="openUpdateLog()">업데이트 내역</button>
@@ -12092,6 +12407,7 @@ function openManageCenter(){
         </div>
       </details>
 
+      <button class="cancel-link" onclick="openProfileCenter()">가족과 설정으로 돌아가기</button>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
   </div>`;
@@ -12363,26 +12679,26 @@ const EMPTY_ROUTINE_VARIANTS=[
   {emoji:'🥛', title:'루틴이 없어요', sub:'부드러운 템포의 하루예요.'}
 ];
 const EMPTY_REQUEST_VARIANTS=[
-  {emoji:'📭', title:'부탁할 일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
-  {emoji:'🧺', title:'부탁할 일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어요.'},
-  {emoji:'☕', title:'부탁할 일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
-  {emoji:'🌿', title:'부탁할 일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
-  {emoji:'🫖', title:'부탁할 일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
-  {emoji:'🍪', title:'부탁할 일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
-  {emoji:'🕊️', title:'부탁할 일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
-  {emoji:'🏡', title:'부탁할 일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
-  {emoji:'🧡', title:'부탁할 일이 없어요', sub:'부탁 대신 미소를 나누기 좋은 날이에요.'},
-  {emoji:'🎈', title:'부탁할 일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
-  {emoji:'📚', title:'부탁할 일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
-  {emoji:'🌤️', title:'부탁할 일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
-  {emoji:'🛋️', title:'부탁할 일이 없어요', sub:'소파에 기대듯 편안히 쉬어보세요.'},
-  {emoji:'🍵', title:'부탁할 일이 없어요', sub:'한숨 돌리기에 딱 좋은 타이밍이에요.'},
-  {emoji:'🌈', title:'부탁할 일이 없어요', sub:'기분 좋은 여백이 생겼어요.'},
-  {emoji:'🪴', title:'부탁할 일이 없어요', sub:'작은 화분처럼 천천히 쉬어가요.'},
-  {emoji:'🧁', title:'부탁할 일이 없어요', sub:'달콤한 여유가 놓여 있어요.'},
-  {emoji:'🧸', title:'부탁할 일이 없어요', sub:'포근하게 마음을 풀어놓기 좋아요.'},
-  {emoji:'🐻', title:'부탁할 일이 없어요', sub:'느긋하고 포근한 하루를 보내요.'},
-  {emoji:'🌙', title:'부탁할 일이 없어요', sub:'차분하게 숨 고르기 좋은 시간이에요.'}
+  {emoji:'📭', title:'등록된 할일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
+  {emoji:'🧺', title:'등록된 할일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어요.'},
+  {emoji:'☕', title:'등록된 할일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
+  {emoji:'🌿', title:'등록된 할일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
+  {emoji:'🫖', title:'등록된 할일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
+  {emoji:'🍪', title:'등록된 할일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
+  {emoji:'🕊️', title:'등록된 할일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
+  {emoji:'🏡', title:'등록된 할일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
+  {emoji:'🧡', title:'등록된 할일이 없어요', sub:'부탁 대신 미소를 나누기 좋은 날이에요.'},
+  {emoji:'🎈', title:'등록된 할일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
+  {emoji:'📚', title:'등록된 할일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
+  {emoji:'🌤️', title:'등록된 할일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
+  {emoji:'🛋️', title:'등록된 할일이 없어요', sub:'소파에 기대듯 편안히 쉬어보세요.'},
+  {emoji:'🍵', title:'등록된 할일이 없어요', sub:'한숨 돌리기에 딱 좋은 타이밍이에요.'},
+  {emoji:'🌈', title:'등록된 할일이 없어요', sub:'기분 좋은 여백이 생겼어요.'},
+  {emoji:'🪴', title:'등록된 할일이 없어요', sub:'작은 화분처럼 천천히 쉬어가요.'},
+  {emoji:'🧁', title:'등록된 할일이 없어요', sub:'달콤한 여유가 놓여 있어요.'},
+  {emoji:'🧸', title:'등록된 할일이 없어요', sub:'포근하게 마음을 풀어놓기 좋아요.'},
+  {emoji:'🐻', title:'등록된 할일이 없어요', sub:'느긋하고 포근한 하루를 보내요.'},
+  {emoji:'🌙', title:'등록된 할일이 없어요', sub:'차분하게 숨 고르기 좋은 시간이에요.'}
 ];
 let EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
 let EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
@@ -12578,7 +12894,7 @@ function renderFab(){
     return `<button class="fab-add smart-fab" onclick="openRoutineFabSheet()" aria-label="루틴 추가">+</button>`;
   }
   if(main==='r'){
-    return `<button class="fab-add smart-fab" onclick="openReqModal()" aria-label="부탁 추가">+</button>`;
+    return `<button class="fab-add smart-fab" onclick="openReqModal()" aria-label="할일 추가">+</button>`;
   }
   if(main==='m'){
     return `<button class="fab-add smart-fab" onclick="openMemoryModal()" aria-label="기념일 추가">+</button>`;
@@ -12618,13 +12934,14 @@ function renderS(){
   doneFilt=scheduleListSort(doneFilt);
 
   const activeCount=active.length+missed.length;
+  const activeAll=[...missed,...active];
   const activeCards = activeOpen
     ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,missed,'등록 일정이 없어요')}</div>`
-    : `<div class="schedule-collapsed-hint warm-collapsed-hint">오늘의 일정 목록을 잠시 접어뒀어요. 펼치면 남은 일정을 한눈에 볼 수 있어요.</div>`;
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint">${escapeHtml(scheduleCollapsedSummary(activeAll,activeCount,'active'))}</div>`;
 
   const doneCards = doneOpen
     ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(doneFilt,[],'지나간 일정이 없어요',{done:true})}</div>`
-    : '';
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint">${escapeHtml(scheduleCollapsedSummary(doneFilt,doneFilt.length,'done'))}</div>`;
 
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
@@ -13311,11 +13628,11 @@ function toggleReq(id){
 }
 function delReq(id){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 부탁 항목을 삭제할까요?'))return;
+  if(!confirmDelete('이 할일 항목을 삭제할까요?'))return;
   const idx=requests.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
-    addChangeLog(`부탁 삭제: ${requests[idx].title||'부탁'}`);
-    softDelete('request',requests,idx,'부탁을');
+    addChangeLog(`할일 삭제: ${requests[idx].title||'할일'}`);
+    softDelete('request',requests,idx,'할일을');
   }
 }
 
@@ -13377,9 +13694,9 @@ function openReqModal(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${r?'부탁 수정':'부탁 추가'}</div>
-      <div class="ml">부탁할 일</div>
-      <input class="mi" id="rq-ti" placeholder="예: 준비물 챙겨줘, 학원 데려다줘" value="${r?escapeAttr(r.title):''}"/>
+      <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
+      <div class="ml">할일 내용</div>
+      <input class="mi" id="rq-ti" placeholder="예: 우유 사기, 분리수거, 학원비 결제" value="${r?escapeAttr(r.title):''}"/>
       <div class="ml">작성자</div>
       <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
       <div class="request-writer-tabs">
@@ -13387,7 +13704,7 @@ function openReqModal(id){
         <button type="button" class="rq-writer-btn${selectedWriter==='__direct'?' on':''}" data-writer="__direct" onclick="selectReqWriter('__direct')">직접 입력</button>
       </div>
       <input class="mi rq-writer-direct" id="rq-wr" placeholder="직접 작성자 입력" value="${directMode?escapeAttr(writer):''}" style="display:${selectedWriter==='__direct'?'block':'none'}"/>
-      <div class="request-writer-help">기본 정보에서 ‘부탁 표시’를 켠 대상만 작성자 선택에 표시돼요.</div>
+      <div class="request-writer-help">프로필 센터에 등록된 가족을 작성자로 선택할 수 있어요.</div>
       <div class="ml">요청 일자</div>
       <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
       <div class="ml">마감</div>
@@ -13421,11 +13738,11 @@ function saveReq(id){
     const oldTitle=r.title;
     r.title=title.trim(); r.writer=writer; r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
-    addChangeLog(`부탁 수정: ${oldTitle||r.title} → ${r.title}`);
+    addChangeLog(`할일 수정: ${oldTitle||r.title} → ${r.title}`);
   }else{
     r={id:Date.now(),title:title.trim(),writer,requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
     requests.push(r);
-    addChangeLog(`부탁 추가: ${r.title}`);
+    addChangeLog(`할일 추가: ${r.title}`);
   }
   saveRequestOnly(r);closeM();render({preserveScroll:true});
 }
@@ -13671,7 +13988,7 @@ function trashItem(kind,item){
   deletedItems.push({id:Date.now()+Math.random(),kind,item:deepCopy(item),deletedAt:Date.now()});
 }
 function trashKindName(k){
-  return k==='note'?'일정':k==='request'?'부탁':k==='memory'?'기념':k==='kid'?'아이정보':'항목';
+  return k==='note'?'일정':k==='request'?'할일':k==='memory'?'기념':k==='kid'?'아이정보':'항목';
 }
 function trashTitle(x){
   const it=x.item||{};
@@ -14004,17 +14321,22 @@ function applyBulkShift(t){
   }
   normalizeShiftUsers();
   const user=shiftBulkUser || firstShiftUser();
-  const label=t||'미입력';
+  const label=t===SHIFT_DEFAULT?'기본값으로':(t===SHIFT_NONE?'오늘만 미입력':(t||'미입력'));
   if(!confirm(`${escapeHtml(user)}의 선택 날짜 ${shiftSelectedDates.length}개를 ${label}(으)로 변경할까요?`))return;
   autoBackupBefore('상태 일괄 입력 전');
 
   shiftSelectedDates.forEach(k=>{
     if(!shiftData[k]||typeof shiftData[k]==='string')shiftData[k]={};
-    if(t)shiftData[k][user]=t;
-    else{
+    if(t===SHIFT_DEFAULT){
       delete shiftData[k][user];
-      if(!Object.keys(shiftData[k]).length)delete shiftData[k];
+    }else if(t===SHIFT_NONE){
+      shiftData[k][user]=SHIFT_NONE;
+    }else if(t){
+      shiftData[k][user]=t;
+    }else{
+      delete shiftData[k][user];
     }
+    if(shiftData[k] && !Object.keys(shiftData[k]).length)delete shiftData[k];
   });
 
   saveAll();
@@ -14037,7 +14359,8 @@ function renderShiftBulkBar(){
         ${shiftUsers.map(u=>`<option value="${escapeAttr(u)}" ${shiftBulkUser===u?'selected':''}>${escapeHtml(u)}</option>`).join('')}
       </select>
       ${labels.map(s=>`<button class="shift-bulk-chip ${shiftBadgeClass(s)}" onclick="applyBulkShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
-      <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
+      <button class="shift-bulk-chip clear" onclick="applyBulkShift(SHIFT_DEFAULT)">기본값</button>
+      <button class="shift-bulk-chip clear" onclick="applyBulkShift(SHIFT_NONE)">미입력</button>
       <button class="shift-bulk-chip clear" onclick="toggleShiftSelectMode()">취소</button>
     </div>
   </div>`;
@@ -14145,26 +14468,39 @@ function onWidgetClick(el){
 function renderNoticeBanner(){
   if(main!=='s')return '';
   const base=scheduleBaseKey ? scheduleBaseKey() : todayKey();
-  const td=notes.filter(n=>!isDone(n)&&occursOn(n,base));
+  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,base));
+  const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,base));
+  const routineToday=[...familyInfoEventsForKey(base),...noteRoutineToday];
   const req=requests.filter(r=>!isDone(r));
   const due=dueRequestsForDate(base);
   const sync=syncOffInfo(base);
-  const lines=[];
-  if(sync.length){
-    lines.push(`함께 쉬는 날이에요 · ${sync.map(x=>`${x.user} ${x.effective||x.status}`).join(' · ')}`);
+
+  const workTodoLines=[];
+  if(sync.type){
+    workTodoLines.push(`${syncOffBannerLabel(sync)} · ${sync.rows.map(x=>`${x.user} ${x.effective||x.status}`).join(' · ')}`);
   }else{
     const shiftLines=shiftStatusesForDate(base,{includeHidden:true}).filter(x=>x.effective).slice(0,2).map(x=>{
       const text=shiftStatusForBrief(x.effective);
       return `${x.user}는 오늘 ${text}예요`;
     });
-    lines.push(...shiftLines);
+    workTodoLines.push(...shiftLines);
   }
-  if(td.length)lines.push(`오늘 일정 ${td.length}개가 있어요`);
-  if(due.length)lines.push(`오늘 마감 할일 ${due.length}개를 확인해 주세요`);
-  else if(req.length)lines.push(`할일 ${req.length}개가 남아 있어요`);
-  if(!lines.length)return '';
+  if(due.length)workTodoLines.push(`오늘 마감 할일 ${due.length}개를 확인해 주세요`);
+  else if(req.length)workTodoLines.push(`할일 ${req.length}개가 남아 있어요`);
+
   const canGo=req.length>0||due.length>0;
-  return `<div class="notice-banner smart-brief-banner ${sync.length?'sync-off-banner':''}" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>${sync.length?'🎉':'🌤️'} ${escapeHtml(lines.slice(0,2).join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`;
+  const workTodoBanner=workTodoLines.length
+    ? `<div class="notice-banner smart-brief-banner ${sync.type?'sync-off-banner':''} ${sync.type==='partial'?'partial':''}" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>${sync.type==='full'?'🎉':(sync.type==='partial'?'🌿':'🌤️')} ${escapeHtml(workTodoLines.slice(0,2).join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`
+    : '';
+
+  const summaryParts=[];
+  if(normalToday.length)summaryParts.push(`일정 ${normalToday.length}개`);
+  if(routineToday.length)summaryParts.push(`반복 ${routineToday.length}개`);
+  const scheduleBanner=summaryParts.length
+    ? `<div class="notice-banner schedule-routine-brief-banner" onclick="document.getElementById('today-briefing-capture')?.scrollIntoView({behavior:'smooth',block:'center'})" style="cursor:pointer" role="button">🔔 ${escapeHtml(summaryParts.join(' · '))} 확인해 주세요 <span class="notice-go">›</span></div>`
+    : '';
+
+  return workTodoBanner+scheduleBanner;
 }
 
 
@@ -14288,18 +14624,20 @@ function renderShiftWidget(){
   if(!shiftUsers.length)return '';
   const base=scheduleBaseKey();
   const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
+  const showHint=shiftSwipeHintInfo();
   return `<div class="shift-widget-shell multi-shift-widget-shell no-nav-shift-widget"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
     <div class="multi-shift-widget">
       <div class="multi-shift-date-row">
-        <div class="multi-shift-calendar-icon" onclick="event.stopPropagation();setMain('c')" title="달력 보기">📅</div>
+        <div class="multi-shift-calendar-icon" onclick="event.stopPropagation();setMain('c')" title="달력 보기">📅${showHint?`<span class="shift-swipe-hint">↔</span>`:''}</div>
         ${keys.map((k,i)=>{
           const [yy,mm,dd]=k.split('-').map(Number);
           const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
           return `<div class="multi-shift-date ${i===2?'today':''}" onclick="event.stopPropagation();moveScheduleBase(${i-2})">${mm}/${dd}<br><span>(${dow})</span></div>`;
         }).join('')}
       </div>
+      ${showHint?`<div class="shift-swipe-hint-text">좌우로 밀어 날짜 이동</div>`:''}
       ${shiftUsers.map(user=>{
         const p=(family||[]).find(f=>(f.name||'')===user);
         return `<div class="multi-shift-user-row">
@@ -14436,7 +14774,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     if(pa!==pb)return pa-pb;
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
     if(ta!==tb)return ta.localeCompare(tb);
-    return String(a.title||'').localeCompare(String(b.title||''));
+    return String(a.title||'').localeCompare(String(b.title||''),'ko');
   });
 
   routines.sort((a,b)=>{
@@ -14444,12 +14782,10 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     if(pa!==pb)return pa-pb;
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
     if(ta!==tb)return ta.localeCompare(tb);
-    return String(a.title||'').localeCompare(String(b.title||''));
+    return String(a.title||'').localeCompare(String(b.title||''),'ko');
   });
 
   const baseKey=scheduleBaseKey();
-  const [yy,mm,dd]=baseKey.split('-').map(Number);
-  const dateSuffix=baseKey===todayKey()?'' : ` · ${mm}/${dd} (${DAYS[new Date(yy,mm-1,dd).getDay()]})`;
   const bothEmpty=!schedule.length&&!routines.length;
 
   const groupedSchedule={};
@@ -14498,17 +14834,11 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','루틴 없음')}</div>`;
 
   const body=bothEmpty
-    ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 루틴이 없어요')}</div>`
+    ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
     : `<div class="merged-routine-wrap merged-schedule-wrap">${scheduleBody}</div><div class="merged-routine-wrap">${routineBody}</div>`;
 
   return `<div class="widget-wrap dashboard-wrap">
-    <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture" id="today-briefing-capture">
-      <div class="merged-dashboard-head no-count-head">
-        <div class="merged-dashboard-summary">
-          <span class="merged-summary-label">오늘 일정${dateSuffix}</span>
-          <span class="merged-summary-label routine">루틴</span>
-        </div>
-      </div>
+    <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
       ${body}
     </div>
   </div>`;
@@ -14699,7 +15029,7 @@ function copyTodayBriefing(){
 
   const dueReqs=dueRequestsForDate(key);
   dueReqs.forEach(r=>{
-    lines.push(`📌 오늘까지 부탁: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
+    lines.push(`📌 오늘까지 할일: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
   });
 
   const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
@@ -14865,7 +15195,7 @@ function renderStatsCard(){
   return `<div class="stat-grid">
     <div class="stat-card"><div class="stat-k">이번 달 완료</div><div class="stat-v">${s.done}/${s.total}</div></div>
     <div class="stat-card"><div class="stat-k">일정 완료율</div><div class="stat-v">${s.doneRate}%</div></div>
-    <div class="stat-card"><div class="stat-k">부탁 처리율</div><div class="stat-v">${s.reqRate}%</div></div>
+    <div class="stat-card"><div class="stat-k">할일 처리율</div><div class="stat-v">${s.reqRate}%</div></div>
     <div class="stat-card"><div class="stat-k">근무 분포</div><div class="stat-v" style="font-size:14px;line-height:1.7">D ${s.shiftCount.D} · E ${s.shiftCount.E}<br>N ${s.shiftCount.N} · OFF ${s.shiftCount.OFF}</div></div>
   </div>`;
 }
