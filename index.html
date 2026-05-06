@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
 
 
-<link rel="apple-touch-icon" sizes="180x180" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
-<link rel="icon" type="image/png" href="https://99ksy9990-bot.github.io/family-cal/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link rel="icon" type="image/png" href="./icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#007AFF">
+<meta name="theme-color" content="#0D47A1">
 
-<title>가족 일정 공유 캘린더 - 패스</title>
+<title>아워 - 우리의 시간을 가볍게</title>
 <!-- 링크 미리보기 -->
-<meta property="og:title" content="가족 일정 공유 캘린더 - 패스">
-<meta property="og:description" content="Family Scheduler - 가족 일정 공유">
+<meta property="og:title" content="아워 - 우리의 시간을 가볍게">
+<meta property="og:description" content="우리의 시간을 가볍게 - 우리의 시간을 가볍게">
 <meta property="og:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <meta property="og:url" content="https://99ksy9990-bot.github.io/family-cal/">
 <meta property="og:type" content="website">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="가족 일정 공유 캘린더 - 패스">
-<meta name="twitter:description" content="Family Scheduler - 가족 일정 공유">
+<meta name="twitter:title" content="아워 - 우리의 시간을 가볍게">
+<meta name="twitter:description" content="우리의 시간을 가볍게 - 우리의 시간을 가볍게">
 <meta name="twitter:image" content="https://99ksy9990-bot.github.io/family-cal/og.png">
 <!--
 [중요] 진짜 가족 공유를 쓰려면 Firebase 설정값을 아래 FIREBASE_CONFIG에 넣으세요.
@@ -8489,6 +8489,61 @@ select{
   padding-bottom:94px !important;
 }
 
+
+/* v1.0.85 아워 브랜드 헤더 */
+.brand-head{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  min-height:58px;
+}
+.brand-logo{
+  width:50px;
+  height:50px;
+  border-radius:15px;
+  object-fit:cover;
+  box-shadow:0 8px 22px rgba(13,71,161,.18);
+  flex:0 0 50px;
+}
+.brand-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  min-width:0;
+}
+.topbar .app-name{
+  font-size:31px !important;
+  line-height:1.02 !important;
+  font-weight:950 !important;
+  letter-spacing:-1.4px !important;
+  color:#0D47A1 !important;
+  text-align:left !important;
+}
+.topbar .app-sub{
+  margin-top:5px !important;
+  font-size:13px !important;
+  line-height:1.2 !important;
+  font-weight:800 !important;
+  color:#8B95A1 !important;
+  letter-spacing:-.25px !important;
+  text-align:left !important;
+}
+.splash-title{
+  color:#0D47A1 !important;
+}
+.splash-icon{
+  border-radius:24px !important;
+  object-fit:cover !important;
+}
+@media (max-width:430px){
+  .brand-logo{width:46px;height:46px;flex-basis:46px;border-radius:14px}
+  .topbar .app-name{font-size:29px !important}
+  .topbar .app-sub{font-size:12.5px !important}
+  .brand-head{gap:10px;min-height:54px}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -8515,18 +8570,21 @@ select{
 
 <div class="splash" id="splash">
   <div class="splash-box">
-    <img class="splash-icon" src="https://99ksy9990-bot.github.io/family-cal/icon.png" alt="패스 아이콘" />
-    <div class="splash-title">패스</div>
-    <div class="splash-sub">Family Scheduler</div>
+    <img class="splash-icon" src="./icon.png" alt="아워 아이콘" />
+    <div class="splash-title">아워</div>
+    <div class="splash-sub">우리의 시간을 가볍게</div>
     <div class="splash-loader"></div>
   </div>
 </div>
 
 <div class="app" id="app">
   <div class="topbar">
-    <div>
-      <div class="app-name">패스</div>
-      <div class="app-sub">Family Scheduler</div>
+    <div class="brand-head" aria-label="아워 브랜드">
+      <img class="brand-logo" src="./icon.png" alt="아워 로고" />
+      <div class="brand-copy">
+        <div class="app-name">아워</div>
+        <div class="app-sub">우리의 시간을 가볍게</div>
+      </div>
     </div>
     <button class="manage-btn" onclick="openManageCenter()">관리</button>
     
@@ -8546,16 +8604,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.84';
+const APP_VERSION='v1.0.85';
 const PASS_BUILD_VERSION='v1.0.84-routine-grouped-list';
-const APP_UPDATED='2026-05-05';
+const APP_UPDATED='2026-05-06';
 const UPDATE_LOG=[
-  '기본 정보 표시 토글 칩 제거',
-  '오늘/루틴/부탁 대상 전체 표시로 변경',
-  '루틴 드래그 핸들 제거',
-  '루틴 목록 대상자별 그룹 리스트 적용',
-  '루틴 중복 대상명/시작일 정보 다이어트',
-  'FAB 가림 방지 하단 여백 보정'
+  '앱 이름을 아워로 변경',
+  '상단 로고를 아이콘 + HTML 텍스트 구조로 변경',
+  '앱 아이콘과 링크 미리보기 이미지 교체',
+  '브랜드 문구를 우리의 시간을 가볍게로 통일'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8590,7 +8646,7 @@ function openUpdateLog(){
       <div class="modal-ind"></div>
       <div class="modal-hd">업데이트 내역</div>
       <div class="version-card">
-        <div class="version-title">패스 ${APP_VERSION}</div>
+        <div class="version-title">아워 ${APP_VERSION}</div>
         <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
       </div>
       <div class="log-list">${UPDATE_LOG.map(x=>`• ${escapeHtml(x)}`).join('<br>')}</div>
@@ -10215,7 +10271,7 @@ function openManageCenter(){
 
       <div class="version-card manage-version-card">
         <div>
-          <div class="version-title">패스 ${APP_VERSION}</div>
+          <div class="version-title">아워 ${APP_VERSION}</div>
           <div class="version-sub">최근 업데이트: ${APP_UPDATED}</div>
         </div>
         <span class="edit-pill ${isEditMode()?'edit-on':'edit-off'}">${isEditMode()?'편집 가능':'보기 모드'}</span>
@@ -12957,7 +13013,7 @@ async function saveTodayBriefingImage(){
     const a=document.createElement('a');
     const base=scheduleBaseKey?String(scheduleBaseKey()):todayKey();
     a.href=canvas.toDataURL('image/png');
-    a.download=`패스_오늘일정_${base}.png`;
+    a.download=`아워_오늘일정_${base}.png`;
     a.click();
     showToast('오늘 일정 이미지를 저장했어요.');
   }catch(e){
@@ -13127,7 +13183,7 @@ function downloadBackup(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`패스_백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.download=`아워_백업_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -13199,7 +13255,7 @@ function openShareTools(){
 function shareNative(){
   const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   if(navigator.share){
-    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
+    navigator.share({title:'아워',text:'우리의 시간을 가볍게 링크',url});
   }else{
     copyShareLink();
   }
@@ -13664,7 +13720,7 @@ async function saveCalendarImage(){
     const now=new Date();
     const stamp=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
     a.href=canvas.toDataURL('image/png');
-    a.download=`패스_달력_${calY}-${String(calM+1).padStart(2,'0')}_${stamp}.png`;
+    a.download=`아워_달력_${calY}-${String(calM+1).padStart(2,'0')}_${stamp}.png`;
     a.click();
     showToast('캘린더 이미지를 저장했어요.');
   }catch(e){
