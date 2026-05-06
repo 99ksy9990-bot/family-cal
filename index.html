@@ -9140,6 +9140,700 @@ select{
   }
 }
 
+
+/* v1.1.1 shift/dashboard polish */
+
+/* 5일 상태 위젯: 입력 여부와 무관하게 모든 칸을 같은 작은 크기로 유지 */
+.multi-shift-widget-shell{
+  grid-template-columns:26px minmax(0,1fr) 26px !important;
+  gap:5px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:10px 12px 0 !important;
+  max-width:430px !important;
+  margin:0 auto !important;
+}
+.multi-shift-widget{
+  width:100% !important;
+  align-self:center !important;
+  padding:9px 9px 10px !important;
+}
+.multi-shift-date-row,
+.multi-shift-user-row{
+  grid-template-columns:44px repeat(5,minmax(0,1fr)) !important;
+  gap:5px !important;
+  align-items:center !important;
+}
+.multi-shift-user-row{
+  min-height:40px !important;
+}
+.multi-shift-user-row + .multi-shift-user-row{
+  margin-top:6px !important;
+}
+.multi-shift-date{
+  min-height:34px !important;
+  padding:4px 0 !important;
+}
+.multi-shift-user{
+  min-height:38px !important;
+}
+.multi-shift-user .avatar-img-small{
+  width:24px !important;
+  height:24px !important;
+}
+.multi-shift-cell,
+.multi-shift-cell.is-empty,
+.multi-shift-cell.empty{
+  width:100% !important;
+  height:32px !important;
+  min-height:32px !important;
+  max-height:32px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border-radius:10px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  line-height:1 !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.multi-shift-cell.is-empty,
+.multi-shift-cell.empty{
+  background:#F4F4F6 !important;
+  color:#B0B8C1 !important;
+}
+
+/* 5일 위젯 좌우 이동 버튼 축소 + 위젯 중앙 정렬 */
+.shift-nav-plain{
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  padding:0 !important;
+  align-self:center !important;
+  border-radius:50% !important;
+  background:#fff !important;
+  color:#8B95A1 !important;
+  font-size:16px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  box-shadow:0 2px 6px rgba(15,23,42,.08) !important;
+}
+.shift-nav-plain:active{
+  transform:scale(.92);
+}
+
+/* 오늘 일정 대시보드: 숫자/복사 제거 후 간격 정리 */
+.merged-dashboard-head.no-count-head{
+  margin-bottom:10px !important;
+}
+.no-count-head .merged-dashboard-summary{
+  gap:14px !important;
+}
+.no-count-head .merged-summary-label{
+  font-size:14px !important;
+  font-weight:950 !important;
+}
+.no-count-head .merged-summary-label.routine{
+  color:var(--purple-t) !important;
+}
+
+/* 접힘 문구: 입력창/기계 문구 대신 따뜻한 안내 */
+.warm-collapsed-hint{
+  text-align:center !important;
+  line-height:1.45 !important;
+  color:var(--t3) !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+  padding:8px 18px 10px !important;
+  font-size:11.5px !important;
+  font-weight:850 !important;
+}
+
+@media (max-width:430px){
+  .multi-shift-widget-shell{
+    grid-template-columns:24px minmax(0,1fr) 24px !important;
+    gap:4px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .multi-shift-date-row,
+  .multi-shift-user-row{
+    grid-template-columns:40px repeat(5,minmax(0,1fr)) !important;
+    gap:4px !important;
+  }
+  .multi-shift-cell,
+  .multi-shift-cell.is-empty,
+  .multi-shift-cell.empty{
+    height:31px !important;
+    min-height:31px !important;
+    max-height:31px !important;
+    font-size:11.5px !important;
+  }
+  .shift-nav-plain{
+    width:22px !important;
+    height:22px !important;
+    min-width:22px !important;
+    font-size:15px !important;
+  }
+}
+
+
+/* v1.1.2 avatar/dashboard/memory polish */
+
+/* 축하(기념일) 탭 우측 레이아웃 및 폰트 개선 */
+.memory-date-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+}
+.memory-upcoming-date {
+  font-family: 'Pretendard', 'Freesentation', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #333D4B !important;
+  letter-spacing: -0.2px !important;
+}
+.memory-dday-chip {
+  background: #FFF0F3 !important;
+  color: #C0002C !important;
+  border: none !important;
+  font-family: 'Pretendard', 'Freesentation', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-variant-numeric: tabular-nums !important;
+  font-feature-settings: "tnum" 1 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  padding: 4px 10px !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* 상단 5일 위젯: 아바타 아래 이름 숨기고 캐릭터 중심 */
+.multi-shift-user span {
+  display: none !important;
+}
+.multi-shift-user {
+  gap: 0 !important;
+  justify-content: center !important;
+}
+.multi-shift-user .avatar-img-small {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+/* 대시보드 및 리스트: 아바타 아래 이름 숨김 */
+.merged-routine-person.under-avatar,
+.routine-group-person.under-avatar,
+.oneoff-person.under-avatar,
+.schedule-line-name {
+  display: none !important;
+}
+
+/* 오늘 루틴: 2열 박스에서 가로 리스트형으로 전환 */
+.merged-routine-wrap:not(.merged-schedule-wrap) {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-group {
+  display: grid !important;
+  grid-template-columns: 36px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: center !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  border-radius: 0 !important;
+  padding: 12px 4px !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-group:last-child {
+  border-bottom: none !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-head {
+  margin: 0 !important;
+  align-items: center !important;
+}
+.merged-routine-wrap:not(.merged-schedule-wrap) .merged-routine-box {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* 오늘 일정 박스 평탄화 */
+.merged-schedule-box {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.merged-schedule-box .merged-schedule-title {
+  font-size: 15px !important;
+}
+
+/* 아바타 크기 및 정렬 통일 */
+.merged-routine-avatar,
+.routine-group-avatar,
+.oneoff-avatar,
+.schedule-line-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  flex: 0 0 36px !important;
+  margin: 0 auto !important;
+}
+.merged-routine-avatar .avatar-img,
+.routine-group-avatar .avatar-img,
+.oneoff-avatar .avatar-img,
+.schedule-line-avatar .avatar-img {
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+}
+
+/* 전체 그리드 간격 조정 */
+.schedule-line-grid {
+  grid-template-columns: 36px minmax(0,1fr) 112px !important;
+  gap: 14px !important;
+}
+.merged-schedule-group,
+.routine-group-card,
+.oneoff-selected-event {
+  grid-template-columns: 36px minmax(0,1fr) !important;
+  gap: 14px !important;
+  align-items: center !important;
+  padding: 12px 4px !important;
+}
+
+/* 상태 위젯 설정 섹션 가독성 */
+.manage-accordion .shift-user-select-wrap,
+.manage-accordion .shift-label-grid {
+  margin-top: 8px !important;
+}
+.shift-user-choice .avatar-img-small {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain !important;
+}
+
+
+/* v1.1.3 todo compact + calendar shift square badges */
+
+/* 할일(To-Do): 통합 리스트 + 1줄 압축 */
+.todo-list-wrap{
+  background:#ffffff !important;
+  border-radius:20px !important;
+  padding:0 14px !important;
+  box-shadow:0 4px 16px rgba(15,23,42,.04) !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  gap:0 !important;
+  margin:0 16px !important;
+}
+.todo-list-wrap .request-swipe-card{
+  box-shadow:none !important;
+  border:none !important;
+  border-bottom:1px solid rgba(0,0,0,.055) !important;
+  border-radius:0 !important;
+  padding:11px 0 !important;
+  margin:0 !important;
+  background:transparent !important;
+}
+.todo-list-wrap .request-swipe-card:last-child{
+  border-bottom:none !important;
+}
+.todo-compact-grid{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) auto 30px;
+  gap:10px;
+  align-items:center;
+  min-height:36px;
+}
+.todo-compact-card .chk{
+  width:22px !important;
+  height:22px !important;
+  min-width:22px !important;
+  border-radius:50% !important;
+  border:2px solid #D1D6DB !important;
+  background:transparent !important;
+  margin:0 !important;
+  color:#fff !important;
+}
+.todo-compact-card .chk.on{
+  background:var(--blue) !important;
+  border-color:var(--blue) !important;
+}
+.todo-compact-main{
+  min-width:0;
+}
+.todo-compact-title{
+  min-width:0;
+  font-size:13.5px;
+  line-height:1.35;
+  font-weight:900;
+  color:#333D4B;
+  letter-spacing:-.25px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.todo-compact-title.done{
+  text-decoration:line-through;
+  color:#8B95A1;
+}
+.todo-compact-due{
+  max-width:92px;
+  font-size:11px;
+  font-weight:850;
+  color:#8B95A1;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:right;
+}
+.todo-compact-avatar{
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.todo-compact-avatar .avatar-img-small{
+  width:28px !important;
+  height:28px !important;
+  object-fit:contain !important;
+  margin:0 !important;
+}
+.todo-compact-card .todo-memo{
+  display:block !important;
+  margin-top:3px !important;
+  padding:0 !important;
+  font-size:11.5px !important;
+  line-height:1.35 !important;
+  font-weight:650 !important;
+  color:#8B95A1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.todo-compact-card.done-card{
+  opacity:.56 !important;
+}
+.todo-compact-card.done-card .todo-compact-title{
+  text-decoration:line-through !important;
+  color:#8B95A1 !important;
+}
+
+/* 기존 할일 메타/빈 메모 노이즈 제거 */
+.request-swipe-card .c-meta,
+.request-swipe-card .empty-memo{
+  display:none !important;
+}
+
+/* 달력 다중 근무 뱃지: 정사각형 1글자 압축 */
+.cal-cell .shift-one {
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  padding:0 !important;
+  border-radius:6px !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  letter-spacing:0 !important;
+  line-height:1 !important;
+}
+.cal-shift-line {
+  display:flex !important;
+  gap:2px !important;
+  justify-content:center !important;
+  align-items:center !important;
+  min-height:18px !important;
+  margin-bottom:2px !important;
+}
+.cal-cell .shift-more{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:18px;
+  min-width:18px;
+  padding:0 3px;
+  border-radius:6px;
+  background:var(--bg);
+  color:var(--t3);
+  font-size:9px;
+  font-weight:950;
+  line-height:1;
+}
+
+/* 함께 쉬는 날 하이라이트 */
+.cal-cell.sync-off{
+  box-shadow:inset 0 0 0 2px rgba(255,149,0,.24);
+  background:linear-gradient(180deg,rgba(255,244,229,.72),rgba(255,255,255,0)) !important;
+}
+.cal-cell.sync-off .cal-num:not(.today-n)::after{
+  content:'';
+  display:inline-block;
+  width:4px;
+  height:4px;
+  margin-left:2px;
+  border-radius:50%;
+  background:var(--orange);
+  vertical-align:middle;
+}
+
+/* 좁은 화면 보정 */
+@media (max-width:430px){
+  .todo-list-wrap{
+    padding:0 12px !important;
+  }
+  .todo-compact-grid{
+    grid-template-columns:22px minmax(0,1fr) auto 28px;
+    gap:8px;
+  }
+  .todo-compact-title{
+    font-size:13px;
+  }
+  .todo-compact-due{
+    max-width:78px;
+    font-size:10.5px;
+  }
+  .todo-compact-avatar,
+  .todo-compact-avatar .avatar-img-small{
+    width:26px !important;
+    height:26px !important;
+  }
+}
+
+
+/* v1.1.4 resident shift + dashboard layout */
+
+/* 달력 검색 삭제에 따른 여백 정리 */
+.search-wrap{display:none !important;}
+
+/* 일정 탭 5일 상태 위젯: 좌우 화살표 제거, 탭 폭과 정렬, 왼쪽 달력 아이콘 */
+.no-nav-shift-widget{
+  grid-template-columns:1fr !important;
+  padding:14px 18px 0 !important;
+  gap:0 !important;
+}
+.no-nav-shift-widget .multi-shift-widget{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  border-radius:22px !important;
+}
+.multi-shift-calendar-icon{
+  width:38px;
+  height:38px;
+  border-radius:14px;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:950;
+  cursor:pointer;
+}
+.no-nav-shift-widget .multi-shift-date-row,
+.no-nav-shift-widget .multi-shift-user-row{
+  grid-template-columns:38px repeat(5,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+.no-nav-shift-widget .multi-shift-date{
+  min-height:38px !important;
+  border-radius:13px !important;
+}
+.no-nav-shift-widget .multi-shift-cell{
+  height:34px !important;
+  min-height:34px !important;
+  border-radius:12px !important;
+}
+.no-nav-shift-widget .multi-shift-user .avatar-img-small{
+  width:30px !important;
+  height:30px !important;
+}
+
+/* 등록 일정 / 지나간 일정 폭을 상단 탭과 맞춤 */
+.schedule-swipe-sync .schedule-dashboard-list{
+  margin-left:18px !important;
+  margin-right:18px !important;
+  width:auto !important;
+}
+.schedule-swipe-sync .sec.compact-sec,
+.schedule-swipe-sync .unified-sec{
+  padding-left:18px !important;
+  padding-right:18px !important;
+}
+.schedule-swipe-sync .div{
+  margin-left:18px !important;
+  margin-right:18px !important;
+}
+.schedule-collapsed-hint.warm-collapsed-hint{
+  margin-left:18px !important;
+  margin-right:18px !important;
+}
+
+/* 상주 기본 상태 숨김 안내/설정 UI */
+.shift-default-settings,
+.shift-person-label-settings{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.shift-default-card,
+.shift-person-label-card{
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:10px;
+}
+.shift-default-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  color:var(--t1);
+  font-size:13px;
+  font-weight:950;
+}
+.shift-default-avatar{
+  width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.shift-default-avatar .avatar-img-small{
+  width:24px !important;
+  height:24px !important;
+  object-fit:contain !important;
+}
+.shift-default-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+.shift-default-grid label{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+.shift-default-grid label span,
+.shift-label-help{
+  font-size:10.5px;
+  font-weight:850;
+  color:var(--t3);
+}
+.shift-default-grid select{
+  height:34px;
+  border-radius:11px;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:var(--t1);
+  font-size:12px;
+  font-weight:850;
+  font-family:inherit;
+  padding:0 8px;
+}
+.shift-default-hide{
+  grid-column:span 2;
+  height:34px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+}
+.shift-default-hide.on{
+  background:var(--orange-bg);
+  color:var(--orange-t);
+  border-color:rgba(255,149,0,.25);
+}
+.person-label-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+}
+.default-state-note{
+  margin-left:auto;
+  height:22px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 8px;
+  border-radius:999px;
+  background:var(--orange-bg);
+  color:var(--orange-t);
+  font-size:10px;
+  font-weight:950;
+}
+
+/* 함께 쉬는 날 상세 배너 */
+.sync-off-banner,
+.sync-off-detail-banner{
+  background:#FFF4E5 !important;
+  color:#7A3800 !important;
+  border:1px solid rgba(255,149,0,.16) !important;
+}
+.sync-off-detail-banner{
+  margin:0 0 10px;
+  padding:10px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:950;
+  line-height:1.35;
+}
+
+/* 달력의 기본 숨김 상태가 칸을 밀지 않게 */
+.multi-shift-cell.is-empty{
+  background:#F4F4F6 !important;
+  color:#B0B8C1 !important;
+  font-weight:850 !important;
+}
+
+/* 좁은 화면 보정 */
+@media (max-width:430px){
+  .no-nav-shift-widget{
+    padding-left:18px !important;
+    padding-right:18px !important;
+  }
+  .no-nav-shift-widget .multi-shift-date-row,
+  .no-nav-shift-widget .multi-shift-user-row{
+    grid-template-columns:34px repeat(5,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+  .multi-shift-calendar-icon{
+    width:34px;
+    height:34px;
+    border-radius:12px;
+    font-size:16px;
+  }
+  .no-nav-shift-widget .multi-shift-cell{
+    height:32px !important;
+    min-height:32px !important;
+  }
+  .shift-default-grid{
+    grid-template-columns:1fr;
+  }
+  .shift-default-hide{
+    grid-column:auto;
+  }
+  .person-label-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -9198,18 +9892,19 @@ select{
 
 <script>
 
-const APP_VERSION='v1.1.0';
-const PASS_BUILD_VERSION='v1.1.0-multi-shift-ux';
+const APP_VERSION='v1.1.4';
+const PASS_BUILD_VERSION='v1.1.4-resident-shift-dashboard-layout';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '다중 근무표 구조 전환',
-  '대상자별 5일 상태 위젯',
-  '상태 라벨 6개 커스텀',
-  '달력 다중 상태 편집 바텀시트',
-  '할일/일정 완료 폭죽 애니메이션',
-  '스마트 모닝 브리핑 문장형 배너',
-  '비공개 일정 표시 기능',
-  'PWA 푸시 알림 수신 로직 추가'
+  '상주 근무 기본값/예외만 기록 기능 추가',
+  '상주 기본 상태 숨김 옵션 추가',
+  '사람별 상태 라벨 세트 추가',
+  '함께 쉬는 날 상세 배너 추가',
+  '달력 검색창 제거',
+  '일정 탭 5일 상태 위젯 좌우 화살표 제거',
+  '5일 상태 위젯 폭을 탭 영역과 맞춤',
+  '5일 상태 위젯 왼쪽 달력 아이콘 추가',
+  '등록 일정/지나간 일정 리스트 폭 정렬'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -9578,15 +10273,19 @@ function openShiftPicker(dateKey){
       <div class="multi-shift-list">
         ${shiftUsers.map(user=>{
           const cur=shiftStatusFor(dateKey,user);
+          const explicit=shiftExplicitStatusFor(dateKey,user);
+          const defaultOnly=isShiftDefaultOnly(dateKey,user,cur);
           const p=(family||[]).find(f=>(f.name||'')===user);
+          const labels=shiftPersonLabelList(user);
           return `<div class="multi-shift-person">
             <div class="multi-shift-person-head">
               <span class="multi-shift-avatar">${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}</span>
               <b>${escapeHtml(user)}</b>
+              ${defaultOnly?`<span class="default-state-note">기본 ${escapeHtml(cur)}</span>`:''}
             </div>
             <div class="multi-shift-options">
-              ${shiftLabelList().map(label=>`<button class="multi-shift-option ${cur===label?'on':''} ${shiftBadgeClass(label)}" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},${onclickArg(label)},true)">${escapeHtml(label)}</button>`).join('')}
-              <button class="multi-shift-option clear" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},'',true)">비우기</button>
+              ${labels.map(label=>`<button class="multi-shift-option ${cur===label?'on':''} ${shiftBadgeClass(label)}" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},${onclickArg(label)},true)">${escapeHtml(label)}</button>`).join('')}
+              <button class="multi-shift-option clear" onclick="setShiftStatus('${dateKey}',${onclickArg(user)},'',true)">${explicit?'비우기':'예외 없음'}</button>
             </div>
           </div>`;
         }).join('')}
@@ -9828,7 +10527,7 @@ function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return 
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],notificationEnabled=false;
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],shiftDefaults={},notificationEnabled=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -10121,6 +10820,132 @@ function shiftLabelList(){
   const clean=arr.map(x=>String(x||'').trim()).filter(Boolean);
   return clean.length?clean:DEFAULT_SHIFT_LABELS;
 }
+
+function normalizeShiftDefaults(){
+  const people=getPersons().filter(p=>p&&p!=='공통');
+  if(!shiftDefaults || typeof shiftDefaults!=='object')shiftDefaults={};
+  Object.keys(shiftDefaults).forEach(k=>{
+    if(!people.includes(k))delete shiftDefaults[k];
+  });
+  people.forEach(p=>{
+    const cur=shiftDefaults[p]&&typeof shiftDefaults[p]==='object'?shiftDefaults[p]:{};
+    shiftDefaults[p]={
+      mode:cur.mode||'none',
+      weekday:cur.weekday||'',
+      weekend:cur.weekend||'',
+      hideDefault:('hideDefault' in cur)?!!cur.hideDefault:true,
+      labels:Array.isArray(cur.labels)?cur.labels.slice(0,6):[]
+    };
+  });
+}
+function shiftDefaultConfig(user){
+  normalizeShiftDefaults();
+  const u=String(user||'').trim();
+  if(!shiftDefaults[u])shiftDefaults[u]={mode:'none',weekday:'',weekend:'',hideDefault:true,labels:[]};
+  return shiftDefaults[u];
+}
+function shiftPersonLabelList(user){
+  const cfg=shiftDefaultConfig(user);
+  const custom=(cfg.labels||[]).map(x=>String(x||'').trim()).filter(Boolean);
+  return custom.length?custom:shiftLabelList();
+}
+function shiftExplicitStatusFor(dateKey,user){
+  const row=shiftData?.[dateKey];
+  if(typeof row==='string'){
+    return user===firstShiftUser()?row:'';
+  }
+  return isShiftObject(row)?(row[user]||''):'';
+}
+function shiftDefaultStatusFor(dateKey,user){
+  const cfg=shiftDefaultConfig(user);
+  if(cfg.mode!=='weekday')return '';
+  const [y,m,d]=String(dateKey||'').split('-').map(Number);
+  if(!y||!m||!d)return '';
+  const dow=new Date(y,m-1,d).getDay();
+  const isWeekend=dow===0||dow===6||!!holidayName(dateKey);
+  return isWeekend?(cfg.weekend||''):(cfg.weekday||'');
+}
+function isShiftDefaultOnly(dateKey,user,status){
+  const explicit=shiftExplicitStatusFor(dateKey,user);
+  if(explicit)return false;
+  const def=shiftDefaultStatusFor(dateKey,user);
+  return !!status && status===def;
+}
+function shiftDisplayStatusFor(dateKey,user){
+  const status=shiftStatusFor(dateKey,user);
+  const cfg=shiftDefaultConfig(user);
+  if(cfg.hideDefault && isShiftDefaultOnly(dateKey,user,status))return '';
+  return status;
+}
+function setShiftDefaultValue(user,key,val){
+  if(!requireEditMode())return;
+  const cfg=shiftDefaultConfig(user);
+  if(key==='mode')cfg.mode=val||'none';
+  else if(key==='weekday')cfg.weekday=val||'';
+  else if(key==='weekend')cfg.weekend=val||'';
+  else if(key==='hideDefault')cfg.hideDefault=String(val)==='1';
+  saveSettingsOnly();
+  openManageCenter();
+  render({preserveScroll:true});
+}
+function updateShiftPersonLabel(user,idx,val){
+  if(!requireEditMode())return;
+  const cfg=shiftDefaultConfig(user);
+  if(!Array.isArray(cfg.labels))cfg.labels=[];
+  cfg.labels[idx]=String(val||'').trim();
+  saveSettingsOnly();
+}
+function renderShiftDefaultSettings(){
+  normalizeShiftUsers();
+  normalizeShiftDefaults();
+  return `<div class="shift-default-settings">${shiftUsers.map(user=>{
+    const cfg=shiftDefaultConfig(user);
+    const labels=shiftPersonLabelList(user);
+    const opts=['',...labels];
+    return `<div class="shift-default-card">
+      <div class="shift-default-head">
+        <span class="shift-default-avatar">${avatarMarkup(personAvatar(user),user,'avatar-img-small')}</span>
+        <b>${escapeHtml(user)}</b>
+      </div>
+      <div class="shift-default-grid">
+        <label><span>기본값</span><select onchange="setShiftDefaultValue(${onclickArg(user)},'mode',this.value)">
+          <option value="none" ${cfg.mode==='none'?'selected':''}>사용 안 함</option>
+          <option value="weekday" ${cfg.mode==='weekday'?'selected':''}>월~금/주말 자동</option>
+        </select></label>
+        <label><span>월~금</span><select onchange="setShiftDefaultValue(${onclickArg(user)},'weekday',this.value)">
+          ${opts.map(v=>`<option value="${escapeAttr(v)}" ${cfg.weekday===v?'selected':''}>${v?escapeHtml(v):'미입력'}</option>`).join('')}
+        </select></label>
+        <label><span>주말·공휴일</span><select onchange="setShiftDefaultValue(${onclickArg(user)},'weekend',this.value)">
+          ${opts.map(v=>`<option value="${escapeAttr(v)}" ${cfg.weekend===v?'selected':''}>${v?escapeHtml(v):'미입력'}</option>`).join('')}
+        </select></label>
+        <button class="shift-default-hide${cfg.hideDefault?' on':''}" onclick="setShiftDefaultValue(${onclickArg(user)},'hideDefault','${cfg.hideDefault?'0':'1'}')">${cfg.hideDefault?'기본 숨김':'기본 표시'}</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+function renderShiftPersonLabelSettings(){
+  normalizeShiftUsers();
+  normalizeShiftDefaults();
+  return `<div class="shift-person-label-settings">${shiftUsers.map(user=>{
+    const cfg=shiftDefaultConfig(user);
+    const labels=Array.from({length:6},(_,i)=>(cfg.labels&&cfg.labels[i])||'');
+    return `<div class="shift-person-label-card">
+      <div class="shift-default-head">
+        <span class="shift-default-avatar">${avatarMarkup(personAvatar(user),user,'avatar-img-small')}</span>
+        <b>${escapeHtml(user)}</b>
+      </div>
+      <div class="shift-label-grid person-label-grid">
+        ${labels.map((lbl,idx)=>`<input class="shift-label-input" value="${escapeAttr(lbl)}" onchange="updateShiftPersonLabel(${onclickArg(user)},${idx},this.value)" placeholder="${escapeAttr((shiftLabels&&shiftLabels[idx])||DEFAULT_SHIFT_LABELS[idx]||`라벨 ${idx+1}`)}"/>`).join('')}
+      </div>
+      <div class="shift-label-help">빈칸이면 공통 라벨을 사용해요.</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+function syncOffInfo(dateKey){
+  const rows=shiftStatusesForDate(dateKey,{includeHidden:true}).filter(x=>isRestShiftStatus(x.status));
+  return rows.length>=2?rows:[];
+}
+
 function normalizeShiftUsers(){
   const people=getPersons().filter(p=>p&&p!=='공통');
   if(!Array.isArray(shiftUsers))shiftUsers=[];
@@ -10129,6 +10954,7 @@ function normalizeShiftUsers(){
     const preferred=people.filter(p=>['아빠','엄마'].includes(p));
     shiftUsers=(preferred.length?preferred:people.slice(0,1));
   }
+  normalizeShiftDefaults();
 }
 function firstShiftUser(){
   normalizeShiftUsers();
@@ -10157,15 +10983,17 @@ function migrateShiftDataToMulti(){
   shiftData=out;
 }
 function shiftStatusFor(dateKey,user){
-  const row=shiftData?.[dateKey];
-  if(typeof row==='string'){
-    return user===firstShiftUser()?row:'';
-  }
-  return isShiftObject(row)?(row[user]||''):'';
+  const explicit=shiftExplicitStatusFor(dateKey,user);
+  if(explicit)return explicit;
+  return shiftDefaultStatusFor(dateKey,user);
 }
-function shiftStatusesForDate(dateKey){
+function shiftStatusesForDate(dateKey,opts={}){
   normalizeShiftUsers();
-  return shiftUsers.map(user=>({user,status:shiftStatusFor(dateKey,user)}));
+  return shiftUsers.map(user=>{
+    const effective=shiftStatusFor(dateKey,user);
+    const status=opts.includeHidden?effective:shiftDisplayStatusFor(dateKey,user);
+    return {user,status,effective,explicit:shiftExplicitStatusFor(dateKey,user),defaultOnly:isShiftDefaultOnly(dateKey,user,effective)};
+  });
 }
 function shiftHasAny(dateKey){
   return shiftStatusesForDate(dateKey).some(x=>x.status);
@@ -10222,20 +11050,38 @@ function renderShiftLabelInputs(){
   const labels=Array.from({length:6},(_,i)=>(shiftLabels&&shiftLabels[i])||DEFAULT_SHIFT_LABELS[i]||'');
   return `<div class="shift-label-grid">${labels.map((lbl,idx)=>`<input class="shift-label-input" value="${escapeAttr(lbl)}" onchange="updateShiftLabel(${idx},this.value)" placeholder="라벨 ${idx+1}"/>`).join('')}</div>`;
 }
+
+function firstStatusChar(status){
+  const s=String(status||'').trim();
+  if(!s)return '';
+  return Array.from(s)[0] || '';
+}
+function isRestShiftStatus(status){
+  const s=String(status||'').trim().toUpperCase();
+  if(!s)return false;
+  return s==='OFF' || s==='O' || s.includes('휴') || s.includes('연차') || s.includes('반차');
+}
+function isSyncOffDay(dateKey){
+  return syncOffInfo(dateKey).length>=2;
+}
+
 function renderCalendarShiftBadges(dateKey){
   const rows=shiftStatusesForDate(dateKey).filter(x=>x.status);
-  if(!rows.length)return '<span style="display:inline-block;height:15px"></span>';
+  if(!rows.length)return '<span style="display:inline-block;height:18px"></span>';
   const shown=rows.slice(0,2);
-  return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}">${escapeHtml(x.status)}</span>`).join('')+
+  return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}: ${escapeAttr(x.status)}">${escapeHtml(firstStatusChar(x.status))}</span>`).join('')+
     (rows.length>2?`<span class="shift-more">+${rows.length-2}</span>`:'');
 }
 function renderSelectedDayShiftChips(dateKey){
   normalizeShiftUsers();
   if(!shiftUsers.length)return '';
-  return `<div class="selected-shift-chip-row">${shiftUsers.map(user=>{
-    const status=shiftStatusFor(dateKey,user);
+  const sync=syncOffInfo(dateKey);
+  const syncHtml=sync.length?`<div class="sync-off-detail-banner">🎉 함께 쉬는 날 · ${sync.map(x=>`${escapeHtml(x.user)} ${escapeHtml(x.effective||x.status)}`).join(' · ')}</div>`:'';
+  const chips=`<div class="selected-shift-chip-row">${shiftUsers.map(user=>{
+    const status=shiftDisplayStatusFor(dateKey,user);
     return `<button class="sec-chip-btn selected-shift-chip ${status?shiftBadgeClass(status):'empty'}" onclick="openShiftPicker('${dateKey}')">${escapeHtml(user)}${status?`: ${escapeHtml(status)}`:' 상태'}</button>`;
   }).join('')}</div>`;
+  return syncHtml+chips;
 }
 
 function normalizeData(d){
@@ -10267,6 +11113,7 @@ function normalizeData(d){
   hiddenBasePersons=Array.isArray(d.hiddenBasePersons)?d.hiddenBasePersons:[];
   shiftUsers=Array.isArray(d.shiftUsers)?d.shiftUsers:[];
   shiftLabels=Array.isArray(d.shiftLabels)?d.shiftLabels:[...DEFAULT_SHIFT_LABELS];
+  shiftDefaults=(d.shiftDefaults&&typeof d.shiftDefaults==='object')?d.shiftDefaults:{};
   notificationEnabled=!!d.notificationEnabled;
   ensureBaseTargets();
   normalizeShiftUsers();
@@ -10313,7 +11160,7 @@ function normalizeData(d){
   migrateShiftDataToMulti();
 }
 function currentData(){
-  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
+  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
 }
 function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
@@ -10322,7 +11169,7 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 function currentSettingsData(){
   return {
     family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
-    shiftUsers,shiftLabels,notificationEnabled,
+    shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,
     storageMode:'subcollections',
     updatedAt:Date.now()
   };
@@ -11167,6 +12014,21 @@ function openManageCenter(){
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
       </div>
 
+
+      <details class="manage-accordion" open>
+        <summary><span>🏷️ 상태 위젯 설정</span><em>위젯 대상 및 커스텀 라벨</em></summary>
+        <div class="manage-panel" style="padding-top:8px;">
+          <div class="manage-section-title" style="margin-top:0;">위젯에 표시할 가족 (여러 명 선택 가능)</div>
+          ${renderShiftUserSelector()}
+          <div class="manage-section-title" style="margin-top:16px;">공통 상태 라벨</div>
+          ${renderShiftLabelInputs()}
+          <div class="manage-section-title" style="margin-top:16px;">상주 근무 기본값 / 예외만 기록</div>
+          ${renderShiftDefaultSettings()}
+          <div class="manage-section-title" style="margin-top:16px;">사람별 상태 라벨 세트</div>
+          ${renderShiftPersonLabelSettings()}
+        </div>
+      </details>
+
       <details class="manage-accordion manage-share-accordion" open>
         <summary><span>공유</span><em>가족 초대와 QR</em></summary>
         <div class="manage-panel">
@@ -11758,10 +12620,10 @@ function renderS(){
   const activeCount=active.length+missed.length;
   const activeCards = activeOpen
     ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,missed,'등록 일정이 없어요')}</div>`
-    : `<div class="schedule-collapsed-hint">접혀 있음</div>`;
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint">오늘의 일정 목록을 잠시 접어뒀어요. 펼치면 남은 일정을 한눈에 볼 수 있어요.</div>`;
 
   const doneCards = doneOpen
-    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(doneFilt,[],'완료된 일정이 없어요',{done:true})}</div>`
+    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(doneFilt,[],'지나간 일정이 없어요',{done:true})}</div>`
     : '';
 
   return`<div class="schedule-swipe-sync">
@@ -11773,7 +12635,7 @@ function renderS(){
     `)}
     ${activeCards}
     <div class="div"></div>
-    ${sectionHeader('완료',doneFilt.length,doneOpen,'toggleDone',`
+    ${sectionHeader('지나간 일정',doneFilt.length,doneOpen,'toggleDone',`
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
     `)}
     ${doneCards}
@@ -11917,6 +12779,7 @@ function renderC(){
     const isToday=y===TY&&m===TM&&d===TD;
     const isSel=selDate===key;
     const isBulk=shiftSelectedDates.includes(key);
+    const syncOff=isSyncOffDay(key);
     const allEvs=notesOnDateAll(y,m,d);
     const allMems=memoriesOnDate(y,m,d);
     const evs=filterCalendarEventsByTarget(allEvs);
@@ -11929,7 +12792,7 @@ function renderC(){
     const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
-    g+=`<div class="cal-cell${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
+    g+=`<div class="cal-cell${syncOff?' sync-off':''}${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
       onclick="${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
       onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
@@ -12461,27 +13324,22 @@ function makeReqCard(r){
   const done = isDone(r);
   const writer = r.writer || '공통';
 
-  return `<div class="card swipe-card request-swipe-card ${done ? 'done-card' : ''}" 
+  return `<div class="card swipe-card request-swipe-card todo-compact-card ${done ? 'done-card' : ''}" 
     ontouchstart="startItemSwipe(event,'request','${r.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'request','${r.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
     draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)"
     onclick="if(!consumeSwipeTap())openEditReq('${r.id}')" style="cursor:pointer">
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
-    <div class="c-row">
+    <div class="todo-compact-grid">
       <div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
         <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="c-body">
-        <div class="c-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
-        <div class="c-meta">
-          <span class="person-chip" style="color:${personColor(writer)}">
-            ${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')} 
-            ${escapeHtml(writer)}
-          </span>
-          ${due ? `<span class="chip request-due-chip">마감 ${escapeHtml(due)}</span>` : ''}
-        </div>
-        ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : `<div class="todo-memo empty-memo">+ 메모 추가</div>`}
+      <div class="todo-compact-main">
+        <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
+        ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : ''}
       </div>
+      <div class="todo-compact-due">${due ? escapeHtml(due) : ''}</div>
+      <div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>
     </div>
   </div>`;
 }
@@ -12501,10 +13359,10 @@ function renderR(){
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   return`
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest')}
-    ${requestOpen?`<div class="request-list-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','등록된 할일이 없어요')}</div>`:`<div class="schedule-collapsed-hint">접혀 있음</div>`}
+    ${requestOpen?`<div class="request-list-wrap todo-list-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','등록된 할일이 없어요')}</div>`:`<div class="schedule-collapsed-hint warm-collapsed-hint">할일 목록을 잠시 접어뒀어요. 펼치면 남은 할일을 빠르게 확인할 수 있어요.</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
-    ${requestDoneOpen?`<div class="request-list-wrap">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 할일이 없어요','끝낸 할일은 이곳에 차곡차곡 모여요.')}</div>`:''}
+    ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 할일이 없어요','끝낸 할일은 이곳에 차곡차곡 모여요.')}</div>`:''}
   `;
 }
 
@@ -12795,19 +13653,7 @@ function clearSearch(){
   render();
 }
 function renderSearchBox(){
-  if(main!=='c')return '';
-  const cur=searchDraft||searchQ;
-  return `<div class="search-wrap">
-    <div class="search-line">
-      <input id="search-input" class="search-input" value="${escapeAttr(cur)}" placeholder="달력 검색"
-        oncompositionstart="isComposing=true"
-        oncompositionend="isComposing=false;searchDraft=this.value"
-        oninput="searchDraft=this.value"
-        onkeydown="if(event.key==='Enter'){applySearch()}"/>
-      <button class="search-apply" onclick="applySearch()">검색</button>
-    </div>
-    ${searchQ?`<button class="cancel-link" style="margin-top:6px;padding:4px 0" onclick="clearSearch()">검색 초기화</button>`:''}
-  </div>`;
+  return '';
 }
 
 
@@ -13183,13 +14029,14 @@ function renderShiftBulkBar(){
   if(!isEditMode() || !shiftSelectMode)return '';
   normalizeShiftUsers();
   if(!shiftBulkUser || !shiftUsers.includes(shiftBulkUser))shiftBulkUser=firstShiftUser();
+  const labels=shiftPersonLabelList(shiftBulkUser);
   return `<div class="shift-bulk-bar selecting compact-bulk-bar">
     <div class="shift-bulk-actions multi-bulk-actions">
       <span class="shift-bulk-count">선택 ${shiftSelectedDates.length}개</span>
       <select class="shift-bulk-user-select" onchange="shiftBulkUser=this.value;render({preserveScroll:true})">
         ${shiftUsers.map(u=>`<option value="${escapeAttr(u)}" ${shiftBulkUser===u?'selected':''}>${escapeHtml(u)}</option>`).join('')}
       </select>
-      ${shiftLabelList().map(s=>`<button class="shift-bulk-chip ${shiftBadgeClass(s)}" onclick="applyBulkShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
+      ${labels.map(s=>`<button class="shift-bulk-chip ${shiftBadgeClass(s)}" onclick="applyBulkShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
       <button class="shift-bulk-chip clear" onclick="applyBulkShift('')">미입력</button>
       <button class="shift-bulk-chip clear" onclick="toggleShiftSelectMode()">취소</button>
     </div>
@@ -13301,18 +14148,23 @@ function renderNoticeBanner(){
   const td=notes.filter(n=>!isDone(n)&&occursOn(n,base));
   const req=requests.filter(r=>!isDone(r));
   const due=dueRequestsForDate(base);
+  const sync=syncOffInfo(base);
   const lines=[];
-  const shiftLines=shiftStatusesForDate(base).filter(x=>x.status).slice(0,2).map(x=>{
-    const text=shiftStatusForBrief(x.status);
-    return `${x.user}는 오늘 ${text}예요`;
-  });
-  lines.push(...shiftLines);
+  if(sync.length){
+    lines.push(`함께 쉬는 날이에요 · ${sync.map(x=>`${x.user} ${x.effective||x.status}`).join(' · ')}`);
+  }else{
+    const shiftLines=shiftStatusesForDate(base,{includeHidden:true}).filter(x=>x.effective).slice(0,2).map(x=>{
+      const text=shiftStatusForBrief(x.effective);
+      return `${x.user}는 오늘 ${text}예요`;
+    });
+    lines.push(...shiftLines);
+  }
   if(td.length)lines.push(`오늘 일정 ${td.length}개가 있어요`);
   if(due.length)lines.push(`오늘 마감 할일 ${due.length}개를 확인해 주세요`);
   else if(req.length)lines.push(`할일 ${req.length}개가 남아 있어요`);
   if(!lines.length)return '';
   const canGo=req.length>0||due.length>0;
-  return `<div class="notice-banner smart-brief-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>🌤️ ${escapeHtml(lines.slice(0,2).join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`;
+  return `<div class="notice-banner smart-brief-banner ${sync.length?'sync-off-banner':''}" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>${sync.length?'🎉':'🌤️'} ${escapeHtml(lines.slice(0,2).join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`;
 }
 
 
@@ -13436,13 +14288,12 @@ function renderShiftWidget(){
   if(!shiftUsers.length)return '';
   const base=scheduleBaseKey();
   const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
-  return `<div class="shift-widget-shell multi-shift-widget-shell"
+  return `<div class="shift-widget-shell multi-shift-widget-shell no-nav-shift-widget"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
-    <button class="shift-nav-plain" onclick="event.stopPropagation();moveScheduleBase(-1)" aria-label="이전 날짜 보기">‹</button>
     <div class="multi-shift-widget">
       <div class="multi-shift-date-row">
-        <div class="multi-shift-spacer"></div>
+        <div class="multi-shift-calendar-icon" onclick="event.stopPropagation();setMain('c')" title="달력 보기">📅</div>
         ${keys.map((k,i)=>{
           const [yy,mm,dd]=k.split('-').map(Number);
           const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
@@ -13457,13 +14308,12 @@ function renderShiftWidget(){
             <span>${escapeHtml(user)}</span>
           </div>
           ${keys.map((k,i)=>{
-            const status=shiftStatusFor(k,user);
-            return `<button class="multi-shift-cell ${i===2?'today':''} ${status?shiftBadgeClass(status):'empty'}" onclick="event.stopPropagation();openShiftPicker('${k}')">${escapeHtml(status||'-')}</button>`;
+            const status=shiftDisplayStatusFor(k,user);
+            return `<button class="multi-shift-cell ${i===2?'today':''} ${status?shiftBadgeClass(status):'is-empty'}" onclick="event.stopPropagation();openShiftPicker('${k}')">${escapeHtml(status||'-')}</button>`;
           }).join('')}
         </div>`;
       }).join('')}
     </div>
-    <button class="shift-nav-plain" onclick="event.stopPropagation();moveScheduleBase(1)" aria-label="다음 날짜 보기">›</button>
   </div>`;
 }
 
@@ -13653,14 +14503,11 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture" id="today-briefing-capture">
-      <div class="merged-dashboard-head">
+      <div class="merged-dashboard-head no-count-head">
         <div class="merged-dashboard-summary">
           <span class="merged-summary-label">오늘 일정${dateSuffix}</span>
-          <span class="sec-cnt merged-count">${schedule.length}</span>
-          <span class="merged-summary-label">루틴</span>
-          <span class="sec-cnt merged-count">${routines.length}</span>
+          <span class="merged-summary-label routine">루틴</span>
         </div>
-        <button class="brief-copy-btn" onclick="event.stopPropagation();saveTodayBriefingImage()">복사</button>
       </div>
       ${body}
     </div>
