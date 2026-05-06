@@ -6974,6 +6974,99 @@ select{
   margin-top:2px !important;
 }
 
+
+/* v1.0.75 request writer selector + memory card compact */
+.request-writer-tabs{
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding:2px 1px 8px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.request-writer-tabs::-webkit-scrollbar{display:none}
+.rq-writer-btn{
+  flex:0 0 auto;
+  height:32px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+  white-space:nowrap;
+}
+.rq-writer-btn.on{
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  border-color:var(--blue);
+}
+.rq-writer-direct{
+  margin-top:2px !important;
+}
+.request-writer-help{
+  margin-top:6px;
+  font-size:10.5px;
+  font-weight:800;
+  line-height:1.35;
+  color:var(--t3);
+}
+.request-writer-toggle.on{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+}
+.request-writer-toggle.off{
+  background:var(--bg) !important;
+  color:var(--t3) !important;
+  border:0 !important;
+}
+
+/* 🎂 기념일 탭 카드 초압축 다이어트 */
+.mem-card {
+  padding: 14px 16px !important;
+  min-height: auto !important;
+}
+.mem-card .memory-row {
+  align-items: center !important;
+  margin: 0 !important;
+}
+.mem-card .c-body {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+.mem-card .memory-title-line,
+.mem-card .memory-meta-line {
+  margin: 0 !important;
+  line-height: 1.25 !important;
+}
+.mem-card .memory-card-icon {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  margin: 0 !important;
+  border-radius:14px !important;
+  font-size:20px !important;
+}
+.mem-card .memory-meta-line{
+  margin-top:2px !important;
+  gap:7px !important;
+}
+.mem-card .chip{
+  height:auto !important;
+  padding:0 !important;
+  background:transparent !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+}
+.mem-card .mem-dday{
+  color:var(--pink-t) !important;
+  font-weight:950 !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -7031,14 +7124,14 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.74';
-const PASS_BUILD_VERSION='v1.0.74-manage-groups-calendar-dots';
+const APP_VERSION='v1.0.75';
+const PASS_BUILD_VERSION='v1.0.75-request-writer-memory-compact';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '관리 센터 메뉴 그룹핑 적용',
-  '시스템·백업·앱 정보 섹션 접기/펼치기 적용',
-  '달력 일정 점 크기 확대',
-  '일정/루틴 달력 뷰에서 점 위치를 날짜에 가깝게 조정'
+  '부탁 작성자 선택 칩 적용',
+  '기본 정보에서 부탁 작성자 노출 대상 설정',
+  '직접 입력 작성자 탭 추가',
+  '기념일 카드 초압축 다이어트'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -7505,6 +7598,7 @@ function ensureBaseTargets(){
     if(!('avatarCustom' in k))k.avatarCustom=false;
     if(!('showToday' in k))k.showToday=def;
     if(!('showRoutine' in k))k.showRoutine=('showToday' in k)?!!k.showToday:def;
+    if(!('showRequestWriter' in k))k.showRequestWriter=def;
 
     if(!Array.isArray(k.vacations))k.vacations=[];
     if((k.vacationStart||k.vacationEnd) && !k.vacations.some(v=>v.start===k.vacationStart&&v.end===k.vacationEnd)){
@@ -9594,6 +9688,30 @@ function touchReorderCancel(){
   document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
 }
 
+function requestWriterOptions(){
+  const names=[];
+  (family||[]).forEach(k=>{
+    const n=(k.name||'').trim();
+    if(!n || isHiddenBasePerson(n))return;
+    if(k.showRequestWriter===false)return;
+    if(!names.includes(n))names.push(n);
+  });
+  return names.length?names:getPersons().filter(Boolean);
+}
+function selectReqWriter(v){
+  const mode=document.getElementById('rq-writer-mode');
+  if(mode)mode.value=v||'__direct';
+  document.querySelectorAll('.rq-writer-btn').forEach(b=>{
+    b.classList.toggle('on', b.dataset.writer===String(v||'__direct'));
+  });
+  const direct=document.getElementById('rq-wr');
+  if(direct){
+    const isDirect=String(v||'__direct')==='__direct';
+    direct.style.display=isDirect?'block':'none';
+    if(isDirect)setTimeout(()=>direct.focus(),40);
+  }
+}
+
 function toggleFamilyToday(ki){
   if(!requireEditMode())return;
   if(!family[ki])return;
@@ -9607,6 +9725,13 @@ function toggleFamilyRoutine(ki){
   family[ki].showRoutine=!family[ki].showRoutine;
   saveSettingsOnly();
   render();
+}
+function toggleFamilyRequestWriter(ki){
+  if(!requireEditMode())return;
+  if(!family[ki])return;
+  family[ki].showRequestWriter=!family[ki].showRequestWriter;
+  saveSettingsOnly();
+  render({preserveScroll:true});
 }
 function openQuickColorPicker(ki){
   if(!requireEditMode())return;
@@ -9669,6 +9794,7 @@ function renderI(){
             <div class="fi-hd-btns">
               <button class="today-toggle-pill${kid.showToday?' on':' off'}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
               <button class="today-toggle-pill routine-toggle-pill${kid.showRoutine?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
+              <button class="today-toggle-pill request-writer-toggle${kid.showRequestWriter?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRequestWriter(${ki})">부탁 ${kid.showRequestWriter?'표시':'숨김'}</button>
             </div>
           </div>
           <div class="basic-info-subline">${escapeHtml(sub)}</div>
@@ -9857,6 +9983,10 @@ function renderR(){
 function openReqModal(id){
   const r=id?requests.find(x=>String(x.id)===String(id)):null;
   const reqDate=(r&&r.requestDate)||todayKey();
+  const writer=(r&&r.writer)||'';
+  const writers=requestWriterOptions();
+  const directMode=writer && !writers.includes(writer);
+  const selectedWriter=directMode?'__direct':(writer||writers[0]||'__direct');
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -9865,7 +9995,13 @@ function openReqModal(id){
       <div class="ml">부탁할 일</div>
       <input class="mi" id="rq-ti" placeholder="예: 준비물 챙겨줘, 학원 데려다줘" value="${r?escapeAttr(r.title):''}"/>
       <div class="ml">작성자</div>
-      <input class="mi" id="rq-wr" placeholder="예: 첫째, 둘째, 엄마" value="${r?escapeAttr(r.writer||''):''}"/>
+      <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
+      <div class="request-writer-tabs">
+        ${writers.map(w=>`<button type="button" class="rq-writer-btn${selectedWriter===w?' on':''}" data-writer="${escapeAttr(w)}" onclick="selectReqWriter(${onclickArg(w)})">${escapeHtml(w)}</button>`).join('')}
+        <button type="button" class="rq-writer-btn${selectedWriter==='__direct'?' on':''}" data-writer="__direct" onclick="selectReqWriter('__direct')">직접 입력</button>
+      </div>
+      <input class="mi rq-writer-direct" id="rq-wr" placeholder="직접 작성자 입력" value="${directMode?escapeAttr(writer):''}" style="display:${selectedWriter==='__direct'?'block':'none'}"/>
+      <div class="request-writer-help">기본 정보에서 ‘부탁 표시’를 켠 대상만 작성자 선택에 표시돼요.</div>
       <div class="ml">요청 일자</div>
       <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
       <div class="ml">마감</div>
@@ -9886,7 +10022,9 @@ function saveReq(id){
   if(!requireEditMode())return;
   const title=(document.getElementById('rq-ti')||{}).value||'';
   if(!title.trim())return;
-  const writer=(document.getElementById('rq-wr')||{}).value||'';
+  const writerMode=(document.getElementById('rq-writer-mode')||{}).value||'__direct';
+  const directWriter=(document.getElementById('rq-wr')||{}).value||'';
+  const writer=writerMode==='__direct'?directWriter.trim():writerMode.trim();
   const comment=(document.getElementById('rq-cm')||{}).value||'';
   const requestDate=getPickerVal('rq-date')||todayKey();
   const dueDate=getPickerVal('rq-due-date');
@@ -9895,11 +10033,11 @@ function saveReq(id){
   if(id){
     r=requests.find(x=>String(x.id)===String(id)); if(!r)return;
     const oldTitle=r.title;
-    r.title=title.trim(); r.writer=writer.trim(); r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
+    r.title=title.trim(); r.writer=writer; r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
     addChangeLog(`부탁 수정: ${oldTitle||r.title} → ${r.title}`);
   }else{
-    r={id:Date.now(),title:title.trim(),writer:writer.trim(),requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
+    r={id:Date.now(),title:title.trim(),writer,requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
     requests.push(r);
     addChangeLog(`부탁 추가: ${r.title}`);
   }
@@ -11714,7 +11852,7 @@ function editKid(i){
 function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
-  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,vacations:[]});
+  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,showRequestWriter:true,vacations:[]});
   saveSettingsOnly();editKid(family.length-1);
 }
 function saveKid(i){
