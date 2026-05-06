@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.0.83';
-const PASS_SW_BUILD_VERSION = 'v1.0.83-schedule-list-dashboard-swipe';
+const CACHE_NAME = 'pass-cal-v1.0.84';
+const PASS_SW_BUILD_VERSION = 'v1.0.84-routine-grouped-list';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 

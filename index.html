@@ -8266,6 +8266,229 @@ select{
   }
 }
 
+
+/* v1.0.84 routine grouped list / no handles / all targets */
+
+/* 기본 정보 표시/숨김 칩 제거 */
+.modern-basic-card .fi-hd-btns,
+.basic-info-card .fi-hd-btns,
+.today-toggle-pill.request-writer-toggle,
+.today-toggle-pill.routine-toggle-pill {
+  display: none !important;
+}
+
+/* 드래그 핸들 제거 */
+.routine-handle,
+.summary-handle {
+  display: none !important;
+}
+
+/* 기본 정보 카드: 이름/색상만 남기고 더 슬림하게 */
+.modern-basic-card{
+  min-height:58px !important;
+  padding:9px 12px !important;
+}
+.modern-basic-card .basic-info-main{
+  display:flex !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+.modern-basic-card .basic-info-line1{
+  width:100% !important;
+}
+.basic-info-name{
+  max-width:100% !important;
+}
+.quick-color-arrow{
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  font-size:17px !important;
+}
+
+/* 루틴 필터 + 리스트 하단 FAB 가림 방지 */
+.routine-filter-row{
+  margin-bottom:10px !important;
+}
+.grouped-routine-list,
+.routine-summary-list{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:13px !important;
+  padding-bottom:96px !important;
+}
+
+/* 대상자별 iOS 설정 스타일 그룹 카드 */
+.routine-person-block{
+  background:var(--card) !important;
+  border:1px solid rgba(0,0,0,.045) !important;
+  border-radius:20px !important;
+  box-shadow:0 5px 16px rgba(15,23,42,.045) !important;
+  overflow:hidden !important;
+}
+.routine-person-block-head{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) auto;
+  align-items:center;
+  gap:9px;
+  min-height:48px;
+  padding:10px 14px 8px;
+  border-bottom:1px solid rgba(0,0,0,.045);
+}
+.routine-person-avatar{
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.routine-person-avatar .avatar-img{
+  width:32px !important;
+  height:32px !important;
+  object-fit:contain !important;
+}
+.routine-person-name{
+  min-width:0;
+  font-size:14px;
+  font-weight:950;
+  letter-spacing:-.25px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.routine-person-count{
+  height:24px;
+  min-width:24px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:11px;
+  font-weight:950;
+}
+.routine-person-items{
+  padding:0 14px;
+}
+
+/* 개별 루틴은 카드가 아니라 리스트 행 */
+.routine-summary-item{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  min-height:48px;
+  padding:11px 0;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:1px solid rgba(0,0,0,.055) !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  cursor:pointer;
+  touch-action:pan-y;
+}
+.routine-summary-item:last-child{
+  border-bottom:none !important;
+}
+.routine-summary-item:active{
+  opacity:.72;
+}
+.routine-summary-content{
+  min-width:0;
+}
+.routine-summary-title{
+  min-width:0;
+  font-size:13.5px;
+  line-height:1.35;
+  font-weight:900;
+  color:#333D4B;
+  letter-spacing:-.25px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.routine-summary-meta{
+  margin-top:3px;
+  min-width:0;
+  font-size:11px;
+  line-height:1.35;
+  font-weight:800;
+  color:var(--t3);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.routine-summary-time{
+  flex:0 0 auto;
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,sans-serif !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+  font-size:12px;
+  font-weight:850;
+  color:#8B95A1;
+  white-space:nowrap;
+}
+
+/* 이전 개별 카드 스타일 무력화 */
+.repeat-summary-card{
+  box-shadow:none !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+.repeat-summary-card .routine-summary-avatar,
+.repeat-summary-card .summary-handle{
+  display:none !important;
+}
+
+/* 루틴 안내 문구 */
+.routine-reorder-hint{
+  white-space:nowrap;
+  font-size:11px !important;
+  font-weight:850 !important;
+  color:var(--t3) !important;
+}
+
+/* 모바일 보정 */
+@media (max-width:430px){
+  .routine-person-block-head{
+    grid-template-columns:30px minmax(0,1fr) auto;
+    gap:8px;
+    padding:9px 12px 7px;
+  }
+  .routine-person-avatar,
+  .routine-person-avatar .avatar-img{
+    width:30px !important;
+    height:30px !important;
+  }
+  .routine-person-items{
+    padding:0 12px;
+  }
+  .routine-summary-item{
+    min-height:46px;
+    padding:10px 0;
+    gap:8px;
+  }
+  .routine-summary-title{
+    font-size:13px;
+  }
+  .routine-summary-meta{
+    font-size:10.5px;
+  }
+  .routine-summary-time{
+    font-size:11.5px;
+  }
+}
+
+/* FAB가 마지막 콘텐츠를 가리지 않게 전체 루틴 영역도 여백 확보 */
+.fi-outer{
+  padding-bottom:94px !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -8323,16 +8546,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.83';
-const PASS_BUILD_VERSION='v1.0.83-schedule-list-dashboard-swipe';
+const APP_VERSION='v1.0.84';
+const PASS_BUILD_VERSION='v1.0.84-routine-grouped-list';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '등록 일정/완료 리스트 대시보드 1줄 스타일 적용',
-  '등록 일정 기본 기간 1개월 적용',
-  '대상별 그룹화 및 시간순 정렬',
-  '지난 일정 별도 경고 그룹 추가',
-  '완료 일정 투명도/취소선 처리',
-  '일정 행 스와이프 완료/수정/삭제 액션 적용'
+  '기본 정보 표시 토글 칩 제거',
+  '오늘/루틴/부탁 대상 전체 표시로 변경',
+  '루틴 드래그 핸들 제거',
+  '루틴 목록 대상자별 그룹 리스트 적용',
+  '루틴 중복 대상명/시작일 정보 다이어트',
+  'FAB 가림 방지 하단 여백 보정'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -10958,14 +11181,7 @@ function touchReorderCancel(){
 }
 
 function requestWriterOptions(){
-  const names=[];
-  (family||[]).forEach(k=>{
-    const n=(k.name||'').trim();
-    if(!n || isHiddenBasePerson(n))return;
-    if(k.showRequestWriter===false)return;
-    if(!names.includes(n))names.push(n);
-  });
-  return names.length?names:getPersons().filter(Boolean);
+  return getPersons().filter(Boolean);
 }
 function selectReqWriter(v){
   const mode=document.getElementById('rq-writer-mode');
@@ -11150,6 +11366,20 @@ function saveRepeatEdit(ii){
   showToast('루틴을 저장했어요.');
 }
 
+
+function repeatFutureStartSummary(item){
+  const start=item?.start||'';
+  if(start && start>todayKey())return `시작 ${dateLabel(start)}`;
+  return '';
+}
+function repeatCompactMeta(item){
+  const parts=[repeatDaysSummary(item?.days)];
+  const futureStart=repeatFutureStartSummary(item);
+  if(futureStart)parts.push(futureStart);
+  if(item?.pauseOnVacation)parts.push('방학 쉼');
+  return parts.filter(Boolean).join(' · ');
+}
+
 function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo')}`;
@@ -11175,11 +11405,6 @@ function renderI(){
               <span class="basic-info-person-name">${escapeHtml(kid.name||'대상')}</span>
               <span class="quick-color-arrow">▾</span>
             </button>
-            <div class="fi-hd-btns">
-              <button class="today-toggle-pill${kid.showToday?' on':' off'}" onclick="event.stopPropagation();toggleFamilyToday(${ki})">오늘 ${kid.showToday?'표시':'숨김'}</button>
-              <button class="today-toggle-pill routine-toggle-pill${kid.showRoutine?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRoutine(${ki})">루틴 ${kid.showRoutine?'표시':'숨김'}</button>
-              <button class="today-toggle-pill request-writer-toggle${kid.showRequestWriter?' on':' off'}" onclick="event.stopPropagation();toggleFamilyRequestWriter(${ki})">부탁 ${kid.showRequestWriter?'표시':'숨김'}</button>
-            </div>
           </div>
         </div>
       </div>`;
@@ -11193,51 +11418,64 @@ function renderI(){
     return (x.item.who||'공통')===routineTargetFilter;
   });
 
-  h+=`${sectionHeader('루틴 일정',visibleRepeats.length,routineOpen,'toggleRoutine')}`;
+  h+=`${sectionHeader('루틴 일정',visibleRepeats.length,routineOpen,'toggleRoutine',`
+    <span class="collapsed-hint routine-reorder-hint">꾹 눌러 순서 이동</span>
+  `)}`;
 
   if(routineOpen){
     h+=renderRoutineTargetFilter();
 
     if(visibleRepeats.length){
-      h+=`<div class="routine-summary-list">`;
-      visibleRepeats.forEach(({item,ii})=>{
-        const rid=item.id||ii;
-        const who=item.who||'공통';
-        const days=repeatDaysSummary(item.days);
-        const time=repeatTimeSummary(item);
-        const date=repeatDateSummary(item);
-        const vacation=item.pauseOnVacation?'방학 쉼':'';
-        h+=`<div class="fi-card repeat-summary-card reorder-card"
-          draggable="true"
-          data-reorder-list="repeatItems" data-reorder-id="${rid}"
-          onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
-          ondragstart="dragStart(event,'repeatItems','${rid}')"
-          ondragover="dragOver(event)"
-          ondrop="dropItem(event,'repeatItems','${rid}')"
-          ondragend="dragEnd(event)"
-          ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
-          ontouchmove="touchReorderMove(event)"
-          ontouchend="touchReorderEnd(event)"
-          ontouchcancel="touchReorderCancel()">
-          <div class="routine-handle summary-handle" title="꾹 눌러 이동">☰</div>
-          <div class="routine-summary-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="routine-summary-main">
-            <div class="routine-summary-line1">
-              <span class="routine-summary-title">${escapeHtml(item.title||'루틴 내용 없음')}</span>
-              <span class="routine-summary-time">${escapeHtml(time)}</span>
-            </div>
-            <div class="routine-summary-line2">
-              <span class="routine-summary-who" style="color:${personColor(who)}">${escapeHtml(who)}</span>
-              <span>${escapeHtml(days)}</span>
-              ${date?`<span>${escapeHtml(date)}</span>`:''}
-              ${vacation?`<span class="routine-summary-vac">${escapeHtml(vacation)}</span>`:''}
-            </div>
+      const groups={};
+      visibleRepeats.forEach(x=>{
+        const who=x.item.who||'공통';
+        if(!groups[who])groups[who]=[];
+        groups[who].push(x);
+      });
+      const order=getPersons();
+      const groupKeys=Object.keys(groups).sort((a,b)=>{
+        const ia=order.indexOf(a), ib=order.indexOf(b);
+        return (ia<0?999:ia)-(ib<0?999:ib);
+      });
+
+      h+=`<div class="routine-summary-list grouped-routine-list">`;
+      groupKeys.forEach(who=>{
+        const arr=groups[who];
+        h+=`<div class="routine-person-block">
+          <div class="routine-person-block-head">
+            <div class="routine-person-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+            <div class="routine-person-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+            <div class="routine-person-count">${arr.length}</div>
           </div>
-        </div>`;
+          <div class="routine-person-items">`;
+        arr.forEach(({item,ii})=>{
+          const rid=item.id||ii;
+          const time=repeatTimeSummary(item);
+          const meta=repeatCompactMeta(item);
+          h+=`<div class="routine-summary-item reorder-card"
+            draggable="true"
+            data-reorder-list="repeatItems" data-reorder-id="${rid}"
+            onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
+            ondragstart="dragStart(event,'repeatItems','${rid}')"
+            ondragover="dragOver(event)"
+            ondrop="dropItem(event,'repeatItems','${rid}')"
+            ondragend="dragEnd(event)"
+            ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+            ontouchmove="touchReorderMove(event)"
+            ontouchend="touchReorderEnd(event)"
+            ontouchcancel="touchReorderCancel()">
+            <div class="routine-summary-content">
+              <div class="routine-summary-title">${escapeHtml(item.title||'루틴 내용 없음')}</div>
+              <div class="routine-summary-meta">${escapeHtml(meta)}</div>
+            </div>
+            <div class="routine-summary-time">${escapeHtml(time)}</div>
+          </div>`;
+        });
+        h+=`</div></div>`;
       });
       h+=`</div>`;
     }else{
-      h+=renderEmptyState('routine',routineTargetFilter==='all'?'등록된 루틴 일정이 없어요':`${routineTargetFilter} 루틴이 없어요`,'오른쪽 아래 + 버튼으로 루틴을 추가해 보세요.');
+      h+=renderEmptyState('routine','등록된 루틴 일정이 없어요','오른쪽 아래 + 버튼으로 루틴을 추가해 보세요.');
     }
   }else{
     h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">접혀 있음</div>`;
@@ -12301,14 +12539,10 @@ function renderShiftWidget(){
 
 
 function selectedTodayTargets(){
-  return (family||[])
-    .filter(x=>x.showToday)
-    .map(x=>({id:x.id,label:(x.name||'대상')}));
+  return getPersons().map((label,i)=>({id:label||i,label}));
 }
 function selectedRoutineTargets(){
-  return (family||[])
-    .filter(x=>x.showRoutine)
-    .map(x=>({id:x.id,label:(x.name||'대상')}));
+  return getPersons().map((label,i)=>({id:label||i,label}));
 }
 function toggleTodayDashboard(){
   todayDashboardOpen=!todayDashboardOpen;
