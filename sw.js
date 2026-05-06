@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.0.76';
-const PASS_SW_BUILD_VERSION = 'v1.0.76-dashboard-tone-cleanup';
+const CACHE_NAME = 'pass-cal-v1.0.77';
+const PASS_SW_BUILD_VERSION = 'v1.0.77-title-action-sync';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
