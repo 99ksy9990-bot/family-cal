@@ -7889,6 +7889,202 @@ select{
   }
 }
 
+
+/* v1.0.82 routine summary view */
+.routine-filter-row{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding:0 16px 8px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.routine-filter-row::-webkit-scrollbar{display:none}
+.routine-filter-chip{
+  flex:0 0 auto;
+  height:30px;
+  padding:0 11px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background:var(--card);
+  color:var(--t2);
+  font-family:inherit;
+  font-size:11px;
+  font-weight:950;
+}
+.routine-filter-chip.on{
+  border-color:var(--blue);
+  background:var(--blue-bg);
+  color:var(--blue-t);
+}
+.routine-summary-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:0 0 2px;
+}
+.repeat-summary-card{
+  display:grid !important;
+  grid-template-columns:24px 36px minmax(0,1fr) !important;
+  gap:9px !important;
+  align-items:center !important;
+  min-height:58px !important;
+  padding:10px 12px !important;
+  border-radius:17px !important;
+  background:var(--card) !important;
+  border:1px solid rgba(0,0,0,.045) !important;
+  box-shadow:0 5px 15px rgba(15,23,42,.052) !important;
+  cursor:pointer;
+}
+.repeat-summary-card:active{
+  transform:scale(.985);
+}
+.repeat-summary-card .summary-handle{
+  width:24px !important;
+  height:30px !important;
+  background:transparent !important;
+  color:var(--t3) !important;
+  font-size:15px !important;
+}
+.routine-summary-avatar{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:visible;
+}
+.routine-summary-avatar .avatar-img{
+  width:34px !important;
+  height:34px !important;
+  object-fit:contain !important;
+}
+.routine-summary-main{
+  min-width:0;
+}
+.routine-summary-line1{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+}
+.routine-summary-title{
+  min-width:0;
+  font-size:13.5px;
+  font-weight:900;
+  color:#333D4B;
+  letter-spacing:-.25px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.routine-summary-time{
+  font-size:12px;
+  font-weight:850;
+  color:#8B95A1;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:'tnum' 1;
+  white-space:nowrap;
+}
+.routine-summary-line2{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:4px;
+  min-width:0;
+  overflow:hidden;
+  color:var(--t3);
+  font-size:10.8px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.routine-summary-line2 span{
+  flex:0 0 auto;
+}
+.routine-summary-who{
+  font-weight:950 !important;
+}
+.routine-summary-vac{
+  color:var(--green-t);
+  background:var(--green-bg);
+  border-radius:999px;
+  padding:1px 6px;
+}
+.routine-edit-topline{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:end;
+}
+.repeat-target-select-modal{
+  height:42px !important;
+}
+.modal-vacation-toggle{
+  height:42px !important;
+  padding:0 12px !important;
+  font-size:11px !important;
+  margin:0 !important;
+  max-width:none !important;
+}
+.routine-edit-days{
+  display:flex !important;
+  gap:5px !important;
+  flex-wrap:nowrap !important;
+  justify-content:space-between !important;
+  margin-top:4px !important;
+}
+.routine-edit-days .day-btn{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  font-size:11px !important;
+}
+.modal-summary{
+  display:inline-block;
+  margin-left:6px;
+  color:var(--t3);
+  font-size:10.5px;
+  font-weight:850;
+  letter-spacing:0;
+}
+.routine-edit-actions{
+  grid-template-columns:1fr 1fr !important;
+}
+@media (max-width:430px){
+  .repeat-summary-card{
+    grid-template-columns:22px 32px minmax(0,1fr) !important;
+    gap:8px !important;
+    min-height:54px !important;
+    padding:9px 11px !important;
+  }
+  .routine-summary-avatar,
+  .routine-summary-avatar .avatar-img{
+    width:31px !important;
+    height:31px !important;
+  }
+  .routine-summary-title{
+    font-size:13px !important;
+  }
+  .routine-summary-time{
+    font-size:11.5px !important;
+  }
+  .routine-summary-line2{
+    font-size:10.2px !important;
+    gap:5px !important;
+  }
+  .routine-edit-topline{
+    grid-template-columns:1fr !important;
+  }
+  .modal-vacation-toggle{
+    width:100%;
+  }
+  .routine-edit-days .day-btn{
+    width:29px !important;
+    height:29px !important;
+    min-width:29px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -7946,15 +8142,15 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.81';
-const PASS_BUILD_VERSION='v1.0.81-routine-layout-zoom-fix';
+const APP_VERSION='v1.0.82';
+const PASS_BUILD_VERSION='v1.0.82-routine-summary-view';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  'iOS 입력창 자동 확대 방지 viewport 적용',
-  '루틴 방학 버튼 제목 줄로 이동',
-  '루틴 대상/요일 한 줄 배치',
-  '루틴 카드 간격 확대',
-  '모바일 루틴 입력 레이아웃 안정화'
+  '루틴 목록 읽기 전용 요약 뷰 적용',
+  '루틴 수정은 바텀시트 모달로 분리',
+  '루틴 카드 높이 대폭 축소',
+  '루틴 대상자별 필터 추가',
+  '루틴 추가 시 바로 수정 모달 열기'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8065,7 +8261,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -10414,8 +10610,11 @@ function chCal(d){
 function addRepeatItem(){
   if(!requireEditMode())return;
   routineOpen=true;
-  repeatItems.unshift({id:Date.now(),who:getPersons()[0]||'공통',title:'',days:[],start:'',sT:'',eT:'',repeatEnd:''});
-  saveSettingsOnly();render();
+  const item={id:Date.now(),who:(routineTargetFilter&&routineTargetFilter!=='all'?routineTargetFilter:(getPersons()[0]||'공통')),title:'',days:[],start:'',sT:'',eT:'',repeatEnd:'',pauseOnVacation:false};
+  repeatItems.unshift(item);
+  saveSettingsOnly();
+  render({preserveScroll:true});
+  setTimeout(()=>openRepeatEditModal(0),60);
 }
 function delRepeatItem(ii){
   if(!requireEditMode())return;
@@ -10584,6 +10783,124 @@ function saveQuickColor(ki,color){
   showToast('색상을 변경했어요.');
 }
 
+
+function setRoutineTargetFilter(v){
+  routineTargetFilter=v||'all';
+  render({preserveScroll:true});
+}
+function repeatDaysSummary(days){
+  const a=Array.isArray(days)?days:[];
+  if(!a.length)return '요일 미선택';
+  if(a.length===7)return '매일';
+  const weekday=[1,2,3,4,5];
+  if(a.length===5 && weekday.every(x=>a.includes(x)))return '평일';
+  return a.map(i=>DAYS[i]).join('·');
+}
+function repeatTimeSummary(item){
+  const s=item?.sT||'';
+  const e=item?.eT||'';
+  if(s&&e)return `${s} ~ ${e}`;
+  if(s&&!e)return `${s}`;
+  if(!s&&e)return `~ ${e}`;
+  return '시간 없음';
+}
+function repeatDateSummary(item){
+  const parts=[];
+  if(item?.start)parts.push(`시작 ${dateLabel(item.start)}`);
+  if(item?.repeatEnd)parts.push(`종료 ${dateLabel(item.repeatEnd)}`);
+  return parts.join(' · ');
+}
+function renderRoutineTargetFilter(){
+  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  return `<div class="routine-filter-row">${opts.map(([k,label])=>{
+    const on=(routineTargetFilter||'all')===k;
+    return `<button class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})">${escapeHtml(label)}</button>`;
+  }).join('')}</div>`;
+}
+function toggleRepeatModalDay(ii,di){
+  const item=repeatItems[ii]; if(!item)return;
+  if(!Array.isArray(item.days))item.days=[];
+  const idx=item.days.indexOf(di);
+  if(idx>=0)item.days.splice(idx,1);else item.days.push(di);
+  item.days.sort((a,b)=>a-b);
+  saveSettingsOnly();
+  const btn=document.querySelector(`[data-edit-day="${ii}-${di}"]`);
+  if(btn)btn.classList.toggle('on',item.days.includes(di));
+  const summary=document.getElementById(`repeat-days-summary-${ii}`);
+  if(summary)summary.textContent=repeatDaysSummary(item.days);
+}
+function toggleRepeatModalVacation(ii){
+  const item=repeatItems[ii]; if(!item)return;
+  item.pauseOnVacation=!item.pauseOnVacation;
+  saveSettingsOnly();
+  const btn=document.getElementById(`repeat-vacation-${ii}`);
+  if(btn){
+    btn.classList.toggle('on',!!item.pauseOnVacation);
+    btn.textContent=item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF';
+  }
+}
+function openRepeatEditModal(ii){
+  if(!requireEditMode())return;
+  const item=repeatItems[ii];
+  if(!item)return;
+  const idp=`${ii}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet routine-edit-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">루틴 수정</div>
+      <div class="ml">루틴 내용</div>
+      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="예: 학교(6교시), 수학, 영어"/>
+      <div class="routine-edit-topline">
+        <div>
+          <div class="ml">대상</div>
+          <select class="mi repeat-target-select-modal" id="re-who-${ii}">
+            ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div class="ml">방학</div>
+          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${item.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
+            ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
+          </button>
+        </div>
+      </div>
+
+      <div class="ml">요일 <span class="modal-summary" id="repeat-days-summary-${ii}">${escapeHtml(repeatDaysSummary(item.days))}</span></div>
+      <div class="day-sel routine-edit-days">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" data-edit-day="${ii}-${di}" onclick="toggleRepeatModalDay(${ii},${di})">${d}</button>`).join('')}</div>
+
+      <div class="ml">날짜</div>
+      <div class="mi-2">
+        <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
+        <div><div class="sublabel">종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
+      </div>
+
+      <div class="ml">시간</div>
+      <div class="mi-2">
+        <div><div class="sublabel">시작 시간</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
+        <div><div class="sublabel">종료 시간</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+      </div>
+
+      <div class="action-grid routine-edit-actions">
+        <button class="toss-btn primary" onclick="saveRepeatEdit(${ii})">저장</button>
+        <button class="toss-btn danger" onclick="delRepeatItem(${ii});closeM()">삭제</button>
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
+}
+function saveRepeatEdit(ii){
+  if(!requireEditMode())return;
+  const item=repeatItems[ii];
+  if(!item)return;
+  item.title=(document.getElementById(`re-title-${ii}`)||{}).value||'';
+  item.who=(document.getElementById(`re-who-${ii}`)||{}).value||'공통';
+  saveSettingsOnly();
+  closeM();
+  render({preserveScroll:true});
+  showToast('루틴을 저장했어요.');
+}
+
 function renderI(){
   let h=`<div class="fi-outer">`;
   h+=`${sectionHeader('기본 정보',family.length,basicInfoOpen,'toggleBasicInfo')}`;
@@ -10622,53 +10939,57 @@ function renderI(){
     h+=`<div class="basic-info-collapsed" onclick="toggleBasicInfo()">접혀 있음</div>`;
   }
 
-  h+=`${sectionHeader('루틴 일정',repeatItems.length,routineOpen,'toggleRoutine')}`;
+  const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
+    if((routineTargetFilter||'all')==='all')return true;
+    return (x.item.who||'공통')===routineTargetFilter;
+  });
+
+  h+=`${sectionHeader('루틴 일정',visibleRepeats.length,routineOpen,'toggleRoutine')}`;
 
   if(routineOpen){
-    repeatItems.forEach((item,ii)=>{
-      const idp=`${ii}`;
-      const rid=item.id||ii;
-      h+=`<div class="fi-card repeat-item-card reorder-card"
-        draggable="true"
-        data-reorder-list="repeatItems" data-reorder-id="${rid}"
-        ondragstart="dragStart(event,'repeatItems','${rid}')"
-        ondragover="dragOver(event)"
-        ondrop="dropItem(event,'repeatItems','${rid}')"
-        ondragend="dragEnd(event)"
-        ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
-        ontouchmove="touchReorderMove(event)"
-        ontouchend="touchReorderEnd(event)"
-        ontouchcancel="touchReorderCancel()">
-        <div class="fi-hd">
-          <div class="routine-handle" title="꾹 눌러 이동">☰</div>
-          <input class="fi-input repeat-title-input" value="${escapeAttr(item.title||'')}" placeholder="루틴 내용 입력" onchange="updRepeatVal(${ii},'title',this.value)" onclick="event.stopPropagation();this.select()"/>
-          <button class="today-toggle-pill vacation-toggle${item.pauseOnVacation?' on':''}" onclick="event.stopPropagation();togglePauseOnVacation(${ii})">
-            ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
-          </button>
-          <button class="row-del" onclick="event.stopPropagation();delRepeatItem(${ii})">✕</button>
-        </div>
-        <div class="routine-compact-line routine-target-days-line">
-          <div class="routine-target-group">
-            <div class="ml inline-lbl">대상</div>
-            <select class="repeat-target-select" onchange="updRepeatVal(${ii},'who',this.value)" onclick="event.stopPropagation()">
-              ${getPersons().map(p=>`<option value="${escapeAttr(p)}" ${(item.who||'공통')===p?'selected':''}>${escapeHtml(p)}</option>`).join('')}
-            </select>
+    h+=renderRoutineTargetFilter();
+
+    if(visibleRepeats.length){
+      h+=`<div class="routine-summary-list">`;
+      visibleRepeats.forEach(({item,ii})=>{
+        const rid=item.id||ii;
+        const who=item.who||'공통';
+        const days=repeatDaysSummary(item.days);
+        const time=repeatTimeSummary(item);
+        const date=repeatDateSummary(item);
+        const vacation=item.pauseOnVacation?'방학 쉼':'';
+        h+=`<div class="fi-card repeat-summary-card reorder-card"
+          draggable="true"
+          data-reorder-list="repeatItems" data-reorder-id="${rid}"
+          onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
+          ondragstart="dragStart(event,'repeatItems','${rid}')"
+          ondragover="dragOver(event)"
+          ondrop="dropItem(event,'repeatItems','${rid}')"
+          ondragend="dragEnd(event)"
+          ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+          ontouchmove="touchReorderMove(event)"
+          ontouchend="touchReorderEnd(event)"
+          ontouchcancel="touchReorderCancel()">
+          <div class="routine-handle summary-handle" title="꾹 눌러 이동">☰</div>
+          <div class="routine-summary-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+          <div class="routine-summary-main">
+            <div class="routine-summary-line1">
+              <span class="routine-summary-title">${escapeHtml(item.title||'루틴 내용 없음')}</span>
+              <span class="routine-summary-time">${escapeHtml(time)}</span>
+            </div>
+            <div class="routine-summary-line2">
+              <span class="routine-summary-who" style="color:${personColor(who)}">${escapeHtml(who)}</span>
+              <span>${escapeHtml(days)}</span>
+              ${date?`<span>${escapeHtml(date)}</span>`:''}
+              ${vacation?`<span class="routine-summary-vac">${escapeHtml(vacation)}</span>`:''}
+            </div>
           </div>
-          <div class="routine-days-group">
-            <div class="ml inline-lbl">요일</div>
-            <div class="day-sel" onclick="event.stopPropagation()">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" onclick="toggleRepeatDay(${ii},${di})">${d}</button>`).join('')}</div>
-          </div>
-        </div>
-        <div class="routine-time-line" onclick="event.stopPropagation()">
-          <input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/>
-          <input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/>
-          <input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/>
-          <input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/>
-        </div>
-        <div class="repeat-help">선택한 요일마다 일정/달력에 자동 표시됩니다.</div>
-      </div>`;
-    });
-    if(!repeatItems.length)h+=`<div class="empty">등록된 루틴 일정이 없어요</div>`;
+        </div>`;
+      });
+      h+=`</div>`;
+    }else{
+      h+=renderEmptyState('routine',routineTargetFilter==='all'?'등록된 루틴 일정이 없어요':`${routineTargetFilter} 루틴이 없어요`,'오른쪽 아래 + 버튼으로 루틴을 추가해 보세요.');
+    }
   }else{
     h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">접혀 있음</div>`;
   }
