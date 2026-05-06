@@ -8085,6 +8085,187 @@ select{
   }
 }
 
+
+/* v1.0.83 schedule dashboard list + swipe actions */
+.schedule-dashboard-list{
+  background:#fff !important;
+  border-radius:20px !important;
+  padding:4px 14px !important;
+  box-shadow:0 4px 16px rgba(15,23,42,.04) !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  gap:0 !important;
+}
+.schedule-person-group{
+  padding:4px 0 2px !important;
+}
+.schedule-person-group + .schedule-person-group{
+  border-top:1px solid rgba(0,0,0,.045);
+}
+.schedule-person-group-title{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  height:28px;
+  font-size:11px;
+  font-weight:950;
+  color:var(--t3);
+  letter-spacing:-.1px;
+}
+.schedule-warning-group{
+  padding:4px 0 6px;
+  border-bottom:1px solid rgba(255,45,85,.12);
+  margin-bottom:2px;
+}
+.schedule-warning-title{
+  height:30px;
+  display:flex;
+  align-items:center;
+  font-size:12px;
+  font-weight:950;
+  color:var(--pink-t);
+}
+.schedule-line-card{
+  position:relative;
+  overflow:hidden;
+  touch-action:pan-y;
+  background:transparent !important;
+  border:0 !important;
+  border-bottom:1px solid rgba(0,0,0,.05) !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  padding:10px 0 !important;
+  margin:0 !important;
+  cursor:pointer;
+  will-change:transform;
+}
+.schedule-line-card:last-child{
+  border-bottom:none !important;
+}
+.schedule-line-grid{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr) 112px;
+  gap:10px;
+  align-items:center;
+  min-height:34px;
+  position:relative;
+  z-index:2;
+}
+.schedule-line-person{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  min-width:0;
+}
+.schedule-line-avatar{
+  width:26px;
+  height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.schedule-line-avatar .avatar-img{
+  width:26px !important;
+  height:26px !important;
+  object-fit:contain !important;
+}
+.schedule-line-name{
+  max-width:42px;
+  font-size:9.8px;
+  font-weight:950;
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
+}
+.schedule-line-title{
+  min-width:0;
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,sans-serif !important;
+  font-size:13px !important;
+  line-height:1.35 !important;
+  font-weight:900 !important;
+  color:#333D4B !important;
+  letter-spacing:-.25px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.schedule-line-title.done{
+  text-decoration:line-through;
+  color:var(--t3) !important;
+}
+.schedule-line-time{
+  font-family:'Pretendard','Freesentation',-apple-system,BlinkMacSystemFont,sans-serif !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+  font-size:11.5px !important;
+  line-height:1.3 !important;
+  font-weight:750 !important;
+  color:#8B95A1 !important;
+  text-align:left !important;
+  justify-self:start !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.schedule-line-card.missed .schedule-line-time{
+  color:var(--pink-t) !important;
+  font-weight:900 !important;
+}
+.schedule-line-card.done{
+  opacity:.5 !important;
+}
+.schedule-line-card.done .schedule-line-title{
+  text-decoration:line-through;
+}
+.done-list .schedule-person-group-title{
+  color:var(--t3);
+}
+.schedule-row-action-grid{
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+}
+.schedule-row-action-grid.has-postpone{
+  grid-template-columns:1fr 1fr 1fr !important;
+}
+.schedule-row-action-grid .toss-btn{
+  height:42px !important;
+  border-radius:14px !important;
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.schedule-dashboard-list .empty-state{
+  border:0 !important;
+  background:transparent !important;
+  min-height:96px !important;
+}
+@media (max-width:430px){
+  .schedule-dashboard-list{
+    padding:4px 12px !important;
+  }
+  .schedule-line-grid{
+    grid-template-columns:38px minmax(0,1fr) 102px;
+    gap:8px;
+  }
+  .schedule-line-avatar,
+  .schedule-line-avatar .avatar-img{
+    width:24px !important;
+    height:24px !important;
+  }
+  .schedule-line-name{
+    max-width:38px;
+    font-size:9.2px;
+  }
+  .schedule-line-title{
+    font-size:12.5px !important;
+  }
+  .schedule-line-time{
+    font-size:11px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -8142,15 +8323,16 @@ select{
 
 <script>
 
-const APP_VERSION='v1.0.82';
-const PASS_BUILD_VERSION='v1.0.82-routine-summary-view';
+const APP_VERSION='v1.0.83';
+const PASS_BUILD_VERSION='v1.0.83-schedule-list-dashboard-swipe';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '루틴 목록 읽기 전용 요약 뷰 적용',
-  '루틴 수정은 바텀시트 모달로 분리',
-  '루틴 카드 높이 대폭 축소',
-  '루틴 대상자별 필터 추가',
-  '루틴 추가 시 바로 수정 모달 열기'
+  '등록 일정/완료 리스트 대시보드 1줄 스타일 적용',
+  '등록 일정 기본 기간 1개월 적용',
+  '대상별 그룹화 및 시간순 정렬',
+  '지난 일정 별도 경고 그룹 추가',
+  '완료 일정 투명도/취소선 처리',
+  '일정 행 스와이프 완료/수정/삭제 액션 적용'
 ];
 let editUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1'}catch(e){editUnlocked=false}
@@ -8261,7 +8443,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='today',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='1m',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[];
 let weekOpen=false;
 let activeOpen=false;
@@ -9596,15 +9778,15 @@ function endItemSwipe(e){
 }
 function openSwipeNoteActions(id){
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
+  const missed=isMissedSchedule(n);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(n.title||'일정')}</div>
-      <div class="action-grid">
-        <button class="toss-btn primary" onclick="toggleNote('${id}');closeM()">완료</button>
-        <button class="toss-btn" onclick="openEditNote('${id}')">수정</button>
-        <button class="toss-btn" onclick="copyNoteWithDate?copyNoteWithDate('${id}'):copyNote('${id}')">복사</button>
+      <div class="action-grid schedule-row-action-grid${missed?' has-postpone':''}">
+        ${missed?`<button class="toss-btn primary" onclick="postponeNoteToToday('${id}')">오늘로 미루기</button>`:''}
+        <button class="toss-btn primary" onclick="openEditNote('${id}')">수정</button>
         <button class="toss-btn danger" onclick="delNote('${id}');closeM()">삭제</button>
       </div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
@@ -9691,53 +9873,7 @@ function endPanelSwipe(e){
 }
 
 function makeCard(n){
-  if(n._autoFamilyInfo){
-    const dts=dateTimeRange(n);
-    return`<div class="card auto-info-card">
-      <div class="c-row">
-        <div class="ev-dot" style="margin-top:8px;background:${personColor(n.who||'공통')}"></div>
-        <div class="c-body">
-          <div class="c-title">${highlightText(n.title)}</div>
-          <div class="c-meta">
-            <span class="person-chip" style="${targetPersonChipStyle(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
-            <span class="chip auto-info-chip">루틴</span>
-            ${dts?`<span class="chip chip-g">${dts}</span>`:''}
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }
-  const dts=dateTimeRange(n);
-  const done=isDone(n);
-  const dim=scheduleDimClass(n);
-  return`<div class="card swipe-card${dim}" onclick="if(!consumeSwipeTap())openDetailNote('${n.id}')" 
-    ontouchstart="startItemSwipe(event,'note','${n.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
-    onmousedown="startItemSwipe(event,'note','${n.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
-    draggable="true" ondragstart="dragStart(event,'notes','${n.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${n.id}')" ondragend="dragEnd(event)">
-    <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
-    <div class="c-row">
-      <div class="chk${done?' on':''}" onclick="event.stopPropagation();toggleNote('${n.id}')">
-        <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 5.5L4.5 9.5L12 1" stroke="#cc0000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="c-body">
-        <div class="c-title${done?' done':''}">${highlightText(n.title)}</div>
-        <div class="c-meta">
-          <span class="person-chip" style="${targetPersonChipStyle(n.who||'공통')}">${escapeHtml(n.who||'공통')}</span>
-          ${n.repeat?`<span class="chip repeat-chip">루틴</span>`:''}
-          ${scheduleDdayChip(n)}
-          ${n.alertMemo?`<span class="chip alert-chip${alertUrgentClass(n)}">알림</span>`:''}
-          ${dts?`<span class="chip chip-g">${dts}</span>`:''}
-        </div>
-        ${done&&n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">"${escapeHtml(n.comment)}"</button>`:''}
-        ${done&&!n.comment?`<button class="comment-pill" onclick="event.stopPropagation();openEditNote('${n.id}')">+ 메모 달기</button>`:''}
-      </div>
-      <div class="c-right">
-        <button class="small-link" onclick="event.stopPropagation();copyNoteWithDate?copyNoteWithDate('${n.id}'):copyNote('${n.id}')">복사</button>
-        <button class="small-link" onclick="event.stopPropagation();openEditNote('${n.id}')">수정</button>
-        <button class="small-link" onclick="event.stopPropagation();delNote('${n.id}')">삭제</button>
-      </div>
-    </div>
-  </div>`;
+  return makeScheduleRowCard(n,{});
 }
 
 
@@ -10267,21 +10403,129 @@ function renderEmptyState(kind,title,sub=''){
   return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
 }
 
-function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
-  if(!list.length)return renderEmptyState('schedule',emptyText);
-  const grouped = scheduleSort==='time' && !filterToday && activePer!=='today';
-  if(!grouped)return list.map(makeCard).join('');
-  let last='';
-  let html='';
-  list.forEach(n=>{
-    const k=scheduleGroupDate(n);
-    if(k!==last){
-      html+=`<div class="date-group-hd${k===todayKey()?' today':''}">${scheduleGroupLabel(k)}</div>`;
-      last=k;
-    }
-    html+=makeCard(n);
+
+function scheduleListDate(n){
+  if(!n)return '';
+  if(n._displayDate)return n._displayDate;
+  if(n.repeat)return nextOccurrence(n,scheduleBaseKey?scheduleBaseKey():todayKey());
+  return n.start||'';
+}
+function shortDateWithDow(k){
+  if(!k)return '';
+  const [y,m,d]=String(k).split('-').map(Number);
+  if(!y||!m||!d)return '';
+  const dow=DAYS[new Date(y,m-1,d).getDay()]||'';
+  return `${m}/${d}(${dow})`;
+}
+function scheduleListDateTime(n){
+  const k=scheduleListDate(n);
+  const date=shortDateWithDow(k);
+  const s=n?.sT||'';
+  const e=n?.eT||'';
+  let time='';
+  if(s&&e)time=`${s} ~ ${e}`;
+  else if(s)time=s;
+  else if(e)time=`~ ${e}`;
+  return [date,time].filter(Boolean).join(' ');
+}
+function isMissedSchedule(n,baseKey=scheduleBaseKey?scheduleBaseKey():todayKey()){
+  if(!n||isDone(n)||n._autoFamilyInfo)return false;
+  if(n.repeat)return false;
+  const k=n.start||'';
+  return !!k && k<baseKey;
+}
+function scheduleListSort(arr){
+  return [...(arr||[])].sort((a,b)=>{
+    const pa=personRank(a), pb=personRank(b);
+    if(pa!==pb)return pa-pb;
+    const da=scheduleListDate(a)||'', db=scheduleListDate(b)||'';
+    if(da!==db)return da.localeCompare(db);
+    const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+    if(ta!==tb)return ta.localeCompare(tb);
+    return String(a.title||'').localeCompare(String(b.title||''),'ko');
   });
+}
+function postponeNoteToToday(id){
+  if(!requireEditMode())return;
+  const n=notes.find(x=>String(x.id)===String(id));
+  if(!n)return;
+  const oldStart=n.start||'';
+  const oldEnd=n.end||'';
+  let dur=0;
+  if(oldStart&&oldEnd&&oldEnd>oldStart){
+    dur=Math.max(0,daysBetween(oldStart,oldEnd));
+  }
+  n.start=todayKey();
+  n.end=dur?addDaysStr(todayKey(),dur):'';
+  addChangeLog(`일정 오늘로 미루기: ${n.title||'일정'}`);
+  saveNoteOnly(n);
+  closeM();
+  render({preserveScroll:true});
+  showToast('오늘 일정으로 미뤘어요.');
+}
+function scheduleRowMetaClass(n){
+  if(isDone(n))return ' done';
+  if(isMissedSchedule(n))return ' missed';
+  return '';
+}
+function makeScheduleRowCard(n,opts={}){
+  if(!n)return '';
+  const done=isDone(n);
+  const missed=opts.missed || isMissedSchedule(n);
+  const who=n.who||'공통';
+  const id=String(n.id||'');
+  const isAuto=!!n._autoFamilyInfo;
+  const click=isAuto?'':`onclick="if(!consumeSwipeTap())openDetailNote('${id}')"`;
+  const swipe=isAuto?'':`
+    ontouchstart="startItemSwipe(event,'note','${id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
+    onmousedown="startItemSwipe(event,'note','${id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"`;
+  const drag=isAuto?'':`draggable="true" ondragstart="dragStart(event,'notes','${id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${id}')" ondragend="dragEnd(event)"`;
+  return `<div class="schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}" ${click} ${swipe} ${drag}>
+    <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
+    <div class="schedule-line-grid">
+      <div class="schedule-line-person">
+        <div class="schedule-line-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+        <div class="schedule-line-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+      </div>
+      <div class="schedule-line-title${done?' done':''}">${highlightText(n.title||'일정')}</div>
+      <div class="schedule-line-time">${escapeHtml(scheduleListDateTime(n)||'날짜 없음')}</div>
+    </div>
+  </div>`;
+}
+function renderSchedulePersonGroups(list,opts={}){
+  const arr=scheduleListSort(list||[]);
+  if(!arr.length)return '';
+  const groups={};
+  arr.forEach(n=>{
+    const who=n.who||'공통';
+    if(!groups[who])groups[who]=[];
+    groups[who].push(n);
+  });
+  const persons=getPersons();
+  const keys=Object.keys(groups).sort((a,b)=>{
+    const ia=persons.indexOf(a), ib=persons.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  return keys.map(who=>`<div class="schedule-person-group">
+    <div class="schedule-person-group-title"><span class="target-dot" style="background:${personColor(who)}"></span>${escapeHtml(who)}</div>
+    ${groups[who].map(n=>makeScheduleRowCard(n,opts)).join('')}
+  </div>`).join('');
+}
+function renderScheduleDashboardList(normal=[],missed=[],emptyText='등록 일정이 없어요',opts={}){
+  if(!normal.length&&!missed.length)return renderEmptyState(opts.done?'done':'schedule',emptyText,opts.done?'완료한 일정은 이곳에 모여요.':'최근 1개월 안에 표시할 일정이 없어요.');
+  let html='';
+  if(missed.length){
+    html+=`<div class="schedule-warning-group">
+      <div class="schedule-warning-title">⚠️ 지난 일정</div>
+      ${scheduleListSort(missed).map(n=>makeScheduleRowCard(n,{missed:true})).join('')}
+    </div>`;
+  }
+  html+=renderSchedulePersonGroups(normal,opts);
   return html;
+}
+
+function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
+  return renderScheduleDashboardList(list,[],emptyText,{});
 }
 function openRoutineFabSheet(){
   if(!requireEditMode())return;
@@ -10327,42 +10571,47 @@ function renderFab(){
 
 function renderS(){
   const baseKey=scheduleBaseKey();
+  const targetOk=n=>subF==='all'||(n.who||'공통')===subF;
+  const noteOk=n=>!isDone(n)&&matchSearchNote(n)&&targetOk(n);
+
+  const missed=notes.filter(n=>{
+    if(!noteOk(n))return false;
+    return isMissedSchedule(n,baseKey);
+  }).map(n=>({...n,_displayDate:n.start||''}));
+
   let active=notes.filter(n=>{
-    if(isDone(n)) return false;
-    if(!matchSearchNote(n)) return false;
-    if(filterToday) return occursOn(n,baseKey);
-    return (subF==='all'||(n.who||'공통')===subF) && activeInPeriod(n);
+    if(!noteOk(n))return false;
+    if(isMissedSchedule(n,baseKey))return false;
+    if(filterToday)return occursOn(n,baseKey);
+    return activeInPeriod(n);
+  }).map(n=>{
+    const k=n.repeat?nextOccurrence(n,baseKey):(n.start||'');
+    return {...n,_displayDate:k||n.start||''};
   });
 
-  const autoActive=(activePer==='today'||filterToday)
-    ? familyInfoEventsForKey(baseKey).filter(n=>autoInfoMatchesFilter(n)&&matchSearchNote(n))
-    : familyInfoUpcomingEvents(90).filter(n=>{
-        if(!autoInfoMatchesFilter(n))return false;
-        if(!matchSearchNote(n))return false;
-        return activeInPeriod(n);
-      });
-  active=[...active,...autoActive];
-  active=sortScheduleList(active);
+  active=scheduleListSort(active);
+
   let doneFilt=notes.filter(n=>{
     if(!isDone(n))return false;
     if(!matchSearchNote(n))return false;
     if(doneF!=='all'&&(n.who||'공통')!==doneF)return false;
     if(!n.start)return true;
     return new Date(n.start)>=doneAfter();
-  });
-  doneFilt=sortScheduleList(doneFilt);
+  }).map(n=>({...n,_displayDate:n.start||''}));
+  doneFilt=scheduleListSort(doneFilt);
 
+  const activeCount=active.length+missed.length;
   const activeCards = activeOpen
-    ? `<div class="card-wrap schedule-card-list">${renderScheduleCardList(active,'등록 일정이 없어요')}</div>`
+    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,missed,'등록 일정이 없어요')}</div>`
     : `<div class="schedule-collapsed-hint">접혀 있음</div>`;
 
   const doneCards = doneOpen
-    ? `<div class="card-wrap schedule-card-list" style="margin-top:8px">${doneFilt.length ? doneFilt.map(makeCard).join('') : renderEmptyState('done','완료된 일정이 없어요','완료한 일정은 이곳에 모여요.')}</div>`
+    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(doneFilt,[],'완료된 일정이 없어요',{done:true})}</div>`
     : '';
 
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    ${sectionHeader('등록 일정',active.length,activeOpen,'toggleActive',`
+    ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
       <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
       <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
