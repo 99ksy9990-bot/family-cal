@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.3';
-const PASS_BUILD_VERSION='v1.3.3-avatar-repeat-layout';
+const APP_VERSION='v1.3.4';
+const PASS_BUILD_VERSION='v1.3.4-upcoming-merge-repeat-tight';
 const APP_UPDATED='2026-05-07';
 
 
@@ -120,7 +120,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='1m',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='person',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='1m',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='time',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[],shiftBulkUser='';
 let weekOpen=false;
 let activeOpen=false;
@@ -2481,7 +2481,7 @@ function sortScheduleList(arr){
   return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
 }
 function scheduleSortLabel(){
-  return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별우선':scheduleSort==='manual'?'입력순':'시간순';
+  return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별우선':scheduleSort==='manual'?'입력순':'다가오는순';
 }
 function setScheduleSort(t){
   scheduleSort=t;
@@ -2537,7 +2537,7 @@ function openRoutineAddFromSchedule(){
 
 function openSortSheet(){
   const opts=[
-    ['time','시간순','시작 시간이 빠른 일정부터 표시'],
+    ['time','다가오는순','가까운 일정부터 순서대로 표시'],
     ['person','대상별 묶어보기','대상별로 묶고 그룹 안은 시간순'],
     ['special','특별 일정 우선','일반 일정 먼저, 반복은 뒤에 표시'],
     ['manual','입력순','등록한 순서 그대로 표시']
@@ -5284,7 +5284,7 @@ function renderHomeWidgets(){
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}${renderUpcomingPreview()}</div>`;
+  return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}</div>`;
 }
 
 function renderManualNotice(){

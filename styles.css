@@ -1811,3 +1811,118 @@ body[data-theme="dark"] .today-dashboard .routine-2col-head .merged-routine-avat
 body[data-theme="dark"] .person-routine-card .card-avatar{
   background:rgba(255,255,255,.96);
 }
+
+
+/* v1.3.4 merged upcoming widget + schedule font / repeat layout cleanup */
+.schedule-line-card .modern-schedule-title,
+.dashboard-standard-row .modern-schedule-title{
+  font-family:"Pretendard","Freesentation",-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  font-size:15px;
+  font-weight:900;
+  line-height:1.32;
+  letter-spacing:-.24px;
+  color:var(--t1);
+}
+.schedule-line-card .modern-schedule-date,
+.dashboard-standard-row .modern-schedule-date,
+.dashboard-row-time{
+  font-family:"Pretendard","Freesentation",-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  font-size:13px;
+  line-height:1.32;
+  letter-spacing:-.14px;
+  font-weight:750;
+}
+.dashboard-row-time{font-weight:800}
+@media (max-width:430px){
+  .schedule-line-card .modern-schedule-title,
+  .dashboard-standard-row .modern-schedule-title{font-size:14px}
+  .schedule-line-card .modern-schedule-date,
+  .dashboard-standard-row .modern-schedule-date,
+  .dashboard-row-time{font-size:12px}
+}
+
+.person-routine-card{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:4px 0 0 !important;
+  gap:4px;
+}
+.person-routine-card .card-avatar{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 2px;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+}
+.person-routine-card .card-avatar .avatar-img{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+}
+.person-routine-card .card-name{
+  margin-bottom:4px;
+  font-size:12px;
+}
+.person-routine-items{
+  width:100%;
+  background:#F4F4F6;
+  border:1px solid rgba(0,0,0,.045);
+  border-radius:15px;
+  padding:2px 8px;
+}
+.card-routine-item{
+  min-height:26px;
+  padding:2px 0;
+  gap:5px;
+}
+.routine-title{font-size:11.5px;line-height:1.15}
+.routine-submeta{margin-top:0;font-size:9.5px;line-height:1.1}
+.routine-meta{font-size:10px;line-height:1.1}
+
+.today-dashboard .routine-2col-card{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:4px 0 0 !important;
+  gap:3px;
+}
+.today-dashboard .routine-2col-head{gap:2px}
+.today-dashboard .routine-2col-head .merged-routine-avatar,
+.today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.today-dashboard .routine-2col-box{
+  width:100%;
+  background:#F4F4F6;
+  border:1px solid rgba(0,0,0,.045);
+  border-radius:15px;
+  padding:2px 8px;
+}
+.today-dashboard .routine-2col-row,
+.today-dashboard .routine-placeholder-row{
+  min-height:20px;
+  padding:2px 0;
+  gap:4px;
+}
+.today-dashboard .routine-2col-row .merged-routine-title{
+  font-size:11.5px;
+  line-height:1.15;
+}
+.today-dashboard .routine-2col-row .merged-routine-time{
+  font-size:10px;
+  line-height:1.1;
+}
+body[data-theme="dark"] .person-routine-items,
+body[data-theme="dark"] .today-dashboard .routine-2col-box{
+  background:rgba(255,255,255,.05);
+  border-color:rgba(255,255,255,.08);
+}
