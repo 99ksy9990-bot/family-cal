@@ -12796,6 +12796,116 @@ body[data-theme="dark"] .shift-day-col.today{
   .col-badge{width:22px !important;height:22px !important;min-width:22px !important;font-size:11px !important;}
 }
 
+
+/* v1.2.15 반복 2열 복구 / 축하 접힘 / 할일 Empty State */
+
+/* 오늘 대시보드 반복 영역: 이전 2열 카드 레이아웃 복구 */
+.today-dashboard .dashboard-routine-2col,
+.today-dashboard .merged-routine-wrap.dashboard-routine-2col{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:stretch !important;
+}
+.today-dashboard .routine-2col-card{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:8px !important;
+  height:100% !important;
+  background:#F4F4F6 !important;
+  border:1px solid rgba(0,0,0,.045) !important;
+  border-radius:18px !important;
+  padding:14px 12px !important;
+  box-shadow:none !important;
+}
+.today-dashboard .routine-2col-head{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:5px !important;
+  margin:0 !important;
+}
+.today-dashboard .routine-2col-head .merged-routine-avatar,
+.today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img{
+  width:38px !important;
+  height:38px !important;
+  object-fit:contain !important;
+}
+.today-dashboard .routine-2col-head .merged-routine-person.under-avatar{
+  display:none !important;
+}
+.today-dashboard .routine-2col-box{
+  width:100% !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  box-shadow:none !important;
+}
+.today-dashboard .routine-2col-row{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  gap:8px !important;
+  align-items:center !important;
+  width:100% !important;
+  min-height:34px !important;
+  padding:7px 2px !important;
+  border-bottom:1px solid rgba(0,0,0,.055) !important;
+}
+.today-dashboard .routine-2col-row:last-child{border-bottom:none !important;}
+.today-dashboard .routine-2col-row .merged-routine-title{
+  min-width:0 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  color:var(--t1) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  letter-spacing:-.2px !important;
+}
+.today-dashboard .routine-2col-row .merged-routine-time{
+  font-size:12px !important;
+  font-weight:800 !important;
+  color:var(--t3) !important;
+  white-space:nowrap !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+}
+.today-dashboard .routine-placeholder-row .merged-routine-title,
+.today-dashboard .routine-placeholder-row .merged-routine-time{color:transparent !important;}
+
+@media (max-width:360px){
+  .today-dashboard .dashboard-routine-2col,
+  .today-dashboard .merged-routine-wrap.dashboard-routine-2col{grid-template-columns:1fr !important;}
+}
+
+/* 축하 탭 접힘/펼침: 안내 문구 제거 후 실제 접힘 표시 */
+.memory-card-wrap{transition:opacity .15s ease !important;}
+.warm-collapsed-hint{font-size:11.5px !important;}
+
+/* 할일 진행 중 Empty State를 일정 탭과 같은 톤으로 */
+.todo-empty-wrap{padding-top:0 !important;}
+.todo-empty-wrap .empty-state{
+  min-height:112px !important;
+  padding:18px 14px !important;
+  border-radius:22px !important;
+  background:var(--surface-sunken) !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+.todo-empty-wrap .empty-emoji{font-size:34px !important;}
+.todo-empty-wrap .empty-title{font-size:14px !important;font-weight:950 !important;color:var(--t2) !important;}
+.todo-empty-wrap .empty-sub{font-size:11.5px !important;color:var(--t3) !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;}
+body[data-theme="dark"] .today-dashboard .routine-2col-card,
+body[data-theme="dark"] .todo-empty-wrap .empty-state{background:rgba(255,255,255,.05) !important;border-color:rgba(255,255,255,.08) !important;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12853,18 +12963,17 @@ body[data-theme="dark"] .shift-day-col.today{
 
 <script>
 
-const APP_VERSION='v1.2.14';
-const PASS_BUILD_VERSION='v1.2.14-shift-5day-person-row';
+const APP_VERSION='v1.2.15';
+const PASS_BUILD_VERSION='v1.2.15-repeat-2col-memory-fold-todo-empty';
 const APP_UPDATED='2026-05-07';
 
 
 
 const UPDATE_LOG=[
-  '사람별 5일 상태 위젯을 가로 1줄 구조로 변경',
-  '각 날짜 칸을 날짜/상태 2단 컬럼으로 정리',
-  '상태 배지를 1글자 컬러 칩으로 압축',
-  '상태 위젯 아바타와 이름을 마이크로 레이아웃으로 정리',
-  '상태 위젯 스와이프/날짜 클릭 동작 유지'
+  '오늘 대시보드 반복 영역을 2열 카드 레이아웃으로 복구',
+  '축하 탭 디데이 가까운 순 안내 문구 삭제',
+  '축하 탭 접기/펼치기 동작 활성화',
+  '할일 진행 중 빈 화면을 일정 탭과 같은 Empty State로 통일'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -16577,7 +16686,7 @@ function renderR(){
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   const activeBody = active.length
     ? `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`
-    : `<div class="todo-empty-inline"><span class="todo-empty-emoji">🧡</span><span>진행 중 할일이 없어요.</span></div>`;
+    : `<div class="card-wrap todo-empty-wrap">${renderEmptyState('request','등록된 할일이 없어요','오른쪽 아래 + 버튼으로 할일을 추가해 보세요.')}</div>`;
   return`
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest')}
     ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">할일 목록을 잠시 접어뒀어요.</div>`}
@@ -16713,12 +16822,17 @@ function makeMemoryCard(x){
   </div>`;
 }
 function noopSection(){}
+let memoryOpen=true;
+function toggleMemory(){memoryOpen=!memoryOpen;render({preserveScroll:true});}
 
 function renderM(){
   const memList=sortedMemoriesForDisplay();
+  const body=memoryOpen
+    ? `<div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','축하할 날이 없어요','생일, 축하, 여행의 순간을 예쁘게 기록해 보세요.')}</div>`
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint">축하 목록을 잠시 접어뒀어요.</div>`;
   return`
-    ${sectionHeader('축하',memories.length,true,'noopSection',`<span class="collapsed-hint">디데이 가까운 순</span>`)}
-    <div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','축하할 날이 없어요','생일, 축하, 여행의 순간을 예쁘게 기록해 보세요.')}</div>
+    ${sectionHeader('축하',memories.length,memoryOpen,'toggleMemory')}
+    ${body}
   `;
 }
 function openMemoryModal(id){
@@ -17808,8 +17922,34 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     ? `<div class="dashboard-standard-list merged-schedule-wrap">${schedule.map(n=>makeTodayDashboardStandardRow(n,{baseKey})).join('')}</div>`
     : `<div class="dashboard-standard-list merged-schedule-wrap merged-empty-card">${renderBriefEmptyState('schedule','등록 일정 없음')}</div>`;
 
-  const routineBody=routines.length
-    ? `<div class="dashboard-standard-list dashboard-routine-list">${routines.map(n=>makeTodayDashboardStandardRow(n,{baseKey,routine:true})).join('')}</div>`
+  const routineGroups={};
+  routines.forEach(n=>{
+    const who=n.who||'공통';
+    if(!routineGroups[who])routineGroups[who]=[];
+    routineGroups[who].push(n);
+  });
+  const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
+  const maxRows=groupKeys.length?Math.max(...groupKeys.map(w=>routineGroups[w].length)):0;
+  const routineBody=groupKeys.length
+    ? `<div class="merged-routine-wrap dashboard-routine-2col">${groupKeys.map(who=>{
+        const rows=routineGroups[who];
+        const filler=Math.max(0,maxRows-rows.length);
+        return `<div class="merged-routine-group routine-2col-card">
+          <div class="merged-routine-head routine-2col-head">
+            <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+            <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
+          </div>
+          <div class="merged-routine-box routine-2col-box">${rows.map(n=>{
+            const tm=todayTimeOnly(n)||'';
+            const kind=n._autoFamilyInfo?'auto':'note';
+            const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+            return `<div class="merged-routine-row routine-2col-row" onclick="openRoutineInstanceDetail(${onclickArg(n.title||'반복')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})" style="cursor:pointer">
+              <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
+              <div class="merged-routine-time">${escapeHtml(tm)}</div>
+            </div>`;
+          }).join('')}${Array.from({length:filler},()=>`<div class="merged-routine-row routine-2col-row routine-placeholder-row" aria-hidden="true"><div class="merged-routine-title">&nbsp;</div><div class="merged-routine-time">&nbsp;</div></div>`).join('')}</div>
+        </div>`;
+      }).join('')}</div>`
     : `<div class="dashboard-standard-list dashboard-routine-list merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
 
   const body=bothEmpty
