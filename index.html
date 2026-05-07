@@ -12650,6 +12650,152 @@ details.detail-settings[open] summary::after{transform:translateY(2px) rotate(13
   .memory-subject-avatar-grid .avatar-choice img,.avatar-choice img{width:32px !important;height:32px !important;}
 }
 
+
+/* v1.2.14 person-based 5-day status row */
+.shift-widget-shell.shift-5day-shell{
+  display:block !important;
+  padding:10px var(--page-x,18px) 0 !important;
+  touch-action:pan-y !important;
+}
+.shift-5day-widget{
+  width:100% !important;
+  background:#fff !important;
+  border:1px solid var(--divider,rgba(0,0,0,.06)) !important;
+  border-radius:22px !important;
+  box-shadow:var(--shadow-card,0 2px 12px rgba(15,23,42,.06)) !important;
+  padding:10px 10px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+}
+.shift-5day-row{
+  display:grid !important;
+  grid-template-columns:48px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:48px !important;
+}
+.shift-5day-row + .shift-5day-row{
+  padding-top:8px !important;
+  border-top:1px solid rgba(0,0,0,.045) !important;
+}
+.shift-person{
+  min-width:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:3px !important;
+}
+.shift-micro-avatar{
+  width:26px !important;
+  height:26px !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+.shift-person-name{
+  max-width:48px !important;
+  font-size:10px !important;
+  line-height:1.05 !important;
+  font-weight:950 !important;
+  color:var(--t2,#6B6B6F) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.shift-days-container{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:5px !important;
+  min-width:0 !important;
+}
+.shift-day-col{
+  min-width:0 !important;
+  width:100% !important;
+  height:48px !important;
+  border:0 !important;
+  background:transparent !important;
+  border-radius:12px !important;
+  padding:3px 0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:4px !important;
+  font-family:inherit !important;
+  cursor:pointer !important;
+  transition:background .14s ease, transform .12s ease !important;
+}
+.shift-day-col.today{
+  background:#F2F7FF !important;
+  box-shadow:inset 0 0 0 1px rgba(0,122,255,.10) !important;
+}
+.shift-day-col:active{
+  transform:scale(.96) !important;
+  background:var(--surface-sunken,rgba(0,0,0,.035)) !important;
+}
+.col-date{
+  font-size:10px !important;
+  font-weight:800 !important;
+  color:#8B95A1 !important;
+  letter-spacing:-.3px !important;
+  white-space:nowrap !important;
+  line-height:1 !important;
+}
+.shift-day-col.today .col-date{
+  color:var(--blue-t,#0055B3) !important;
+  font-weight:950 !important;
+}
+.col-badge{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:24px !important;
+  height:24px !important;
+  min-width:24px !important;
+  border-radius:6px !important;
+  font-size:12px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  letter-spacing:-.1px !important;
+  padding:0 !important;
+}
+.col-badge.shift-day{background:#EAF3FF !important;color:#007AFF !important;}
+.col-badge.shift-evening{background:#E5F8FF !important;color:#0086B8 !important;}
+.col-badge.shift-night{background:#F0E6FF !important;color:#7B61FF !important;}
+.col-badge.shift-off{background:#FFF0F3 !important;color:#FF3B30 !important;}
+.col-badge.shift-half{background:#FFF4E6 !important;color:#FF9500 !important;}
+.col-badge.shift-custom{background:#F4F4F6 !important;color:#333D4B !important;}
+.col-badge.shift-empty{background:#F4F4F6 !important;color:#B0B8C1 !important;}
+.shift-swipe-hint-text.compact{
+  margin:0 !important;
+  text-align:center !important;
+  font-size:10px !important;
+  color:var(--t3,#AEAEB2) !important;
+  font-weight:850 !important;
+}
+body[data-theme="dark"] .shift-5day-widget{
+  background:#1C1C1E !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:none !important;
+}
+body[data-theme="dark"] .shift-5day-row + .shift-5day-row{
+  border-top-color:rgba(255,255,255,.08) !important;
+}
+body[data-theme="dark"] .shift-day-col.today{
+  background:rgba(102,178,255,.10) !important;
+  box-shadow:inset 0 0 0 1px rgba(102,178,255,.16) !important;
+}
+@media (max-width:360px){
+  .shift-5day-widget{padding:9px 8px !important;gap:7px !important;}
+  .shift-5day-row{grid-template-columns:42px minmax(0,1fr) !important;gap:6px !important;}
+  .shift-person-name{max-width:42px !important;font-size:9.5px !important;}
+  .shift-micro-avatar{width:24px !important;height:24px !important;}
+  .shift-days-container{gap:4px !important;}
+  .col-date{font-size:9.5px !important;}
+  .col-badge{width:22px !important;height:22px !important;min-width:22px !important;font-size:11px !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12707,17 +12853,18 @@ details.detail-settings[open] summary::after{transform:translateY(2px) rotate(13
 
 <script>
 
-const APP_VERSION='v1.2.13';
-const PASS_BUILD_VERSION='v1.2.13-memory-display-person-senior';
+const APP_VERSION='v1.2.14';
+const PASS_BUILD_VERSION='v1.2.14-shift-5day-person-row';
 const APP_UPDATED='2026-05-07';
 
 
+
 const UPDATE_LOG=[
-  '축하 탭 표시 인물 개념 추가',
-  '기존 가족 대상 연결/직접 입력 인물 분리',
-  '직접 입력 인물은 일정·할일·상태 대상자에 포함하지 않음',
-  'seniorM/seniorF 아바타 6개씩 추가',
-  '접힘 아이콘을 동그라미 없이 꺾새만 표시하도록 통일'
+  '사람별 5일 상태 위젯을 가로 1줄 구조로 변경',
+  '각 날짜 칸을 날짜/상태 2단 컬럼으로 정리',
+  '상태 배지를 1글자 컬러 칩으로 압축',
+  '상태 위젯 아바타와 이름을 마이크로 레이아웃으로 정리',
+  '상태 위젯 스와이프/날짜 클릭 동작 유지'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -17440,6 +17587,24 @@ function consumeSwipeTap(){
   if(Date.now()<swipeTapUntil)return true;
   return false;
 }
+
+function shiftColBadgeClass(status){
+  const s=String(status||'').trim();
+  const u=s.toUpperCase();
+  if(!s)return 'shift-empty';
+  if(u==='D' || s.includes('주'))return 'shift-day';
+  if(u==='E' || s.includes('저녁') || s.includes('오후'))return 'shift-evening';
+  if(u==='N' || s.includes('야'))return 'shift-night';
+  if(s.includes('반'))return 'shift-half';
+  if(u==='OFF' || u==='O' || s.includes('휴') || s.includes('연차'))return 'shift-off';
+  return 'shift-custom';
+}
+function shiftDayColDateLabel(dateKey){
+  const [yy,mm,dd]=dateKey.split('-').map(Number);
+  const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
+  return `${dd} ${dow}`;
+}
+
 function renderShiftWidget(){
   if(main!=='s')return '';
   normalizeShiftUsers();
@@ -17447,33 +17612,32 @@ function renderShiftWidget(){
   const base=scheduleBaseKey();
   const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
   const showHint=shiftSwipeHintInfo();
-  return `<div class="shift-widget-shell multi-shift-widget-shell no-nav-shift-widget"
+  return `<div class="shift-widget-shell shift-5day-shell"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
-    <div class="multi-shift-widget">
-      <div class="multi-shift-date-row">
-        <button type="button" class="multi-shift-calendar-icon" onclick="event.stopPropagation();setMain('c')" title="달력 보기" aria-label="달력 보기">${calendarMiniButtonSvg()}${showHint?`<span class="shift-swipe-hint">↔</span>`:''}</button>
-        ${keys.map((k,i)=>{
-          const [yy,mm,dd]=k.split('-').map(Number);
-          const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
-          return `<button type="button" class="multi-shift-date ${i===2?'today':''}" onclick="event.stopPropagation();moveScheduleBase(${i-2})"><strong>${mm}/${dd}</strong><span>${dow}</span></button>`;
-        }).join('')}
-      </div>
-      ${showHint?`<div class="shift-swipe-hint-text">좌우로 밀어 날짜 이동</div>`:''}
+    <div class="shift-5day-widget">
       ${shiftUsers.map(user=>{
         const p=(family||[]).find(f=>(f.name||'')===user);
-        return `<div class="multi-shift-user-row">
-          <div class="multi-shift-user">
-            ${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}
-            <span>${escapeHtml(user)}</span>
+        return `<div class="shift-5day-row">
+          <div class="shift-person" title="${escapeAttr(user)}">
+            ${avatarMarkup(p?.avatar||personAvatar(user),user,'shift-micro-avatar')}
+            <span class="shift-person-name">${escapeHtml(user)}</span>
           </div>
-          ${keys.map((k,i)=>{
-            const status=shiftDisplayStatusFor(k,user);
-            const text=status?shortShiftLabel(status):'-';
-            return `<button class="multi-shift-cell square ${i===2?'today':''} ${status?shiftBadgeClass(status):'is-empty'}" title="${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')"><span>${escapeHtml(text)}</span></button>`;
-          }).join('')}
+          <div class="shift-days-container">
+            ${keys.map((k,i)=>{
+              const status=shiftDisplayStatusFor(k,user);
+              const label=status?shortShiftLabel(status):'-';
+              const [yy,mm,dd]=k.split('-').map(Number);
+              const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
+              return `<button type="button" class="shift-day-col ${i===2?'today':''}" title="${mm}/${dd} (${dow}) · ${escapeAttr(user)} · ${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')">
+                <span class="col-date">${escapeHtml(shiftDayColDateLabel(k))}</span>
+                <span class="col-badge ${shiftColBadgeClass(status)}">${escapeHtml(label)}</span>
+              </button>`;
+            }).join('')}
+          </div>
         </div>`;
       }).join('')}
+      ${showHint?`<div class="shift-swipe-hint-text compact">좌우로 밀어 날짜 이동</div>`:''}
     </div>
   </div>`;
 }
