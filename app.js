@@ -1,10 +1,10 @@
-const APP_VERSION='v1.3.4';
-const PASS_BUILD_VERSION='v1.3.4-upcoming-merge-repeat-tight';
+const APP_VERSION='v1.3.5';
+const PASS_BUILD_VERSION='v1.3.5-header-repeat-hierarchy-dark';
 const APP_UPDATED='2026-05-07';
 
 
 
-const UPDATE_LOG=['styles.css 섹션 재정렬','동일 선택자 CSS 블록 병합','탭바·FAB·상태 위젯·대시보드 !important 제거','CSS 용량 및 중복 1차 정리'];
+const UPDATE_LOG=['등록 일정 헤더 칩 간격과 정렬 문구 정리','반복 일정 카드 제목·시간 정렬 미세 조정','오늘 일정과 등록 일정 사이 위계 보정','다크모드 반복 박스 명도 보정'];
 let editUnlocked=false;
 let privateViewUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1';privateViewUnlocked=sessionStorage.getItem('pass_private_unlocked')==='1'}catch(e){editUnlocked=false;privateViewUnlocked=false}
@@ -2481,7 +2481,7 @@ function sortScheduleList(arr){
   return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
 }
 function scheduleSortLabel(){
-  return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별우선':scheduleSort==='manual'?'입력순':'다가오는순';
+  return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별':scheduleSort==='manual'?'입력순':'다가오는';
 }
 function setScheduleSort(t){
   scheduleSort=t;
@@ -2537,9 +2537,9 @@ function openRoutineAddFromSchedule(){
 
 function openSortSheet(){
   const opts=[
-    ['time','다가오는순','가까운 일정부터 순서대로 표시'],
+    ['time','다가오는 일정순','가까운 일정부터 순서대로 표시'],
     ['person','대상별 묶어보기','대상별로 묶고 그룹 안은 시간순'],
-    ['special','특별 일정 우선','일반 일정 먼저, 반복은 뒤에 표시'],
+    ['special','특별 우선','일반 일정 먼저, 반복은 뒤에 표시'],
     ['manual','입력순','등록한 순서 그대로 표시']
   ];
   document.getElementById('modal').innerHTML=`
@@ -3001,9 +3001,9 @@ function renderS(){
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
-      <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
+      <button class="sec-chip-btn schedule-head-chip schedule-target-chip on" onclick="event.stopPropagation();openScheduleTargetSheet()" aria-label="등록 일정 대상 필터">${targetLabel(subF)}</button>
+      <button class="sec-chip-btn schedule-head-chip schedule-period-chip on" onclick="event.stopPropagation();openActivePeriodSheet()" aria-label="등록 일정 기간 필터">${periodLabel(activePer)}</button>
+      <button class="sec-chip-btn schedule-head-chip schedule-sort-chip" onclick="event.stopPropagation();openSortSheet()" aria-label="등록 일정 정렬">${scheduleSortLabel()}</button>
     `)}
     ${activeCards}
     <div class="div"></div>

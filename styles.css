@@ -1926,3 +1926,162 @@ body[data-theme="dark"] .today-dashboard .routine-2col-box{
   background:rgba(255,255,255,.05);
   border-color:rgba(255,255,255,.08);
 }
+
+
+/* v1.3.5 schedule header / repeat tightness / hierarchy / dark polish */
+.dashboard-swipe-sync{
+  margin-bottom:4px;
+}
+.dashboard-swipe-sync .merged-today-dashboard{
+  margin-bottom:6px;
+  border-radius:23px;
+}
+.dashboard-swipe-sync + .schedule-swipe-sync{
+  margin-top:6px;
+  padding-top:4px;
+  position:relative;
+}
+.dashboard-swipe-sync + .schedule-swipe-sync::before{
+  content:"";
+  display:block;
+  height:1px;
+  margin:0 var(--page-x) 4px;
+  background:linear-gradient(90deg, transparent, var(--divider), transparent);
+}
+.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child{
+  padding-top:10px;
+  padding-bottom:8px;
+}
+.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child .sec-title{
+  color:var(--t1);
+  font-size:14px;
+  letter-spacing:-.28px;
+}
+.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child .sec-cnt{
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  border:1px solid rgba(0,122,255,.14);
+}
+.schedule-swipe-sync .unified-sec .sec-actions{
+  gap:4px;
+  flex:1 1 auto;
+  justify-content:flex-end;
+}
+.schedule-swipe-sync .schedule-head-chip{
+  height:29px;
+  min-width:0;
+  padding:0 9px;
+  border-radius:999px;
+  font-size:11.5px;
+  font-weight:950;
+  letter-spacing:-.22px;
+}
+.schedule-swipe-sync .schedule-sort-chip{
+  max-width:74px;
+  background:#F4F4F6;
+  color:var(--t1);
+}
+.schedule-swipe-sync .schedule-period-chip{
+  max-width:64px;
+}
+.schedule-swipe-sync .schedule-target-chip{
+  max-width:72px;
+}
+@media (max-width:380px){
+  .schedule-swipe-sync .schedule-head-chip{padding:0 7px;font-size:11px}
+  .schedule-swipe-sync .schedule-sort-chip{max-width:66px}
+  .schedule-swipe-sync .schedule-period-chip{max-width:56px}
+  .schedule-swipe-sync .schedule-target-chip{max-width:62px}
+  .schedule-swipe-sync .unified-sec .sec-actions{gap:3px}
+}
+
+.card-routine-item{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  min-height:23px;
+  padding:1.5px 0;
+  column-gap:6px;
+}
+.routine-title-wrap{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+.routine-title{
+  font-size:11.5px;
+  line-height:1.12;
+  letter-spacing:-.18px;
+}
+.routine-submeta{
+  margin-top:0;
+  font-size:9.3px;
+  line-height:1.08;
+}
+.routine-meta{
+  min-width:38px;
+  max-width:52px;
+  text-align:right;
+  justify-self:end;
+  align-self:center;
+  font-size:9.8px;
+  line-height:1.08;
+  letter-spacing:-.08px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.person-routine-items{
+  padding:3px 8px;
+}
+.today-dashboard .routine-2col-box{
+  padding:3px 8px;
+}
+.today-dashboard .routine-2col-row,
+.today-dashboard .routine-placeholder-row{
+  grid-template-columns:minmax(0,1fr) auto;
+  min-height:19px;
+  padding:1.5px 0;
+  gap:5px;
+}
+.today-dashboard .routine-2col-row .merged-routine-title{
+  font-size:11.4px;
+  line-height:1.12;
+  letter-spacing:-.18px;
+}
+.today-dashboard .routine-2col-row .merged-routine-time{
+  min-width:38px;
+  max-width:52px;
+  text-align:right;
+  justify-self:end;
+  font-size:9.8px;
+  line-height:1.08;
+  letter-spacing:-.08px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body[data-theme="dark"] .schedule-swipe-sync .schedule-sort-chip{
+  background:rgba(255,255,255,.07);
+  color:var(--t1);
+}
+body[data-theme="dark"] .dashboard-swipe-sync + .schedule-swipe-sync::before{
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+}
+body[data-theme="dark"] .person-routine-items,
+body[data-theme="dark"] .today-dashboard .routine-2col-box{
+  background:#242426;
+  border-color:rgba(255,255,255,.105);
+}
+body[data-theme="dark"] .card-routine-item,
+body[data-theme="dark"] .today-dashboard .routine-2col-row{
+  border-bottom-color:rgba(255,255,255,.075);
+}
+body[data-theme="dark"] .routine-title,
+body[data-theme="dark"] .today-dashboard .routine-2col-row .merged-routine-title{
+  color:#F5F5F7;
+}
+body[data-theme="dark"] .routine-submeta,
+body[data-theme="dark"] .routine-meta,
+body[data-theme="dark"] .today-dashboard .routine-2col-row .merged-routine-time{
+  color:#A6A6AD;
+}
