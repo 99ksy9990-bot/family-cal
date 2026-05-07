@@ -12486,6 +12486,53 @@ body[data-theme="dark"] .target-dot{box-shadow:0 0 0 1.2px rgba(28,28,30,.95) !i
   .memory-title-line-v2 .memory-title-text,.memory-title-line-v2 .memory-upcoming-inline,.memory-title-line-v2 .memory-title-dot{font-size:13.5px !important;}
 }
 
+
+/* v1.2.12 memory weekday + compact picker grids */
+.avatar-options{
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+.avatar-choice{
+  height:44px !important;
+  border-radius:12px !important;
+  padding:4px !important;
+}
+.avatar-choice img,
+.avatar-choice .avatar-img{
+  width:34px !important;
+  height:34px !important;
+  object-fit:contain !important;
+}
+.avatar-group{
+  padding:10px 8px !important;
+}
+.avatar-group-title{
+  margin-bottom:6px !important;
+  font-size:12px !important;
+}
+.memory-icon-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:6px !important;
+}
+.memory-icon-btn{
+  height:44px !important;
+  border-radius:12px !important;
+  font-size:24px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+}
+.memory-upcoming-inline,
+.memory-sub-text{
+  font-variant-numeric:tabular-nums !important;
+}
+@media (max-width:360px){
+  .avatar-options,.memory-icon-grid{gap:5px !important;}
+  .avatar-choice,.memory-icon-btn{height:42px !important;}
+  .avatar-choice img,.avatar-choice .avatar-img{width:32px !important;height:32px !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12543,18 +12590,16 @@ body[data-theme="dark"] .target-dot{box-shadow:0 0 0 1.2px rgba(28,28,30,.95) !i
 
 <script>
 
-const APP_VERSION='v1.2.11';
-const PASS_BUILD_VERSION='v1.2.11-todo-memory-fold-calendar-polish';
+const APP_VERSION='v1.2.12';
+const PASS_BUILD_VERSION='v1.2.12-memory-weekday-compact-pickers';
 const APP_UPDATED='2026-05-07';
 
 
 const UPDATE_LOG=[
-  '접고 펼치는 아이콘과 눌림 효과 통일',
-  '할일 빈 상태를 한 줄 안내로 축소',
-  '완료 할일의 요청자 아바타 위치 보정',
-  '축하 카드 날짜와 디데이 정렬 통일',
-  '달력 점과 범례 점 크기 통일',
-  'OFF 표시를 O로 축약'
+  '축하 탭 다가오는 날짜에 요일 표시',
+  '축하 탭 생년월일에 요일 표시',
+  '가족 아바타 선택창 6열 초압축',
+  '축하 아이콘 선택창 6열 초압축'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -16303,7 +16348,8 @@ function makeMemoryCard(x){
   const isLunar=calType==='lunar';
   const nb=nextBirthInfo(x.birth,isLunar);
   const ageLabel=memoryAgeLabel(x);
-  const upcomingFullLabel=nb.date?dateLabel(nb.date):'';
+  const upcomingFullLabel=nb.date?fullDateWithDow(nb.date):'';
+  const birthFullLabel=x.birth?fullDateWithDow(x.birth):'';
   return `<div class="card mem-card reorder-card swipe-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -16320,7 +16366,7 @@ function makeMemoryCard(x){
         <div class="memory-info-col">
           <div class="memory-title-line-v2"><span class="memory-title-text">${escapeHtml(x.name)}</span>${upcomingFullLabel?`<span class="memory-title-dot">·</span><span class="memory-upcoming-inline">${escapeHtml(upcomingFullLabel)}</span>`:''}</div>
           <div class="memory-sub-text">
-            ${x.birth ? `${escapeHtml(ageLabel)} · ${dateLabel(x.birth)}${isLunar?'(음)':'(양)'}` : ''}
+            ${x.birth ? `${escapeHtml(ageLabel)} · ${escapeHtml(birthFullLabel)}${isLunar?'(음)':'(양)'}` : ''}
           </div>
         </div>
         <div class="memory-date-col memory-date-col-v2">
@@ -18281,6 +18327,14 @@ function dateLabel(v){
   const p=v.split('-');
   return `${+p[0]}. ${+p[1]}. ${+p[2]}.`;
 }
+function fullDateWithDow(v){
+  if(!v)return '';
+  const [y,m,d]=String(v).split('-').map(Number);
+  if(!y||!m||!d)return dateLabel(v);
+  const dow=DAYS[new Date(y,m-1,d).getDay()]||'';
+  return `${y}. ${m}. ${d}. (${dow})`;
+}
+
 function timeLabel(v){
   if(!v)return '';
   const [h,m]=v.split(':').map(Number);
