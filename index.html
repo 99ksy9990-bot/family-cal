@@ -12180,6 +12180,53 @@ body.modal-open{overflow:hidden !important;touch-action:none !important;}
 /* 반복 수정 모달에서 요일/방학 토글은 저장 버튼 전까지 초안으로만 반영 */
 .routine-edit-days .day-btn.on{box-shadow:0 0 0 3px rgba(0,122,255,.10);}
 
+
+/* v1.2.9 interaction consistency */
+.action-delete-full{
+  width:100% !important;
+  height:48px !important;
+  margin-top:12px !important;
+  border-radius:16px !important;
+  background:#111 !important;
+  color:#fff !important;
+  border:1.5px solid #111 !important;
+  font-size:14px !important;
+  font-weight:950 !important;
+}
+.dots-menu-btn{
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  border-radius:50% !important;
+  border:1px solid var(--divider) !important;
+  background:var(--surface-raised) !important;
+  color:var(--t3) !important;
+  font-size:16px !important;
+  font-weight:950 !important;
+  line-height:1 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  align-self:center !important;
+  padding-bottom:6px !important;
+}
+.oneoff-selected-event{
+  grid-template-columns:40px minmax(0,1fr) 34px !important;
+}
+.swipe-bg-right::after{content:'완료';}
+.swipe-bg-left::after{content:'삭제';}
+.swipe-bg-right,.swipe-bg-left{
+  font-size:12px !important;
+  font-weight:950 !important;
+}
+.calendar-fab-add{
+  display:flex !important;
+}
+body[data-theme="dark"] .dots-menu-btn{
+  background:#1C1C1E !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12237,17 +12284,16 @@ body.modal-open{overflow:hidden !important;touch-action:none !important;}
 
 <script>
 
-const APP_VERSION='v1.2.8';
-const PASS_BUILD_VERSION='v1.2.8-stability-refactor-qa';
+const APP_VERSION='v1.2.9';
+const PASS_BUILD_VERSION='v1.2.9-interaction-consistency';
 const APP_UPDATED='2026-05-07';
 
 const UPDATE_LOG=[
-  '렌더링 오류 보호 장치 추가',
-  '반복 수정 모달의 취소/저장 흐름 안정화',
-  '스와이프와 길게 누르기 재정렬 충돌 보정',
-  '바텀시트 닫힘 애니메이션 및 배경 스크롤 잠금 보강',
-  '삭제/복구/엑셀 내보내기 미세 버그 수정',
-  '공통 유틸 추가로 유지보수성 개선'
+  '달력·반복 관리 FAB 추가 규칙 통일',
+  '삭제 confirm 팝업 제거 및 실행 취소 토스트 강화',
+  '스와이프 방향 통일: 우측 완료, 좌측 삭제',
+  '수정 액션 시트에 전체 너비 빨간 삭제 버튼 적용',
+  '달력 상세는 카드 메뉴 버튼 중심으로 정리'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -13854,7 +13900,7 @@ function saveAfterSoftDelete(kind,arr,idx,label){
   else if(kind==='request')deleteRemoteDoc('requests',item.id);
   saveSettingsOnly();
   render({preserveScroll:true});
-  showToast(`${label} 삭제했습니다.`, '실행 취소', ()=>undoTrashById(trashId,kind,idx));
+  showToast(`${label} 삭제했습니다.`, '실행 취소', ()=>undoTrashById(trashId,kind,idx), 5000);
 }
 
 function saveShiftOnly(k,t){
@@ -14077,16 +14123,18 @@ function skipRepeatInstance(id,dateKey){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));
   if(!n || !n.repeat)return;
-  if(!confirm('이번 회차만 지울까요?'))return;
   if(!Array.isArray(n.skipDates))n.skipDates=[];
   if(!n.skipDates.includes(dateKey))n.skipDates.push(dateKey);
   saveNoteOnly(n);
   render({preserveScroll:true});
+  showToast('이번 회차를 삭제했어요.', '실행 취소', ()=>{
+    n.skipDates=(n.skipDates||[]).filter(x=>x!==dateKey);
+    saveNoteOnly(n);render({preserveScroll:true});
+  }, 5000);
 }
 
 function delNote(id){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 일정을 지울까요?'))return;
   const idx=notes.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
     addChangeLog(`일정 삭제: ${notes[idx].who||'공통'} · ${notes[idx].title||'일정'}`);
@@ -14152,10 +14200,7 @@ function endItemSwipe(e){
     if(kind==='note')toggleNote(id);
     if(kind==='request'||kind==='note')showToast(kind==='request'?'완료 상태를 변경했어요.':'일정 완료 상태를 변경했어요.');
   }else if(actionLeft){
-    if(kind==='request')openSwipeReqActions(id);
-    if(kind==='note')openSwipeNoteActions(id);
-    if(kind==='memory')openSwipeMemoryActions(id);
-    if(kind==='family')openSwipeFamilyActions(id);
+    performSwipeDelete(kind,id);
   }
 }
 function openSwipeNoteActions(id){
@@ -14169,8 +14214,9 @@ function openSwipeNoteActions(id){
       <div class="action-grid schedule-row-action-grid${missed?' has-postpone':''}">
         ${missed?`<button class="toss-btn primary" onclick="postponeNoteToToday('${id}')">오늘로 미루기</button>`:''}
         <button class="toss-btn primary" onclick="openEditNote('${id}')">수정</button>
-        <button class="toss-btn danger" onclick="delNote('${id}');closeM()">삭제</button>
+        <button class="toss-btn" onclick="copyNoteWithDate('${id}')">날짜변경복사</button>
       </div>
+      <button class="toss-btn danger action-delete-full" onclick="delNote('${id}');closeM()">이 일정 삭제</button>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
   </div>`;
@@ -14179,14 +14225,14 @@ function openSwipeReqActions(id){
   const r=requests.find(x=>String(x.id)===String(id));if(!r)return;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(r.title||'할일')}</div>
       <div class="action-grid request-swipe-action-grid">
         <button class="toss-btn primary" onclick="openEditReq('${id}')">수정</button>
-        <button class="toss-btn danger" onclick="delReq('${id}');closeM()">삭제</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="cancel-link" onclick="closeM()">닫기</button>
+      <button class="toss-btn danger action-delete-full" onclick="delReq('${id}');closeM()">이 할일 삭제</button>
     </div>
   </div>`;
 }
@@ -14195,14 +14241,14 @@ function openSwipeMemoryActions(id){
   const x=memories.find(v=>String(v.id)===String(id));if(!x)return;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(x.name||'축하')}</div>
       <div class="action-grid memory-swipe-action-grid">
         <button class="toss-btn primary" onclick="openMemoryModal('${id}')">수정</button>
-        <button class="toss-btn danger" onclick="delMemory('${id}');closeM()">삭제</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="cancel-link" onclick="closeM()">닫기</button>
+      <button class="toss-btn danger action-delete-full" onclick="delMemory('${id}');closeM()">이 축하 삭제</button>
     </div>
   </div>`;
 }
@@ -14212,14 +14258,14 @@ function openSwipeFamilyActions(id){
   if(!k)return;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(k.name||'대상')}</div>
       <div class="action-grid memory-swipe-action-grid">
         <button class="toss-btn primary" onclick="editKid(${idx})">수정</button>
-        <button class="toss-btn danger" onclick="delKid(${idx});closeM()">삭제</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="cancel-link" onclick="closeM()">닫기</button>
+      <button class="toss-btn danger action-delete-full" onclick="delKid(${idx});closeM()">이 대상 삭제</button>
     </div>
   </div>`;
 }
@@ -15038,12 +15084,31 @@ function openRoutineFabSheet(){
     </div>
   </div>`;
 }
+
+function calendarFabDate(){
+  if(selDate)return selDate;
+  if(calY===TY && calM===TM)return todayKey();
+  const last=new Date(calY,calM+1,0).getDate();
+  const day=Math.min(TD,last);
+  return dk(calY,calM,day);
+}
+function performSwipeDelete(kind,id){
+  if(!requireEditMode())return;
+  if(kind==='request')return delReq(id);
+  if(kind==='note')return delNote(id);
+  if(kind==='memory')return delMemory(id);
+  if(kind==='family'){
+    const idx=family.findIndex(x=>String(x.id)===String(id));
+    if(idx>=0)return delKid(idx);
+  }
+}
+
 function renderFab(){
   if(main==='s'){
     return `<button class="fab-add smart-fab" onclick="openAddModal()" aria-label="일정 추가">+</button>`;
   }
-  if(main==='c' && selDate && !shiftSelectMode){
-    return `<button class="fab-add smart-fab calendar-fab-add" onclick="openAddModal('${selDate}')" aria-label="이 날짜에 일정 추가">+</button>`;
+  if(main==='c' && !shiftSelectMode){
+    return `<button class="fab-add smart-fab calendar-fab-add" onclick="openAddModal('${calendarFabDate()}')" aria-label="달력 일정 추가">+</button>`;
   }
   if(main==='i'){
     return `<button class="fab-add smart-fab" onclick="openRoutineFabSheet()" aria-label="반복 추가">+</button>`;
@@ -15161,12 +15226,14 @@ function skipRoutineInstance(routineId,dateKey){
   if(!requireEditMode())return;
   const r=(repeatItems||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  if(!confirm('이 반복의 이번 회차만 지울까요?'))return;
   if(!Array.isArray(r.skipDates))r.skipDates=[];
   if(!r.skipDates.includes(dateKey))r.skipDates.push(dateKey);
   saveSettingsOnly();
   render({preserveScroll:true});
-  showToast('해당 날짜의 반복을 삭제했습니다.');
+  showToast('해당 날짜의 반복을 삭제했습니다.', '실행 취소', ()=>{
+    r.skipDates=(r.skipDates||[]).filter(x=>x!==dateKey);
+    saveSettingsOnly();render({preserveScroll:true});
+  }, 5000);
 }
 function routineInstanceActions(n,selDate){
   return '';
@@ -15179,13 +15246,13 @@ function openCalendarNoteActions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(n.title||'일정')}</div>
+      <div class="modal-hd">${escapeHtml(displayNoteTitle(n))}</div>
       <div class="action-grid calendar-action-grid one-line-action-grid">
         <button class="toss-btn primary" onclick="openEditNote('${n.id}')">수정</button>
         <button class="toss-btn" onclick="copyNoteWithDate('${n.id}')">날짜변경복사</button>
-        <button class="toss-btn danger" onclick="delNote('${n.id}');closeM()">삭제</button>
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
+      <button class="toss-btn danger action-delete-full" onclick="delNote('${n.id}');closeM()">이 일정 삭제</button>
     </div>
   </div>`;
 }
@@ -15197,9 +15264,9 @@ function openRoutineInstanceDetail(title,who,timeText,dateKey,kind,id){
       <div class="modal-hd">${escapeHtml(title||'반복')}</div>
       <div class="routine-action-sub">${escapeHtml(who||'공통')} · ${escapeHtml(timeText||dateLabel(dateKey)||'시간 미정')}</div>
       <div class="action-grid calendar-action-grid routine-one-line-action-grid">
-        <button class="toss-btn danger" onclick="skipCalendarRoutineInstance('${kind}','${id}','${dateKey}')">이번 회차만 삭제</button>
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
+      <button class="toss-btn danger action-delete-full" onclick="skipCalendarRoutineInstance('${kind}','${id}','${dateKey}')">이번 회차만 삭제</button>
     </div>
   </div>`;
 }
@@ -15213,14 +15280,12 @@ function calendarEventItem(n,selDate){
   const who=escapeHtml(whoRaw);
   const tm=calendarTimeOnly(n);
   const title=highlightText(displayNoteTitle(n));
-  const clickAttr=`onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer"`;
-
-  return `<div class="ev-item cal-selected-event oneoff-selected-event${n.isPrivate?' private':''}" ${clickAttr}>
-    <div class="oneoff-avatar-col">
+  return `<div class="ev-item cal-selected-event oneoff-selected-event${n.isPrivate?' private':''}">
+    <div class="oneoff-avatar-col" onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer">
       <div class="ev-avatar oneoff-avatar">${avatarMarkup(personAvatar(whoRaw),whoRaw)}</div>
       <div class="oneoff-person under-avatar">${who}</div>
     </div>
-    <div class="ev-info oneoff-info">
+    <div class="ev-info oneoff-info" onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer">
       <div class="oneoff-box">
         <div class="oneoff-main">
           <div class="ev-title oneoff-title">${title}${privateChip(n)}</div>
@@ -15229,6 +15294,7 @@ function calendarEventItem(n,selDate){
         ${n.alertMemo && !noteIsMasked(n)?`<div class="ev-alert">${escapeHtml(n.alertMemo)}</div>`:''}
       </div>
     </div>
+    <button class="dots-menu-btn" onclick="openCalendarNoteActions('${n.id}')" aria-label="일정 메뉴">···</button>
   </div>`;
 }
 
@@ -15353,11 +15419,14 @@ function addRepeatItem(){
 }
 function delRepeatItem(ii){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 반복 일정을 지울까요?'))return;
+  if(!repeatItems[ii])return;
+  const removed=repeatItems[ii];
+  trashItem('repeat',removed);
+  const trashId=deletedItems[deletedItems.length-1].id;
   repeatItems.splice(ii,1);
   saveSettingsOnly();
   render();
-  showToast('반복 일정을 지웠어요.');
+  showToast('반복 일정을 삭제했습니다.', '실행 취소', ()=>undoTrashById(trashId,'repeat',ii), 5000);
 }
 function togglePauseOnVacation(ii){
   if(!requireEditMode())return;
@@ -15796,9 +15865,7 @@ function delKid(i){
   if(!requireEditMode())return;
   const k=family[i];
   if(!k)return;
-  const name=(k.name||'대상').trim()||'대상';
-  if(!confirm(`${name} 대상을 지울까요?`))return;
-  const nm=name;
+  const nm=(k.name||'').trim()||'대상';
   if(BASE_PERSONS.includes(nm))hideBasePerson(nm);
   addChangeLog(`대상 삭제: ${nm}`);
   softDelete('kid',family,i,`${nm} 대상을`);
@@ -15821,7 +15888,6 @@ function toggleReq(id){
 }
 function delReq(id){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 할일을 지울까요?'))return;
   const idx=requests.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
     addChangeLog(`할일 삭제: ${requests[idx].title||'할일'}`);
@@ -15949,10 +16015,7 @@ function saveReq(id){
 function delMemory(id){
   if(!requireEditMode())return;
   const idx=memories.findIndex(x=>String(x.id)===String(id));
-  if(idx<0)return;
-  if(!confirmDelete('이 축하 항목을 지울까요?'))return;
-  addChangeLog(`축하 삭제: ${memories[idx].name||'축하'}`);
-  softDelete('memory',memories,idx,'축하를');
+  if(idx>=0)softDelete('memory',memories,idx,'축하를');
 }
 function memoryUpcomingDiff(x){
   if(!x||!x.birth)return Number.POSITIVE_INFINITY;
@@ -16133,7 +16196,7 @@ function undoTrashById(trashId,kind,insertIndex){
   if(ti<0)return;
   const x=deletedItems[ti];
   deletedItems.splice(ti,1);
-  const arr=kind==='note'?notes:kind==='request'?requests:kind==='memory'?memories:kind==='kid'?family:null;
+  const arr=kind==='note'?notes:kind==='request'?requests:kind==='memory'?memories:kind==='kid'?family:kind==='repeat'?repeatItems:null;
   if(!arr)return;
   if(kind==='kid')unhideBasePerson((x.item||{}).name);
   arr.splice(Math.min(insertIndex,arr.length),0,x.item);
@@ -16149,7 +16212,7 @@ function softDelete(kind,arr,idx,label){
 }
 
 function confirmDelete(msg){
-  return confirm(msg || '지울까요?');
+  return true;
 }
 function normText(v){return String(v||'').toLowerCase().trim()}
 function matchSearchNote(n){
@@ -16242,7 +16305,7 @@ function restoreTrash(id){
 function deleteTrashForever(id){
   if(!requireEditMode())return;
 
-  if(!confirm('휴지통에서 완전히 지울까요?'))return;
+  
   deletedItems=deletedItems.filter(x=>String(x.id)!==String(id));
   saveAll();openTrash();
 }
@@ -16251,7 +16314,7 @@ function emptyTrash(){
 
   if(!requireEditMode())return;
 
-  if(!confirm('휴지통을 모두 비울까요?'))return;
+  
   deletedItems=[];
   saveAll();openTrash();
 }
@@ -16603,7 +16666,7 @@ function saveCustomHoliday(){
 }
 function delCustomHoliday(id){
   if(!requireEditMode())return;
-  if(!confirm('이 공휴일을 지울까요?'))return;
+  
   customHolidays=customHolidays.filter(h=>String(h.id)!==String(id));
   saveSettingsOnly();openHolidayManager();render();
 }
