@@ -1753,335 +1753,136 @@ body.modal-open{overflow:hidden;touch-action:none}
 .fab-add, .smart-fab{z-index:110;bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 
 
-/* v1.3.3 schedule page avatar / repeat layout cleanup */
-.shift-5day-widget.calendar-sync-shift-widget .shift-5day-row{
-  grid-template-columns:40px minmax(0,1fr);
+/* v1.3.6 repeat align + slim modal + swipe header polish */
+:root{
+  --repeat-surface:#F4F4F6;
+  --repeat-surface-dark:#25262A;
+  --repeat-divider:rgba(0,122,255,.22);
 }
-.shift-5day-widget.calendar-sync-shift-widget .shift-person{
-  width:40px;
-  min-width:40px;
-  align-items:center;
-  justify-content:center;
-}
-.shift-5day-widget.calendar-sync-shift-widget .shift-person-name{
-  display:none !important;
-}
-.shift-5day-widget.calendar-sync-shift-widget .shift-micro-avatar,
-.shift-5day-widget.calendar-sync-shift-widget .shift-micro-avatar.avatar-img,
-.shift-5day-widget.calendar-sync-shift-widget .shift-person .avatar-img{
-  width:36px;
-  height:36px;
-  object-fit:contain;
-}
-.dashboard-standard-row .modern-schedule-avatar,
-.dashboard-standard-row .modern-schedule-avatar .avatar-img,
-.dashboard-standard-row .modern-schedule-avatar .avatar-img-small{
-  width:36px;
-  height:36px;
-  min-width:36px;
-  flex:0 0 36px;
-  object-fit:contain;
-}
-.today-dashboard .routine-2col-card{
-  background:#F4F4F6;
-}
-.today-dashboard .routine-2col-head .merged-routine-avatar,
-.person-routine-card .card-avatar{
-  width:48px;
-  height:48px;
+.top-swipe-zone{display:flex;flex-direction:column;gap:0}
+.top-swipe-zone .shift-widget-shell{margin-bottom:0}
+.top-swipe-zone .dashboard-wrap,.top-swipe-zone .widget-wrap{margin-top:0}
+
+.schedule-swipe-sync .sec.compact-sec.unified-sec{
   display:flex;
   align-items:center;
-  justify-content:center;
-  margin:0 auto 4px;
-  border-radius:999px;
-  background:#fff;
-  box-shadow:0 1px 4px rgba(15,23,42,.08);
+  gap:6px;
+  padding:12px 16px 6px;
 }
-.today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img,
-.person-routine-card .card-avatar .avatar-img{
-  width:36px;
-  height:36px;
-  object-fit:contain;
+.schedule-swipe-sync .sec-title{font-size:15px;font-weight:950;color:var(--t1);letter-spacing:-.28px}
+.schedule-swipe-sync .sec-cnt{min-width:28px;height:28px;padding:0 9px;font-size:13px;font-weight:950;background:var(--blue-bg);color:var(--blue-t);border:1px solid rgba(0,122,255,.14)}
+.schedule-swipe-sync .sec-actions{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap;margin-left:auto}
+.schedule-swipe-sync .sec-chip-btn{height:30px;padding:0 10px;border-radius:16px;background:#F4F4F6;color:#334155;font-size:12px;font-weight:900;border:none;min-width:0}
+.schedule-swipe-sync .fold-btn{width:28px;height:28px;min-width:28px;color:var(--t2)}
+@media (max-width:390px){
+  .schedule-swipe-sync .sec.compact-sec.unified-sec{gap:5px;padding:11px 14px 5px}
+  .schedule-swipe-sync .sec-title{font-size:14px}
+  .schedule-swipe-sync .sec-chip-btn{height:28px;padding:0 8px;font-size:11px}
+  .schedule-swipe-sync .sec-actions{gap:4px}
 }
-.today-dashboard .routine-2col-head .merged-routine-person.under-avatar,
-.person-routine-card .card-name{
-  margin-top:2px;
-}
-body[data-theme="dark"] .today-dashboard .routine-2col-head .merged-routine-avatar,
-body[data-theme="dark"] .person-routine-card .card-avatar{
-  background:rgba(255,255,255,.96);
+@media (max-width:360px){
+  .schedule-swipe-sync .sec-title{font-size:13.5px}
+  .schedule-swipe-sync .sec-chip-btn{padding:0 7px;font-size:10.6px}
 }
 
+.merged-section-divider,.dashboard-section-divider{height:1.5px;background:rgba(0,122,255,.26) !important;margin:10px 0}
+.today-dashboard{margin-bottom:14px}
+.schedule-swipe-sync{margin-top:6px}
 
-/* v1.3.4 merged upcoming widget + schedule font / repeat layout cleanup */
-.schedule-line-card .modern-schedule-title,
-.dashboard-standard-row .modern-schedule-title{
-  font-family:"Pretendard","Freesentation",-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  font-size:15px;
-  font-weight:900;
-  line-height:1.32;
-  letter-spacing:-.24px;
-  color:var(--t1);
-}
-.schedule-line-card .modern-schedule-date,
-.dashboard-standard-row .modern-schedule-date,
-.dashboard-row-time{
-  font-family:"Pretendard","Freesentation",-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
-  font-size:13px;
-  line-height:1.32;
-  letter-spacing:-.14px;
-  font-weight:750;
-}
-.dashboard-row-time{font-weight:800}
-@media (max-width:430px){
-  .schedule-line-card .modern-schedule-title,
-  .dashboard-standard-row .modern-schedule-title{font-size:14px}
-  .schedule-line-card .modern-schedule-date,
-  .dashboard-standard-row .modern-schedule-date,
-  .dashboard-row-time{font-size:12px}
-}
+/* schedule add/edit modal slim target chips */
+.schedule-edit-sheet .person-chip-selector{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.schedule-edit-sheet .person-check-label.avatar-only{width:56px;min-width:56px;height:56px;min-height:56px;padding:0;border-radius:18px;justify-content:center;gap:0}
+.schedule-edit-sheet .person-check-label.avatar-only span{display:none}
+.schedule-edit-sheet .person-check-label.avatar-only .avatar-img-small,
+.schedule-edit-sheet .person-check-label.avatar-only .avatar-img{width:34px;height:34px;object-fit:contain}
+.schedule-edit-sheet .detail-settings{margin-top:8px;border-radius:18px;background:#F7F7FA;border:1px solid rgba(0,0,0,.04);padding:0 0 8px}
+.schedule-edit-sheet .detail-settings>summary{padding:16px 18px}
+.schedule-edit-sheet .detail-settings-panel{padding:0 18px 4px}
+.schedule-edit-sheet .mi{height:50px}
+.schedule-edit-sheet .primary-btn{height:56px;border-radius:18px;font-size:16px}
+.schedule-edit-sheet .cancel-link{padding-top:12px}
+body[data-theme="dark"] .schedule-edit-sheet .detail-settings{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
 
+/* repeat manager list restore gray cards */
 .person-routine-card{
-  background:transparent !important;
-  border:none !important;
+  background:var(--repeat-surface) !important;
+  border:1px solid rgba(0,0,0,.045) !important;
+  border-radius:16px !important;
   box-shadow:none !important;
-  padding:4px 0 0 !important;
-  gap:4px;
+  padding:10px 10px 10px !important;
+  gap:6px;
 }
-.person-routine-card .card-avatar{
-  width:36px;
-  height:36px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:0 auto 2px;
-  background:transparent !important;
-  box-shadow:none !important;
-  border-radius:0 !important;
-}
-.person-routine-card .card-avatar .avatar-img{
-  width:36px;
-  height:36px;
-  object-fit:contain;
-}
-.person-routine-card .card-name{
-  margin-bottom:4px;
-  font-size:12px;
-}
-.person-routine-items{
-  width:100%;
-  background:#F4F4F6;
-  border:1px solid rgba(0,0,0,.045);
-  border-radius:15px;
-  padding:2px 8px;
-}
-.card-routine-item{
-  min-height:26px;
-  padding:2px 0;
-  gap:5px;
-}
-.routine-title{font-size:11.5px;line-height:1.15}
-.routine-submeta{margin-top:0;font-size:9.5px;line-height:1.1}
-.routine-meta{font-size:10px;line-height:1.1}
+.person-routine-card .card-avatar{width:36px !important;height:36px !important;background:transparent !important;box-shadow:none !important;border-radius:0 !important;margin:0 auto 2px !important}
+.person-routine-card .card-avatar .avatar-img{width:36px !important;height:36px !important;object-fit:contain}
+.person-routine-card .card-name{font-size:11px !important;font-weight:900;color:var(--t2);margin-bottom:4px !important}
+.person-routine-items{width:100%;background:transparent !important;border:none !important;padding:0 !important}
+.card-routine-item{display:grid;grid-template-columns:minmax(0,1fr) 72px;align-items:center;gap:8px;min-height:28px;padding:5px 0;border-top:1px solid rgba(0,0,0,.05)}
+.card-routine-item:first-child{border-top:none}
+.routine-title{font-size:12px;line-height:1.16;font-weight:900;letter-spacing:-.18px;color:var(--t1)}
+.routine-submeta{margin-top:1px;font-size:9.8px;line-height:1.15;color:var(--t3)}
+.routine-meta{min-width:72px;text-align:right;font-size:10.8px;line-height:1.1;font-weight:850;color:var(--t3);font-variant-numeric:tabular-nums;white-space:nowrap}
 
+/* dashboard routine block */
 .today-dashboard .routine-2col-card{
   background:transparent !important;
   border:none !important;
   box-shadow:none !important;
-  padding:4px 0 0 !important;
-  gap:3px;
+  padding:0 !important;
+  gap:4px !important;
+  align-items:stretch !important;
 }
-.today-dashboard .routine-2col-head{gap:2px}
+.today-dashboard .dashboard-routine-2col{gap:8px}
+.today-dashboard .routine-2col-head{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:38px;
+  gap:0;
+  padding:0 8px;
+}
 .today-dashboard .routine-2col-head .merged-routine-avatar,
 .today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img{
-  width:36px;
-  height:36px;
+  width:36px !important;
+  height:36px !important;
   object-fit:contain;
   background:transparent !important;
   box-shadow:none !important;
 }
 .today-dashboard .routine-2col-box{
   width:100%;
-  background:#F4F4F6;
-  border:1px solid rgba(0,0,0,.045);
-  border-radius:15px;
-  padding:2px 8px;
+  background:var(--repeat-surface) !important;
+  border:1px solid rgba(0,0,0,.05) !important;
+  border-radius:16px;
+  padding:5px 10px !important;
 }
-.today-dashboard .routine-2col-row,
-.today-dashboard .routine-placeholder-row{
-  min-height:20px;
-  padding:2px 0;
-  gap:4px;
-}
-.today-dashboard .routine-2col-row .merged-routine-title{
-  font-size:11.5px;
-  line-height:1.15;
-}
-.today-dashboard .routine-2col-row .merged-routine-time{
-  font-size:10px;
-  line-height:1.1;
-}
-body[data-theme="dark"] .person-routine-items,
-body[data-theme="dark"] .today-dashboard .routine-2col-box{
-  background:rgba(255,255,255,.05);
-  border-color:rgba(255,255,255,.08);
-}
-
-
-/* v1.3.5 schedule header / repeat tightness / hierarchy / dark polish */
-.dashboard-swipe-sync{
-  margin-bottom:4px;
-}
-.dashboard-swipe-sync .merged-today-dashboard{
-  margin-bottom:6px;
-  border-radius:23px;
-}
-.dashboard-swipe-sync + .schedule-swipe-sync{
-  margin-top:6px;
-  padding-top:4px;
-  position:relative;
-}
-.dashboard-swipe-sync + .schedule-swipe-sync::before{
-  content:"";
-  display:block;
-  height:1px;
-  margin:0 var(--page-x) 4px;
-  background:linear-gradient(90deg, transparent, var(--divider), transparent);
-}
-.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child{
-  padding-top:10px;
-  padding-bottom:8px;
-}
-.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child .sec-title{
-  color:var(--t1);
-  font-size:14px;
-  letter-spacing:-.28px;
-}
-.dashboard-swipe-sync + .schedule-swipe-sync .unified-sec:first-child .sec-cnt{
-  background:var(--blue-bg);
-  color:var(--blue-t);
-  border:1px solid rgba(0,122,255,.14);
-}
-.schedule-swipe-sync .unified-sec .sec-actions{
-  gap:4px;
-  flex:1 1 auto;
-  justify-content:flex-end;
-}
-.schedule-swipe-sync .schedule-head-chip{
-  height:29px;
-  min-width:0;
-  padding:0 9px;
-  border-radius:999px;
-  font-size:11.5px;
-  font-weight:950;
-  letter-spacing:-.22px;
-}
-.schedule-swipe-sync .schedule-sort-chip{
-  max-width:74px;
-  background:#F4F4F6;
-  color:var(--t1);
-}
-.schedule-swipe-sync .schedule-period-chip{
-  max-width:64px;
-}
-.schedule-swipe-sync .schedule-target-chip{
-  max-width:72px;
-}
-@media (max-width:380px){
-  .schedule-swipe-sync .schedule-head-chip{padding:0 7px;font-size:11px}
-  .schedule-swipe-sync .schedule-sort-chip{max-width:66px}
-  .schedule-swipe-sync .schedule-period-chip{max-width:56px}
-  .schedule-swipe-sync .schedule-target-chip{max-width:62px}
-  .schedule-swipe-sync .unified-sec .sec-actions{gap:3px}
-}
-
-.card-routine-item{
+.today-dashboard .routine-2col-row{
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-columns:minmax(0,1fr) 78px;
   align-items:center;
-  min-height:23px;
-  padding:1.5px 0;
-  column-gap:6px;
+  min-height:28px;
+  padding:5px 0 !important;
+  gap:8px;
+  border-top:1px solid rgba(0,0,0,.05);
 }
-.routine-title-wrap{
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  gap:0;
+.today-dashboard .routine-2col-row:first-child{border-top:none}
+.today-dashboard .routine-placeholder-row{visibility:hidden}
+.today-dashboard .routine-2col-row .merged-routine-title{font-size:12px;line-height:1.16;font-weight:900;color:var(--t1);letter-spacing:-.18px}
+.today-dashboard .routine-2col-row .merged-routine-time{min-width:78px;text-align:right;font-size:10.8px;line-height:1.1;font-weight:850;color:var(--t3);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* repeat fonts close to schedule numeral style */
+.routine-meta,.today-dashboard .merged-routine-time{
+  font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
 }
-.routine-title{
-  font-size:11.5px;
-  line-height:1.12;
-  letter-spacing:-.18px;
-}
-.routine-submeta{
-  margin-top:0;
-  font-size:9.3px;
-  line-height:1.08;
-}
-.routine-meta{
-  min-width:38px;
-  max-width:52px;
-  text-align:right;
-  justify-self:end;
-  align-self:center;
-  font-size:9.8px;
-  line-height:1.08;
-  letter-spacing:-.08px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.person-routine-items{
-  padding:3px 8px;
-}
-.today-dashboard .routine-2col-box{
-  padding:3px 8px;
-}
-.today-dashboard .routine-2col-row,
-.today-dashboard .routine-placeholder-row{
-  grid-template-columns:minmax(0,1fr) auto;
-  min-height:19px;
-  padding:1.5px 0;
-  gap:5px;
-}
-.today-dashboard .routine-2col-row .merged-routine-title{
-  font-size:11.4px;
-  line-height:1.12;
-  letter-spacing:-.18px;
-}
-.today-dashboard .routine-2col-row .merged-routine-time{
-  min-width:38px;
-  max-width:52px;
-  text-align:right;
-  justify-self:end;
-  font-size:9.8px;
-  line-height:1.08;
-  letter-spacing:-.08px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-body[data-theme="dark"] .schedule-swipe-sync .schedule-sort-chip{
-  background:rgba(255,255,255,.07);
-  color:var(--t1);
-}
-body[data-theme="dark"] .dashboard-swipe-sync + .schedule-swipe-sync::before{
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
-}
-body[data-theme="dark"] .person-routine-items,
-body[data-theme="dark"] .today-dashboard .routine-2col-box{
-  background:#242426;
-  border-color:rgba(255,255,255,.105);
-}
+
+/* dark tokens */
+body[data-theme="dark"] .person-routine-card,
+body[data-theme="dark"] .today-dashboard .routine-2col-box{background:var(--repeat-surface-dark) !important;border-color:rgba(255,255,255,.08) !important}
 body[data-theme="dark"] .card-routine-item,
-body[data-theme="dark"] .today-dashboard .routine-2col-row{
-  border-bottom-color:rgba(255,255,255,.075);
-}
+body[data-theme="dark"] .today-dashboard .routine-2col-row{border-top-color:rgba(255,255,255,.07)}
 body[data-theme="dark"] .routine-title,
-body[data-theme="dark"] .today-dashboard .routine-2col-row .merged-routine-title{
-  color:#F5F5F7;
-}
-body[data-theme="dark"] .routine-submeta,
+body[data-theme="dark"] .today-dashboard .merged-routine-title{color:var(--t1)}
 body[data-theme="dark"] .routine-meta,
-body[data-theme="dark"] .today-dashboard .routine-2col-row .merged-routine-time{
-  color:#A6A6AD;
-}
+body[data-theme="dark"] .routine-submeta,
+body[data-theme="dark"] .today-dashboard .merged-routine-time{color:var(--t3)}
+body[data-theme="dark"] .merged-section-divider,
+body[data-theme="dark"] .dashboard-section-divider{background:rgba(102,178,255,.26) !important}
