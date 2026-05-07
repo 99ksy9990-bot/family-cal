@@ -11482,6 +11482,188 @@ body[data-theme="dark"] .brief-empty-state{
   }
 }
 
+
+/* v1.2.3 network-first + empty state + UX writing polish */
+
+/* 남아 있는 레거시 .empty도 공통 빈 화면처럼 보이게 중앙 통제 */
+.empty{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:104px !important;
+  padding:18px 14px !important;
+  text-align:center !important;
+  color:var(--t3) !important;
+  background:var(--surface-sunken) !important;
+  border-radius:var(--card-radius, 22px) !important;
+  border:0 !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+  box-shadow:none !important;
+}
+
+/* 공통 Empty State 최종 규칙 */
+.empty-state,
+.brief-empty-state{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:6px !important;
+  min-height:104px !important;
+  padding:18px 14px !important;
+  border:none !important;
+  border-radius:var(--card-radius, 22px) !important;
+  background:var(--surface-sunken) !important;
+  text-align:center !important;
+  box-shadow:none !important;
+}
+.empty-emoji,
+.brief-empty-art{
+  font-size:34px !important;
+  line-height:1 !important;
+  opacity:.88 !important;
+}
+.empty-title,
+.brief-empty-title{
+  max-width:100% !important;
+  font-size:14px !important;
+  font-weight:950 !important;
+  color:var(--t2) !important;
+  line-height:1.35 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.empty-sub,
+.brief-empty-sub{
+  max-width:100% !important;
+  font-size:11.5px !important;
+  font-weight:750 !important;
+  color:var(--t3) !important;
+  line-height:1.35 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 내부 추가 버튼 대신 FAB 규칙을 시각적으로 더 명확히 */
+.smart-fab,
+.fab-add{
+  z-index:120 !important;
+}
+
+/* 상세/관리 화면의 보조 추가 버튼은 + 기호 없이 차분하게 */
+.cat-add{
+  font-size:11px !important;
+  font-weight:950 !important;
+}
+
+/* 다크모드 빈 화면 */
+body[data-theme="dark"] .empty,
+body[data-theme="dark"] .empty-state,
+body[data-theme="dark"] .brief-empty-state{
+  background:rgba(255,255,255,.05) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+
+
+/* v1.2.4 profile target delete/color fix */
+
+.profile-family-row-v2{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 42px 48px !important;
+  gap:6px !important;
+  align-items:center !important;
+  padding:0 !important;
+  border-bottom:1px solid var(--divider) !important;
+}
+.profile-family-row-v2:last-child{
+  border-bottom:none !important;
+}
+.profile-family-main-btn{
+  min-width:0 !important;
+  min-height:62px !important;
+  display:grid !important;
+  grid-template-columns:42px minmax(0,1fr) 18px !important;
+  gap:10px !important;
+  align-items:center !important;
+  padding:10px 0 10px 14px !important;
+  border:none !important;
+  background:transparent !important;
+  font-family:inherit !important;
+  text-align:left !important;
+  color:inherit !important;
+  box-shadow:none !important;
+}
+.profile-family-main-btn:active{
+  transform:var(--press-scale) !important;
+}
+.profile-color-btn,
+.profile-delete-btn{
+  height:34px !important;
+  border-radius:999px !important;
+  border:1px solid var(--divider) !important;
+  background:var(--surface-raised) !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-family:inherit !important;
+  font-size:11px !important;
+  font-weight:950 !important;
+  color:var(--t2) !important;
+  box-shadow:none !important;
+}
+.profile-color-btn .quick-color-dot{
+  width:18px !important;
+  height:18px !important;
+  border-radius:50% !important;
+  margin:0 !important;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.12),0 1px 4px rgba(15,23,42,.12) !important;
+}
+.profile-delete-btn{
+  margin-right:10px !important;
+  color:var(--pink-t) !important;
+  background:var(--pink-bg) !important;
+  border-color:rgba(255,45,85,.18) !important;
+}
+.kid-color-choice-row{
+  display:flex !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  padding:2px 0 8px !important;
+}
+.kid-color-choice-row .color-choice{
+  width:36px !important;
+  height:36px !important;
+  border-radius:50% !important;
+}
+.profile-edit-sheet .profile-delete-full-btn{
+  width:100% !important;
+  height:46px !important;
+  margin-top:10px !important;
+  border-radius:16px !important;
+}
+.profile-family-name{
+  gap:0 !important;
+}
+
+/* 모바일에서 삭제 버튼이 너무 크게 튀지 않게 */
+@media (max-width:380px){
+  .profile-family-row-v2{
+    grid-template-columns:minmax(0,1fr) 38px 42px !important;
+    gap:4px !important;
+  }
+  .profile-delete-btn{
+    font-size:10px !important;
+    margin-right:8px !important;
+  }
+  .profile-color-btn{
+    width:36px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -11539,19 +11721,15 @@ body[data-theme="dark"] .brief-empty-state{
 
 <script>
 
-const APP_VERSION='v1.2.2';
-const PASS_BUILD_VERSION='v1.2.2-stability-consistency-usability';
+const APP_VERSION='v1.2.4';
+const PASS_BUILD_VERSION='v1.2.4-profile-delete-color-fix';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '반복 관리 발견성 보완',
-  '반복 관리 화면 돌아가기 헤더 추가',
-  '일정/반복 상세 설정 기본 닫힘',
-  '상태/할일/축하 용어 통일',
-  '첫 사용 안내 3회 표시',
-  '우측 상단 가족 설정 아이콘 SVG화',
-  '카드 폭·빈 화면·다크모드 통일성 보정',
-  '축하 탭 리스트 압축',
-  '달력 상세 패널과 일정 대시보드 행 스타일 동기화'
+  '가족 설정 대상 삭제 버튼 노출',
+  '프로필 센터에서 색상 점 클릭으로 바로 색상 변경',
+  '기본 정보 수정 모달에 색상 팔레트 추가',
+  '대상 삭제 확인 문구와 실행 취소 흐름 보강',
+  '프로필 가족 리스트 버튼 구조 개선'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -13382,7 +13560,7 @@ function skipRepeatInstance(id,dateKey){
   if(!requireEditMode())return;
   const n=notes.find(x=>String(x.id)===String(id));
   if(!n || !n.repeat)return;
-  if(!confirm('이번 회차만 삭제할까요?'))return;
+  if(!confirm('이번 회차만 지울까요?'))return;
   if(!Array.isArray(n.skipDates))n.skipDates=[];
   if(!n.skipDates.includes(dateKey))n.skipDates.push(dateKey);
   saveNoteOnly(n);
@@ -13666,16 +13844,24 @@ function openApiKeyGuide(){
 }
 
 function renderProfileFamilyRows(){
-  if(!family.length)return renderEmptyState('generic','등록된 대상이 없어요','오른쪽 아래 + 또는 대상 추가 버튼으로 가족을 추가해 보세요.');
+  if(!family.length)return renderEmptyState('generic','등록된 대상이 없어요','오른쪽 위 + 대상 버튼으로 가족을 추가해 보세요.');
   return `<div class="profile-family-list">${family.map((kid,ki)=>`
-    <button class="profile-family-row" onclick="editKid(${ki})">
-      <div class="profile-family-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
-      <div class="profile-family-main">
-        <div class="profile-family-name"><span class="quick-color-dot" style="background:${personColor(kid.name||'공통')}"></span>${escapeHtml(kid.name||'대상')}</div>
-        <div class="profile-family-sub">아바타 · 색상 · 방학 기간 설정</div>
-      </div>
-      <span class="profile-family-arrow">›</span>
-    </button>`).join('')}</div>`;
+    <div class="profile-family-row profile-family-row-v2">
+      <button type="button" class="profile-family-main-btn" onclick="editKid(${ki})" aria-label="${escapeAttr(kid.name||'대상')} 기본 정보 수정">
+        <div class="profile-family-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
+        <div class="profile-family-main">
+          <div class="profile-family-name">
+            ${escapeHtml(kid.name||'대상')}
+          </div>
+          <div class="profile-family-sub">아바타 · 색상 · 방학 기간 설정</div>
+        </div>
+        <span class="profile-family-arrow">›</span>
+      </button>
+      <button type="button" class="profile-color-btn" onclick="openQuickColorPicker(${ki})" aria-label="${escapeAttr(kid.name||'대상')} 색상 변경" title="색상 변경">
+        <span class="quick-color-dot" style="background:${personColor(kid.name||'공통')}"></span>
+      </button>
+      <button type="button" class="profile-delete-btn" onclick="delKid(${ki})" aria-label="${escapeAttr(kid.name||'대상')} 삭제" title="삭제">삭제</button>
+    </div>`).join('')}</div>`;
 }
 
 function openRoutineManagerFromProfile(){
@@ -14162,9 +14348,16 @@ function pickRequestEmpty(title,sub){
 }
 function renderBriefEmptyState(kind,title,sub=''){
   const c=kind==='routine'?pickRoutineEmpty(title,sub):kind==='request'?pickRequestEmpty(title,sub):pickScheduleEmpty(title,sub);
-  return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${c.emoji}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div><div class="brief-empty-sub">${escapeHtml(c.sub)}</div></div>`;
+  return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${escapeHtml(c.emoji)}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div>${c.sub?`<div class="brief-empty-sub">${escapeHtml(c.sub)}</div>`:''}</div>`;
+}
+function emptyMessageHtml(message){
+  return escapeHtml(String(message||'')).replace(/&lt;br\s*\/?&gt;/gi,'<br>');
 }
 function renderEmptyState(kind,title,sub=''){
+  const known=['schedule','routine','request','done','generic'];
+  if(!known.includes(kind)){
+    return `<div class="empty-state empty-generic"><div class="empty-emoji">${escapeHtml(kind||'🌿')}</div><div class="empty-title">${emptyMessageHtml(title||'표시할 내용이 없어요')}</div></div>`;
+  }
   const cfg={
     schedule:pickScheduleEmpty(title,sub),
     routine:pickRoutineEmpty(title,sub),
@@ -14173,7 +14366,7 @@ function renderEmptyState(kind,title,sub=''){
     generic:{emoji:'🌿',title:title||'표시할 내용이 없어요',sub:sub||'조금 더 편안한 화면이에요.'}
   };
   const c=cfg[kind]||cfg.generic;
-  return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${c.emoji}</div><div class="empty-title">${escapeHtml(c.title)}</div><div class="empty-sub">${escapeHtml(c.sub)}</div></div>`;
+  return `<div class="empty-state empty-${kind}"><div class="empty-emoji">${escapeHtml(c.emoji)}</div><div class="empty-title">${escapeHtml(c.title)}</div>${c.sub?`<div class="empty-sub">${escapeHtml(c.sub)}</div>`:''}</div>`;
 }
 
 
@@ -14446,7 +14639,7 @@ function skipRoutineInstance(routineId,dateKey){
   if(!requireEditMode())return;
   const r=(repeatItems||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  if(!confirm('이 날짜의 반복만 삭제할까요?'))return;
+  if(!confirm('이 반복의 이번 회차만 지울까요?'))return;
   if(!Array.isArray(r.skipDates))r.skipDates=[];
   if(!r.skipDates.includes(dateKey))r.skipDates.push(dateKey);
   saveSettingsOnly();
@@ -14793,9 +14986,9 @@ function saveQuickColor(ki,color){
   if(!family[ki])return;
   family[ki].color=color;
   saveSettingsOnly();
-  closeM();
   render({preserveScroll:true});
   showToast('색상을 변경했어요.');
+  openProfileCenter();
 }
 
 
@@ -15053,16 +15246,21 @@ function addRow(ki,ci){
 }
 function delRow(ki,ci,ii){
   if(!requireEditMode())return;
-if(!confirmDelete('이 항목을 삭제할까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveSettingsOnly();render()}
+if(!confirmDelete('이 항목을 지울까요?'))return;family[ki].cats[ci].items.splice(ii,1);saveSettingsOnly();render()}
 function delCat(ki,ci){
   if(!requireEditMode())return;
-if(!confirmDelete('이 카테고리를 삭제할까요?'))return;family[ki].cats.splice(ci,1);saveSettingsOnly();render()}
+if(!confirmDelete('이 카테고리를 지울까요?'))return;family[ki].cats.splice(ci,1);saveSettingsOnly();render()}
 function delKid(i){
   if(!requireEditMode())return;
-  if(!family[i])return;
-  const nm=(family[i].name||'').trim();
+  const k=family[i];
+  if(!k)return;
+  const name=(k.name||'대상').trim()||'대상';
+  if(!confirm(`${name} 대상을 지울까요?`))return;
+  const nm=name;
   if(BASE_PERSONS.includes(nm))hideBasePerson(nm);
-  softDelete('kid',family,i,'기본 정보를');
+  addChangeLog(`대상 삭제: ${nm}`);
+  softDelete('kid',family,i,`${nm} 대상을`);
+  closeM();
 }
 
 
@@ -15081,7 +15279,7 @@ function toggleReq(id){
 }
 function delReq(id){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 할일 항목을 삭제할까요?'))return;
+  if(!confirmDelete('이 할일을 지울까요?'))return;
   const idx=requests.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
     addChangeLog(`할일 삭제: ${requests[idx].title||'할일'}`);
@@ -15149,7 +15347,7 @@ function openReqModal(id){
       <div class="modal-ind"></div>
       <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
       <div class="ml">할일 내용</div>
-      <input class="mi" id="rq-ti" placeholder="예: 우유 사기, 분리수거, 학원비 결제" value="${r?escapeAttr(r.title):''}"/>
+      <input class="mi" id="rq-ti" placeholder="무엇을 해야 하나요?" value="${r?escapeAttr(r.title):''}"/>
       <div class="ml">작성자</div>
       <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
       <div class="request-writer-tabs">
@@ -15406,7 +15604,7 @@ function softDelete(kind,arr,idx,label){
 }
 
 function confirmDelete(msg){
-  return confirm(msg || '삭제할까요?');
+  return confirm(msg || '지울까요?');
 }
 function normText(v){return String(v||'').toLowerCase().trim()}
 function matchSearchNote(n){
@@ -15499,7 +15697,7 @@ function restoreTrash(id){
 function deleteTrashForever(id){
   if(!requireEditMode())return;
 
-  if(!confirm('완전히 삭제할까요?'))return;
+  if(!confirm('휴지통에서 완전히 지울까요?'))return;
   deletedItems=deletedItems.filter(x=>String(x.id)!==String(id));
   saveAll();openTrash();
 }
@@ -15860,7 +16058,7 @@ function saveCustomHoliday(){
 }
 function delCustomHoliday(id){
   if(!requireEditMode())return;
-  if(!confirm('이 공휴일을 삭제할까요?'))return;
+  if(!confirm('이 공휴일을 지울까요?'))return;
   customHolidays=customHolidays.filter(h=>String(h.id)!==String(id));
   saveSettingsOnly();openHolidayManager();render();
 }
@@ -17054,11 +17252,21 @@ function vacationSummary(kid){
   const list=Array.isArray(kid.vacations)?kid.vacations:[];
   return list.filter(v=>v.start||v.end).map(v=>`${v.start?dateLabel(v.start):'시작일'} ~ ${v.end?dateLabel(v.end):'종료일'}`).join(' · ');
 }
+
+function selectKidProfileColor(color){
+  const el=document.getElementById('k-color');
+  if(el)el.value=color||'';
+  document.querySelectorAll('.kid-color-choice').forEach(b=>{
+    b.classList.toggle('on', b.dataset.color===String(color||''));
+  });
+}
+
 function editKid(i){
   const k=family[i];
   if(!k)return;
   if(!Array.isArray(k.vacations))k.vacations=[];
   const curAvatar=AVATAR_IMAGE_IDS.has(k.avatar||'')?k.avatar:defaultAvatarForName(k.name);
+  const curColor=k.color||defaultPersonColor(k.name);
   const vacHtml=(k.vacations||[]).map((v,vi)=>{
     const idp=`${i}-${vi}`;
     return `<div class="vacation-row">
@@ -17077,10 +17285,15 @@ function editKid(i){
 
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet profile-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">기본 정보 수정</div>
       <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
+      <div class="ml">달력 색상</div>
+      <input type="hidden" id="k-color" value="${escapeAttr(curColor)}"/>
+      <div class="kid-color-choice-row">
+        ${PERSON_COLOR_PALETTE.map(c=>`<button type="button" class="color-choice kid-color-choice${c===curColor?' on':''}" data-color="${escapeAttr(c)}" onclick="selectKidProfileColor('${escapeAttr(c)}')" style="background:${c}"></button>`).join('')}
+      </div>
       <div class="ml">달력 아이콘</div>
       <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
       <input type="hidden" id="k-avatar-custom" value="${k.avatarCustom?'1':''}"/>
@@ -17093,14 +17306,15 @@ function editKid(i){
 
       <div class="ml vacation-title-row">
         <span>🌴 방학 기간 <em>반복 쉴 때 적용</em></span>
-        <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">+ 추가</button>
+        <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">추가</button>
       </div>
       <div class="vacation-box">
         ${vacHtml || '<div class="empty compact-empty">등록된 방학이 없어요</div>'}
       </div>
 
       <button class="primary-btn" onclick="saveKid(${i})">저장</button>
-      <button class="cancel-link" onclick="closeM()">취소</button>
+      <button class="toss-btn danger profile-delete-full-btn" onclick="delKid(${i})">이 대상 삭제</button>
+      <button class="cancel-link" onclick="openProfileCenter()">가족과 설정으로 돌아가기</button>
     </div>
   </div>`;
 }
@@ -17113,15 +17327,21 @@ function addKid(){
 function saveKid(i){
   if(!requireEditMode())return;
   const old=family[i]||{};
-  const name=document.getElementById('k-n').value;
+  const name=(document.getElementById('k-n')||{}).value||'';
+  if(!name.trim()){
+    alert('대상 이름을 먼저 적어주세요!');
+    return;
+  }
   const custom=(document.getElementById('k-avatar-custom')||{}).value==='1';
   let avatar=(document.getElementById('k-avatar')||{}).value||'';
+  const color=(document.getElementById('k-color')||{}).value||old.color||defaultPersonColor(name);
   if(!custom && (old.name||'')!==name)avatar=defaultAvatarForName(name);
   if(!avatar)avatar=defaultAvatarForName(name);
   family[i]={...old,
-    name,
+    name:name.trim(),
     avatar,
     avatarCustom:custom,
+    color,
     grade:'',
     year:'',
     cls:'',
@@ -17130,7 +17350,10 @@ function saveKid(i){
   };
   delete family[i].vacationStart;
   delete family[i].vacationEnd;
-  saveSettingsOnly();closeM();render();
+  saveSettingsOnly();
+  closeM();
+  render({preserveScroll:true});
+  showToast('대상 정보를 저장했어요.');
 }
 
 function getPickerVal(id){
