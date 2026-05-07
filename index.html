@@ -12347,6 +12347,145 @@ body[data-theme="dark"] .dashboard-standard-list{background:transparent !importa
 body[data-theme="dark"] .dashboard-standard-row{border-bottom-color:rgba(255,255,255,.10) !important;}
 body[data-theme="dark"] .dashboard-section-divider{background:rgba(255,255,255,.10) !important;}
 
+
+/* v1.2.11 todo/memory/fold/calendar polish */
+.fold-btn{
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  border-radius:50% !important;
+  border:1.5px solid var(--border) !important;
+  background:var(--card) !important;
+  color:var(--t2) !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.06) !important;
+  transition:transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease !important;
+  font-size:0 !important;
+  padding:0 !important;
+}
+.fold-btn:active{transform:scale(.94) !important;box-shadow:0 1px 4px rgba(15,23,42,.05) !important;}
+.fold-btn .fold-chevron{
+  width:10px;
+  height:10px;
+  display:block;
+  border-left:2.2px solid currentColor;
+  border-bottom:2.2px solid currentColor;
+  transform:translateY(-2px) rotate(-45deg);
+  transition:transform .16s ease;
+}
+.fold-btn.open .fold-chevron{transform:translateY(2px) rotate(135deg);}
+.routine-more-btn{
+  width:38px !important;
+  height:38px !important;
+  border-radius:50% !important;
+  border:1.5px solid var(--border) !important;
+  background:var(--card) !important;
+  color:var(--t2) !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.06) !important;
+}
+.todo-empty-inline{
+  margin:2px 16px 8px !important;
+  padding:4px 2px !important;
+  min-height:30px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:7px !important;
+  color:var(--t3) !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  white-space:nowrap !important;
+}
+.todo-empty-emoji{font-size:18px;line-height:1;}
+.todo-compact-grid.todo-done-grid{
+  display:grid !important;
+  grid-template-columns:30px 26px minmax(0,1fr) auto !important;
+  gap:10px !important;
+  align-items:center !important;
+}
+.todo-compact-grid.todo-active-grid{
+  display:grid !important;
+  grid-template-columns:26px minmax(0,1fr) auto 30px !important;
+  gap:10px !important;
+  align-items:center !important;
+}
+.todo-compact-grid .todo-compact-avatar{
+  width:30px !important;
+  height:30px !important;
+  min-width:30px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.todo-compact-grid .todo-compact-avatar .avatar-img-small,
+.todo-compact-grid .todo-compact-avatar .avatar-img{
+  width:30px !important;
+  height:30px !important;
+  object-fit:contain !important;
+}
+.request-list-wrap.done-list .todo-compact-card.done-card{opacity:.55 !important;}
+.memory-row-v2{align-items:center !important;}
+.memory-body-grid-v2{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:10px !important;width:100% !important;}
+.memory-title-line-v2{display:flex !important;align-items:center !important;gap:6px !important;min-width:0 !important;white-space:nowrap !important;overflow:hidden !important;}
+.memory-title-line-v2 .memory-title-text,
+.memory-title-line-v2 .memory-upcoming-inline,
+.memory-title-line-v2 .memory-title-dot{
+  font-family:'Freesentation','Pretendard',-apple-system,BlinkMacSystemFont,sans-serif !important;
+  font-size:14.5px !important;
+  line-height:1.32 !important;
+  font-weight:900 !important;
+  letter-spacing:-.25px !important;
+  color:var(--t1) !important;
+  flex:0 0 auto !important;
+}
+.memory-title-line-v2 .memory-title-text{min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;flex:1 1 auto !important;}
+.memory-title-line-v2 .memory-title-dot{color:var(--t3) !important;}
+.memory-upcoming-inline{white-space:nowrap !important;}
+.memory-date-col-v2{align-items:center !important;justify-content:center !important;}
+.memory-dday-standard,
+.memory-card-wrap .modern-dday-badge{
+  background:var(--pink-bg) !important;
+  color:var(--pink-t) !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  padding:6px 10px !important;
+  border-radius:12px !important;
+  border:none !important;
+  white-space:nowrap !important;
+  min-width:46px !important;
+  text-align:center !important;
+}
+.cal-dot,
+.person-cal-dot,
+.target-dot,
+.target-legend .target-dot,
+.target-legend .leg-dot{
+  width:8px !important;
+  height:8px !important;
+  min-width:8px !important;
+  border-radius:50% !important;
+  box-shadow:0 0 0 1.2px rgba(255,255,255,.92) !important;
+}
+.cal-dots{gap:3px !important;min-height:11px !important;align-items:center !important;}
+.cal-dot-more{font-size:9px !important;font-weight:950 !important;}
+.multi-shift-cell.s-off span,
+.shift-one.s-off{font-weight:950 !important;}
+body[data-theme="dark"] .fold-btn,
+body[data-theme="dark"] .routine-more-btn{background:#1C1C1E !important;border-color:rgba(255,255,255,.10) !important;box-shadow:none !important;}
+body[data-theme="dark"] .cal-dot,
+body[data-theme="dark"] .person-cal-dot,
+body[data-theme="dark"] .target-dot{box-shadow:0 0 0 1.2px rgba(28,28,30,.95) !important;}
+@media (max-width:360px){
+  .todo-compact-grid.todo-done-grid{grid-template-columns:28px 24px minmax(0,1fr) auto !important;gap:8px !important;}
+  .todo-compact-grid.todo-active-grid{grid-template-columns:24px minmax(0,1fr) auto 28px !important;gap:8px !important;}
+  .memory-title-line-v2 .memory-title-text,.memory-title-line-v2 .memory-upcoming-inline,.memory-title-line-v2 .memory-title-dot{font-size:13.5px !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12404,17 +12543,18 @@ body[data-theme="dark"] .dashboard-section-divider{background:rgba(255,255,255,.
 
 <script>
 
-const APP_VERSION='v1.2.10';
-const PASS_BUILD_VERSION='v1.2.10-pre-v130-dashboard-density';
+const APP_VERSION='v1.2.11';
+const PASS_BUILD_VERSION='v1.2.11-todo-memory-fold-calendar-polish';
 const APP_UPDATED='2026-05-07';
 
+
 const UPDATE_LOG=[
-  '오늘 대시보드와 등록 일정 row 문법 통일',
-  '오늘 반복 2열 카드 제거 및 플랫 리스트화',
-  '반복 row/padding/gap 압축',
-  '반복 회색 박스 padding 및 margin 정리',
-  '탭바 SVG 아이콘 굵기 강화',
-  '상단 헤더 1줄 압축'
+  '접고 펼치는 아이콘과 눌림 효과 통일',
+  '할일 빈 상태를 한 줄 안내로 축소',
+  '완료 할일의 요청자 아바타 위치 보정',
+  '축하 카드 날짜와 디데이 정렬 통일',
+  '달력 점과 범례 점 크기 통일',
+  'OFF 표시를 O로 축약'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -14908,7 +15048,7 @@ function sectionHeader(title,count,isOpen,toggleFn,actions=''){
     <span class="sec-cnt">${count}</span>
     <div class="sec-actions">
       ${actions}
-      <button class="fold-btn" onclick="event.stopPropagation();${toggleFn}()">${isOpen?'▲':'▼'}</button>
+      <button class="fold-btn${isOpen?' open':''}" onclick="event.stopPropagation();${toggleFn}()" aria-label="${isOpen?'접기':'펼치기'}"><span class="fold-chevron"></span></button>
     </div>
   </div>`;
 }
@@ -16020,23 +16160,25 @@ function makeReqCard(r){
   const due = requestDueLabel(r);
   const done = isDone(r);
   const writer = r.writer || '공통';
-
+  const avatar = `<div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>`;
+  const check = `<div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>`;
   return `<div class="card swipe-card request-swipe-card todo-compact-card ${done ? 'done-card' : ''}" 
     ontouchstart="startItemSwipe(event,'request','${r.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'request','${r.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
     draggable="true" ondragstart="dragStart(event,'requests','${r.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'requests','${r.id}')" ondragend="dragEnd(event)"
     onclick="if(!consumeSwipeTap())openEditReq('${r.id}')" style="cursor:pointer">
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
-    <div class="todo-compact-grid">
-      <div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
-        <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
+    <div class="todo-compact-grid ${done?'todo-done-grid':'todo-active-grid'}">
+      ${done?avatar:''}
+      ${check}
       <div class="todo-compact-main">
         <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
         ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : ''}
       </div>
       <div class="todo-compact-due">${due ? escapeHtml(due) : ''}</div>
-      <div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>
+      ${done?'':avatar}
     </div>
   </div>`;
 }
@@ -16054,9 +16196,12 @@ function toggleRequestDone(){
 function renderR(){
   const active=requests.filter(r=>!isDone(r)&&matchSearchReq(r));
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
+  const activeBody = active.length
+    ? `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`
+    : `<div class="todo-empty-inline"><span class="todo-empty-emoji">🧡</span><span>진행 중 할일이 없어요.</span></div>`;
   return`
     ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest')}
-    ${requestOpen?`<div class="request-list-wrap todo-list-wrap">${active.length?active.map(makeReqCard).join(''):renderEmptyState('request','등록된 할일이 없어요')}</div>`:`<div class="schedule-collapsed-hint warm-collapsed-hint">할일 목록을 잠시 접어뒀어요. 펼치면 남은 할일을 빠르게 확인할 수 있어요.</div>`}
+    ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">할일 목록을 잠시 접어뒀어요.</div>`}
     <div class="div"></div>
     ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
     ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 할일이 없어요','끝낸 할일은 이곳에 차곡차곡 모여요.')}</div>`:''}
@@ -16158,13 +16303,7 @@ function makeMemoryCard(x){
   const isLunar=calType==='lunar';
   const nb=nextBirthInfo(x.birth,isLunar);
   const ageLabel=memoryAgeLabel(x);
-  let upcomingLabel='';
-  if(nb.date){
-    const [ny,nm,nd]=nb.date.split('-').map(Number);
-    const dow=DAYS[new Date(ny,nm-1,nd).getDay()];
-    upcomingLabel=`${nm}/${nd}(${dow})`;
-  }
-
+  const upcomingFullLabel=nb.date?dateLabel(nb.date):'';
   return `<div class="card mem-card reorder-card swipe-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -16175,18 +16314,17 @@ function makeMemoryCard(x){
     ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
     <div class="swipe-bg swipe-bg-left"></div>
-    <div class="c-row memory-row" onclick="if(!consumeSwipeTap())openMemoryModal('${x.id}')" style="cursor:pointer">
+    <div class="c-row memory-row memory-row-v2" onclick="if(!consumeSwipeTap())openMemoryModal('${x.id}')" style="cursor:pointer">
       <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
-      <div class="memory-body-grid">
+      <div class="memory-body-grid memory-body-grid-v2">
         <div class="memory-info-col">
-          <div class="memory-title-text">${escapeHtml(x.name)}</div>
+          <div class="memory-title-line-v2"><span class="memory-title-text">${escapeHtml(x.name)}</span>${upcomingFullLabel?`<span class="memory-title-dot">·</span><span class="memory-upcoming-inline">${escapeHtml(upcomingFullLabel)}</span>`:''}</div>
           <div class="memory-sub-text">
-            ${x.birth ? `${escapeHtml(ageLabel)} · ${dateLabel(x.birth)}${isLunar?'(음)':''}` : ''}
+            ${x.birth ? `${escapeHtml(ageLabel)} · ${dateLabel(x.birth)}${isLunar?'(음)':'(양)'}` : ''}
           </div>
         </div>
-        <div class="memory-date-col">
-          <div class="memory-upcoming-date">${escapeHtml(upcomingLabel)}</div>
-          ${x.birth ? `<div class="chip dday-chip memory-dday-chip">${escapeHtml(nb.dday)}</div>` : ''}
+        <div class="memory-date-col memory-date-col-v2">
+          ${x.birth ? `<div class="modern-dday-badge memory-dday-standard">${escapeHtml(nb.dday)}</div>` : ''}
         </div>
       </div>
     </div>
@@ -16860,7 +16998,8 @@ function shortShiftLabel(status){
   const s=String(status||'').trim();
   if(!s)return '-';
   const upper=s.toUpperCase();
-  if(upper==='OFF' || upper==='O' || s.includes('휴') || s.includes('연차') || s.includes('반차'))return '휴';
+  if(upper==='OFF' || upper==='O')return 'O';
+  if(s.includes('연차') || s.includes('반차') || s.includes('휴'))return '휴';
   return Array.from(s)[0] || '-';
 }
 function scheduleCountsByPerson(baseKey){
