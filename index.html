@@ -10891,6 +10891,150 @@ body[data-theme="dark"] .modal-sheet select.mi{
   color:var(--t1) !important;
 }
 
+
+/* v1.1.9 dashboard routine/modal spacing polish */
+
+/* 아바타 칩 내부의 회색 네모 배경 제거 */
+.person-check-label .avatar-img-small,
+.person-check-label .avatar-img,
+.person-check-label .avatar-fallback,
+.rq-writer-btn .avatar-img-small,
+.rq-writer-btn .avatar-img,
+.rq-writer-btn .avatar-fallback{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+  border-radius:0 !important;
+  overflow:visible !important;
+  object-fit:contain !important;
+}
+.person-check-label,
+.rq-writer-btn{
+  background:transparent !important;
+}
+
+/* 일정 탭: 캐릭터와 이름을 같이 쓰지 않고 캐릭터만 사용 */
+.merged-schedule-wrap .merged-routine-person.under-avatar,
+.schedule-line-name,
+.today-list-person{
+  display:none !important;
+}
+.merged-schedule-wrap .merged-routine-head{
+  justify-content:center !important;
+  align-items:center !important;
+  min-height:40px !important;
+}
+.merged-schedule-wrap .merged-routine-avatar,
+.merged-schedule-wrap .merged-routine-avatar .avatar-img{
+  width:38px !important;
+  height:38px !important;
+  object-fit:contain !important;
+}
+
+/* 대시보드 안의 '일정/반복' 텍스트 라벨 제거 */
+.today-dashboard .merged-section-label{
+  display:none !important;
+}
+.dashboard-section-divider{
+  height:1px;
+  background:var(--divider);
+  margin:14px 0 12px;
+  width:100%;
+}
+
+/* 일정/반복 모두 같은 회색 라인 문법 */
+.merged-today-dashboard .merged-routine-row{
+  border-bottom:1px solid var(--divider) !important;
+}
+.merged-today-dashboard .merged-routine-row:last-child{
+  border-bottom:none !important;
+}
+.merged-schedule-wrap .merged-routine-group{
+  border-bottom:none !important;
+  padding:0 !important;
+}
+.merged-schedule-wrap .merged-routine-box{
+  width:100% !important;
+  background:transparent !important;
+  padding:0 !important;
+}
+
+/* 반복 2열 카드: 긴 쪽 높이에 맞춰 짧은 쪽도 빈 행과 회색 라인 유지 */
+.routine-dashboard-grid{
+  align-items:stretch !important;
+}
+.routine-dashboard-grid .merged-routine-group{
+  height:100% !important;
+  align-self:stretch !important;
+}
+.routine-dashboard-grid .merged-routine-box{
+  width:100% !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+.routine-dashboard-grid .routine-placeholder-row{
+  pointer-events:none !important;
+}
+.routine-dashboard-grid .routine-placeholder-row .merged-routine-title,
+.routine-dashboard-grid .routine-placeholder-row .merged-routine-time{
+  color:transparent !important;
+}
+.routine-dashboard-grid .routine-placeholder-row:last-child{
+  border-bottom:none !important;
+}
+
+/* 모바일에서 일정/루틴 추가 모달이 너무 위로 올라가지 않게, 취소 여백 확보 */
+.modal-bg{
+  align-items:flex-end !important;
+  padding-top:max(56px, env(safe-area-inset-top, 0px)) !important;
+}
+.modal-sheet.schedule-edit-sheet,
+.modal-sheet.routine-edit-sheet{
+  max-height:min(82dvh, calc(100dvh - 72px)) !important;
+  margin-top:auto !important;
+  padding:18px 18px max(28px, calc(22px + env(safe-area-inset-bottom, 0px))) !important;
+  border-radius:24px 24px 0 0 !important;
+}
+.modal-sheet.schedule-edit-sheet .modal-hd,
+.modal-sheet.routine-edit-sheet .modal-hd{
+  margin-bottom:14px !important;
+}
+.schedule-edit-sheet input.mi,
+.routine-edit-sheet input.mi,
+.schedule-edit-sheet textarea.ta,
+.routine-edit-sheet textarea.ta{
+  font-size:16px !important; /* iOS 입력 확대/화면 튐 완화 */
+}
+.schedule-edit-sheet .cancel-link,
+.routine-edit-sheet .cancel-link{
+  min-height:46px !important;
+  margin-top:8px !important;
+  border-radius:16px !important;
+  color:var(--t2) !important;
+  font-weight:900 !important;
+}
+
+/* 상세 설정이 열려 있어도 첫 화면 핵심 입력을 먼저 보이게 */
+.schedule-edit-sheet .detail-settings,
+.routine-edit-sheet .detail-settings{
+  margin-top:12px !important;
+}
+.schedule-edit-sheet .detail-settings-panel,
+.routine-edit-sheet .detail-settings-panel{
+  padding-bottom:12px !important;
+}
+
+@media (max-width:430px){
+  .modal-bg{
+    padding-top:64px !important;
+  }
+  .modal-sheet.schedule-edit-sheet,
+  .modal-sheet.routine-edit-sheet{
+    max-height:78dvh !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -10949,15 +11093,16 @@ body[data-theme="dark"] .modal-sheet select.mi{
 
 <script>
 
-const APP_VERSION='v1.1.8';
-const PASS_BUILD_VERSION='v1.1.8-modal-form-friendly-writing';
+const APP_VERSION='v1.1.9';
+const PASS_BUILD_VERSION='v1.1.9-dashboard-routine-modal-spacing';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '일정/루틴 입력 모달 대상자 칩 UI 적용',
-  '상세 설정 아코디언 디자인 통일',
-  '일정·루틴 입력 안내문을 다정한 말투로 변경',
-  '저장/삭제/필수 입력 메시지 UX 라이팅 정리',
-  '루틴 수정 모달에서 날짜·시간 저장 누락 보완'
+  '일정 탭 대시보드 아바타명 숨김',
+  '대시보드 일정/반복 텍스트 라벨 제거',
+  '일정과 반복 영역을 회색 구분선으로 분리',
+  '반복 2열 카드 높이와 빈 행 라인 균형 보정',
+  '아바타 선택 칩 내부 회색 배경 제거',
+  '일정/루틴 입력 모달 높이와 취소 여백 보정'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -15637,13 +15782,12 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     routineGroups[who].push(n);
   });
   const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
+  const maxRoutineRows=groupKeys.length?Math.max(...groupKeys.map(who=>routineGroups[who].length)):0;
   const routineBody=groupKeys.length
-    ? groupKeys.map(who=>`<div class="merged-routine-group">
-        <div class="merged-routine-head">
-          <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
-        </div>
-        <div class="merged-routine-box">${routineGroups[who].map(n=>{
+    ? groupKeys.map(who=>{
+        const rows=[...routineGroups[who]];
+        const fillerCount=Math.max(0,maxRoutineRows-rows.length);
+        const realRows=rows.map(n=>{
           const tm=todayTimeOnly(n)||'';
           const kind=n._autoFamilyInfo?'auto':'note';
           const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
@@ -15651,13 +15795,24 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
             <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
             <div class="merged-routine-time">${escapeHtml(tm)}</div>
           </div>`;
-        }).join('')}</div>
-      </div>`).join('')
-    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
+        }).join('');
+        const fillerRows=Array.from({length:fillerCount},()=>`<div class="merged-routine-row routine-placeholder-row" aria-hidden="true">
+          <div class="merged-routine-title">&nbsp;</div>
+          <div class="merged-routine-time">&nbsp;</div>
+        </div>`).join('');
+        return `<div class="merged-routine-group">
+          <div class="merged-routine-head">
+            <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+            <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
+          </div>
+          <div class="merged-routine-box">${realRows}${fillerRows}</div>
+        </div>`;
+      }).join('')
+    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','루틴 없음')}</div>`;
 
   const body=bothEmpty
     ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
-    : `<div class="merged-section-label">일정</div><div class="merged-routine-wrap merged-schedule-wrap">${scheduleBody}</div><div class="merged-section-label routine">반복</div><div class="merged-routine-wrap">${routineBody}</div>`;
+    : `<div class="merged-routine-wrap merged-schedule-wrap">${scheduleBody}</div><div class="dashboard-section-divider" aria-hidden="true"></div><div class="merged-routine-wrap routine-dashboard-grid">${routineBody}</div>`;
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
