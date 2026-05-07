@@ -12164,6 +12164,22 @@ body[data-theme="dark"] .modern-schedule-item,
 body[data-theme="dark"] .card-routine-item{border-bottom-color:rgba(255,255,255,.08) !important;}
 body[data-theme="dark"] .person-routine-count{background:rgba(255,255,255,.08) !important;}
 
+
+/* v1.2.8 stability/refactor fixes */
+body.modal-open{overflow:hidden !important;touch-action:none !important;}
+.render-error-card{border:1px solid rgba(255,45,85,.18)!important;background:var(--pink-bg)!important;color:var(--pink-t)!important;}
+.render-error-title{font-size:15px;font-weight:950;margin-bottom:6px;}
+.render-error-sub{font-size:12px;font-weight:750;line-height:1.45;margin-bottom:12px;word-break:break-all;}
+.modal-bg.modal-closing{animation:fadeOut .14s ease both !important;}
+.modal-bg.modal-closing .modal-sheet{animation:sheetDown .14s ease both !important;}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes sheetDown{from{transform:translateY(0);opacity:1}to{transform:translateY(18px);opacity:.88}}
+.swipe-card-active{will-change:transform;}
+.reorder-card.dragging{will-change:transform,opacity;}
+.smart-fab-sheet .smart-fab-option:active,.card-routine-item:active{opacity:.72;}
+/* 반복 수정 모달에서 요일/방학 토글은 저장 버튼 전까지 초안으로만 반영 */
+.routine-edit-days .day-btn.on{box-shadow:0 0 0 3px rgba(0,122,255,.10);}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12221,16 +12237,17 @@ body[data-theme="dark"] .person-routine-count{background:rgba(255,255,255,.08) !
 
 <script>
 
-const APP_VERSION='v1.2.7';
-const PASS_BUILD_VERSION='v1.2.7-modern-schedule-repeat-grid';
-const APP_UPDATED='2026-05-05';
+const APP_VERSION='v1.2.8';
+const PASS_BUILD_VERSION='v1.2.8-stability-refactor-qa';
+const APP_UPDATED='2026-05-07';
 
 const UPDATE_LOG=[
-  '등록 일정/지나간 일정 하단 리스트를 모던 3단 레이아웃으로 정리',
-  'D-day 배지를 우측 고정형으로 추가',
-  '대상자별 그룹 제목을 줄이고 리스트 밀도 개선',
-  '반복 관리 화면을 대상자별 2단 카드 그리드로 변경',
-  '스마트 필터 칩/리스트/다크모드 스타일 보정'
+  '렌더링 오류 보호 장치 추가',
+  '반복 수정 모달의 취소/저장 흐름 안정화',
+  '스와이프와 길게 누르기 재정렬 충돌 보정',
+  '바텀시트 닫힘 애니메이션 및 배경 스크롤 잠금 보강',
+  '삭제/복구/엑셀 내보내기 미세 버그 수정',
+  '공통 유틸 추가로 유지보수성 개선'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -14088,7 +14105,12 @@ function highlightText(s){
 
 let itemSwipe=null;
 function startItemSwipe(e,kind,id){
-  if(e.target&&e.target.closest&&e.target.closest('button,.chk,.small-link,.comment-pill,input,select,textarea'))return;
+  if(touchReorderInfo || __touchReorderPending)return;
+  if(e.target&&e.target.closest&&e.target.closest('button,.chk,.small-link,.comment-pill,input,select,textarea,.person-check-label,.day-btn'))return;
+  if(itemSwipe&&itemSwipe.card){
+    itemSwipe.card.style.transform='translateX(0)';
+    itemSwipe.card.classList.remove('swipe-card-active','swipe-complete','swipe-actions');
+  }
   const p=swipePoint(e);
   const card=e.currentTarget;
   itemSwipe={kind,id,card,startX:p.x,startY:p.y,lastX:p.x,lastT:Date.now(),dx:0,active:false};
@@ -14100,7 +14122,7 @@ function moveItemSwipe(e){
   const p=swipePoint(e);
   const dx=p.x-itemSwipe.startX;
   const dy=p.y-itemSwipe.startY;
-  if(Math.abs(dx)<8 || Math.abs(dx)<Math.abs(dy))return;
+  if(Math.abs(dx)<10 || Math.abs(dx)<Math.abs(dy)*1.15)return;
   itemSwipe.active=true;
   if(e.cancelable)e.preventDefault();
   const vdx=Math.max(-92,Math.min(92,rubberDx(dx)));
@@ -14116,9 +14138,9 @@ function endItemSwipe(e){
   const p=swipePoint(e);
   const dt=Math.max(1,Date.now()-itemSwipe.lastT);
   const vx=(p.x-itemSwipe.lastX)/dt;
-  const dx=itemSwipe.dx;
-  const actionRight=dx>66||vx>0.48;
-  const actionLeft=dx<-66||vx<-0.48;
+  const dx=itemSwipe.dx||0;
+  const actionRight=itemSwipe.active&&(dx>66||vx>0.48);
+  const actionLeft=itemSwipe.active&&(dx<-66||vx<-0.48);
   const {kind,id,card}=itemSwipe;
   card.style.transition='transform .22s cubic-bezier(.2,.8,.2,1)';
   card.style.transform='translateX(0)';
@@ -15384,17 +15406,30 @@ function reorderListItem(listName,id,targetId){
   render();
 }
 function touchReorderStart(e,listName,id){
-  if(e.target && e.target.closest && e.target.closest('input,select,button,textarea'))return;
+  if(e.target && e.target.closest && e.target.closest('input,select,button,textarea,.person-check-label,.day-btn'))return;
+  const p=swipePoint(e);
   clearTimeout(touchReorderTimer);
+  __touchReorderPending={listName,id,el:e.currentTarget,startX:p.x,startY:p.y,cancelled:false};
   touchReorderTimer=setTimeout(()=>{
+    if(!__touchReorderPending || __touchReorderPending.cancelled)return;
     touchReorderInfo={listName,id,el:e.currentTarget};
+    __touchReorderPending=null;
     e.currentTarget.classList.add('dragging');
   },500);
 }
 function touchReorderMove(e){
+  const t=e.touches&&e.touches[0];
+  if(__touchReorderPending && t){
+    const dx=Math.abs(t.clientX-__touchReorderPending.startX);
+    const dy=Math.abs(t.clientY-__touchReorderPending.startY);
+    if(dx>10 || dy>10){
+      __touchReorderPending.cancelled=true;
+      __touchReorderPending=null;
+      clearTimeout(touchReorderTimer);
+    }
+  }
   if(!touchReorderInfo)return;
   e.preventDefault();
-  const t=e.touches&&e.touches[0];
   if(!t)return;
   document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
   const el=document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-reorder-list]');
@@ -15404,6 +15439,7 @@ function touchReorderMove(e){
 }
 function touchReorderEnd(e){
   clearTimeout(touchReorderTimer);
+  __touchReorderPending=null;
   if(!touchReorderInfo)return;
   const info=touchReorderInfo;
   if(info.el)info.el.classList.remove('dragging');
@@ -15418,6 +15454,7 @@ function touchReorderEnd(e){
 }
 function touchReorderCancel(){
   clearTimeout(touchReorderTimer);
+  __touchReorderPending=null;
   if(touchReorderInfo?.el)touchReorderInfo.el.classList.remove('dragging');
   touchReorderInfo=null;
   document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
@@ -15527,66 +15564,70 @@ function renderRoutineTargetFilter(){
 }
 function toggleRepeatModalDay(ii,di){
   const item=repeatItems[ii]; if(!item)return;
-  if(!Array.isArray(item.days))item.days=[];
-  const idx=item.days.indexOf(di);
-  if(idx>=0)item.days.splice(idx,1);else item.days.push(di);
-  item.days.sort((a,b)=>a-b);
-  saveSettingsOnly();
+  const draft=__repeatEditDrafts[ii] || deepCopy(item);
+  __repeatEditDrafts[ii]=draft;
+  if(!Array.isArray(draft.days))draft.days=[];
+  const idx=draft.days.indexOf(di);
+  if(idx>=0)draft.days.splice(idx,1);else draft.days.push(di);
+  draft.days.sort((a,b)=>a-b);
   const btn=document.querySelector(`[data-edit-day="${ii}-${di}"]`);
-  if(btn)btn.classList.toggle('on',item.days.includes(di));
+  if(btn)btn.classList.toggle('on',draft.days.includes(di));
   const summary=document.getElementById(`repeat-days-summary-${ii}`);
-  if(summary)summary.textContent=repeatDaysSummary(item.days);
+  if(summary)summary.textContent=repeatDaysSummary(draft.days);
 }
 function toggleRepeatModalVacation(ii){
   const item=repeatItems[ii]; if(!item)return;
-  item.pauseOnVacation=!item.pauseOnVacation;
-  saveSettingsOnly();
+  const draft=__repeatEditDrafts[ii] || deepCopy(item);
+  __repeatEditDrafts[ii]=draft;
+  draft.pauseOnVacation=!draft.pauseOnVacation;
   const btn=document.getElementById(`repeat-vacation-${ii}`);
   if(btn){
-    btn.classList.toggle('on',!!item.pauseOnVacation);
-    btn.textContent=item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF';
+    btn.classList.toggle('on',!!draft.pauseOnVacation);
+    btn.textContent=draft.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF';
   }
 }
 function openRepeatEditModal(ii){
   if(!requireEditMode())return;
   const item=repeatItems[ii];
   if(!item)return;
+  const draft=deepCopy(item);
+  __repeatEditDrafts[ii]=draft;
   const idp=`${ii}`;
-  const who=item.who||'공통';
+  const who=draft.who||'공통';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet routine-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">반복 수정</div>
       <div class="ml">반복 내용</div>
-      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="어떤 반복 일정인가요?"/>
+      <input class="mi" id="re-title-${ii}" value="${escapeAttr(draft.title||'')}" placeholder="어떤 반복 일정인가요?"/>
       <div class="ml">대상</div>
       <input type="hidden" id="re-who-${ii}" value="${escapeAttr(who)}"/>
       <div class="type-sel person-chip-selector routine-person-selector">
         ${repeatPersonChoiceButtons(ii,who)}
       </div>
 
-      <div class="ml">요일 <span class="modal-summary" id="repeat-days-summary-${ii}">${escapeHtml(repeatDaysSummary(item.days))}</span></div>
-      <div class="day-sel routine-edit-days">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" data-edit-day="${ii}-${di}" onclick="toggleRepeatModalDay(${ii},${di})">${d}</button>`).join('')}</div>
+      <div class="ml">요일 <span class="modal-summary" id="repeat-days-summary-${ii}">${escapeHtml(repeatDaysSummary(draft.days))}</span></div>
+      <div class="day-sel routine-edit-days">${DAYS.map((d,di)=>`<button class="day-btn${draft.days&&draft.days.includes(di)?' on':''}" data-edit-day="${ii}-${di}" onclick="toggleRepeatModalDay(${ii},${di})">${d}</button>`).join('')}</div>
 
       <details class="detail-settings">
         <summary>⚙️ 상세 설정 열기</summary>
         <div class="detail-settings-panel">
           <div class="ml">방학</div>
-          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${item.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
-            ${item.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
+          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${draft.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
+            ${draft.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
           </button>
 
           <div class="ml">날짜</div>
           <div class="mi-2">
-            <div><div class="sublabel">시작일</div><input class="picker-field${item.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${item.start||''}" value="${item.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
-            <div><div class="sublabel">종료일</div><input class="picker-field${item.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${item.repeatEnd||''}" value="${item.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
+            <div><div class="sublabel">시작일</div><input class="picker-field${draft.start?'':' empty'}" id="rp-sd-${idp}" readonly data-val="${draft.start||''}" value="${draft.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('rp-sd-${idp}')"/></div>
+            <div><div class="sublabel">종료일</div><input class="picker-field${draft.repeatEnd?'':' empty'}" id="rp-re-${idp}" readonly data-val="${draft.repeatEnd||''}" value="${draft.repeatEnd?dateLabel(item.repeatEnd):'종료일'}" onclick="openDatePicker('rp-re-${idp}')"/></div>
           </div>
 
           <div class="ml">시간</div>
           <div class="mi-2">
-            <div><div class="sublabel">시작 시간</div><input class="picker-field${item.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${item.sT||''}" value="${item.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
-            <div><div class="sublabel">종료 시간</div><input class="picker-field${item.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${item.eT||''}" value="${item.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
+            <div><div class="sublabel">시작 시간</div><input class="picker-field${draft.sT?'':' empty'}" id="rp-st-${idp}" readonly data-val="${draft.sT||''}" value="${draft.sT?timeLabel(item.sT):'시작 시간'}" onclick="openTimePicker('rp-st-${idp}')"/></div>
+            <div><div class="sublabel">종료 시간</div><input class="picker-field${draft.eT?'':' empty'}" id="rp-et-${idp}" readonly data-val="${draft.eT||''}" value="${draft.eT?timeLabel(item.eT):'종료 시간'}" onclick="openTimePicker('rp-et-${idp}')"/></div>
           </div>
         </div>
       </details>
@@ -15603,17 +15644,21 @@ function saveRepeatEdit(ii){
   if(!requireEditMode())return;
   const item=repeatItems[ii];
   if(!item)return;
+  const draft=__repeatEditDrafts[ii] || deepCopy(item);
   const title=(document.getElementById(`re-title-${ii}`)||{}).value||'';
   if(!title.trim()){
     alert('반복 일정 이름을 먼저 적어주세요!');
     return;
   }
   item.title=title.trim();
-  item.who=(document.getElementById(`re-who-${ii}`)||{}).value||'공통';
+  item.who=(document.getElementById(`re-who-${ii}`)||{}).value||draft.who||'공통';
+  item.days=Array.isArray(draft.days)?[...draft.days]:[];
+  item.pauseOnVacation=!!draft.pauseOnVacation;
   item.start=getPickerVal(`rp-sd-${ii}`);
   item.repeatEnd=getPickerVal(`rp-re-${ii}`);
   item.sT=getPickerVal(`rp-st-${ii}`);
   item.eT=getPickerVal(`rp-et-${ii}`);
+  delete __repeatEditDrafts[ii];
   saveSettingsOnly();
   closeM();
   render({preserveScroll:true});
@@ -15904,7 +15949,10 @@ function saveReq(id){
 function delMemory(id){
   if(!requireEditMode())return;
   const idx=memories.findIndex(x=>String(x.id)===String(id));
-  softDelete('memory',memories,idx,'축하을');
+  if(idx<0)return;
+  if(!confirmDelete('이 축하 항목을 지울까요?'))return;
+  addChangeLog(`축하 삭제: ${memories[idx].name||'축하'}`);
+  softDelete('memory',memories,idx,'축하를');
 }
 function memoryUpcomingDiff(x){
   if(!x||!x.birth)return Number.POSITIVE_INFINITY;
@@ -17490,16 +17538,71 @@ function shareNative(){
   }
 }
 
+
+let __renderErrorCount=0;
+let __modalObserverReady=false;
+let __repeatEditDrafts={};
+let __touchReorderPending=null;
+function htmlJoin(parts){return (parts||[]).filter(Boolean).join('');}
+function bodyEl(){return document.getElementById('body');}
+function renderErrorView(err){
+  const msg=err&&err.message?err.message:'화면을 그리는 중 오류가 있었어요.';
+  return `<div class="widget-wrap"><div class="widget-card render-error-card">
+    <div class="render-error-title">화면 표시를 잠시 정리하고 있어요</div>
+    <div class="render-error-sub">${escapeHtml(msg)}</div>
+    <button class="toss-btn primary" onclick="location.reload()">새로고침</button>
+  </div></div>`;
+}
+function clearTransientInteractionState(){
+  clearTimeout(touchReorderTimer);
+  __touchReorderPending=null;
+  if(itemSwipe&&itemSwipe.card){
+    itemSwipe.card.style.transition='';
+    itemSwipe.card.style.transform='';
+    itemSwipe.card.classList.remove('swipe-card-active','swipe-complete','swipe-actions');
+  }
+  itemSwipe=null;
+  if(touchReorderInfo?.el)touchReorderInfo.el.classList.remove('dragging');
+  touchReorderInfo=null;
+  document.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));
+}
+function setupModalStateObserver(){
+  if(__modalObserverReady)return;
+  const modal=document.getElementById('modal');
+  if(!modal)return;
+  __modalObserverReady=true;
+  const sync=()=>document.body.classList.toggle('modal-open',!!modal.children.length);
+  new MutationObserver(sync).observe(modal,{childList:true});
+  sync();
+}
+function formHasUnsavedRepeatDraft(ii){
+  const draft=__repeatEditDrafts[ii];
+  const item=repeatItems[ii];
+  return !!(draft&&item&&JSON.stringify({days:draft.days,pauseOnVacation:draft.pauseOnVacation,who:draft.who,title:draft.title,start:draft.start,repeatEnd:draft.repeatEnd,sT:draft.sT,eT:draft.eT})!==JSON.stringify({days:item.days,pauseOnVacation:item.pauseOnVacation,who:item.who,title:item.title,start:item.start,repeatEnd:item.repeatEnd,sT:item.sT,eT:item.eT}));
+}
+
 function render(opts={}){
   const preserve=opts.preserveScroll!==false;
   const y=preserve?(window.scrollY||document.documentElement?.scrollTop||0):0;
-  let h='';
-  if(main==='s')h=renderS();
-  else if(main==='c')h=renderC();
-  else if(main==='i')h=renderI();
-  else if(main==='r')h=renderR();
-  else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderShiftWidget()+renderFirstUseGuide()+renderNoticeBanner()+renderManualNotice()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
+  const body=bodyEl();
+  if(!body)return;
+  try{
+    let h='';
+    if(main==='s')h=renderS();
+    else if(main==='c')h=renderC();
+    else if(main==='i')h=renderI();
+    else if(main==='r')h=renderR();
+    else if(main==='m')h=renderM();
+    else {main='s';h=renderS();}
+    body.innerHTML=htmlJoin([renderShiftWidget(),renderFirstUseGuide(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets(),renderSearchBox(),h,renderFab()]);
+    __renderErrorCount=0;
+  }catch(e){
+    console.warn('render failed',e);
+    __renderErrorCount++;
+    body.innerHTML=renderErrorView(e);
+    if(__renderErrorCount>2){main='s';searchQ='';searchDraft='';filterToday=false;}
+  }
+  setupModalStateObserver();
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }
@@ -18017,7 +18120,21 @@ function saveTimePicker(id){
   closePicker();
 }
 
-function closeM(e){if(!e||e.target.classList.contains('modal-bg'))document.getElementById('modal').innerHTML=''}
+function closeM(e){
+  const modal=document.getElementById('modal');
+  if(!modal)return;
+  if(e && !(e.target&&e.target.classList&&e.target.classList.contains('modal-bg')))return;
+  if(e){
+    const bg=modal.querySelector('.modal-bg');
+    if(bg){
+      bg.classList.add('modal-closing');
+      setTimeout(()=>{modal.innerHTML='';document.body.classList.remove('modal-open');},140);
+      return;
+    }
+  }
+  modal.innerHTML='';
+  document.body.classList.remove('modal-open');
+}
 async function saveCalendarImage(){
   if(main!=='c'){
     setMain('c');
@@ -18061,7 +18178,7 @@ function openExport(){
   const requestRows=requests.map(r=>({
     상태:isDone(r)?'완료':'진행중',
     작성자:r.writer||'',
-    할일할일:r.title||'',
+    할일:r.title||'',
     메모:r.comment||''
   }));
 
@@ -18083,10 +18200,15 @@ function openExport(){
     });
   });
 
-  const shiftRows=Object.keys(shiftData).sort().map(k=>({
-    날짜:k,
-    상태:shiftData[k]||''
-  }));
+  const shiftRows=[];
+  Object.keys(shiftData||{}).sort().forEach(k=>{
+    const row=shiftData[k];
+    if(typeof row==='string'){
+      shiftRows.push({날짜:k,대상:firstShiftUser?firstShiftUser():'',상태:row||''});
+    }else if(row&&typeof row==='object'){
+      Object.keys(row).forEach(user=>shiftRows.push({날짜:k,대상:user,상태:row[user]||''}));
+    }
+  });
 
   const memoryRows=memories.map(x=>{
     const nb=nextBirthInfo(x.birth,memoryCalendarType(x)==='lunar');
@@ -18156,6 +18278,7 @@ function setupServiceWorkerUpdateNotice(){
 }
 
 setupServiceWorkerUpdateNotice();
+setupModalStateObserver();
 initData();
 setTimeout(hideSplash,3000);
 window.addEventListener('load', hideSplash);
