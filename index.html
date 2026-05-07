@@ -11882,6 +11882,288 @@ body[data-theme="dark"] .brief-empty-state{
   }
 }
 
+
+/* v1.2.6 layout container safety fix */
+#app > #body{
+  width:100% !important;
+  max-width:430px !important;
+  margin:0 auto !important;
+}
+body > #body{
+  width:100% !important;
+  max-width:430px !important;
+  margin:0 auto !important;
+}
+.app{
+  width:100% !important;
+  max-width:430px !important;
+  margin:0 auto !important;
+  overflow:visible !important;
+}
+
+
+/* v1.2.7 modern schedule list + repeat 2-grid */
+.schedule-dashboard-list{
+  background:#ffffff !important;
+  border-radius:20px !important;
+  padding:0 16px !important;
+  box-shadow:var(--shadow-card) !important;
+  border:1px solid var(--divider) !important;
+  gap:0 !important;
+  overflow:hidden !important;
+}
+.schedule-person-group{display:contents !important;}
+.schedule-person-group-title{display:none !important;}
+.modern-schedule-item{
+  display:flex !important;
+  align-items:center !important;
+  padding:16px 4px !important;
+  border-bottom:1px solid rgba(0,0,0,.05) !important;
+  gap:14px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  cursor:pointer !important;
+  min-height:70px !important;
+  position:relative !important;
+}
+.modern-schedule-item:last-child{border-bottom:none !important;}
+.modern-schedule-item.done{opacity:.55 !important;}
+.modern-schedule-item.missed .modern-schedule-date{color:#C0002C !important;}
+.modern-schedule-avatar{
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  overflow:visible !important;
+  background:transparent !important;
+}
+.modern-schedule-avatar .avatar-img,
+.modern-schedule-avatar .avatar-img-small{
+  width:38px !important;
+  height:38px !important;
+  object-fit:contain !important;
+}
+.modern-schedule-content{
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+.modern-schedule-title{
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  min-width:0 !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  color:#1C1C1E !important;
+  line-height:1.32 !important;
+  letter-spacing:-.25px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.modern-schedule-title.done{
+  text-decoration:line-through !important;
+  color:#8B95A1 !important;
+}
+.modern-schedule-title .private-chip{
+  flex:0 0 auto !important;
+  height:20px !important;
+  padding:0 7px !important;
+  border-radius:999px !important;
+  background:#111 !important;
+  color:#fff !important;
+  font-size:10px !important;
+  line-height:1 !important;
+}
+.modern-schedule-date{
+  min-width:0 !important;
+  font-size:13px !important;
+  color:#8B95A1 !important;
+  margin-top:4px !important;
+  font-weight:750 !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.modern-schedule-person{
+  font-weight:900 !important;
+  margin-right:4px !important;
+}
+.modern-schedule-dotsep{color:#C4C8CE !important;margin:0 5px 0 1px !important;}
+.modern-dday-badge{
+  flex-shrink:0 !important;
+  background:#FFF0F3 !important;
+  color:#C0002C !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  padding:6px 10px !important;
+  border-radius:12px !important;
+  font-variant-numeric:tabular-nums !important;
+  line-height:1 !important;
+}
+.modern-dday-badge.missed{background:#FFF4E5 !important;color:#7A3800 !important;}
+.modern-dday-badge.done{background:#F2F2F7 !important;color:#8E8E93 !important;}
+.schedule-warning-group{
+  padding:10px 0 0 !important;
+  border-bottom:1px solid var(--divider) !important;
+  margin-bottom:0 !important;
+}
+.schedule-warning-title{
+  font-size:12px !important;
+  font-weight:950 !important;
+  color:#C0002C !important;
+  padding:2px 4px 8px !important;
+}
+.schedule-warning-group .modern-schedule-item:last-child{border-bottom:1px solid rgba(0,0,0,.05) !important;}
+.smart-filter-chip,
+.sec-chip-btn{
+  background:#F4F4F6 !important;
+  border:none !important;
+  padding:6px 12px !important;
+  border-radius:16px !important;
+  font-size:13px !important;
+  font-weight:800 !important;
+  color:#333D4B !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:4px !important;
+}
+.sec-chip-btn.on{
+  background:var(--blue-bg) !important;
+  color:var(--blue-t) !important;
+  border:none !important;
+}
+
+.repeat-tab-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+  padding-top:8px !important;
+}
+.person-routine-card{
+  background:#F4F4F6 !important;
+  border-radius:16px !important;
+  padding:16px 12px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  border:1px solid rgba(0,0,0,.04) !important;
+  box-shadow:none !important;
+  min-width:0 !important;
+}
+.person-routine-card .card-avatar{
+  width:44px !important;
+  height:44px !important;
+  margin-bottom:5px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.person-routine-card .card-avatar .avatar-img{
+  width:44px !important;
+  height:44px !important;
+  object-fit:contain !important;
+}
+.person-routine-card .card-name{
+  max-width:100% !important;
+  font-size:14px !important;
+  font-weight:900 !important;
+  color:#1C1C1E !important;
+  margin-bottom:14px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.person-routine-count{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-width:20px !important;
+  height:20px !important;
+  padding:0 6px !important;
+  border-radius:999px !important;
+  background:#fff !important;
+  color:var(--t3) !important;
+  font-size:10.5px !important;
+  font-weight:900 !important;
+  margin-left:3px !important;
+}
+.person-routine-items{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:0 !important;
+}
+.card-routine-item{
+  width:100% !important;
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-height:44px !important;
+  padding:8px 0 !important;
+  margin:0 !important;
+  border-bottom:1px solid rgba(0,0,0,.06) !important;
+  font-size:13px !important;
+  cursor:pointer !important;
+}
+.card-routine-item:last-child{border-bottom:none !important;}
+.card-routine-item:active{opacity:.65 !important;}
+.routine-title-wrap{min-width:0 !important;flex:1 1 auto !important;}
+.routine-title{
+  min-width:0 !important;
+  font-weight:800 !important;
+  color:#333D4B !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  line-height:1.25 !important;
+}
+.routine-submeta{
+  font-size:11.5px !important;
+  color:#8B95A1 !important;
+  margin-top:3px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+.routine-meta{
+  flex:0 0 auto !important;
+  color:#8B95A1 !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+  font-weight:850 !important;
+  white-space:nowrap !important;
+  font-size:12px !important;
+}
+@media (max-width:360px){
+  .repeat-tab-grid{grid-template-columns:1fr !important;}
+}
+body[data-theme="dark"] .schedule-dashboard-list,
+body[data-theme="dark"] .person-routine-card{
+  background:#1C1C1E !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+body[data-theme="dark"] .modern-schedule-title,
+body[data-theme="dark"] .card-name,
+body[data-theme="dark"] .routine-title{color:var(--t1) !important;}
+body[data-theme="dark"] .modern-schedule-date,
+body[data-theme="dark"] .routine-submeta,
+body[data-theme="dark"] .routine-meta{color:var(--t3) !important;}
+body[data-theme="dark"] .modern-schedule-item,
+body[data-theme="dark"] .card-routine-item{border-bottom-color:rgba(255,255,255,.08) !important;}
+body[data-theme="dark"] .person-routine-count{background:rgba(255,255,255,.08) !important;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -11931,7 +12213,7 @@ body[data-theme="dark"] .brief-empty-state{
     <button class="tab tab-c tab-item" id="tab-c" onclick="setMain('c')" aria-label="달력"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="5" width="15" height="15" rx="3"/><path d="M8 3.8v2.8"/><path d="M16 3.8v2.8"/><path d="M4.5 9h15"/><path d="M8 12.5h.01"/><path d="M12 12.5h.01"/><path d="M16 12.5h.01"/><path d="M8 16h.01"/><path d="M12 16h.01"/><path d="M16 16h.01"/></svg><span>달력</span></button>
     <button class="tab tab-r tab-item" id="tab-r" onclick="setMain('r')" aria-label="할일"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="3"/><path d="M9 4.5h6"/><path d="m8.2 11.7 1.9 1.9 4-4.3"/><path d="m8.2 16.1 1.9 1.9 4-4.3"/></svg><span>할일</span></button>
     <button class="tab tab-m tab-item" id="tab-m" onclick="setMain('m')" aria-label="축하"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10h15v9.5h-15z"/><path d="M3.8 7h16.4v3H3.8z"/><path d="M12 7v12.5"/><path d="M8.6 7c-1.5 0-2.4-.9-2.4-2s.9-2 2.1-2c1.5 0 2.8 1.6 3.7 4"/><path d="M15.4 7c1.5 0 2.4-.9 2.4-2s-.9-2-2.1-2c-1.5 0-2.8 1.6-3.7 4"/></svg><span>축하</span></button>
-  </div></div>
+  </div>
 
   <div id="body"></div>
   <div id="modal"></div>
@@ -11939,17 +12221,16 @@ body[data-theme="dark"] .brief-empty-state{
 
 <script>
 
-const APP_VERSION='v1.2.5';
-const PASS_BUILD_VERSION='v1.2.5-ui-cleanup-visibility-fix';
+const APP_VERSION='v1.2.7';
+const PASS_BUILD_VERSION='v1.2.7-modern-schedule-repeat-grid';
 const APP_UPDATED='2026-05-05';
 
 const UPDATE_LOG=[
-  '탭 아이콘/선택 상태 가독성 개선',
-  '상단 날짜-근무 위젯 간격과 아이콘 정리',
-  '비공개 일정은 본인 화면에서 제목 표시 유지',
-  '근무 셀을 D/E/휴 형태의 정사각형 배지로 정리',
-  '근무 브리핑 제거, 일정 알림을 대상자별 개수로 변경',
-  '일정 등록 모달 레이아웃 복구'
+  '등록 일정/지나간 일정 하단 리스트를 모던 3단 레이아웃으로 정리',
+  'D-day 배지를 우측 고정형으로 추가',
+  '대상자별 그룹 제목을 줄이고 리스트 밀도 개선',
+  '반복 관리 화면을 대상자별 2단 카드 그리드로 변경',
+  '스마트 필터 칩/리스트/다크모드 스타일 보정'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -14653,6 +14934,21 @@ function scheduleRowMetaClass(n){
   if(isMissedSchedule(n))return ' missed';
   return '';
 }
+
+function scheduleDdayTextForList(n,opts={}){
+  const k=scheduleListDate(n)||n.start||'';
+  const diff=daysUntilDate(k);
+  if(diff===null || diff===undefined || Number.isNaN(diff))return '';
+  if(diff===0)return 'D-Day';
+  if(diff>0 && diff<=365)return `D-${diff}`;
+  if(diff<0)return `D+${Math.abs(diff)}`;
+  return '';
+}
+function scheduleListDateLine(n){
+  const text=scheduleListDateTime(n)||'날짜 없음';
+  return text.replace(/\s+/g,' ').trim();
+}
+
 function makeScheduleRowCard(n,opts={}){
   if(!n)return '';
   const done=isDone(n);
@@ -14665,36 +14961,21 @@ function makeScheduleRowCard(n,opts={}){
     ontouchstart="startItemSwipe(event,'note','${id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'note','${id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"`;
   const drag=isAuto?'':`draggable="true" ondragstart="dragStart(event,'notes','${id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${id}')" ondragend="dragEnd(event)"`;
-  return `<div class="schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}${n.isPrivate?' private':''}" ${click} ${swipe} ${drag}>
+  const dday=scheduleDdayTextForList(n,opts);
+  return `<div class="modern-schedule-item schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}${n.isPrivate?' private':''}" ${click} ${swipe} ${drag}>
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
-    <div class="schedule-line-grid">
-      <div class="schedule-line-person">
-        <div class="schedule-line-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-        <div class="schedule-line-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
-      </div>
-      <div class="schedule-line-title${done?' done':''}">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
-      <div class="schedule-line-time">${escapeHtml(scheduleListDateTime(n)||'날짜 없음')}</div>
+    <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
+    <div class="modern-schedule-content">
+      <div class="modern-schedule-title${done?' done':''}">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
+      <div class="modern-schedule-date"><span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span>${escapeHtml(scheduleListDateLine(n))}</div>
     </div>
+    ${dday?`<div class="modern-dday-badge${missed?' missed':''}${done?' done':''}">${escapeHtml(dday)}</div>`:''}
   </div>`;
 }
 function renderSchedulePersonGroups(list,opts={}){
   const arr=scheduleListSort(list||[]);
   if(!arr.length)return '';
-  const groups={};
-  arr.forEach(n=>{
-    const who=n.who||'공통';
-    if(!groups[who])groups[who]=[];
-    groups[who].push(n);
-  });
-  const persons=getPersons();
-  const keys=Object.keys(groups).sort((a,b)=>{
-    const ia=persons.indexOf(a), ib=persons.indexOf(b);
-    return (ia<0?999:ia)-(ib<0?999:ib);
-  });
-  return keys.map(who=>`<div class="schedule-person-group">
-    <div class="schedule-person-group-title"><span class="target-dot" style="background:${personColor(who)}"></span>${escapeHtml(who)}</div>
-    ${groups[who].map(n=>makeScheduleRowCard(n,opts)).join('')}
-  </div>`).join('');
+  return arr.map(n=>makeScheduleRowCard(n,opts)).join('');
 }
 function renderScheduleDashboardList(normal=[],missed=[],emptyText='등록 일정이 없어요',opts={}){
   if(!normal.length&&!missed.length)return renderEmptyState(opts.done?'done':'schedule',emptyText,opts.done?'완료한 일정은 이곳에 모여요.':'최근 1개월 안에 표시할 일정이 없어요.');
@@ -15362,7 +15643,7 @@ function renderI(){
   });
 
   h+=`${sectionHeader('반복 일정',visibleRepeats.length,routineOpen,'toggleRoutine',`
-    <span class="collapsed-hint routine-reorder-hint">꾹 눌러 순서 이동</span>
+    <span class="collapsed-hint routine-reorder-hint">카드를 누르면 수정해요</span>
   `)}`;
 
   if(routineOpen){
@@ -15381,21 +15662,18 @@ function renderI(){
         return (ia<0?999:ia)-(ib<0?999:ib);
       });
 
-      h+=`<div class="routine-summary-list grouped-routine-list">`;
+      h+=`<div class="repeat-tab-grid">`;
       groupKeys.forEach(who=>{
         const arr=groups[who];
-        h+=`<div class="routine-person-block">
-          <div class="routine-person-block-head">
-            <div class="routine-person-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-            <div class="routine-person-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
-            <div class="routine-person-count">${arr.length}</div>
-          </div>
-          <div class="routine-person-items">`;
+        h+=`<div class="person-routine-card" style="--person-color:${personColor(who)}">
+          <div class="card-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+          <div class="card-name" style="color:${personColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${arr.length}</span></div>
+          <div class="person-routine-items">`;
         arr.forEach(({item,ii})=>{
           const rid=item.id||ii;
           const time=repeatTimeSummary(item);
           const meta=repeatCompactMeta(item);
-          h+=`<div class="routine-summary-item reorder-card"
+          h+=`<div class="card-routine-item reorder-card"
             draggable="true"
             data-reorder-list="repeatItems" data-reorder-id="${rid}"
             onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
@@ -15407,11 +15685,11 @@ function renderI(){
             ontouchmove="touchReorderMove(event)"
             ontouchend="touchReorderEnd(event)"
             ontouchcancel="touchReorderCancel()">
-            <div class="routine-summary-content">
-              <div class="routine-summary-title">${escapeHtml(item.title||'반복 내용 없음')}</div>
-              <div class="routine-summary-meta">${escapeHtml(meta)}</div>
+            <div class="routine-title-wrap">
+              <div class="routine-title">${escapeHtml(item.title||'반복 내용 없음')}</div>
+              <div class="routine-submeta">${escapeHtml(meta)}</div>
             </div>
-            <div class="routine-summary-time">${escapeHtml(time)}</div>
+            <div class="routine-meta">${escapeHtml(time)}</div>
           </div>`;
         });
         h+=`</div></div>`;
@@ -15421,7 +15699,7 @@ function renderI(){
       h+=renderEmptyState('routine','등록된 반복 일정이 없어요','오른쪽 아래 + 버튼으로 반복 일정을 추가해 보세요.');
     }
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">반복 일정이 접혀 있어요. 펼치면 꾹 눌러 순서를 이동할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">반복 일정이 접혀 있어요. 펼치면 반복 카드를 관리할 수 있어요.</div>`;
   }
   h+=`</div>`;
   return h;
