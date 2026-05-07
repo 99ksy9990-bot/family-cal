@@ -12906,6 +12906,210 @@ body[data-theme="dark"] .shift-day-col.today{
 body[data-theme="dark"] .today-dashboard .routine-2col-card,
 body[data-theme="dark"] .todo-empty-wrap .empty-state{background:rgba(255,255,255,.05) !important;border-color:rgba(255,255,255,.08) !important;}
 
+
+/* v1.2.18 상태 위젯 달력 기준 통일 + 반복 일정 세로 간격 압축 */
+
+/* 일정 화면 상태 위젯: 달력의 shift-one 뱃지 기준으로 통일 */
+.shift-5day-widget.calendar-sync-shift-widget{
+  padding:8px 8px !important;
+  gap:6px !important;
+  border-radius:22px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-5day-row{
+  grid-template-columns:44px minmax(0,1fr) !important;
+  gap:6px !important;
+  min-height:42px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-5day-row + .shift-5day-row{
+  padding-top:6px !important;
+  border-top:1px solid var(--divider,rgba(0,0,0,.06)) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-person{
+  gap:2px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-micro-avatar{
+  width:24px !important;
+  height:24px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-person-name{
+  max-width:44px !important;
+  font-size:9.5px !important;
+  line-height:1.05 !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-days-container{
+  gap:4px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-day-col{
+  height:40px !important;
+  min-height:40px !important;
+  padding:2px 0 !important;
+  gap:3px !important;
+  border-radius:10px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-day-col.today{
+  background:var(--blue-bg,#EAF3FF) !important;
+  box-shadow:inset 0 0 0 1px rgba(0,122,255,.16) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-date{
+  font-size:9.5px !important;
+  font-weight:850 !important;
+  color:var(--t3,#8B95A1) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-day-col.today .col-date{
+  color:var(--blue-t,#0055B3) !important;
+}
+/* 달력 셀과 동일한 작은 정사각형 상태 배지 */
+.cal-cell .shift-one,
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.shift-one{
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  padding:0 !important;
+  border-radius:6px !important;
+  font-size:10.5px !important;
+  line-height:1 !important;
+  font-weight:950 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  letter-spacing:0 !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.shift-empty{
+  background:#F4F4F6 !important;
+  color:#B0B8C1 !important;
+  border:1px solid #ECEEF2 !important;
+}
+/* 기존 pastel col-badge 색이 남아도 calendar class가 우선 보이게 함 */
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.s-d{
+  background:var(--shift-d-bg,#007AFF) !important;
+  color:var(--shift-d-t,#fff) !important;
+  border:1px solid var(--shift-d-bg,#007AFF) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.s-e{
+  background:var(--shift-e-bg,#5AC8FA) !important;
+  color:var(--shift-e-t,#003A6B) !important;
+  border:1px solid rgba(0,58,107,.10) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.s-n{
+  background:var(--shift-n-bg,#1C3A5E) !important;
+  color:var(--shift-n-t,#8EC5FF) !important;
+  border:1px solid var(--shift-n-bg,#1C3A5E) !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.s-off{
+  background:var(--shift-off-bg,#F2F2F7) !important;
+  color:var(--shift-off-t,#8E8E93) !important;
+  border:1px solid #E5E5EA !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .col-badge.s-custom,
+.shift-5day-widget.calendar-sync-shift-widget .col-badge[class*="s-custom-"]{
+  width:18px !important;
+  height:18px !important;
+  min-width:18px !important;
+  border-radius:6px !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-swipe-hint-text.compact{
+  margin:2px 0 0 !important;
+  font-size:9.5px !important;
+}
+
+/* 오늘 대시보드 반복 2열은 유지하되 세로 밀도 압축 */
+.today-dashboard .dashboard-routine-2col,
+.today-dashboard .merged-routine-wrap.dashboard-routine-2col{
+  gap:8px !important;
+}
+.today-dashboard .routine-2col-card{
+  gap:4px !important;
+  padding:9px 9px !important;
+  border-radius:16px !important;
+}
+.today-dashboard .routine-2col-head{
+  gap:3px !important;
+}
+.today-dashboard .routine-2col-head .merged-routine-avatar,
+.today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img{
+  width:32px !important;
+  height:32px !important;
+}
+.today-dashboard .routine-2col-box{
+  padding:0 !important;
+  margin:0 !important;
+}
+.today-dashboard .routine-2col-row{
+  min-height:27px !important;
+  padding:4px 1px !important;
+  gap:5px !important;
+}
+.today-dashboard .routine-2col-row .merged-routine-title{
+  font-size:12px !important;
+  line-height:1.22 !important;
+  font-weight:850 !important;
+}
+.today-dashboard .routine-2col-row .merged-routine-time{
+  font-size:10.5px !important;
+  line-height:1.15 !important;
+  font-weight:800 !important;
+}
+.today-dashboard .routine-placeholder-row{
+  min-height:27px !important;
+  padding:4px 1px !important;
+}
+
+/* 반복 관리 화면의 대상자별 2단 카드 세로 간격도 압축 */
+.repeat-tab-grid{
+  gap:8px !important;
+  padding-top:6px !important;
+}
+.person-routine-card{
+  padding:11px 10px !important;
+  border-radius:15px !important;
+}
+.person-routine-card .card-avatar,
+.person-routine-card .card-avatar .avatar-img{
+  width:36px !important;
+  height:36px !important;
+}
+.person-routine-card .card-avatar{
+  margin-bottom:3px !important;
+}
+.person-routine-card .card-name{
+  margin-bottom:8px !important;
+  font-size:13px !important;
+}
+.person-routine-count{
+  min-width:18px !important;
+  height:18px !important;
+  padding:0 5px !important;
+  font-size:10px !important;
+}
+.card-routine-item{
+  min-height:34px !important;
+  padding:5px 0 !important;
+  gap:6px !important;
+}
+.routine-title{
+  font-size:12px !important;
+  line-height:1.2 !important;
+}
+.routine-submeta{
+  font-size:10px !important;
+  margin-top:1px !important;
+  line-height:1.15 !important;
+}
+.routine-meta{
+  font-size:10.5px !important;
+  line-height:1.15 !important;
+}
+
+body[data-theme="dark"] .shift-5day-widget.calendar-sync-shift-widget .shift-day-col.today{
+  background:rgba(102,178,255,.10) !important;
+  box-shadow:inset 0 0 0 1px rgba(102,178,255,.16) !important;
+}
+body[data-theme="dark"] .shift-5day-widget.calendar-sync-shift-widget .col-badge.shift-empty{
+  background:rgba(255,255,255,.05) !important;
+  color:#8E8E93 !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12963,17 +13167,18 @@ body[data-theme="dark"] .todo-empty-wrap .empty-state{background:rgba(255,255,25
 
 <script>
 
-const APP_VERSION='v1.2.15';
-const PASS_BUILD_VERSION='v1.2.15-repeat-2col-memory-fold-todo-empty';
+const APP_VERSION='v1.2.18';
+const PASS_BUILD_VERSION='v1.2.18-shift-calendar-sync-routine-compact';
 const APP_UPDATED='2026-05-07';
 
 
 
 const UPDATE_LOG=[
-  '오늘 대시보드 반복 영역을 2열 카드 레이아웃으로 복구',
-  '축하 탭 디데이 가까운 순 안내 문구 삭제',
-  '축하 탭 접기/펼치기 동작 활성화',
-  '할일 진행 중 빈 화면을 일정 탭과 같은 Empty State로 통일'
+  '일정 화면 상태 위젯을 달력 상태 뱃지 기준으로 통일',
+  '상태 위젯 스와이프 트랙 선택자 보정',
+  '반복 일정 2열 레이아웃은 유지하고 세로 간격 압축',
+  '반복 관리 화면 카드/행 여백 압축',
+  'OFF는 일정/달력 모두 O로 표시 유지'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -17693,7 +17898,7 @@ function endLayerSwipe(e){
   }
 }
 function startShiftSwipe(e){
-  startLayerSwipe(e,'shift','.shift-widget-5dates','');
+  startLayerSwipe(e,'shift','.shift-5day-widget','');
 }
 function moveShiftSwipe(e){moveLayerSwipe(e)}
 function endShiftSwipe(e){endLayerSwipe(e)}
@@ -17729,7 +17934,7 @@ function renderShiftWidget(){
   return `<div class="shift-widget-shell shift-5day-shell"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
-    <div class="shift-5day-widget">
+    <div class="shift-5day-widget calendar-sync-shift-widget">
       ${shiftUsers.map(user=>{
         const p=(family||[]).find(f=>(f.name||'')===user);
         return `<div class="shift-5day-row">
@@ -17741,11 +17946,12 @@ function renderShiftWidget(){
             ${keys.map((k,i)=>{
               const status=shiftDisplayStatusFor(k,user);
               const label=status?shortShiftLabel(status):'-';
+              const badgeClass=status?shiftBadgeClass(status):'shift-empty';
               const [yy,mm,dd]=k.split('-').map(Number);
               const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
               return `<button type="button" class="shift-day-col ${i===2?'today':''}" title="${mm}/${dd} (${dow}) · ${escapeAttr(user)} · ${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')">
                 <span class="col-date">${escapeHtml(shiftDayColDateLabel(k))}</span>
-                <span class="col-badge ${shiftColBadgeClass(status)}">${escapeHtml(label)}</span>
+                <span class="col-badge shift-one ${badgeClass}">${escapeHtml(label)}</span>
               </button>`;
             }).join('')}
           </div>
