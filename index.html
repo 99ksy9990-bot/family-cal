@@ -11035,6 +11035,138 @@ body[data-theme="dark"] .modal-sheet select.mi{
   }
 }
 
+
+/* v1.2.0 four-tab line icon nav */
+
+/* 기존 이모지 pseudo icon 제거 */
+.tab::before,
+.tab-s::before,
+.tab-i::before,
+.tab-c::before,
+.tab-r::before,
+.tab-m::before{
+  content:none !important;
+  display:none !important;
+}
+
+/* 4개 탭 글래스 네비게이션 */
+.tab-bar.four-tab-bar{
+  height:52px !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  margin:12px 18px 6px !important;
+  padding:4px !important;
+  background:rgba(255,255,255,.85) !important;
+  backdrop-filter:blur(20px) !important;
+  -webkit-backdrop-filter:blur(20px) !important;
+  border:0.5px solid rgba(0,0,0,.05) !important;
+  border-radius:20px !important;
+  box-shadow:0 6px 18px rgba(15,23,42,.045) !important;
+}
+.tab-bar.four-tab-bar .tab-item{
+  min-width:0 !important;
+  height:44px !important;
+  border:none !important;
+  border-radius:16px !important;
+  background:transparent !important;
+  color:#8B95A1 !important;
+  box-shadow:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:2px !important;
+  padding:0 !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  letter-spacing:-.15px !important;
+  transform:none !important;
+  transition:
+    transform .2s cubic-bezier(.34,1.56,.64,1),
+    color .16s ease,
+    background .16s ease,
+    box-shadow .16s ease !important;
+}
+.tab-bar.four-tab-bar .tab-item .tab-svg{
+  width:21px !important;
+  height:21px !important;
+  display:block !important;
+  margin-bottom:2px !important;
+}
+.tab-bar.four-tab-bar .tab-item .tab-svg *{
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.9 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+  vector-effect:non-scaling-stroke;
+}
+.tab-bar.four-tab-bar .tab-item span{
+  font-size:10px !important;
+  font-weight:850 !important;
+}
+.tab-bar.four-tab-bar .tab-item.on,
+.tab-bar.four-tab-bar .tab-item.active{
+  transform:translateY(-4px) !important;
+  color:var(--blue) !important;
+  background:#fff !important;
+  box-shadow:0 6px 16px rgba(0,122,255,.14) !important;
+}
+.tab-bar.four-tab-bar .tab-item.on .tab-svg *,
+.tab-bar.four-tab-bar .tab-item.active .tab-svg *{
+  stroke:var(--blue) !important;
+}
+.tab-bar.four-tab-bar .tab-item:active{
+  transform:scale(.94) !important;
+}
+.tab-bar.four-tab-bar .tab-item.on:active,
+.tab-bar.four-tab-bar .tab-item.active:active{
+  transform:translateY(-4px) scale(.94) !important;
+}
+
+/* 반복 관리 화면에 진입했을 때 탭바와 본문 사이 여백 보정 */
+.routine-only-outer{
+  margin-top:10px !important;
+}
+
+/* 다크모드 탭바 */
+body[data-theme="dark"] .tab-bar.four-tab-bar{
+  background:rgba(28,28,30,.82) !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:none !important;
+}
+body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item{
+  color:#8E8E93 !important;
+}
+body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.on,
+body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.active{
+  background:#1C1C1E !important;
+  color:var(--blue-t) !important;
+  border:1px solid rgba(102,178,255,.18) !important;
+}
+body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.on .tab-svg *,
+body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.active .tab-svg *{
+  stroke:var(--blue-t) !important;
+}
+
+/* 작은 화면에서 탭 폭 안정화 */
+@media (max-width:360px){
+  .tab-bar.four-tab-bar{
+    margin-left:14px !important;
+    margin-right:14px !important;
+    gap:5px !important;
+  }
+  .tab-bar.four-tab-bar .tab-item .tab-svg{
+    width:20px !important;
+    height:20px !important;
+  }
+  .tab-bar.four-tab-bar .tab-item span{
+    font-size:9.5px !important;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -11079,12 +11211,11 @@ body[data-theme="dark"] .modal-sheet select.mi{
     
   </div>
 
-  <div class="tab-bar">
-    <button class="tab tab-s on" id="tab-s" onclick="setMain('s')">일정</button>
-    <button class="tab tab-i" id="tab-i" onclick="setMain('i')">반복</button>
-    <button class="tab tab-c" id="tab-c" onclick="setMain('c')">달력</button>
-    <button class="tab tab-r" id="tab-r" onclick="setMain('r')">할일</button>
-    <button class="tab tab-m" id="tab-m" onclick="setMain('m')">축하</button>
+  <div class="tab-bar four-tab-bar" role="tablist" aria-label="주요 메뉴">
+    <button class="tab tab-s tab-item on" id="tab-s" onclick="setMain('s')" aria-label="일정"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9 20v-4.2c0-1.1.9-2 2-2h2c1.1 0 2 .9 2 2V20"/><path d="M8.2 13.2a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"/><path d="M16.8 13.2a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"/></svg><span>일정</span></button>
+    <button class="tab tab-c tab-item" id="tab-c" onclick="setMain('c')" aria-label="달력"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5v3"/><path d="M17 3.5v3"/><path d="M4.5 8h15"/><rect x="4.5" y="5" width="15" height="16" rx="3"/><path d="M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/></svg><span>달력</span></button>
+    <button class="tab tab-r tab-item" id="tab-r" onclick="setMain('r')" aria-label="할일"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12.5 3 3 6-7"/></svg><span>할일</span></button>
+    <button class="tab tab-m tab-item" id="tab-m" onclick="setMain('m')" aria-label="축하"><svg class="tab-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10h15v10h-15z"/><path d="M3.5 7h17v3h-17z"/><path d="M12 7v13"/><path d="M8.5 7c-1.4 0-2.4-1-2.4-2.1S7 3 8.1 3c1.5 0 2.9 1.8 3.9 4"/><path d="M15.5 7c1.4 0 2.4-1 2.4-2.1S17 3 15.9 3c-1.5 0-2.9 1.8-3.9 4"/></svg><span>축하</span></button>
   </div>
 
   <div id="body"></div>
@@ -11093,16 +11224,15 @@ body[data-theme="dark"] .modal-sheet select.mi{
 
 <script>
 
-const APP_VERSION='v1.1.9';
-const PASS_BUILD_VERSION='v1.1.9-dashboard-routine-modal-spacing';
+const APP_VERSION='v1.2.0';
+const PASS_BUILD_VERSION='v1.2.0-four-tab-line-icons';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '일정 탭 대시보드 아바타명 숨김',
-  '대시보드 일정/반복 텍스트 라벨 제거',
-  '일정과 반복 영역을 회색 구분선으로 분리',
-  '반복 2열 카드 높이와 빈 행 라인 균형 보정',
-  '아바타 선택 칩 내부 회색 배경 제거',
-  '일정/루틴 입력 모달 높이와 취소 여백 보정'
+  '상단 탭바 4개 구조로 정리',
+  '일정/달력/할일/축하 탭에 라인 아이콘 적용',
+  '탭바 글래스 배경과 선택 탭 부상 피드백 적용',
+  '반복 관리는 프로필 센터 빠른 설정으로 이동',
+  '이모지 탭 아이콘 대신 인라인 SVG 아이콘 사용'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -13228,6 +13358,17 @@ function renderProfileFamilyRows(){
       <span class="profile-family-arrow">›</span>
     </button>`).join('')}</div>`;
 }
+
+function openRoutineManagerFromProfile(){
+  closeM();
+  main='i';
+  basicInfoOpen=false;
+  routineOpen=true;
+  updateTabUI();
+  render({preserveScroll:false});
+  try{window.scrollTo(0,0)}catch(e){}
+}
+
 function openProfileCenter(){
   const shareUrl = `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
   document.getElementById('modal').innerHTML=`
@@ -13272,6 +13413,7 @@ function openProfileCenter(){
         <button class="toss-btn" onclick="copyShareLink()">공유 링크 복사</button>
         <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
         <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
+        <button class="toss-btn" onclick="openRoutineManagerFromProfile()">반복 관리</button>
         <button class="toss-btn primary" onclick="openManageCenter()">관리 도구</button>
       </div>
 
@@ -14942,11 +15084,14 @@ function renderSearchBox(){
 
 
 function updateTabUI(){
-  ['s','c','i','r','m'].forEach(k=>{
+  const activeMain=(main==='i')?'':main;
+  ['s','c','r','m'].forEach(k=>{
     const el=document.getElementById('tab-'+k);
     if(!el)return;
-    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='i'?'tab-i':k==='r'?'tab-r':'tab-m';
-    el.className=`tab ${cls}${k===main?' on':''}`;
+    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='r'?'tab-r':'tab-m';
+    const on=k===activeMain;
+    el.className=`tab ${cls} tab-item${on?' on active':''}`;
+    el.setAttribute('aria-selected',on?'true':'false');
   });
 }
 
