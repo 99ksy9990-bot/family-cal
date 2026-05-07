@@ -12533,6 +12533,123 @@ body[data-theme="dark"] .target-dot{box-shadow:0 0 0 1.2px rgba(28,28,30,.95) !i
   .avatar-choice img,.avatar-choice .avatar-img{width:32px !important;height:32px !important;}
 }
 
+
+/* v1.2.13 memory display person + senior avatars + chevron-only fold */
+.fold-btn,
+.unified-sec .fold-btn,
+.compact-sec .fold-btn{
+  width:30px !important;
+  height:30px !important;
+  min-width:30px !important;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border-radius:0 !important;
+  color:var(--t2) !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.fold-btn:active{transform:scale(.94) !important;box-shadow:none !important;background:transparent !important;}
+.fold-btn .fold-chevron{
+  width:10px !important;
+  height:10px !important;
+  border-left:2.3px solid currentColor !important;
+  border-bottom:2.3px solid currentColor !important;
+  transform:translateY(-2px) rotate(-45deg) !important;
+  transition:transform .16s ease !important;
+}
+.fold-btn.open .fold-chevron{transform:translateY(2px) rotate(135deg) !important;}
+details.manage-accordion summary::after,
+details.detail-settings summary::after{
+  content:'' !important;
+  width:10px !important;
+  height:10px !important;
+  border-left:2.3px solid currentColor !important;
+  border-bottom:2.3px solid currentColor !important;
+  transform:translateY(-2px) rotate(-45deg) !important;
+  color:var(--t2) !important;
+  margin:0 2px 0 10px !important;
+  flex:0 0 auto !important;
+  transition:transform .16s ease !important;
+}
+details.manage-accordion[open] summary::after,
+details.detail-settings[open] summary::after{transform:translateY(2px) rotate(135deg) !important;}
+
+.memory-display-mode-sel .type-btn{font-size:12px !important;}
+.memory-linked-selector{gap:6px !important;overflow-x:auto !important;padding-bottom:4px !important;}
+.memory-linked-selector .person-check-label{flex:0 0 auto !important;}
+.memory-subject-avatar-grid{
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:6px !important;
+  padding:4px 0 8px !important;
+}
+.memory-subject-avatar-grid .avatar-choice{
+  height:48px !important;
+  border-radius:12px !important;
+  padding:4px !important;
+  background:var(--card) !important;
+}
+.memory-subject-avatar-grid .avatar-choice img{
+  width:40px !important;
+  height:40px !important;
+  object-fit:contain !important;
+}
+.memory-subject-avatar-grid .avatar-choice.on{
+  border-color:var(--blue) !important;
+  background:var(--blue-bg) !important;
+  box-shadow:0 0 0 3px rgba(0,122,255,.12) !important;
+}
+.memory-direct-note{
+  margin:6px 0 8px;
+  padding:9px 10px;
+  border-radius:12px;
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:11px;
+  font-weight:850;
+  line-height:1.35;
+}
+.memory-subject-color-row{justify-content:flex-start !important;gap:8px !important;padding:4px 0 8px !important;}
+.memory-subject-color-row .color-choice{width:32px !important;height:32px !important;}
+.memory-display-avatar,
+.memory-display-avatar-sm{
+  overflow:visible !important;
+}
+.memory-display-avatar .avatar-img,
+.memory-display-avatar-sm .avatar-img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+}
+.memory-card-icon.memory-display-avatar{
+  background:var(--bg) !important;
+  border-radius:50% !important;
+}
+.memory-card-icon.memory-display-avatar .avatar-img{
+  width:34px !important;
+  height:34px !important;
+}
+.memory-subject-mini{
+  color:var(--t3);
+  font-weight:750;
+}
+/* 모든 탭 팝업: 아바타/축하 아이콘 선택창 초압축 */
+.avatar-options{grid-template-columns:repeat(6,1fr) !important;gap:6px !important;}
+.avatar-choice{height:44px !important;border-radius:12px !important;padding:4px !important;}
+.avatar-choice img{width:34px !important;height:34px !important;object-fit:contain !important;}
+.avatar-group{padding:10px 8px !important;}
+.avatar-group-title{margin-bottom:6px !important;font-size:12px !important;}
+.memory-icon-grid{grid-template-columns:repeat(6,1fr) !important;gap:6px !important;}
+.memory-icon-btn{height:44px !important;border-radius:12px !important;font-size:24px !important;display:flex !important;align-items:center !important;justify-content:center !important;padding:0 !important;}
+@media(max-width:360px){
+  .memory-subject-avatar-grid,.avatar-options,.memory-icon-grid{gap:5px !important;}
+  .memory-subject-avatar-grid .avatar-choice,.avatar-choice,.memory-icon-btn{height:42px !important;}
+  .memory-subject-avatar-grid .avatar-choice img,.avatar-choice img{width:32px !important;height:32px !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12590,16 +12707,17 @@ body[data-theme="dark"] .target-dot{box-shadow:0 0 0 1.2px rgba(28,28,30,.95) !i
 
 <script>
 
-const APP_VERSION='v1.2.12';
-const PASS_BUILD_VERSION='v1.2.12-memory-weekday-compact-pickers';
+const APP_VERSION='v1.2.13';
+const PASS_BUILD_VERSION='v1.2.13-memory-display-person-senior';
 const APP_UPDATED='2026-05-07';
 
 
 const UPDATE_LOG=[
-  '축하 탭 다가오는 날짜에 요일 표시',
-  '축하 탭 생년월일에 요일 표시',
-  '가족 아바타 선택창 6열 초압축',
-  '축하 아이콘 선택창 6열 초압축'
+  '축하 탭 표시 인물 개념 추가',
+  '기존 가족 대상 연결/직접 입력 인물 분리',
+  '직접 입력 인물은 일정·할일·상태 대상자에 포함하지 않음',
+  'seniorM/seniorF 아바타 6개씩 추가',
+  '접힘 아이콘을 동그라미 없이 꺾새만 표시하도록 통일'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -12746,6 +12864,8 @@ const PERSON_AVATAR_GROUPS=[
   {key:'family',label:'가족',items:['family_1','family_2','family_3','family_4','family_5']},
   {key:'adultM',label:'성인 남자',items:['adultM_1','adultM_2','adultM_3','adultM_4','adultM_5']},
   {key:'adultF',label:'성인 여자',items:['adultF_1','adultF_2','adultF_3','adultF_4','adultF_5']},
+  {key:'seniorM',label:'시니어 남자',items:['seniorM_1','seniorM_2','seniorM_3','seniorM_4','seniorM_5','seniorM_6']},
+  {key:'seniorF',label:'시니어 여자',items:['seniorF_1','seniorF_2','seniorF_3','seniorF_4','seniorF_5','seniorF_6']},
   {key:'teenM',label:'청소년 남자',items:['teenM_1','teenM_2','teenM_3','teenM_4','teenM_5']},
   {key:'teenF',label:'청소년 여자',items:['teenF_1','teenF_2','teenF_3','teenF_4','teenF_5']},
   {key:'childM',label:'어린이 남자',items:['childM_1','childM_2','childM_3','childM_4','childM_5']},
@@ -13313,12 +13433,63 @@ function selectMemoryCal(v){
   if(lunar)lunar.className='type-btn'+(v==='lunar'?' tf':'');
 }
 
+function memoryDisplayMode(x){
+  return (x&&x.displayMode)||((x&&x.linkedPerson)?'linked':((x&&x.subjectName)||(x&&x.subjectAvatar)?'direct':'icon'));
+}
 function memoryPerson(x){
-  const direct=(x&&((x.who||x.todayWho||x.person||'')+'').trim())||'';
+  const mode=memoryDisplayMode(x);
+  if(mode==='linked' && x && x.linkedPerson)return x.linkedPerson;
+  if(mode==='direct' && x && x.subjectName)return x.subjectName;
+  const direct=(x&&((x.linkedPerson||x.who||x.todayWho||x.person||'')+'').trim())||'';
   if(direct)return direct;
   const name=String((x&&x.name)||'');
   const found=getPersons().find(p=>p!=='공통' && name.includes(p));
   return found||'공통';
+}
+function memoryDisplaySubject(x){
+  const mode=memoryDisplayMode(x);
+  if(mode==='linked')return (x&&x.linkedPerson)||memoryPerson(x)||'가족';
+  if(mode==='direct')return (x&&x.subjectName)||'직접 입력';
+  return memoryPerson(x)||'축하';
+}
+function memoryDisplayAvatarHtml(x, cls='avatar-img'){
+  const mode=memoryDisplayMode(x);
+  if(mode==='linked'){
+    const p=(x&&x.linkedPerson)||memoryPerson(x);
+    return avatarMarkup(personAvatar(p),p,cls);
+  }
+  if(mode==='direct'){
+    const av=(x&&x.subjectAvatar)||'seniorF_1';
+    const label=(x&&x.subjectName)||x?.name||'축하 인물';
+    return avatarMarkup(av,label,cls);
+  }
+  return escapeHtml(memoryIcon(x));
+}
+function selectMemoryDisplayMode(mode){
+  const el=document.getElementById('mem-display-mode');
+  if(el)el.value=mode;
+  document.querySelectorAll('.memory-display-mode-btn').forEach(b=>b.classList.toggle('tf',b.dataset.mode===mode));
+  const icon=document.getElementById('mem-icon-panel');
+  const linked=document.getElementById('mem-linked-panel');
+  const direct=document.getElementById('mem-direct-panel');
+  if(icon)icon.style.display=mode==='icon'?'block':'none';
+  if(linked)linked.style.display=mode==='linked'?'block':'none';
+  if(direct)direct.style.display=mode==='direct'?'block':'none';
+}
+function selectMemoryLinkedPerson(person){
+  const el=document.getElementById('mem-linked-person');
+  if(el)el.value=person;
+  document.querySelectorAll('.mem-linked-person-btn').forEach(b=>b.classList.toggle('selected',b.dataset.person===person));
+}
+function selectMemorySubjectAvatar(icon){
+  const el=document.getElementById('mem-subject-avatar');
+  if(el)el.value=icon;
+  document.querySelectorAll('.mem-subject-avatar-btn').forEach(b=>b.classList.toggle('on',b.dataset.avatar===icon));
+}
+function selectMemorySubjectColor(color){
+  const el=document.getElementById('mem-subject-color');
+  if(el)el.value=color;
+  document.querySelectorAll('.mem-subject-color-choice').forEach(b=>b.classList.toggle('on',b.dataset.color===color));
 }
 function uniquePersonsForDay(evs,mems){
   const people=[];
@@ -13876,7 +14047,23 @@ function normalizeData(d){
   requests=Array.isArray(requests)?requests:[];
   requests.forEach(r=>{if(!r.requestDate)r.requestDate=''; if(!r.dueDate)r.dueDate=''; if(!r.dueTime)r.dueTime=''; if(!r.doneAt)r.doneAt=''; if(!r.comment)r.comment='';});
   memories=Array.isArray(d.memories)?d.memories:(base.memories||[]);
-  memories.forEach(x=>{if(!('showToday' in x))x.showToday=false; if(!x.todayWho)x.todayWho=(x.name||''); if(!x.icon)x.icon='🎂'; if(!x.calendarType)x.calendarType=(x.isLunar||x.lunar)?'lunar':'solar'; x.isLunar=x.calendarType==='lunar'||x.isLunar===true; x.lunar=x.isLunar;});
+  memories.forEach(x=>{
+    if(!('showToday' in x))x.showToday=false;
+    if(!x.todayWho)x.todayWho=(x.name||'');
+    if(!x.icon)x.icon='🎂';
+    if(!x.calendarType)x.calendarType=(x.isLunar||x.lunar)?'lunar':'solar';
+    x.isLunar=x.calendarType==='lunar'||x.isLunar===true;
+    x.lunar=x.isLunar;
+    const familyNames=[...BASE_PERSONS,...(Array.isArray(d.family)?d.family.map(p=>p.name).filter(Boolean):[])];
+    const inferred=familyNames.find(p=>p&&p!=='공통'&&String(x.name||'').includes(p));
+    if(!x.displayMode)x.displayMode=x.linkedPerson?'linked':(x.subjectName||x.subjectAvatar?'direct':(inferred?'linked':'icon'));
+    if(x.displayMode==='linked'&&!x.linkedPerson&&inferred)x.linkedPerson=inferred;
+    if(x.displayMode==='direct'){
+      if(!x.subjectName)x.subjectName=x.todayWho||x.person||'';
+      if(!x.subjectAvatar)x.subjectAvatar='seniorF_1';
+      if(!x.subjectColor)x.subjectColor='#A2845E';
+    }
+  });
   notices=Array.isArray(d.notices)?d.notices:(base.notices||[]);
   deletedItems=Array.isArray(d.deletedItems)?d.deletedItems:(base.deletedItems||[]);
   changeLogs=Array.isArray(d.changeLogs)?d.changeLogs:[];
@@ -15519,9 +15706,9 @@ function calendarMemorySort(a,b){
   return String(a.name||'').localeCompare(String(b.name||''));
 }
 function calendarMemoryItem(x,sp){
-  const mp=memoryPerson(x);
+  const mp=memoryDisplaySubject(x);
   return `<div class="ev-item cal-selected-event memory-selected-event">
-    <div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div>
+    <div class="ev-birthday-icon memory-display-avatar-sm">${memoryDisplayAvatarHtml(x,'avatar-img')}</div>
     <div class="ev-info">
       <div class="ev-title">${escapeHtml(x.name)}</div>
       <div class="ev-sub"><span class="ev-meta-kind">축하</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${escapeHtml(mp)}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(memoryAgeLabel(x))}</span></div>
@@ -16350,6 +16537,7 @@ function makeMemoryCard(x){
   const ageLabel=memoryAgeLabel(x);
   const upcomingFullLabel=nb.date?fullDateWithDow(nb.date):'';
   const birthFullLabel=x.birth?fullDateWithDow(x.birth):'';
+  const subject=memoryDisplaySubject(x);
   return `<div class="card mem-card reorder-card swipe-card"
     draggable="true"
     data-reorder-list="memories" data-reorder-id="${x.id}"
@@ -16361,12 +16549,13 @@ function makeMemoryCard(x){
     onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
     <div class="swipe-bg swipe-bg-left"></div>
     <div class="c-row memory-row memory-row-v2" onclick="if(!consumeSwipeTap())openMemoryModal('${x.id}')" style="cursor:pointer">
-      <div class="memory-card-icon">${escapeHtml(memoryIcon(x))}</div>
+      <div class="memory-card-icon memory-display-avatar">${memoryDisplayAvatarHtml(x,'avatar-img')}</div>
       <div class="memory-body-grid memory-body-grid-v2">
         <div class="memory-info-col">
           <div class="memory-title-line-v2"><span class="memory-title-text">${escapeHtml(x.name)}</span>${upcomingFullLabel?`<span class="memory-title-dot">·</span><span class="memory-upcoming-inline">${escapeHtml(upcomingFullLabel)}</span>`:''}</div>
           <div class="memory-sub-text">
             ${x.birth ? `${escapeHtml(ageLabel)} · ${escapeHtml(birthFullLabel)}${isLunar?'(음)':'(양)'}` : ''}
+            ${subject&&subject!=='공통'?`<span class="memory-subject-mini"> · ${escapeHtml(subject)}</span>`:''}
           </div>
         </div>
         <div class="memory-date-col memory-date-col-v2">
@@ -16389,24 +16578,66 @@ function openMemoryModal(id){
   const x=id?memories.find(v=>String(v.id)===String(id)):null;
   const icon=x?memoryIcon(x):'🎂';
   const calType=x?memoryCalendarType(x):'solar';
+  const displayMode=x?memoryDisplayMode(x):'icon';
+  const linkedPerson=(x&&x.linkedPerson)||memoryPerson(x)||((getPersons().filter(p=>p!=='공통')[0])||'');
+  const subjectName=(x&&x.subjectName)||'';
+  const subjectAvatar=(x&&x.subjectAvatar)||'seniorF_1';
+  const subjectColor=(x&&x.subjectColor)||'#A2845E';
+  const linkedPeople=getPersons().filter(p=>p!=='공통');
+  const subjectAvatars=[...avatarItems('seniorF'),...avatarItems('seniorM')];
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${x?'축하 수정':'축하 추가'}</div>
-      <div class="ml">아이콘</div>
-      <input type="hidden" id="mem-icon" value="${escapeAttr(icon)}"/>
-      <div class="memory-icon-grid">
-        ${MEMORY_ICONS.map(ic=>`<button class="memory-icon-btn${ic===icon?' on':''}" data-icon="${escapeAttr(ic)}" onclick="selectMemoryIcon('${ic}')">${ic}</button>`).join('')}
+      <div class="ml">표시 방식</div>
+      <input type="hidden" id="mem-display-mode" value="${escapeAttr(displayMode)}"/>
+      <div class="type-sel memory-display-mode-sel" style="margin-bottom:8px">
+        <button class="type-btn memory-display-mode-btn${displayMode==='icon'?' tf':''}" data-mode="icon" onclick="selectMemoryDisplayMode('icon')">아이콘</button>
+        <button class="type-btn memory-display-mode-btn${displayMode==='linked'?' tf':''}" data-mode="linked" onclick="selectMemoryDisplayMode('linked')">가족 연결</button>
+        <button class="type-btn memory-display-mode-btn${displayMode==='direct'?' tf':''}" data-mode="direct" onclick="selectMemoryDisplayMode('direct')">직접 입력</button>
       </div>
+
+      <div id="mem-icon-panel" style="display:${displayMode==='icon'?'block':'none'}">
+        <div class="ml">아이콘</div>
+        <input type="hidden" id="mem-icon" value="${escapeAttr(icon)}"/>
+        <div class="memory-icon-grid">
+          ${MEMORY_ICONS.map(ic=>`<button class="memory-icon-btn${ic===icon?' on':''}" data-icon="${escapeAttr(ic)}" onclick="selectMemoryIcon('${ic}')">${ic}</button>`).join('')}
+        </div>
+      </div>
+
+      <div id="mem-linked-panel" style="display:${displayMode==='linked'?'block':'none'}">
+        <div class="ml">가족 대상 연결</div>
+        <input type="hidden" id="mem-linked-person" value="${escapeAttr(linkedPerson)}"/>
+        <div class="type-sel person-chip-selector memory-linked-selector">
+          ${linkedPeople.length?linkedPeople.map(p=>`<button type="button" class="person-check-label mem-linked-person-btn${p===linkedPerson?' selected':''}" data-person="${escapeAttr(p)}" onclick="selectMemoryLinkedPerson(${onclickArg(p)})">${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span></button>`).join(''):'<div class="empty compact-empty">연결할 가족 대상이 없어요</div>'}
+        </div>
+      </div>
+
+      <div id="mem-direct-panel" style="display:${displayMode==='direct'?'block':'none'}">
+        <div class="ml">표시 인물 이름</div>
+        <input class="mi" id="mem-subject-name" placeholder="예: 할머니, 할아버지, 친구" value="${escapeAttr(subjectName)}"/>
+        <div class="ml">표시 인물 이미지</div>
+        <input type="hidden" id="mem-subject-avatar" value="${escapeAttr(subjectAvatar)}"/>
+        <div class="memory-subject-avatar-grid">
+          ${subjectAvatars.map(av=>`<button type="button" class="avatar-choice mem-subject-avatar-btn${av===subjectAvatar?' on':''}" data-avatar="${escapeAttr(av)}" onclick="selectMemorySubjectAvatar(${onclickArg(av)})">${avatarMarkup(av,av,'avatar-img')}</button>`).join('')}
+        </div>
+        <div class="ml">표시 색상</div>
+        <input type="hidden" id="mem-subject-color" value="${escapeAttr(subjectColor)}"/>
+        <div class="kid-color-choice-row memory-subject-color-row">
+          ${PERSON_COLOR_PALETTE.map(c=>`<button type="button" class="color-choice mem-subject-color-choice${c===subjectColor?' on':''}" data-color="${escapeAttr(c)}" onclick="selectMemorySubjectColor('${escapeAttr(c)}')" style="background:${c}"></button>`).join('')}
+        </div>
+        <div class="memory-direct-note">직접 입력 인물은 일정·할일·상태 대상자에는 추가되지 않고, 축하 탭과 달력 축하 표시에만 사용돼요.</div>
+      </div>
+
       <div class="ml">날짜 방식</div>
       <input type="hidden" id="mem-cal" value="${escapeAttr(calType)}"/>
       <div class="type-sel" style="margin-bottom:8px">
         <button class="type-btn${calType==='solar'?' tf':''}" id="mem-solar" onclick="selectMemoryCal('solar')">양력</button>
         <button class="type-btn${calType==='lunar'?' tf':''}" id="mem-lunar" onclick="selectMemoryCal('lunar')">음력</button>
       </div>
-      <div class="ml">대상 이름</div>
-      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 결혼축하" value="${x?escapeAttr(x.name):''}"/>
+      <div class="ml">축하 이름</div>
+      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 할머니 생신, 결혼축하" value="${x?escapeAttr(x.name):''}"/>
       <div class="ml">날짜</div>
       <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'날짜 선택'}" onclick="openBirthPicker('mem-birth')"/>
       <div class="ml">메모</div>
@@ -16424,15 +16655,21 @@ function saveMemory(id){
   const birth=getPickerVal('mem-birth');
   const memo=(document.getElementById('mem-memo')||{}).value||'';
   const icon=(document.getElementById('mem-icon')||{}).value||'🎂';
+  const displayMode=(document.getElementById('mem-display-mode')||{}).value||'icon';
+  const linkedPerson=displayMode==='linked'?((document.getElementById('mem-linked-person')||{}).value||''):'';
+  const subjectName=displayMode==='direct'?(((document.getElementById('mem-subject-name')||{}).value||'').trim()):'';
+  const subjectAvatar=displayMode==='direct'?(((document.getElementById('mem-subject-avatar')||{}).value)||'seniorF_1'):'';
+  const subjectColor=displayMode==='direct'?(((document.getElementById('mem-subject-color')||{}).value)||'#A2845E'):'';
   const lunarBtn=document.getElementById('mem-lunar');
   const isLunar=lunarBtn?lunarBtn.classList.contains('tf'):((document.getElementById('mem-cal')||{}).value==='lunar');
   const calendarType=isLunar?'lunar':'solar';
   const lunar=isLunar;
+  const payload={name:name.trim(),birth,memo,icon,isLunar,calendarType,lunar,displayMode,linkedPerson,subjectName,subjectAvatar,subjectColor};
   if(id){
     const x=memories.find(v=>String(v.id)===String(id)); if(!x)return;
-    x.name=name.trim(); x.birth=birth; x.memo=memo; x.icon=icon; x.isLunar=isLunar; x.calendarType=calendarType; x.lunar=lunar;
+    Object.assign(x,payload);
   }else{
-    memories.push({id:Date.now(),name:name.trim(),birth,memo,icon,isLunar,calendarType,lunar});
+    memories.push({id:Date.now(),...payload});
   }
   saveSettingsOnly();closeM();render();
 }

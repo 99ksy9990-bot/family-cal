@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.2.12';
-const PASS_SW_BUILD_VERSION = 'v1.2.12-memory-weekday-compact-pickers';
+const CACHE_NAME = 'pass-cal-v1.2.13';
+const PASS_SW_BUILD_VERSION = 'v1.2.13-memory-display-person-senior';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
@@ -47,6 +47,18 @@ const OPTIONAL_ASSETS = [
   './assets/avatars/teenF_3.webp',
   './assets/avatars/teenF_4.webp',
   './assets/avatars/teenF_5.webp',
+  './assets/avatars/seniorM_1.webp',
+  './assets/avatars/seniorM_2.webp',
+  './assets/avatars/seniorM_3.webp',
+  './assets/avatars/seniorM_4.webp',
+  './assets/avatars/seniorM_5.webp',
+  './assets/avatars/seniorM_6.webp',
+  './assets/avatars/seniorF_1.webp',
+  './assets/avatars/seniorF_2.webp',
+  './assets/avatars/seniorF_3.webp',
+  './assets/avatars/seniorF_4.webp',
+  './assets/avatars/seniorF_5.webp',
+  './assets/avatars/seniorF_6.webp',
   './assets/avatars/teenM_1.webp',
   './assets/avatars/teenM_2.webp',
   './assets/avatars/teenM_3.webp',
