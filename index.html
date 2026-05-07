@@ -13477,6 +13477,156 @@ body[data-theme="dark"] .tab-bar.bottom-tab-bar .tab-item.active{
   }
 }
 
+
+/* v1.2.21 ios bottom tab refinement + top content */
+.topbar,
+.app-name,
+.app-sub,
+.profile-entry-btn,
+.profile-icon-btn,
+.topbar .manage-btn{
+  display:none !important;
+}
+html,body{
+  margin:0 !important;
+  padding:0 !important;
+}
+.app{
+  padding-top:0 !important;
+  padding-bottom:calc(86px + env(safe-area-inset-bottom,0px)) !important;
+  min-height:100vh !important;
+}
+#body{
+  margin-top:0 !important;
+  padding-top:0 !important;
+}
+.shift-widget-shell{
+  padding:8px 12px 0 !important;
+  margin-top:0 !important;
+}
+.shift-widget-shell .widget-wrap{
+  margin-top:0 !important;
+}
+
+/* 하단 탭바: 플로팅 제거, iOS 표준형 풀폭 */
+.tab-bar.bottom-tab-bar{
+  position:fixed !important;
+  left:50% !important;
+  right:auto !important;
+  transform:translateX(-50%) !important;
+  bottom:0 !important;
+  width:min(430px, 100%) !important;
+  max-width:430px !important;
+  height:auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:0 !important;
+  margin:0 !important;
+  padding:6px 6px calc(8px + env(safe-area-inset-bottom,0px)) !important;
+  border-radius:0 !important;
+  background:rgba(255,255,255,.97) !important;
+  border:none !important;
+  border-top:1px solid rgba(0,0,0,.08) !important;
+  box-shadow:0 -6px 18px rgba(15,23,42,.06) !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  z-index:120 !important;
+}
+.tab-bar.bottom-tab-bar .tab-item{
+  min-width:0 !important;
+  height:50px !important;
+  border:none !important;
+  border-radius:12px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#8E96A3 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:3px !important;
+  padding:0 !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  font-weight:600 !important;
+  letter-spacing:-.12px !important;
+  transform:none !important;
+  transition:color .16s ease, transform .12s ease, opacity .12s ease !important;
+}
+.tab-bar.bottom-tab-bar .tab-item span{
+  font-size:10px !important;
+  font-weight:600 !important;
+}
+.tab-bar.bottom-tab-bar .tab-item .tab-svg{
+  width:24px !important;
+  height:24px !important;
+  display:block !important;
+  margin:0 !important;
+}
+.tab-bar.bottom-tab-bar .tab-item .tab-svg *{
+  fill:none !important;
+  stroke:currentColor !important;
+  stroke-width:1.38 !important;
+  stroke-linecap:round !important;
+  stroke-linejoin:round !important;
+  vector-effect:non-scaling-stroke;
+}
+.tab-bar.bottom-tab-bar .tab-item.on,
+.tab-bar.bottom-tab-bar .tab-item.active{
+  color:#007AFF !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.tab-bar.bottom-tab-bar .tab-item:active{
+  transform:scale(.96) !important;
+}
+.tab-bar.bottom-tab-bar .tab::before,
+.tab-bar.bottom-tab-bar .tab-s::before,
+.tab-bar.bottom-tab-bar .tab-c::before,
+.tab-bar.bottom-tab-bar .tab-r::before,
+.tab-bar.bottom-tab-bar .tab-m::before,
+.tab-bar.bottom-tab-bar .tab-set::before{
+  content:none !important;
+  display:none !important;
+}
+
+/* FAB는 탭 위로 */
+.fab-add,
+.smart-fab{
+  bottom:calc(80px + env(safe-area-inset-bottom,0px)) !important;
+}
+
+/* 5일 근무 D/E/N 글자는 흰색 통일 */
+:root{
+  --shift-d-t:#FFFFFF;
+  --shift-e-t:#FFFFFF;
+  --shift-n-t:#FFFFFF;
+}
+.s-d,.s-e,.s-n{ color:#FFFFFF !important; }
+.col-badge.shift-day,
+.col-badge.shift-evening,
+.col-badge.shift-night{
+  color:#FFFFFF !important;
+}
+.col-badge.shift-day{ background:#007AFF !important; }
+.col-badge.shift-evening{ background:#5AC8FA !important; }
+.col-badge.shift-night{ background:#1C3A5E !important; }
+
+/* 다크모드 */
+body[data-theme="dark"] .tab-bar.bottom-tab-bar{
+  background:rgba(28,28,30,.98) !important;
+  border-top-color:rgba(255,255,255,.1) !important;
+  box-shadow:none !important;
+}
+body[data-theme="dark"] .tab-bar.bottom-tab-bar .tab-item{
+  color:#8E8E93 !important;
+}
+body[data-theme="dark"] .tab-bar.bottom-tab-bar .tab-item.on,
+body[data-theme="dark"] .tab-bar.bottom-tab-bar .tab-item.active{
+  color:#4DA3FF !important;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -13550,19 +13700,13 @@ body[data-theme="dark"] .tab-bar.bottom-tab-bar .tab-item.active{
 
 <script>
 
-const APP_VERSION='v1.2.20';
-const PASS_BUILD_VERSION='v1.2.20-bottom-tabs-settings-todo';
+const APP_VERSION='v1.2.21';
+const PASS_BUILD_VERSION='v1.2.21-top-content-ios-bottomtab-refine';
 const APP_UPDATED='2026-05-07';
 
 
 
-const UPDATE_LOG=[
-  '상단 탭을 하단 고정 5탭으로 이동',
-  '반복 탭을 제거하고 할일 탭 복구',
-  '일정·달력·할일·축하·설정 아이콘을 얇은 라인 SVG로 재정리',
-  '탭 라벨과 아이콘 굵기 완화',
-  '설정 화면에서 반복 관리 진입 유지'
-];
+const UPDATE_LOG=['상단 공백 정리 및 근무 영역 최상단 배치 보정','하단 5탭을 iOS 스타일 풀폭 바 형태로 재정리','선택 탭 배경 제거, 아이콘/라벨은 파란색 강조만 적용','탭 SVG 아이콘 선 굵기 완화 및 크기 확대','5일 근무 D·E·N 문자색을 흰색으로 통일'];
 let editUnlocked=false;
 let privateViewUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1';privateViewUnlocked=sessionStorage.getItem('pass_private_unlocked')==='1'}catch(e){editUnlocked=false;privateViewUnlocked=false}
