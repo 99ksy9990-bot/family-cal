@@ -645,7 +645,7 @@ let remoteReady=false;
 let savingRemote=false;
 let hydrated=false;
 
-function deepCopy(o){return JSON.parse(JSON.stringify(o))}
+function deepCopy(o){return JSON.parse(JSON.stringify(o,(k,v)=>v===undefined?null:v))}
 function dk(y,m,d){return`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function fmtD(s){if(!s)return'';const p=s.split('-');return`${+p[1]}/${+p[2]}`}
 function dateTimeRange(n){
@@ -842,7 +842,7 @@ function getRoomId(){
     history.replaceState(null, '', url.toString());
   }
 
-  localStorage.setItem(SK.room, r);
+  try{localStorage.setItem(SK.room, r);}catch(e){}
   return r;
 }
 
@@ -854,7 +854,9 @@ function todayKey(){return dk(TY,TM,TD)}
 function tomorrowKey(){return addDaysStr(todayKey(),1)}
 
 function addDaysStr(dateStr,days){
+  if(!dateStr||typeof dateStr!=='string')return todayKey();
   const [y,m,d]=dateStr.split('-').map(Number);
+  if(isNaN(y)||isNaN(m)||isNaN(d))return todayKey();
   const nd=new Date(y,m-1,d+days);
   return dk(nd.getFullYear(),nd.getMonth(),nd.getDate());
 }
@@ -1408,7 +1410,7 @@ function normalizeData(d){
 function currentData(){
   return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
 }
-function saveLocal(){localStorage.setItem(SK.data,JSON.stringify(currentData()))}
+function saveLocal(){try{localStorage.setItem(SK.data,JSON.stringify(currentData()))}catch(e){console.warn('saveLocal failed',e)}}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
 
 
@@ -1582,7 +1584,7 @@ function scheduleWindow(n,fromKey=scheduleBaseKey ? scheduleBaseKey() : todayKey
   const start=n.start||fromKey;
   let end=n.end||n.start||fromKey;
   if(n.repeat){
-    end=n.repeatEnd||addDaysStr(start,60);
+    end=n.repeatEnd||(start?addDaysStr(start,60):end);
   }
   if(end<start)end=start;
   return {start,end};
@@ -1671,8 +1673,8 @@ function saveRequestOnly(r){saveRemoteDoc('requests',r)}
 function saveAfterSoftDelete(kind,arr,idx,label){
   if(idx<0||!arr[idx])return;
   const item=arr[idx];
-  trashItem(kind,item);
-  const trashId=deletedItems[deletedItems.length-1].id;
+  const trashId=Date.now()+Math.random();
+  deletedItems.push({id:trashId,kind,item:deepCopy(item),deletedAt:Date.now()});
   arr.splice(idx,1);
   saveLocal();
   if(kind==='note')deleteRemoteDoc('notes',item.id);
@@ -1759,6 +1761,7 @@ async function initData(){
         render();
       }
 
+      if(typeof unsubscribe==='function'){try{unsubscribe();}catch(e){}}
       unsubscribe=api.onSnapshot(ref,(s)=>{
         if(!s.exists()||savingRemote)return;
         const root=s.data();
@@ -5569,7 +5572,9 @@ function formHasUnsavedRepeatDraft(ii){
   return !!(draft&&item&&JSON.stringify({days:draft.days,pauseOnVacation:draft.pauseOnVacation,who:draft.who,title:draft.title,start:draft.start,repeatEnd:draft.repeatEnd,sT:draft.sT,eT:draft.eT})!==JSON.stringify({days:item.days,pauseOnVacation:item.pauseOnVacation,who:item.who,title:item.title,start:item.start,repeatEnd:item.repeatEnd,sT:item.sT,eT:item.eT}));
 }
 
-function render(opts={}){
+let __renderDebounceTimer=null;
+let __renderDebounceOpts={};
+function _renderImpl(opts={}){
   const preserve=opts.preserveScroll!==false;
   const y=preserve?(window.scrollY||document.documentElement?.scrollTop||0):0;
   const body=bodyEl();
@@ -5596,6 +5601,15 @@ function render(opts={}){
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }
+}
+function render(opts={}){
+  if(opts.preserveScroll===false)__renderDebounceOpts.preserveScroll=false;
+  clearTimeout(__renderDebounceTimer);
+  __renderDebounceTimer=setTimeout(()=>{
+    const o=__renderDebounceOpts;
+    __renderDebounceOpts={};
+    _renderImpl(o);
+  },16);
 }
 
 function copyShareLink(){

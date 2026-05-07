@@ -82,11 +82,17 @@ async function safeCachePut(cache, key, res){
   return false;
 }
 
-async function cacheFresh(cache, url){
-  const res = await fetchFresh(url);
-  if(!res || (!res.ok && res.type !== 'opaque')) throw new Error('cache failed: '+url);
-  await safeCachePut(cache, url, res);
-  return res;
+async function cacheFresh(cache, url, retry=1){
+  let lastErr;
+  for(let i=0;i<=retry;i++){
+    try{
+      const res = await fetchFresh(url);
+      if(!res || (!res.ok && res.type !== 'opaque')) throw new Error('cache failed: '+url);
+      await safeCachePut(cache, url, res);
+      return res;
+    }catch(e){lastErr=e; if(i<retry)await new Promise(r=>setTimeout(r,500));}
+  }
+  throw lastErr;
 }
 
 async function staleWhileRevalidate(reqOrUrl, cacheKey=reqOrUrl){
