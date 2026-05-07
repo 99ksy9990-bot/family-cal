@@ -1,10 +1,10 @@
-const APP_VERSION='v1.3.5';
-const PASS_BUILD_VERSION='v1.3.5-header-repeat-hierarchy-dark';
-const APP_UPDATED='2026-05-07';
+const APP_VERSION='v1.3.6';
+const PASS_BUILD_VERSION='v1.3.6-repeat-align-slim-modal-swipe';
+const APP_UPDATED='2026-05-08';
 
 
 
-const UPDATE_LOG=['등록 일정 헤더 칩 간격과 정렬 문구 정리','반복 일정 카드 제목·시간 정렬 미세 조정','오늘 일정과 등록 일정 사이 위계 보정','다크모드 반복 박스 명도 보정'];
+const UPDATE_LOG=['styles.css 섹션 재정렬','동일 선택자 CSS 블록 병합','탭바·FAB·상태 위젯·대시보드 !important 제거','CSS 용량 및 중복 1차 정리'];
 let editUnlocked=false;
 let privateViewUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1';privateViewUnlocked=sessionStorage.getItem('pass_private_unlocked')==='1'}catch(e){editUnlocked=false;privateViewUnlocked=false}
@@ -2537,9 +2537,9 @@ function openRoutineAddFromSchedule(){
 
 function openSortSheet(){
   const opts=[
-    ['time','다가오는 일정순','가까운 일정부터 순서대로 표시'],
+    ['time','다가오는순','가까운 일정부터 먼저 표시'],
     ['person','대상별 묶어보기','대상별로 묶고 그룹 안은 시간순'],
-    ['special','특별 우선','일반 일정 먼저, 반복은 뒤에 표시'],
+    ['special','특별 우선','중요 성격의 일정을 먼저 표시'],
     ['manual','입력순','등록한 순서 그대로 표시']
   ];
   document.getElementById('modal').innerHTML=`
@@ -3001,9 +3001,9 @@ function renderS(){
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
-      <button class="sec-chip-btn schedule-head-chip schedule-target-chip on" onclick="event.stopPropagation();openScheduleTargetSheet()" aria-label="등록 일정 대상 필터">${targetLabel(subF)}</button>
-      <button class="sec-chip-btn schedule-head-chip schedule-period-chip on" onclick="event.stopPropagation();openActivePeriodSheet()" aria-label="등록 일정 기간 필터">${periodLabel(activePer)}</button>
-      <button class="sec-chip-btn schedule-head-chip schedule-sort-chip" onclick="event.stopPropagation();openSortSheet()" aria-label="등록 일정 정렬">${scheduleSortLabel()}</button>
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
+      <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
+      <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
     `)}
     ${activeCards}
     <div class="div"></div>
@@ -4820,8 +4820,9 @@ function renderShiftWidget(){
       ${shiftUsers.map(user=>{
         const p=(family||[]).find(f=>(f.name||'')===user);
         return `<div class="shift-5day-row">
-          <div class="shift-person" title="${escapeAttr(user)}" aria-label="${escapeAttr(user)}">
+          <div class="shift-person" title="${escapeAttr(user)}">
             ${avatarMarkup(p?.avatar||personAvatar(user),user,'shift-micro-avatar')}
+            <span class="shift-person-name">${escapeHtml(user)}</span>
           </div>
           <div class="shift-days-container">
             ${keys.map((k,i)=>{
@@ -5286,6 +5287,14 @@ function renderHomeWidgets(){
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
   return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}</div>`;
 }
+function renderTopSwipeZone(){
+  if(main!=='s')return '';
+  const parts=[renderShiftWidget(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
+  if(!parts)return '';
+  return `<div class="top-swipe-zone"
+    ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
+    onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">${parts}</div>`;
+}
 
 function renderManualNotice(){
   if(main!=='s')return '';
@@ -5574,7 +5583,7 @@ function render(opts={}){
     else if(main==='m')h=renderM();
     else if(main==='set')h=renderSettingsTab();
     else {main='s';h=renderS();}
-    body.innerHTML=htmlJoin([renderShiftWidget(),renderFirstUseGuide(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets(),renderSearchBox(),h,renderFab()]);
+    body.innerHTML=htmlJoin([renderTopSwipeZone(),renderFirstUseGuide(),renderSearchBox(),h,renderFab()]);
     updateSettingsTabAvatar();
     __renderErrorCount=0;
   }catch(e){
@@ -5597,13 +5606,13 @@ function copyShareLink(){
 
 
 function personChoiceButtons(selected){
-  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label${p===selected?' selected tf':''}" id="who-${escapeAttr(p)}" onclick="selWho(${onclickArg(p)})">
-    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span>
+  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label avatar-only${p===selected?' selected tf':''}" id="who-${escapeAttr(p)}" onclick="selWho(${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
+    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}
   </button>`).join('');
 }
 function repeatPersonChoiceButtons(ii,selected){
-  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label repeat-person-choice${p===selected?' selected tf':''}" data-repeat-who="${ii}" data-who="${escapeAttr(p)}" onclick="selectRepeatModalWho(${ii},${onclickArg(p)})">
-    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}<span>${escapeHtml(p)}</span>
+  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label repeat-person-choice avatar-only${p===selected?' selected tf':''}" data-repeat-who="${ii}" data-who="${escapeAttr(p)}" onclick="selectRepeatModalWho(${ii},${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
+    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}
   </button>`).join('');
 }
 function selectRepeatModalWho(ii,who){
