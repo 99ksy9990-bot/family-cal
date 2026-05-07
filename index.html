@@ -12227,6 +12227,126 @@ body[data-theme="dark"] .dots-menu-btn{
   border-color:rgba(255,255,255,.10) !important;
 }
 
+
+/* v1.2.10 pre-v1.3 dashboard density patch */
+/* 1. topbar: 2줄 헤더를 1줄로 압축 */
+.topbar{
+  display:grid !important;
+  grid-template-columns:40px minmax(0,1fr) 40px !important;
+  align-items:center !important;
+  justify-content:stretch !important;
+  padding:10px 16px 0 !important;
+  min-height:52px !important;
+  background:transparent !important;
+}
+.topbar::before{content:'';display:block;grid-column:1;}
+.topbar > div:first-child{grid-column:2;text-align:center;min-width:0;}
+.app-name{font-size:16px !important;line-height:1.15 !important;text-align:center !important;letter-spacing:-.35px !important;}
+.app-sub{display:none !important;}
+.profile-entry-btn,.manage-btn.profile-entry-btn{
+  position:static !important;
+  grid-column:3 !important;
+  justify-self:end !important;
+  margin:0 !important;
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  padding:0 !important;
+  top:auto !important;right:auto !important;
+}
+
+/* 2. 탭바 SVG 아이콘 굵기/시인성 강화 */
+.tab-bar.four-tab-bar{margin-top:10px !important;margin-bottom:8px !important;}
+.tab-bar.four-tab-bar .tab-item .tab-svg{width:24px !important;height:24px !important;margin-bottom:2px !important;}
+.tab-bar.four-tab-bar .tab-item .tab-svg *{stroke-width:2.45 !important;}
+.tab-bar.four-tab-bar .tab-item span{font-size:10.5px !important;font-weight:900 !important;}
+
+/* 3. 오늘 대시보드 = 등록 일정 row 문법 */
+.merged-today-dashboard{
+  padding:12px 14px 10px !important;
+  border-radius:22px !important;
+  margin:6px 0 0 !important;
+}
+.dashboard-standard-list{
+  background:#fff !important;
+  border-radius:16px !important;
+  overflow:hidden !important;
+}
+.dashboard-standard-list .modern-schedule-item,
+.dashboard-standard-row{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+  padding:10px 2px !important;
+  border-bottom:1px solid rgba(0,0,0,.055) !important;
+  min-height:54px !important;
+  background:transparent !important;
+}
+.dashboard-standard-list .modern-schedule-item:last-child,
+.dashboard-standard-row:last-child{border-bottom:none !important;}
+.dashboard-standard-row .modern-schedule-avatar{width:34px !important;height:34px !important;min-width:34px !important;}
+.dashboard-standard-row .modern-schedule-title{
+  font-size:14px !important;
+  font-weight:850 !important;
+  color:var(--t1) !important;
+  letter-spacing:-.25px !important;
+}
+.dashboard-standard-row .modern-schedule-date{
+  margin-top:3px !important;
+  font-size:11.5px !important;
+  font-weight:750 !important;
+  color:var(--t3) !important;
+}
+.dashboard-row-time{
+  flex:0 0 auto !important;
+  max-width:112px !important;
+  text-align:right !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  color:var(--t3) !important;
+  white-space:nowrap !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+}
+.dashboard-routine-list .modern-schedule-item{padding:7px 2px !important;min-height:42px !important;}
+.dashboard-routine-list .modern-schedule-avatar{width:28px !important;height:28px !important;min-width:28px !important;}
+.dashboard-routine-list .modern-schedule-title{font-size:13.5px !important;}
+.dashboard-section-divider,.merged-section-divider{
+  height:1px !important;
+  background:rgba(0,0,0,.06) !important;
+  margin:9px 0 !important;
+}
+.routine-manage-inline{padding:9px 0 1px !important;margin-top:9px !important;}
+
+/* 4. 기존 루틴 카드 구조가 남아도 부풀지 않게 최종 압축 */
+.merged-routine-wrap:not(.merged-schedule-wrap){display:flex !important;flex-direction:column !important;gap:4px !important;}
+.merged-routine-group,.routine-group-card{
+  padding-top:6px !important;
+  padding-bottom:8px !important;
+  gap:4px !important;
+  background:transparent !important;
+  border-radius:0 !important;
+}
+.merged-routine-head,.routine-group-avatar-col,.oneoff-avatar-col{margin-top:0 !important;}
+.merged-routine-box,.routine-group-box,.oneoff-box{
+  margin-right:0 !important;
+  padding:8px 12px !important;
+}
+.merged-routine-row,.routine-group-row{
+  padding:7px 0 !important;
+  min-height:32px !important;
+}
+.merged-routine-title,.routine-group-title{font-size:13.5px !important;line-height:1.28 !important;}
+.merged-routine-time,.routine-group-time{font-size:12px !important;font-variant-numeric:tabular-nums !important;font-feature-settings:"tnum" 1 !important;}
+
+/* 5. 대시보드 안 섹션 텍스트 라벨은 숨기고 선으로만 구분 */
+.today-dashboard .merged-section-label{display:none !important;}
+
+/* 6. 다크모드 보정 */
+body[data-theme="dark"] .dashboard-standard-list{background:transparent !important;}
+body[data-theme="dark"] .dashboard-standard-row{border-bottom-color:rgba(255,255,255,.10) !important;}
+body[data-theme="dark"] .dashboard-section-divider{background:rgba(255,255,255,.10) !important;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -12284,16 +12404,17 @@ body[data-theme="dark"] .dots-menu-btn{
 
 <script>
 
-const APP_VERSION='v1.2.9';
-const PASS_BUILD_VERSION='v1.2.9-interaction-consistency';
+const APP_VERSION='v1.2.10';
+const PASS_BUILD_VERSION='v1.2.10-pre-v130-dashboard-density';
 const APP_UPDATED='2026-05-07';
 
 const UPDATE_LOG=[
-  '달력·반복 관리 FAB 추가 규칙 통일',
-  '삭제 confirm 팝업 제거 및 실행 취소 토스트 강화',
-  '스와이프 방향 통일: 우측 완료, 좌측 삭제',
-  '수정 액션 시트에 전체 너비 빨간 삭제 버튼 적용',
-  '달력 상세는 카드 메뉴 버튼 중심으로 정리'
+  '오늘 대시보드와 등록 일정 row 문법 통일',
+  '오늘 반복 2열 카드 제거 및 플랫 리스트화',
+  '반복 row/padding/gap 압축',
+  '반복 회색 박스 padding 및 margin 정리',
+  '탭바 SVG 아이콘 굵기 강화',
+  '상단 헤더 1줄 압축'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -17025,6 +17146,35 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
   </div>`;
 }
 
+
+function makeTodayDashboardStandardRow(n,opts={}){
+  if(!n)return '';
+  const baseKey=opts.baseKey||scheduleBaseKey();
+  const who=n.who||'공통';
+  const isRoutine=!!opts.routine;
+  const tm=todayTimeOnly(n)||'';
+  const title=isRoutine?(n.title||'반복 일정'):displayNoteTitle(n);
+  const kindLabel=isRoutine?'반복':'일정';
+  const metaDate=isRoutine?dateLabel(baseKey):scheduleListDateLine({...n,start:n.start||baseKey});
+  const meta=`<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span>${escapeHtml(kindLabel)}</span>${metaDate?`<span class="modern-schedule-dotsep">·</span><span>${escapeHtml(metaDate)}</span>`:''}`;
+  let click='';
+  if(isRoutine){
+    const kind=n._autoFamilyInfo?'auto':'note';
+    const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+    click=`onclick="openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(tm)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})"`;
+  }else if(n.id){
+    click=`onclick="openCalendarNoteActions('${n.id}')"`;
+  }
+  return `<div class="modern-schedule-item dashboard-standard-row${isRoutine?' routine':''}" ${click} style="cursor:pointer">
+    <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
+    <div class="modern-schedule-content">
+      <div class="modern-schedule-title">${highlightText(title)}${!isRoutine?privateChip(n):''}</div>
+      <div class="modern-schedule-date">${meta}</div>
+    </div>
+    ${tm?`<div class="dashboard-row-time">${escapeHtml(tm)}</div>`:''}
+  </div>`;
+}
+
 function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const schedule=(allEvents||[]).filter(n=>{
     const who=n.who||'공통';
@@ -17068,64 +17218,17 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const baseKey=scheduleBaseKey();
   const bothEmpty=!schedule.length&&!routines.length;
 
-  const groupedSchedule={};
-  schedule.forEach(n=>{
-    const who=n.who||'공통';
-    if(!groupedSchedule[who])groupedSchedule[who]=[];
-    groupedSchedule[who].push(n);
-  });
-  const scheduleKeys=Object.keys(groupedSchedule).sort((a,b)=>personIdx(a)-personIdx(b));
-  const scheduleBody=scheduleKeys.length
-    ? scheduleKeys.map(who=>`<div class="merged-schedule-group merged-routine-group">
-        <div class="merged-routine-head">
-          <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
-        </div>
-        <div class="merged-routine-box merged-schedule-box">${groupedSchedule[who].map(n=>`<div class="merged-routine-row merged-schedule-row" onclick="openCalendarNoteActions('${n.id}')" style="cursor:pointer">
-          <div class="merged-routine-title merged-schedule-title">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
-          <div class="merged-routine-time merged-schedule-time">${escapeHtml(todayTimeOnly(n)||'')}</div>
-        </div>`).join('')}</div>
-      </div>`).join('')
-    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('schedule','등록 일정 없음')}</div>`;
+  const scheduleBody=schedule.length
+    ? `<div class="dashboard-standard-list merged-schedule-wrap">${schedule.map(n=>makeTodayDashboardStandardRow(n,{baseKey})).join('')}</div>`
+    : `<div class="dashboard-standard-list merged-schedule-wrap merged-empty-card">${renderBriefEmptyState('schedule','등록 일정 없음')}</div>`;
 
-  const routineGroups={};
-  routines.forEach(n=>{
-    const who=n.who||'공통';
-    if(!routineGroups[who])routineGroups[who]=[];
-    routineGroups[who].push(n);
-  });
-  const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
-  const maxRoutineRows=groupKeys.length?Math.max(...groupKeys.map(who=>routineGroups[who].length)):0;
-  const routineBody=groupKeys.length
-    ? groupKeys.map(who=>{
-        const rows=[...routineGroups[who]];
-        const fillerCount=Math.max(0,maxRoutineRows-rows.length);
-        const realRows=rows.map(n=>{
-          const tm=todayTimeOnly(n)||'';
-          const kind=n._autoFamilyInfo?'auto':'note';
-          const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
-          return `<div class="merged-routine-row" onclick="openRoutineInstanceDetail(${onclickArg(n.title||'반복')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})" style="cursor:pointer">
-            <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
-            <div class="merged-routine-time">${escapeHtml(tm)}</div>
-          </div>`;
-        }).join('');
-        const fillerRows=Array.from({length:fillerCount},()=>`<div class="merged-routine-row routine-placeholder-row" aria-hidden="true">
-          <div class="merged-routine-title">&nbsp;</div>
-          <div class="merged-routine-time">&nbsp;</div>
-        </div>`).join('');
-        return `<div class="merged-routine-group">
-          <div class="merged-routine-head">
-            <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-            <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
-          </div>
-          <div class="merged-routine-box">${realRows}${fillerRows}</div>
-        </div>`;
-      }).join('')
-    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
+  const routineBody=routines.length
+    ? `<div class="dashboard-standard-list dashboard-routine-list">${routines.map(n=>makeTodayDashboardStandardRow(n,{baseKey,routine:true})).join('')}</div>`
+    : `<div class="dashboard-standard-list dashboard-routine-list merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
 
   const body=bothEmpty
     ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
-    : `<div class="merged-routine-wrap merged-schedule-wrap">${scheduleBody}</div><div class="dashboard-section-divider" aria-hidden="true"></div><div class="merged-routine-wrap routine-dashboard-grid">${routineBody}</div>`;
+    : `${scheduleBody}${schedule.length&&routines.length?`<div class="dashboard-section-divider merged-section-divider" aria-hidden="true"></div>`:''}${routineBody}`;
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
