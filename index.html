@@ -387,7 +387,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sa
 .c-right{min-width:46px;gap:14px !important;align-items:flex-start !important}
 .c-right .small-link{display:block;text-align:left}
 
-/* 기념 */
+/* 축하 */
 .tab-m{background:var(--pink-bg);color:var(--pink-t)}
 .tab-m.on{background:var(--pink);color:#fff}
 .dm{background:var(--orange)}
@@ -620,7 +620,7 @@ body{
 .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 
 
-/* 추가 기능: 근무 위젯/공지/통계/알림메모 */
+/* 추가 기능: 상태 위젯/공지/통계/알림메모 */
 .notice-manual{
   margin:12px 16px 0;
   padding:14px 15px;
@@ -763,7 +763,7 @@ body{
 }
 
 
-/* 오늘/T+1/T+2 근무 위젯 */
+/* 오늘/T+1/T+2 상태 위젯 */
 .shift-widget-3{
   grid-template-columns:1fr 1fr 1fr !important;
   gap:8px !important;
@@ -839,7 +839,7 @@ body{
 }
 
 
-/* 요청 반영: 근무 위젯 컴팩트/중앙 정렬 */
+/* 요청 반영: 상태 위젯 컴팩트/중앙 정렬 */
 .compact-shift-widget{
   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   gap:7px !important;
@@ -972,7 +972,7 @@ body{
 }
 
 
-/* 최종 보완: 일정 정렬/선택패널 스크롤/근무 위젯 탭 제한 */
+/* 최종 보완: 일정 정렬/선택패널 스크롤/상태 위젯 탭 제한 */
 .sec-action-row{
   justify-content:center !important;
   gap:8px !important;
@@ -992,7 +992,7 @@ body{
 .compact-shift-widget .widget-sub{display:none !important}
 
 
-/* 근무 일괄 선택 / 진단 보강 */
+/* 상태 일괄 선택 / 진단 보강 */
 .shift-bulk-bar{
   margin:8px 10px 0;
   padding:10px;
@@ -1140,7 +1140,7 @@ body{
 }
 
 
-/* 루틴 탭/달력 루틴 범례/오늘 강조/부탁 날짜 */
+/* 반복 탭/달력 반복 범례/오늘 강조/할일 날짜 */
 .today-widget-outline{
   outline:2px solid var(--blue) !important;
   outline-offset:3px !important;
@@ -1185,7 +1185,7 @@ body{
 }
 
 
-/* 루틴탭 보완 */
+/* 반복탭 보완 */
 .cat-lbl-btn{
   border:none;
   background:transparent;
@@ -1210,7 +1210,7 @@ body{
 }
 
 
-/* 기본 정보 기반 필터/루틴 등록 개선 */
+/* 기본 정보 기반 필터/반복 등록 개선 */
 .basic-info-card .fi-row{border-bottom:0}
 .repeat-target-select{
   width:100%;
@@ -1261,7 +1261,7 @@ body{
 .auto-info-card{border-style:dashed !important}
 
 
-/* 루틴탭 접힘/재정렬, 이번 주 주말/공휴일 색 */
+/* 반복탭 접힘/재정렬, 이번 주 주말/공휴일 색 */
 .collapsed-hint{
   font-size:11px;
   color:var(--t3);
@@ -1502,7 +1502,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 오늘 근무 위젯 세로 간격 축소 */
+/* 오늘 상태 위젯 세로 간격 축소 */
 .compact-shift-widget{
   gap:6px !important;
   padding-top:10px !important;
@@ -1654,7 +1654,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 루틴/기념/대상필터/오늘하루 최종 보정 */
+/* 반복/축하/대상필터/오늘하루 최종 보정 */
 .person-domi{background:#FFF0F3 !important;color:#C0002C !important}
 
 /* 대상 필터: 검은 글자 + 선택 밑줄 */
@@ -1759,14 +1759,14 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   opacity:.45;
 }
 
-/* 기념 카드 드래그 */
+/* 축하 카드 드래그 */
 .mem-card.reorder-card{
   touch-action:none;
   cursor:grab;
 }
 
 
-/* 최종 요청 반영: 근무 오늘 pill / 기간형 필터 / 오늘 하루 2분할 */
+/* 최종 요청 반영: 상태 오늘 pill / 기간형 필터 / 오늘 하루 2분할 */
 .shift-mini-card.today-widget-outline{outline:none !important;outline-offset:0 !important}
 .today-shift-date{
   display:inline-flex !important;
@@ -1921,7 +1921,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   color:var(--blue);
 }
 
-/* 루틴 기본 정보 오늘 하루 선택 */
+/* 반복 기본 정보 오늘 하루 선택 */
 .today-toggle-pill{
   display:inline-flex;
   align-items:center;
@@ -1964,7 +1964,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 오늘 하루 / 루틴 이중 대시보드 */
+/* 오늘 하루 / 반복 이중 대시보드 */
 .dashboard-wrap{
   display:block !important;
   padding-top:10px !important;
@@ -2083,7 +2083,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 오늘 하루/루틴 대상 분리 대시보드 */
+/* 오늘 하루/반복 대상 분리 대시보드 */
 .today-list-card{
   display:flex;
   flex-direction:column;
@@ -2297,7 +2297,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 보정: 달력 근무 카운트 간격 + 일정 탭 근무 위젯 가독성 */
+/* 최종 보정: 달력 상태 카운트 간격 + 일정 탭 상태 위젯 가독성 */
 .shift-count-row{
   gap:11px !important;
 }
@@ -2314,7 +2314,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   border-radius:10px !important;
 }
 
-/* 일정 탭 오늘/내일/모레 근무 카드 */
+/* 일정 탭 오늘/내일/모레 상태 카드 */
 .compact-shift-widget{
   gap:8px !important;
 }
@@ -2472,7 +2472,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 통일 보정: 섹션 헤더 / 숫자 / 루틴 핸들 / 카드 시인성 / 달력 일괄선택 */
+/* 최종 통일 보정: 섹션 헤더 / 숫자 / 반복 핸들 / 카드 시인성 / 달력 일괄선택 */
 .unified-sec,
 .compact-sec{
   min-height:44px;
@@ -2601,7 +2601,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 보정: 일정 대상 필터 바텀시트 / 부탁 접힘 / 기념 아이콘 */
+/* 최종 보정: 일정 대상 필터 바텀시트 / 할일 접힘 / 축하 아이콘 */
 .today-list-person,
 .today-list-title{
   font-size:13px !important;
@@ -2660,7 +2660,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
   flex:0 0 auto;
   transform:translateY(-1px);
 }
-/* 루틴/기본 정보/부탁 섹션 버튼 위치 통일 */
+/* 반복/기본 정보/할일 섹션 버튼 위치 통일 */
 .unified-sec .sec-actions .toss-btn.primary,
 .compact-sec .sec-actions .toss-btn.primary{
   height:32px !important;
@@ -2674,7 +2674,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 .empty-emoji{font-size:36px;line-height:1}.empty-title{font-size:14px;font-weight:950;color:var(--t1);line-height:1.35}.empty-sub{font-size:12px;color:var(--t2);line-height:1.5;max-width:240px}
 /* 달력 상단 선택 영역을 일정 탭 칩과 통일 */
 .cal-top-select-row{margin:0 10px 10px;display:flex;align-items:center;gap:8px}.cal-top-select-scroll{flex:1 1 auto;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}.cal-top-select-scroll::-webkit-scrollbar{display:none}.cal-top-select-row .sec-chip-btn{flex:0 0 auto;height:32px;padding:0 12px}
-/* 달력 기념 아이콘 숫자 위 배치 */
+/* 달력 축하 아이콘 숫자 위 배치 */
 .cal-top-badges{min-height:14px;display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:1px}.cal-top-badges:empty::before{content:'';display:block;width:1px;height:14px}.cal-birthday-dot{width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;line-height:1;flex:0 0 auto;transform:none}.shift-bulk-bar.selecting{box-shadow:0 0 0 2px rgba(0,122,255,.08) inset}
 /* 달력 선택 날짜 목록: 점 · 제목 / 대상자 · 시간 */
 .cal-selected-event .ev-dot{margin-top:5px}.cal-selected-event .ev-info{min-width:0;flex:1}.cal-selected-event .ev-title{font-size:14px!important;font-weight:950!important;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cal-selected-event .ev-sub{font-size:12px!important;color:var(--t2)!important;font-weight:850;margin-top:3px}.routine-selected-event .ev-sub{color:var(--purple-t)!important}
@@ -2826,7 +2826,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 보정: 오늘 일정/오늘 루틴/기념일/디데이/달력 선택 UI */
+/* 최종 보정: 오늘 일정/오늘 반복/축하/디데이/달력 선택 UI */
 .today-dashboard-count.hot,
 .today-dashboard-count{
   background:var(--blue-bg) !important;
@@ -3011,7 +3011,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 요청 반영: 5일 근무 위젯 / 루틴 접힘 / D-day 배지 통일 / 기념 한 줄 */
+/* 최종 요청 반영: 5일 상태 위젯 / 반복 접힘 / D-day 배지 통일 / 축하 한 줄 */
 .shift-widget-5{
   grid-template-columns:repeat(5,minmax(0,1fr)) !important;
   gap:6px !important;
@@ -3172,7 +3172,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 최종 보정: 누락 일정 표시 / Empty 축소 / 루틴 입력 컴팩트 / 달력 압축 */
+/* 최종 보정: 누락 일정 표시 / Empty 축소 / 반복 입력 컴팩트 / 달력 압축 */
 .empty-state{
   min-height:82px !important;
   padding:12px 12px !important;
@@ -3357,7 +3357,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 루틴 회차 예외 처리 / 달력 상세 정렬 보정 */
+/* 반복 회차 예외 처리 / 달력 상세 정렬 보정 */
 .routine-instance-actions{
   display:flex !important;
   gap:10px !important;
@@ -3392,7 +3392,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 음력 기념일 표시 보정 */
+/* 음력 축하 표시 보정 */
 .mem-dday{
   white-space:nowrap !important;
   max-width:none !important;
@@ -3402,7 +3402,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 루틴 탭 초압축: 대상+요일 한 줄, 날짜/시간 한 줄 */
+/* 반복 탭 초압축: 대상+요일 한 줄, 날짜/시간 한 줄 */
 .repeat-item-card{
   padding:10px 11px !important;
 }
@@ -3874,7 +3874,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* 이미지 아바타 + 방학 루틴 스위치 */
+/* 이미지 아바타 + 방학 반복 스위치 */
 .cal-dots{
   min-height:17px !important;
   max-height:34px !important;
@@ -4322,7 +4322,7 @@ body[data-theme="dark"] .tab:not(.on){color:#EBEBF5 !important}
 }
 
 
-/* v1.0.43 오늘 루틴 위치 / 상단 날짜 가독성 / 빈 상태 랜덤 문구 */
+/* v1.0.43 오늘 반복 위치 / 상단 날짜 가독성 / 빈 상태 랜덤 문구 */
 .shift-widget-5dates .shift-mini-card{
   min-height:82px !important;
   padding:12px 4px !important;
@@ -5162,7 +5162,7 @@ select{
   --shift-off-t:#8E8E93;
 }
 
-/* 근무 뱃지는 블루 계열 + OFF 회색으로 통일 */
+/* 상태 뱃지는 블루 계열 + OFF 회색으로 통일 */
 .s-d{
   background:var(--shift-d-bg) !important;
   color:var(--shift-d-t) !important;
@@ -5184,7 +5184,7 @@ select{
   border:1px solid #E5E5EA !important;
 }
 
-/* 숫자/카운트/일괄선택 안의 근무 뱃지도 같은 색상 사용 */
+/* 숫자/카운트/일괄선택 안의 상태 뱃지도 같은 색상 사용 */
 .leg-chip.s-d,
 .leg-chip.s-e,
 .leg-chip.s-n,
@@ -5237,7 +5237,7 @@ select{
   box-shadow:0 0 0 1px rgba(255,149,0,.20);
 }
 
-/* 달력 안에서는 근무 뱃지를 정보로만 보이게 처리 */
+/* 달력 안에서는 상태 뱃지를 정보로만 보이게 처리 */
 .cal-cell .shift-one{
   letter-spacing:-.2px !important;
   box-shadow:none !important;
@@ -5302,7 +5302,7 @@ select{
   padding-bottom:4px !important;
 }
 
-/* 일정/루틴 섹션명은 같은 크기와 톤 */
+/* 일정/반복 섹션명은 같은 크기와 톤 */
 .merged-section-label,
 .merged-section-label.routine{
   font-size:13.5px !important;
@@ -5311,7 +5311,7 @@ select{
   margin:9px 0 7px !important;
 }
 
-/* 오늘 일정/루틴 카운트: D-3 칩 스타일 */
+/* 오늘 일정/반복 카운트: D-3 칩 스타일 */
 .merged-count,
 .today-dashboard-count,
 .today-dashboard-count.hot{
@@ -5334,7 +5334,7 @@ select{
   font-weight:950 !important;
 }
 
-/* 오늘 일정/루틴 제목·시간 폰트 통일 */
+/* 오늘 일정/반복 제목·시간 폰트 통일 */
 .today-list-person{
   font-size:12.5px !important;
   font-weight:950 !important;
@@ -5354,7 +5354,7 @@ select{
   white-space:nowrap !important;
 }
 
-/* 루틴 아바타는 현재의 약 70% 크기로 축소 */
+/* 반복 아바타는 현재의 약 70% 크기로 축소 */
 .merged-routine-group{
   grid-template-columns:46px minmax(0,1fr) !important;
   gap:9px !important;
@@ -5382,7 +5382,7 @@ select{
   line-height:1.15 !important;
 }
 
-/* 루틴 오른쪽 박스 컴팩트 + 각 행 동일 비율 */
+/* 반복 오른쪽 박스 컴팩트 + 각 행 동일 비율 */
 .merged-routine-wrap{
   gap:10px !important;
 }
@@ -5498,7 +5498,7 @@ select{
   padding-bottom:116px !important;
 }
 
-/* 좁은 모바일에서는 루틴 더 컴팩트 */
+/* 좁은 모바일에서는 반복 더 컴팩트 */
 @media (max-width:420px){
   .merged-routine-group{
     grid-template-columns:42px minmax(0,1fr) !important;
@@ -5571,7 +5571,7 @@ select{
 }
 
 
-/* v1.0.68 오늘 일정/루틴 폰트 통일 */
+/* v1.0.68 오늘 일정/반복 폰트 통일 */
 .today-list-title,
 .today-list-time,
 .merged-routine-title,
@@ -5603,7 +5603,7 @@ select{
   text-overflow:ellipsis !important;
 }
 
-/* 일정/루틴 행 간격도 같은 폰트에 맞춰 정리 */
+/* 일정/반복 행 간격도 같은 폰트에 맞춰 정리 */
 .merged-today-row{
   min-height:28px !important;
   padding:7px 0 !important;
@@ -5681,7 +5681,7 @@ select{
   font-weight:950 !important;
 }
 
-/* 일정 탭 루틴과 달력 탭 루틴을 같은 형식으로 */
+/* 일정 탭 반복과 달력 탭 반복을 같은 형식으로 */
 .merged-routine-group,
 .routine-group-card{
   grid-template-columns:42px minmax(0,1fr) !important;
@@ -5800,7 +5800,7 @@ select{
   color:var(--shift-off-t,#8E8E93) !important;
 }
 
-/* 근무 편집은 바텀시트에서 */
+/* 상태 편집은 바텀시트에서 */
 .shift-edit-grid{
   display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));
@@ -5826,7 +5826,7 @@ select{
   font-size:9.5px !important;
 }
 
-/* 일괄 선택은 근무 뷰에서 상단 액션 바로 */
+/* 일괄 선택은 상태 뷰에서 상단 액션 바로 */
 .compact-bulk-bar{
   margin:0 10px 10px !important;
   padding:8px 10px !important;
@@ -5857,7 +5857,7 @@ select{
   font-weight:950 !important;
 }
 
-/* 숨겨진 루틴 안내는 작은 칩 형태 */
+/* 숨겨진 반복 안내는 작은 칩 형태 */
 .hidden-routine-note{
   margin:8px 0 0 !important;
   padding:7px 9px !important;
@@ -5873,7 +5873,7 @@ select{
   font-weight:950 !important;
 }
 
-/* 루틴/등록 일정 사이 여백 축소 */
+/* 반복/등록 일정 사이 여백 축소 */
 .ev-card .ev-item{
   padding:7px 0 !important;
 }
@@ -6041,7 +6041,7 @@ select{
   min-width:22px !important;
 }
 
-/* 상단 5일 근무 위젯 톤다운 */
+/* 상단 5일 상태 위젯 톤다운 */
 .shift-widget-shell{
   background:transparent !important;
   box-shadow:none !important;
@@ -6112,7 +6112,7 @@ select{
   color:var(--blue-t) !important;
 }
 
-/* 오늘 일정/루틴 대시보드 정보 위계 */
+/* 오늘 일정/반복 대시보드 정보 위계 */
 .merged-today-dashboard{
   border-radius:20px !important;
   padding:13px 14px !important;
@@ -6151,7 +6151,7 @@ select{
   letter-spacing:-.2px !important;
 }
 
-/* 기념일 카드: 칩 배경 제거, 2줄 정보 위계 */
+/* 축하 카드: 칩 배경 제거, 2줄 정보 위계 */
 .memory-card-wrap{
   gap:10px !important;
 }
@@ -6215,7 +6215,7 @@ select{
   color:var(--t2) !important;
 }
 
-/* 기념 탭 상단 헤더 다이어트 */
+/* 축하 탭 상단 헤더 다이어트 */
 .memory-sec{
   padding-right:20px !important;
 }
@@ -6226,7 +6226,7 @@ select{
   font-weight:850 !important;
 }
 
-/* 부탁/루틴 탭도 FAB 추가 전제: 상단 액션 여백 정리 */
+/* 할일/반복 탭도 FAB 추가 전제: 상단 액션 여백 정리 */
 .unified-sec .sec-actions:empty,
 .compact-sec .sec-actions:empty{
   display:none !important;
@@ -6250,7 +6250,7 @@ select{
   gap:10px !important;
 }
 
-/* 루틴 카드: 점선 제거 + 다른 탭과 같은 소프트 카드 */
+/* 반복 카드: 점선 제거 + 다른 탭과 같은 소프트 카드 */
 .repeat-item-card{
   border:1px solid rgba(0,0,0,.045) !important;
   border-style:solid !important;
@@ -6432,7 +6432,7 @@ select{
   display:none !important;
 }
 
-/* 루틴 탭 헤더도 버튼 제거 이후 여백을 정돈 */
+/* 반복 탭 헤더도 버튼 제거 이후 여백을 정돈 */
 .fi-outer .unified-sec,
 .fi-outer .compact-sec{
   padding:12px 16px 5px !important;
@@ -6451,7 +6451,7 @@ select{
   display:none !important;
 }
 
-/* 기본정보 카드와 루틴 카드 사이 결 맞춤 */
+/* 기본정보 카드와 반복 카드 사이 결 맞춤 */
 .basic-info-card{
   border:1px solid rgba(0,0,0,.045) !important;
   border-radius:18px !important;
@@ -6526,7 +6526,7 @@ select{
   white-space:nowrap !important;
 }
 
-/* 일정/루틴 제목은 같은 톤 */
+/* 일정/반복 제목은 같은 톤 */
 .today-list-title,
 .merged-routine-title,
 .merged-schedule-title,
@@ -6545,7 +6545,7 @@ select{
   text-overflow:ellipsis !important;
 }
 
-/* 일정 탭 일정/루틴, 달력 상세 루틴: icon + target + title + time 동일 포맷 */
+/* 일정 탭 일정/반복, 달력 상세 반복: icon + target + title + time 동일 포맷 */
 .merged-schedule-wrap,
 .merged-routine-wrap{
   gap:9px !important;
@@ -6626,7 +6626,7 @@ select{
   font-weight:950 !important;
 }
 
-/* 루틴 탭 기본 정보: 2줄 모던 카드 */
+/* 반복 탭 기본 정보: 2줄 모던 카드 */
 .modern-basic-card{
   display:grid !important;
   grid-template-columns:42px minmax(0,1fr) !important;
@@ -6741,7 +6741,7 @@ select{
   box-shadow:0 2px 8px rgba(15,23,42,.04) !important;
 }
 
-/* 루틴 카드도 더 가볍게 */
+/* 반복 카드도 더 가볍게 */
 .repeat-item-card{
   border-style:solid !important;
   border-color:rgba(0,0,0,.045) !important;
@@ -6928,7 +6928,7 @@ select{
   box-shadow:0 5px 12px rgba(0,122,255,.14) !important;
 }
 
-/* 달력 일정/루틴 점 표시 확대 */
+/* 달력 일정/반복 점 표시 확대 */
 .cal-dots{
   gap:3.5px !important;
 }
@@ -6947,7 +6947,7 @@ select{
   transform:translateY(-1px);
 }
 
-/* 달력의 일정/루틴 뷰에서는 근무 빈 줄을 줄여 점을 날짜 숫자에 가깝게 */
+/* 달력의 일정/반복 뷰에서는 상태 빈 줄을 줄여 점을 날짜 숫자에 가깝게 */
 .cal-mode-schedule .cal-shift-line,
 .cal-mode-routine .cal-shift-line{
   min-height:4px !important;
@@ -6969,7 +6969,7 @@ select{
   margin-bottom:0 !important;
 }
 
-/* 전체 뷰에서는 근무 뱃지와 점의 간격을 유지하되 점만 살짝 선명하게 */
+/* 전체 뷰에서는 상태 뱃지와 점의 간격을 유지하되 점만 살짝 선명하게 */
 .cal-mode-all .cal-dots{
   margin-top:2px !important;
 }
@@ -7023,7 +7023,7 @@ select{
   border:0 !important;
 }
 
-/* 🎂 기념일 탭 카드 초압축 다이어트 */
+/* 🎂 축하 탭 카드 초압축 다이어트 */
 .mem-card {
   padding: 14px 16px !important;
   min-height: auto !important;
@@ -7070,7 +7070,7 @@ select{
 
 /* v1.0.76 dashboard tone cleanup */
 
-/* 1) 오늘 일정/루틴/미리보기 내부 그레이 박스 제거: 부모 흰 카드만 남김 */
+/* 1) 오늘 일정/반복/미리보기 내부 그레이 박스 제거: 부모 흰 카드만 남김 */
 .merged-schedule-card:not(.merged-empty-card),
 .merged-routine-box,
 .merged-schedule-box,
@@ -7107,7 +7107,7 @@ select{
   padding:0 !important;
 }
 
-/* 루틴/일정 섹션 사이만 살짝 구분 */
+/* 반복/일정 섹션 사이만 살짝 구분 */
 .merged-section-label,
 .merged-section-label.routine{
   margin:10px 0 6px !important;
@@ -7172,7 +7172,7 @@ select{
   text-align:center !important;
 }
 
-/* 4) 5일 근무 위젯 주말/공휴일 빨강·파랑 제거 */
+/* 4) 5일 상태 위젯 주말/공휴일 빨강·파랑 제거 */
 .shift-widget-5dates .shift-date-label,
 .shift-widget-5dates .widget-title,
 .shift-widget-5dates .shift-date-holiday,
@@ -7189,7 +7189,7 @@ select{
   background:rgba(255,255,255,.88) !important;
 }
 
-/* 상단 위젯은 날짜보다 근무 뱃지가 주인공이 되도록 */
+/* 상단 위젯은 날짜보다 상태 뱃지가 주인공이 되도록 */
 .shift-widget-5dates .shift-date-label{
   opacity:.9 !important;
   font-weight:950 !important;
@@ -7209,7 +7209,7 @@ select{
 
 /* v1.0.77 title/action sync */
 
-/* 앱 내 모든 일정/루틴 제목 폰트 '거제도 여행' 스타일로 완벽 동기화 */
+/* 앱 내 모든 일정/반복 제목 폰트 '거제도 여행' 스타일로 완벽 동기화 */
 .today-list-title,
 .merged-routine-title,
 .merged-schedule-title,
@@ -7278,7 +7278,7 @@ select{
   gap: 8px !important;
 }
 
-/* 대시보드 일정/루틴 사이 구분은 여백만 사용 */
+/* 대시보드 일정/반복 사이 구분은 여백만 사용 */
 .merged-schedule-wrap + .merged-routine-wrap {
   margin-top: 10px !important;
 }
@@ -7286,7 +7286,7 @@ select{
   display: none !important;
 }
 
-/* 일정/루틴 제목 클릭 액션 시트 */
+/* 일정/반복 제목 클릭 액션 시트 */
 .action-sheet-compact .modal-hd {
   margin-bottom: 12px !important;
   font-size: 16px !important;
@@ -7580,7 +7580,7 @@ select{
 
 /* v1.0.80 schedule list polish */
 
-/* 1. 5일 근무 위젯 오늘 표시: 투박한 테두리 제거 & 연한 파랑 배경 적용 */
+/* 1. 5일 상태 위젯 오늘 표시: 투박한 테두리 제거 & 연한 파랑 배경 적용 */
 .shift-widget-5dates .center-date {
   outline: none !important;
   background: var(--blue-bg) !important;
@@ -7591,7 +7591,7 @@ select{
   color: var(--blue-t) !important;
 }
 
-/* 2. 오늘 일정 박스: 루틴과 칼각 정렬 & 알림 배너 스타일 적용 */
+/* 2. 오늘 일정 박스: 반복과 칼각 정렬 & 알림 배너 스타일 적용 */
 .merged-schedule-group {
   display: grid !important;
   grid-template-columns: 42px minmax(0,1fr) !important;
@@ -7754,7 +7754,7 @@ select{
 
 /* v1.0.81 routine layout + iOS zoom fix */
 
-/* 루틴 카드 간 간격 확대: 스크롤 중 드래그 오작동 방지 */
+/* 반복 카드 간 간격 확대: 스크롤 중 드래그 오작동 방지 */
 .repeat-item-card {
   margin-bottom: 14px !important;
 }
@@ -8306,7 +8306,7 @@ select{
   font-size:17px !important;
 }
 
-/* 루틴 필터 + 리스트 하단 FAB 가림 방지 */
+/* 반복 필터 + 리스트 하단 FAB 가림 방지 */
 .routine-filter-row{
   margin-bottom:10px !important;
 }
@@ -8373,7 +8373,7 @@ select{
   padding:0 14px;
 }
 
-/* 개별 루틴은 카드가 아니라 리스트 행 */
+/* 개별 반복은 카드가 아니라 리스트 행 */
 .routine-summary-item{
   position:relative;
   display:grid;
@@ -8445,7 +8445,7 @@ select{
   display:none !important;
 }
 
-/* 루틴 안내 문구 */
+/* 반복 안내 문구 */
 .routine-reorder-hint{
   white-space:nowrap;
   font-size:11px !important;
@@ -8484,7 +8484,7 @@ select{
   }
 }
 
-/* FAB가 마지막 콘텐츠를 가리지 않게 전체 루틴 영역도 여백 확보 */
+/* FAB가 마지막 콘텐츠를 가리지 않게 전체 반복 영역도 여백 확보 */
 .fi-outer{
   padding-bottom:94px !important;
 }
@@ -8602,12 +8602,12 @@ select{
   margin-top:12px;
 }
 
-/* 반복 탭은 루틴만: 기본 정보는 프로필 센터로 이동 */
+/* 반복 탭은 반복만: 기본 정보는 프로필 센터로 이동 */
 .routine-only-outer{
   padding-top:8px !important;
 }
 
-/* --- 동적 2열 누적 레이아웃: 오늘 루틴에만 적용 --- */
+/* --- 동적 2열 누적 레이아웃: 오늘 반복에만 적용 --- */
 .merged-routine-wrap:not(.merged-schedule-wrap){
   display:grid !important;
   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
@@ -8655,7 +8655,7 @@ select{
   }
 }
 
-/* 컬러 다이어트: 알림 배너와 5일 근무 위젯 */
+/* 컬러 다이어트: 알림 배너와 5일 상태 위젯 */
 .notice-banner{
   background:#FFF4E5 !important;
   color:#7A3800 !important;
@@ -9283,7 +9283,7 @@ select{
 
 /* v1.1.2 avatar/dashboard/memory polish */
 
-/* 축하(기념일) 탭 우측 레이아웃 및 폰트 개선 */
+/* 축하(축하) 탭 우측 레이아웃 및 폰트 개선 */
 .memory-date-col {
   display: flex !important;
   flex-direction: column !important;
@@ -9335,7 +9335,7 @@ select{
   display: none !important;
 }
 
-/* 오늘 루틴: 2열 박스에서 가로 리스트형으로 전환 */
+/* 오늘 반복: 2열 박스에서 가로 리스트형으로 전환 */
 .merged-routine-wrap:not(.merged-schedule-wrap) {
   display: flex !important;
   flex-direction: column !important;
@@ -9537,7 +9537,7 @@ select{
   display:none !important;
 }
 
-/* 달력 다중 근무 뱃지: 정사각형 1글자 압축 */
+/* 달력 다중 상태 뱃지: 정사각형 1글자 압축 */
 .cal-cell .shift-one {
   width:18px !important;
   height:18px !important;
@@ -9961,7 +9961,7 @@ select{
   margin-top:8px !important;
 }
 
-/* 대시보드 내부 '오늘 일정 / 루틴' 헤더 제거 */
+/* 대시보드 내부 '오늘 일정 / 반복' 헤더 제거 */
 .no-dashboard-title .merged-dashboard-head,
 .merged-dashboard-head.no-count-head{
   display:none !important;
@@ -10984,7 +10984,7 @@ body[data-theme="dark"] .modal-sheet select.mi{
   border-bottom:none !important;
 }
 
-/* 모바일에서 일정/루틴 추가 모달이 너무 위로 올라가지 않게, 취소 여백 확보 */
+/* 모바일에서 일정/반복 추가 모달이 너무 위로 올라가지 않게, 취소 여백 확보 */
 .modal-bg{
   align-items:flex-end !important;
   padding-top:max(56px, env(safe-area-inset-top, 0px)) !important;
@@ -11167,6 +11167,321 @@ body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.active .tab-svg *{
   }
 }
 
+
+/* v1.2.2 stability + consistency + usability */
+
+/* 공통 폭/간격 변수 */
+:root{
+  --page-x:18px;
+  --card-radius:22px;
+  --section-gap:12px;
+}
+.widget-wrap,
+.search-wrap,
+.card-wrap,
+.cal-outer,
+.fi-outer{
+  padding-left:var(--page-x) !important;
+  padding-right:var(--page-x) !important;
+}
+.notice-banner,
+.notice-manual,
+.first-use-guide{
+  margin-left:var(--page-x) !important;
+  margin-right:var(--page-x) !important;
+}
+.widget-card,
+.cal-card,
+.ev-card,
+.request-list-wrap,
+.memory-card-wrap,
+.schedule-dashboard-list,
+.routine-person-block{
+  border-radius:var(--card-radius) !important;
+}
+
+/* 우측 상단 프로필/설정 아이콘도 탭 라인 아이콘과 통일 */
+.profile-entry-btn{
+  width:40px !important;
+  height:40px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.top-profile-svg{
+  width:22px;
+  height:22px;
+  display:block;
+}
+.top-profile-svg *{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+/* 첫 사용 안내 — 첫 3회만 JS에서 출력 */
+.first-use-guide{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow-x:auto;
+  padding:8px 10px;
+  border-radius:16px;
+  background:rgba(255,255,255,.72);
+  border:1px solid var(--divider);
+  color:var(--t3);
+  font-size:10.5px;
+  font-weight:850;
+  line-height:1;
+  scrollbar-width:none;
+  box-shadow:var(--shadow-card);
+}
+.first-use-guide::-webkit-scrollbar{display:none}
+.first-use-guide span{
+  flex:0 0 auto;
+  white-space:nowrap;
+}
+
+/* 반복 관리 하위 화면 */
+.routine-subscreen-head{
+  margin:12px var(--page-x) 2px;
+  padding:12px 14px;
+  border-radius:18px;
+  background:var(--surface-raised);
+  border:1px solid var(--divider);
+  box-shadow:var(--shadow-card);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.subscreen-back-btn{
+  border:none;
+  background:transparent;
+  color:var(--blue-t);
+  font-size:12.5px;
+  font-weight:950;
+  font-family:inherit;
+  padding:6px 0;
+}
+.subscreen-title{
+  font-size:14px;
+  font-weight:950;
+  color:var(--t1);
+  letter-spacing:-.25px;
+}
+
+/* 일정 탭 반복 영역에서 관리 진입점 */
+.routine-manage-inline{
+  display:flex;
+  justify-content:center;
+  padding:12px 0 2px;
+  border-top:1px solid var(--divider);
+  margin-top:12px;
+}
+.routine-manage-inline button{
+  height:32px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1.5px solid rgba(0,122,255,.22);
+  background:var(--blue-bg);
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:950;
+  font-family:inherit;
+}
+
+/* 상세 설정은 기본 닫힘이므로 summary가 주 버튼처럼 보이게 */
+details.detail-settings:not([open]) .detail-settings-panel{
+  display:none !important;
+}
+details.detail-settings summary{
+  min-height:48px !important;
+}
+
+/* 빈 화면 전체 1줄 규칙 + 높이 통일 */
+.empty-state,
+.brief-empty-state{
+  min-height:104px !important;
+  padding:16px 14px !important;
+  gap:6px !important;
+  border:none !important;
+  border-radius:var(--card-radius) !important;
+  background:var(--surface-sunken) !important;
+  box-shadow:none !important;
+}
+.empty-emoji,
+.brief-empty-art{
+  font-size:32px !important;
+}
+.empty-title,
+.brief-empty-title{
+  font-size:14px !important;
+  font-weight:950 !important;
+  color:var(--t2) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+.empty-sub,
+.brief-empty-sub{
+  font-size:11.5px !important;
+  line-height:1.35 !important;
+  color:var(--t3) !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+/* 축하 탭 리스트 더 얇게 */
+.memory-card-wrap,
+.card-wrap.memory-card-wrap{
+  gap:8px !important;
+}
+.mem-card{
+  padding:10px 12px !important;
+  border-radius:16px !important;
+}
+.mem-card .memory-row{
+  grid-template-columns:36px minmax(0,1fr) !important;
+  gap:10px !important;
+  align-items:center !important;
+}
+.mem-card .memory-card-icon{
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  border-radius:50% !important;
+  font-size:18px !important;
+}
+.memory-title-text,
+.mem-card .c-title,
+.memory-title-line{
+  font-size:13.5px !important;
+  font-weight:900 !important;
+  line-height:1.25 !important;
+}
+.memory-sub-text{
+  font-size:11.5px !important;
+}
+.memory-date-col{
+  gap:4px !important;
+}
+.memory-upcoming-date{
+  font-size:12.5px !important;
+}
+.memory-dday-chip{
+  font-size:11px !important;
+  padding:3px 8px !important;
+}
+
+/* 달력 상세 패널 = 일정 대시보드 row 문법 */
+.ev-card .cal-selected-event,
+.ev-card .oneoff-selected-event,
+.ev-card .routine-group-card{
+  display:grid !important;
+  grid-template-columns:40px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:center !important;
+  padding:10px 0 !important;
+  border-bottom:1px solid var(--divider) !important;
+}
+.ev-card .cal-selected-event:last-child,
+.ev-card .oneoff-selected-event:last-child,
+.ev-card .routine-group-card:last-child{
+  border-bottom:none !important;
+}
+.oneoff-avatar-col,
+.routine-group-avatar-col{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.oneoff-person.under-avatar,
+.routine-group-person.under-avatar{
+  display:none !important;
+}
+.oneoff-avatar,
+.routine-group-avatar,
+.ev-avatar{
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  object-fit:contain !important;
+}
+.oneoff-box,
+.routine-group-box{
+  background:transparent !important;
+  padding:0 !important;
+  border-radius:0 !important;
+}
+.oneoff-main,
+.routine-group-main{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) auto !important;
+  gap:12px !important;
+  align-items:center !important;
+}
+.oneoff-title,
+.routine-group-title,
+.ev-title{
+  font-size:13.5px !important;
+  font-weight:900 !important;
+  line-height:1.35 !important;
+  color:var(--t1) !important;
+}
+.oneoff-time,
+.routine-group-time,
+.ev-meta-time{
+  font-size:12px !important;
+  font-weight:800 !important;
+  color:var(--t3) !important;
+  font-variant-numeric:tabular-nums !important;
+  font-feature-settings:"tnum" 1 !important;
+}
+
+/* 용어 변경 후 상태 뱃지/선택 칩 균형 */
+.cal-view-chip,
+.shift-bulk-chip,
+.multi-shift-option,
+.selected-shift-chip{
+  font-weight:950 !important;
+}
+
+/* 다크모드 표면 보강 */
+body[data-theme="dark"] .routine-subscreen-head,
+body[data-theme="dark"] .first-use-guide,
+body[data-theme="dark"] .routine-manage-inline button{
+  background:#1C1C1E !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:none !important;
+}
+body[data-theme="dark"] .empty-state,
+body[data-theme="dark"] .brief-empty-state{
+  background:rgba(255,255,255,.05) !important;
+}
+
+/* 작은 화면 안전장치 */
+@media (max-width:360px){
+  :root{--page-x:14px;}
+  .routine-subscreen-head{
+    margin-left:var(--page-x);
+    margin-right:var(--page-x);
+  }
+  .subscreen-title{
+    font-size:13px;
+  }
+  .subscreen-back-btn{
+    font-size:12px;
+  }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -11207,7 +11522,7 @@ body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.active .tab-svg *{
       <div class="app-name">패스</div>
       <div class="app-sub">Family Scheduler</div>
     </div>
-    <button class="manage-btn profile-entry-btn" onclick="openProfileCenter()" aria-label="가족 및 설정" title="가족 및 설정">👤</button>
+    <button class="manage-btn profile-entry-btn" onclick="openProfileCenter()" aria-label="가족 및 설정" title="가족 및 설정"><svg class="top-profile-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 10.2a3.3 3.3 0 1 0 0-6.6 3.3 3.3 0 0 0 0 6.6Z"/><path d="M2.8 19.5c.3-3.4 2.4-5.2 5.4-5.2s5.1 1.8 5.4 5.2"/><path d="M16.8 10.2a2.7 2.7 0 1 0 0-5.4"/><path d="M15.7 14.5c2.8.2 4.7 1.8 5 5"/></svg></button>
     
   </div>
 
@@ -11224,15 +11539,19 @@ body[data-theme="dark"] .tab-bar.four-tab-bar .tab-item.active .tab-svg *{
 
 <script>
 
-const APP_VERSION='v1.2.0';
-const PASS_BUILD_VERSION='v1.2.0-four-tab-line-icons';
+const APP_VERSION='v1.2.2';
+const PASS_BUILD_VERSION='v1.2.2-stability-consistency-usability';
 const APP_UPDATED='2026-05-05';
 const UPDATE_LOG=[
-  '상단 탭바 4개 구조로 정리',
-  '일정/달력/할일/축하 탭에 라인 아이콘 적용',
-  '탭바 글래스 배경과 선택 탭 부상 피드백 적용',
-  '반복 관리는 프로필 센터 빠른 설정으로 이동',
-  '이모지 탭 아이콘 대신 인라인 SVG 아이콘 사용'
+  '반복 관리 발견성 보완',
+  '반복 관리 화면 돌아가기 헤더 추가',
+  '일정/반복 상세 설정 기본 닫힘',
+  '상태/할일/축하 용어 통일',
+  '첫 사용 안내 3회 표시',
+  '우측 상단 가족 설정 아이콘 SVG화',
+  '카드 폭·빈 화면·다크모드 통일성 보정',
+  '축하 탭 리스트 압축',
+  '달력 상세 패널과 일정 대시보드 행 스타일 동기화'
 ];
 let editUnlocked=false;
 let privateViewUnlocked=false;
@@ -11322,7 +11641,7 @@ const DEFAULT_DATA={
     {id:3,title:'부모님께 연락',type:'personal',start:'2026-05-08',end:'',sT:'20:00',eT:'',done:false,comment:''}
   ],
   requests:[
-    {id:101,title:'엄마한테 준비물 확인 부탁',writer:'첫째',done:false,comment:''}
+    {id:101,title:'엄마한테 준비물 확인 할일',writer:'첫째',done:false,comment:''}
   ],
   notices:[
     {id:301,title:'가족 공지 예시',body:'이번 주 주요 일정을 함께 확인해 주세요.',read:false,createdAt:Date.now()}
@@ -11507,10 +11826,10 @@ function calendarHiddenRoutineNotice(selDate){
   const routines=notesOnDateAll(y,m-1,d).filter(n=>isRoutineCalendarEvent(n)).length;
   let html='';
   if(holidayCnt){
-    html+=`<div class="hidden-routine-note">💡 공휴일이라 루틴 ${holidayCnt}개가 자동으로 쉬어요.</div>`;
+    html+=`<div class="hidden-routine-note">💡 공휴일이라 반복 ${holidayCnt}개가 자동으로 쉬어요.</div>`;
   }
   if(oneOffModeHidden && routines){
-    html+=`<div class="hidden-routine-note">💡 전체 모드에서는 달력 칸의 루틴 점을 숨겨요. 아래 상세에는 루틴이 모두 표시됩니다. <button onclick="setCalendarViewMode('routine')">루틴 보기</button></div>`;
+    html+=`<div class="hidden-routine-note">💡 전체 모드에서는 달력 칸의 반복 점을 숨겨요. 아래 상세에는 반복이 모두 표시됩니다. <button onclick="setCalendarViewMode('routine')">반복 보기</button></div>`;
   }
   return html;
 }
@@ -11535,7 +11854,7 @@ function renderSelectedDayList(mems,evs,selDate,sp){
 
   const routines=(evs||[]).filter(n=>(n.repeat||n._autoFamilyInfo));
   if(routines.length){
-    html += `<div class="selected-day-section-label routine-label">루틴</div>`;
+    html += `<div class="selected-day-section-label routine-label">반복</div>`;
     const groups={};
     routines.forEach(r=>{
       const who=r.who||'공통';
@@ -11555,7 +11874,7 @@ function renderSelectedDayList(mems,evs,selDate,sp){
       const itemsHtml=personRoutines.map(n=>{
         const tm=calendarTimeOnly(n);
         const title=highlightText(n.title||'일정');
-        const clickAttr=`onclick="openRoutineInstanceDetail(${onclickArg(n.title||'루틴')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(selDate)},${onclickArg(n._autoFamilyInfo?'auto':'note')},${onclickArg(n._autoFamilyInfo?n._originalRoutineId:n.id)})" style="cursor:pointer"`;
+        const clickAttr=`onclick="openRoutineInstanceDetail(${onclickArg(n.title||'반복')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(selDate)},${onclickArg(n._autoFamilyInfo?'auto':'note')},${onclickArg(n._autoFamilyInfo?n._originalRoutineId:n.id)})" style="cursor:pointer"`;
         return `<div class="routine-group-row" ${clickAttr}>
           <div class="routine-group-main">
             <div class="routine-group-title">${title}</div>
@@ -11589,11 +11908,11 @@ function setCalendarViewMode(mode){
   render({preserveScroll:true});
 }
 function calendarViewLabel(mode){
-  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'루틴':'전체';
+  return mode==='work'?'상태':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
 }
 function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
-  return cur?`근무 ${cur}`:'근무 미입력';
+  return cur?`상태 ${cur}`:'상태 미입력';
 }
 function openShiftPicker(dateKey){
   if(!requireEditMode())return;
@@ -11639,7 +11958,7 @@ function setShiftFromModal(k,t){
 }
 
 function renderCalendarViewModeChips(){
-  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','루틴']];
+  const modes=[['all','전체'],['work','상태'],['schedule','일정'],['routine','반복']];
   return `<div class="calendar-view-mode-row">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
 }
 function filterCalendarEventsByTarget(evs){
@@ -11659,7 +11978,7 @@ function calendarDotCandidates(evs,mems){
   if(calViewMode==='work')return [];
 
   if(calViewMode==='all' || calViewMode==='schedule'){
-    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, 'var(--orange)', x.name||'기념', 1));
+    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, 'var(--orange)', x.name||'축하', 1));
     oneOffs.sort(calendarDetailSort).forEach(n=>{
       const who=n.who||'공통';
       const rank=who==='공통'?2:10+personRank(n);
@@ -11960,7 +12279,7 @@ function uniquePersonsForDay(evs,mems){
     if(!people.includes(p))people.push(p);
   };
   // 달력 점 색상은 사람만 의미합니다.
-  // 기념/생일은 별도 🎂 아이콘으로 표시하므로 대상자 점과 중복하지 않습니다.
+  // 축하/생일은 별도 🎂 아이콘으로 표시하므로 대상자 점과 중복하지 않습니다.
   (evs||[]).forEach(n=>add(n.who||'공통'));
   return people;
 }
@@ -12820,7 +13139,7 @@ function dueRequestsForDate(key){
 function toggleCalendarRoutineLayer(){
   showRoutineInCalendar=!showRoutineInCalendar;
   render({preserveScroll:true});
-  showToast(showRoutineInCalendar?'달력에 루틴을 표시해요.':'달력에서 루틴을 숨겼어요.');
+  showToast(showRoutineInCalendar?'달력에 반복을 표시해요.':'달력에서 반복을 숨겼어요.');
 }
 function isRoutineCalendarEvent(n){
   return !!(n&&(n.repeat||n._autoFamilyInfo));
@@ -12852,7 +13171,7 @@ function saveShiftOnly(k,t){
       const m=monthKeyOf(k);
       if(m){
         api.setDoc(api.doc(api.db,'familyCalendars',roomId,'shifts',m), {id:m,days:monthShiftMap(m),updatedAt:api.serverTimestamp()}, {merge:false})
-          .catch(e=>{console.warn(e);updateSyncPill('근무표 저장 실패: 로컬에만 저장됨');})
+          .catch(e=>{console.warn(e);updateSyncPill('상태표 저장 실패: 로컬에만 저장됨');})
           .finally(finish);
       }else{
         saveRemoteSubcollections(api).catch(e=>console.warn(e)).finally(finish);
@@ -13178,7 +13497,7 @@ function openSwipeMemoryActions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(x.name||'기념')}</div>
+      <div class="modal-hd">${escapeHtml(x.name||'축하')}</div>
       <div class="action-grid memory-swipe-action-grid">
         <button class="toss-btn primary" onclick="openMemoryModal('${id}')">수정</button>
         <button class="toss-btn danger" onclick="delMemory('${id}');closeM()">삭제</button>
@@ -13367,6 +13686,38 @@ function openRoutineManagerFromProfile(){
   updateTabUI();
   render({preserveScroll:false});
   try{window.scrollTo(0,0)}catch(e){}
+}
+
+
+function backToScheduleFromRoutine(){
+  main='s';
+  updateTabUI();
+  render({preserveScroll:false});
+  try{window.scrollTo(0,0)}catch(e){}
+}
+function openRoutineManagerFromSchedule(){
+  main='i';
+  basicInfoOpen=false;
+  routineOpen=true;
+  updateTabUI();
+  render({preserveScroll:false});
+  try{window.scrollTo(0,0)}catch(e){}
+}
+let firstUseGuideRendered=false;
+function renderFirstUseGuide(){
+  if(main!=='s')return '';
+  let count=0;
+  try{count=Number(localStorage.getItem('aour_first_guide_count')||'0')}catch(e){count=0}
+  if(count>=3)return '';
+  if(!firstUseGuideRendered){
+    try{localStorage.setItem('aour_first_guide_count',String(count+1))}catch(e){}
+    firstUseGuideRendered=true;
+  }
+  return `<div class="first-use-guide">
+    <span>↔ 날짜는 좌우로 밀어 이동</span>
+    <span>＋ 추가는 오른쪽 아래</span>
+    <span>⚙ 가족 설정은 오른쪽 위</span>
+  </div>`;
 }
 
 function openProfileCenter(){
@@ -13599,7 +13950,7 @@ function openSortSheet(){
   const opts=[
     ['time','시간순','시작 시간이 빠른 일정부터 표시'],
     ['person','대상별 묶어보기','대상별로 묶고 그룹 안은 시간순'],
-    ['special','특별 일정 우선','일반 일정 먼저, 루틴은 뒤에 표시'],
+    ['special','특별 일정 우선','일반 일정 먼저, 반복은 뒤에 표시'],
     ['manual','입력순','등록한 순서 그대로 표시']
   ];
   document.getElementById('modal').innerHTML=`
@@ -13746,37 +14097,37 @@ const EMPTY_SCHEDULE_VARIANTS=[
 ];
 let EMPTY_SCHEDULE_PICK=Math.floor(Math.random()*EMPTY_SCHEDULE_VARIANTS.length);
 const EMPTY_ROUTINE_VARIANTS=[
-  {emoji:'🎒', title:'루틴이 없어요', sub:'오늘은 정해진 루틴이 잠시 쉬어가는 날이에요.'},
-  {emoji:'🪁', title:'루틴이 없어요', sub:'바람 따라 가볍게 흘러가는 하루예요.'},
-  {emoji:'📘', title:'루틴이 없어요', sub:'정해진 순서가 비어 있어 마음도 한결 여유로워요.'},
-  {emoji:'🎧', title:'루틴이 없어요', sub:'편안한 리듬으로 보내도 좋은 날이에요.'},
-  {emoji:'🧩', title:'루틴이 없어요', sub:'오늘은 꼭 맞춰야 할 조각이 없어요.'},
-  {emoji:'🌼', title:'루틴이 없어요', sub:'꽃처럼 가볍게 쉬어가는 일정이에요.'},
-  {emoji:'🛴', title:'루틴이 없어요', sub:'정해진 동선이 없어 발걸음이 가벼워요.'},
-  {emoji:'🍎', title:'루틴이 없어요', sub:'학원이나 등교 준비 없이 숨 돌리기 좋아요.'},
-  {emoji:'🎨', title:'루틴이 없어요', sub:'정해진 루틴 대신 하고 싶은 걸 채워봐요.'},
-  {emoji:'⛅', title:'루틴이 없어요', sub:'조금 느긋한 템포로 보내기 좋은 하루예요.'},
-  {emoji:'🫧', title:'루틴이 없어요', sub:'가볍고 산뜻한 여백이 생겼어요.'},
-  {emoji:'🪵', title:'루틴이 없어요', sub:'편안한 휴식이 들어온 날이에요.'},
-  {emoji:'🍀', title:'루틴이 없어요', sub:'운 좋게 생긴 여유를 즐겨보세요.'},
-  {emoji:'🎈', title:'루틴이 없어요', sub:'풍선처럼 유연하게 움직여도 돼요.'},
-  {emoji:'🕶️', title:'루틴이 없어요', sub:'조금 더 가볍고 멋지게 쉬어갈 수 있어요.'},
-  {emoji:'🏕️', title:'루틴이 없어요', sub:'캠핑처럼 느긋한 분위기를 즐겨보세요.'},
-  {emoji:'🧺', title:'루틴이 없어요', sub:'빈 시간 바구니에 휴식을 담아보세요.'},
-  {emoji:'🌙', title:'루틴이 없어요', sub:'차분한 호흡으로 보내기 좋은 리듬이에요.'},
-  {emoji:'🧸', title:'루틴이 없어요', sub:'포근하게 쉬어가는 하루예요.'},
-  {emoji:'🥛', title:'루틴이 없어요', sub:'부드러운 템포의 하루예요.'}
+  {emoji:'🎒', title:'반복이 없어요', sub:'오늘은 정해진 반복이 잠시 쉬어가는 날이에요.'},
+  {emoji:'🪁', title:'반복이 없어요', sub:'바람 따라 가볍게 흘러가는 하루예요.'},
+  {emoji:'📘', title:'반복이 없어요', sub:'정해진 순서가 비어 있어 마음도 한결 여유로워요.'},
+  {emoji:'🎧', title:'반복이 없어요', sub:'편안한 리듬으로 보내도 좋은 날이에요.'},
+  {emoji:'🧩', title:'반복이 없어요', sub:'오늘은 꼭 맞춰야 할 조각이 없어요.'},
+  {emoji:'🌼', title:'반복이 없어요', sub:'꽃처럼 가볍게 쉬어가는 일정이에요.'},
+  {emoji:'🛴', title:'반복이 없어요', sub:'정해진 동선이 없어 발걸음이 가벼워요.'},
+  {emoji:'🍎', title:'반복이 없어요', sub:'학원이나 등교 준비 없이 숨 돌리기 좋아요.'},
+  {emoji:'🎨', title:'반복이 없어요', sub:'정해진 반복 대신 하고 싶은 걸 채워봐요.'},
+  {emoji:'⛅', title:'반복이 없어요', sub:'조금 느긋한 템포로 보내기 좋은 하루예요.'},
+  {emoji:'🫧', title:'반복이 없어요', sub:'가볍고 산뜻한 여백이 생겼어요.'},
+  {emoji:'🪵', title:'반복이 없어요', sub:'편안한 휴식이 들어온 날이에요.'},
+  {emoji:'🍀', title:'반복이 없어요', sub:'운 좋게 생긴 여유를 즐겨보세요.'},
+  {emoji:'🎈', title:'반복이 없어요', sub:'풍선처럼 유연하게 움직여도 돼요.'},
+  {emoji:'🕶️', title:'반복이 없어요', sub:'조금 더 가볍고 멋지게 쉬어갈 수 있어요.'},
+  {emoji:'🏕️', title:'반복이 없어요', sub:'캠핑처럼 느긋한 분위기를 즐겨보세요.'},
+  {emoji:'🧺', title:'반복이 없어요', sub:'빈 시간 바구니에 휴식을 담아보세요.'},
+  {emoji:'🌙', title:'반복이 없어요', sub:'차분한 호흡으로 보내기 좋은 리듬이에요.'},
+  {emoji:'🧸', title:'반복이 없어요', sub:'포근하게 쉬어가는 하루예요.'},
+  {emoji:'🥛', title:'반복이 없어요', sub:'부드러운 템포의 하루예요.'}
 ];
 const EMPTY_REQUEST_VARIANTS=[
   {emoji:'📭', title:'등록된 할일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
-  {emoji:'🧺', title:'등록된 할일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어요.'},
+  {emoji:'🧺', title:'등록된 할일이 없어요', sub:'오늘은 할일 바구니가 비어 있어요.'},
   {emoji:'☕', title:'등록된 할일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
   {emoji:'🌿', title:'등록된 할일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
   {emoji:'🫖', title:'등록된 할일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
   {emoji:'🍪', title:'등록된 할일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
   {emoji:'🕊️', title:'등록된 할일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
   {emoji:'🏡', title:'등록된 할일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
-  {emoji:'🧡', title:'등록된 할일이 없어요', sub:'부탁 대신 미소를 나누기 좋은 날이에요.'},
+  {emoji:'🧡', title:'등록된 할일이 없어요', sub:'할일 대신 미소를 나누기 좋은 날이에요.'},
   {emoji:'🎈', title:'등록된 할일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
   {emoji:'📚', title:'등록된 할일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
   {emoji:'🌤️', title:'등록된 할일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
@@ -13955,11 +14306,11 @@ function openRoutineFabSheet(){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet smart-fab-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">루틴 추가</div>
+      <div class="modal-hd">반복 추가</div>
       <div class="smart-fab-grid">
         <button class="smart-fab-option" onclick="closeM();addRepeatItem()">
           <span class="smart-fab-emoji">🔁</span>
-          <b>루틴 일정</b>
+          <b>반복 일정</b>
           <em>반복되는 일정을 추가해요</em>
         </button>
         <button class="smart-fab-option" onclick="closeM();addKid()">
@@ -13980,13 +14331,13 @@ function renderFab(){
     return `<button class="fab-add smart-fab calendar-fab-add" onclick="openAddModal('${selDate}')" aria-label="이 날짜에 일정 추가">+</button>`;
   }
   if(main==='i'){
-    return `<button class="fab-add smart-fab" onclick="openRoutineFabSheet()" aria-label="루틴 추가">+</button>`;
+    return `<button class="fab-add smart-fab" onclick="openRoutineFabSheet()" aria-label="반복 추가">+</button>`;
   }
   if(main==='r'){
     return `<button class="fab-add smart-fab" onclick="openReqModal()" aria-label="할일 추가">+</button>`;
   }
   if(main==='m'){
-    return `<button class="fab-add smart-fab" onclick="openMemoryModal()" aria-label="기념일 추가">+</button>`;
+    return `<button class="fab-add smart-fab" onclick="openMemoryModal()" aria-label="축하 추가">+</button>`;
   }
   return '';
 }
@@ -14087,7 +14438,7 @@ function calendarMemoryItem(x,sp){
     <div class="ev-birthday-icon">${escapeHtml(memoryIcon(x))}</div>
     <div class="ev-info">
       <div class="ev-title">${escapeHtml(x.name)}</div>
-      <div class="ev-sub"><span class="ev-meta-kind">기념일</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${escapeHtml(mp)}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(memoryAgeLabel(x))}</span></div>
+      <div class="ev-sub"><span class="ev-meta-kind">축하</span><span class="ev-meta-sep">·</span><span class="ev-meta-person">${escapeHtml(mp)}</span><span class="ev-meta-sep">·</span><span class="ev-meta-time">${escapeHtml(memoryAgeLabel(x))}</span></div>
     </div>
   </div>`;
 }
@@ -14095,12 +14446,12 @@ function skipRoutineInstance(routineId,dateKey){
   if(!requireEditMode())return;
   const r=(repeatItems||[]).find(x=>String(x.id)===String(routineId));
   if(!r)return;
-  if(!confirm('이 날짜의 루틴만 삭제할까요?'))return;
+  if(!confirm('이 날짜의 반복만 삭제할까요?'))return;
   if(!Array.isArray(r.skipDates))r.skipDates=[];
   if(!r.skipDates.includes(dateKey))r.skipDates.push(dateKey);
   saveSettingsOnly();
   render({preserveScroll:true});
-  showToast('해당 날짜의 루틴을 삭제했습니다.');
+  showToast('해당 날짜의 반복을 삭제했습니다.');
 }
 function routineInstanceActions(n,selDate){
   return '';
@@ -14128,7 +14479,7 @@ function openRoutineInstanceDetail(title,who,timeText,dateKey,kind,id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(title||'루틴')}</div>
+      <div class="modal-hd">${escapeHtml(title||'반복')}</div>
       <div class="routine-action-sub">${escapeHtml(who||'공통')} · ${escapeHtml(timeText||dateLabel(dateKey)||'시간 미정')}</div>
       <div class="action-grid calendar-action-grid routine-one-line-action-grid">
         <button class="toss-btn danger" onclick="skipCalendarRoutineInstance('${kind}','${id}','${dateKey}')">이번 회차만 삭제</button>
@@ -14287,11 +14638,11 @@ function addRepeatItem(){
 }
 function delRepeatItem(ii){
   if(!requireEditMode())return;
-  if(!confirmDelete('이 루틴을 지울까요?'))return;
+  if(!confirmDelete('이 반복 일정을 지울까요?'))return;
   repeatItems.splice(ii,1);
   saveSettingsOnly();
   render();
-  showToast('루틴을 지웠어요.');
+  showToast('반복 일정을 지웠어요.');
 }
 function togglePauseOnVacation(ii){
   if(!requireEditMode())return;
@@ -14513,9 +14864,9 @@ function openRepeatEditModal(ii){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet routine-edit-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">루틴 수정</div>
-      <div class="ml">루틴 내용</div>
-      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="어떤 루틴인가요?"/>
+      <div class="modal-hd">반복 수정</div>
+      <div class="ml">반복 내용</div>
+      <input class="mi" id="re-title-${ii}" value="${escapeAttr(item.title||'')}" placeholder="어떤 반복 일정인가요?"/>
       <div class="ml">대상</div>
       <input type="hidden" id="re-who-${ii}" value="${escapeAttr(who)}"/>
       <div class="type-sel person-chip-selector routine-person-selector">
@@ -14525,7 +14876,7 @@ function openRepeatEditModal(ii){
       <div class="ml">요일 <span class="modal-summary" id="repeat-days-summary-${ii}">${escapeHtml(repeatDaysSummary(item.days))}</span></div>
       <div class="day-sel routine-edit-days">${DAYS.map((d,di)=>`<button class="day-btn${item.days&&item.days.includes(di)?' on':''}" data-edit-day="${ii}-${di}" onclick="toggleRepeatModalDay(${ii},${di})">${d}</button>`).join('')}</div>
 
-      <details class="detail-settings" open>
+      <details class="detail-settings">
         <summary>⚙️ 상세 설정 열기</summary>
         <div class="detail-settings-panel">
           <div class="ml">방학</div>
@@ -14561,7 +14912,7 @@ function saveRepeatEdit(ii){
   if(!item)return;
   const title=(document.getElementById(`re-title-${ii}`)||{}).value||'';
   if(!title.trim()){
-    alert('루틴 이름을 먼저 적어주세요!');
+    alert('반복 일정 이름을 먼저 적어주세요!');
     return;
   }
   item.title=title.trim();
@@ -14573,7 +14924,7 @@ function saveRepeatEdit(ii){
   saveSettingsOnly();
   closeM();
   render({preserveScroll:true});
-  showToast('루틴을 저장했어요 👏');
+  showToast('반복 일정을 저장했어요 👏');
 }
 
 
@@ -14591,7 +14942,7 @@ function repeatCompactMeta(item){
 }
 
 function renderI(){
-  let h=`<div class="fi-outer routine-only-outer">`;
+  let h=`<div class="routine-subscreen-head"><button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button><div class="subscreen-title">반복 관리</div></div><div class="fi-outer routine-only-outer">`;
 
   const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
     if((routineTargetFilter||'all')==='all')return true;
@@ -14645,7 +14996,7 @@ function renderI(){
             ontouchend="touchReorderEnd(event)"
             ontouchcancel="touchReorderCancel()">
             <div class="routine-summary-content">
-              <div class="routine-summary-title">${escapeHtml(item.title||'루틴 내용 없음')}</div>
+              <div class="routine-summary-title">${escapeHtml(item.title||'반복 내용 없음')}</div>
               <div class="routine-summary-meta">${escapeHtml(meta)}</div>
             </div>
             <div class="routine-summary-time">${escapeHtml(time)}</div>
@@ -14658,7 +15009,7 @@ function renderI(){
       h+=renderEmptyState('routine','등록된 반복 일정이 없어요','오른쪽 아래 + 버튼으로 반복 일정을 추가해 보세요.');
     }
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">루틴 일정이 접혀 있어요. 펼치면 꾹 눌러 순서를 이동할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">반복 일정이 접혀 있어요. 펼치면 꾹 눌러 순서를 이동할 수 있어요.</div>`;
   }
   h+=`</div>`;
   return h;
@@ -14670,7 +15021,7 @@ function editCatLabel(ki,ci){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">루틴 이름 수정</div>
+      <div class="modal-hd">반복 이름 수정</div>
       <div class="ml">이름</div>
       <input class="mi" id="cat-name" value="${escapeAttr(cat.label||'')}" placeholder="예: 학교 시간, 학원, 기타"/>
       <button class="primary-btn" onclick="saveCatLabel(${ki},${ci})">저장</button>
@@ -14683,7 +15034,7 @@ function saveCatLabel(ki,ci){
   const cat=family?.[ki]?.cats?.[ci];
   if(!cat)return;
   const name=(document.getElementById('cat-name')||{}).value||'';
-  cat.label=name.trim()||'루틴';
+  cat.label=name.trim()||'반복';
   saveSettingsOnly();
   closeM();
   render();
@@ -14858,7 +15209,7 @@ function saveReq(id){
 function delMemory(id){
   if(!requireEditMode())return;
   const idx=memories.findIndex(x=>String(x.id)===String(id));
-  softDelete('memory',memories,idx,'기념을');
+  softDelete('memory',memories,idx,'축하을');
 }
 function memoryUpcomingDiff(x){
   if(!x||!x.birth)return Number.POSITIVE_INFINITY;
@@ -14920,7 +15271,7 @@ function renderM(){
   const memList=sortedMemoriesForDisplay();
   return`
     ${sectionHeader('축하',memories.length,true,'noopSection',`<span class="collapsed-hint">디데이 가까운 순</span>`)}
-    <div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','축하할 날이 없어요','생일, 기념일, 여행의 순간을 예쁘게 기록해 보세요.')}</div>
+    <div class="card-wrap memory-card-wrap">${memList.length?memList.map(makeMemoryCard).join(''):renderEmptyState('generic','축하할 날이 없어요','생일, 축하, 여행의 순간을 예쁘게 기록해 보세요.')}</div>
   `;
 }
 function openMemoryModal(id){
@@ -14931,7 +15282,7 @@ function openMemoryModal(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${x?'기념일 수정':'기념일 추가'}</div>
+      <div class="modal-hd">${x?'축하 수정':'축하 추가'}</div>
       <div class="ml">아이콘</div>
       <input type="hidden" id="mem-icon" value="${escapeAttr(icon)}"/>
       <div class="memory-icon-grid">
@@ -14944,7 +15295,7 @@ function openMemoryModal(id){
         <button class="type-btn${calType==='lunar'?' tf':''}" id="mem-lunar" onclick="selectMemoryCal('lunar')">음력</button>
       </div>
       <div class="ml">대상 이름</div>
-      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 결혼기념일" value="${x?escapeAttr(x.name):''}"/>
+      <input class="mi" id="mem-name" placeholder="예: 도미 생일, 결혼축하" value="${x?escapeAttr(x.name):''}"/>
       <div class="ml">날짜</div>
       <input class="picker-field${x&&x.birth?'':' empty'}" id="mem-birth" readonly data-val="${x&&x.birth?x.birth:''}" value="${x&&x.birth?dateLabel(x.birth):'날짜 선택'}" onclick="openBirthPicker('mem-birth')"/>
       <div class="ml">메모</div>
@@ -15100,7 +15451,7 @@ function trashItem(kind,item){
   deletedItems.push({id:Date.now()+Math.random(),kind,item:deepCopy(item),deletedAt:Date.now()});
 }
 function trashKindName(k){
-  return k==='note'?'일정':k==='request'?'할일':k==='memory'?'기념':k==='kid'?'아이정보':'항목';
+  return k==='note'?'일정':k==='request'?'할일':k==='memory'?'축하':k==='kid'?'아이정보':'항목';
 }
 function trashTitle(x){
   const it=x.item||{};
@@ -15199,7 +15550,7 @@ function repairData(){
   requests.forEach(r=>{
     if(!r.id || seen.has('r'+r.id)){r.id=Date.now()+Math.random();fixed++}
     seen.add('r'+r.id);
-    if(!r.title){r.title='제목 없는 부탁';fixed++}
+    if(!r.title){r.title='제목 없는 할일';fixed++}
     if(!r.dueDate)r.dueDate='';
     if(!r.dueTime)r.dueTime='';
     if(!('done' in r))r.done=false;
@@ -15271,7 +15622,7 @@ function openRepeatExceptions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">루틴 예외</div>
+      <div class="modal-hd">반복 예외</div>
       <div style="font-size:13px;color:var(--t2);line-height:1.45">${escapeHtml(n.title)}에서 이번 회차만 삭제한 날짜 목록입니다.</div>
       ${arr.length?arr.sort().map(k=>`<div class="trash-item">
         <div class="trash-title">${dateLabel(k)}</div>
@@ -15377,7 +15728,7 @@ function openDiagnostics(){
       <div class="detail-row"><span class="detail-key">앱 버전</span><span class="detail-val">${APP_VERSION}</span></div>
       <div class="detail-row"><span class="detail-key">저장 구조</span><span class="detail-val">하위 컬렉션</span></div>
       <div class="detail-row"><span class="detail-key">로컬 데이터</span><span class="detail-val">${localSize}</span></div>
-      <div class="detail-row"><span class="detail-key">근무 데이터</span><span class="detail-val">${shiftCnt}개</span></div>
+      <div class="detail-row"><span class="detail-key">상태 데이터</span><span class="detail-val">${shiftCnt}개</span></div>
       <div class="detail-row"><span class="detail-key">공휴일 캐시</span><span class="detail-val">${Object.keys(holidayCache||{}).length}개</span></div>
       <div class="detail-row"><span class="detail-key">마지막 저장</span><span class="detail-val">${last}</span></div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
@@ -15411,7 +15762,7 @@ function toggleShiftSelectMode(){
   if(shiftSelectMode)calViewMode='work';
   render();
   if(shiftSelectMode){
-    try{showToast('날짜를 여러 개 선택한 뒤 근무 버튼을 눌러 주세요.')}catch(e){}
+    try{showToast('날짜를 여러 개 선택한 뒤 상태 버튼을 눌러 주세요.')}catch(e){}
   }
 }
 function toggleShiftDate(k){
@@ -15488,7 +15839,7 @@ function openHolidayManager(){
       <div class="ml">날짜</div>
       <input class="picker-field empty" id="hol-date" readonly data-val="" value="날짜 선택" onclick="openDatePicker('hol-date')"/>
       <div class="ml">공휴일 이름</div>
-      <input class="mi" id="hol-name" placeholder="예: 우리 가족 기념일"/>
+      <input class="mi" id="hol-name" placeholder="예: 우리 가족 축하"/>
       <button class="primary-btn" onclick="saveCustomHoliday()">추가</button>
       <div class="div"></div>
       ${list.length?list.map(h=>`<div class="trash-item">
@@ -15833,7 +16184,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
     if(slot.empty){
       return `<div class="today-target-card today-person-placeholder">
         <div class="today-target-name">대상 선택</div>
-        <div class="today-target-empty-note">루틴 기본 정보에서 표시 대상을 켜주세요</div>
+        <div class="today-target-empty-note">반복 기본 정보에서 표시 대상을 켜주세요</div>
       </div>`;
     }
     const list=targetTodayEvents(slot.label,filtered);
@@ -15936,7 +16287,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           const tm=todayTimeOnly(n)||'';
           const kind=n._autoFamilyInfo?'auto':'note';
           const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
-          return `<div class="merged-routine-row" onclick="openRoutineInstanceDetail(${onclickArg(n.title||'루틴')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})" style="cursor:pointer">
+          return `<div class="merged-routine-row" onclick="openRoutineInstanceDetail(${onclickArg(n.title||'반복')},${onclickArg(n.who||'공통')},${onclickArg(tm)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})" style="cursor:pointer">
             <div class="merged-routine-title">${highlightText(n.title||'일정')}</div>
             <div class="merged-routine-time">${escapeHtml(tm)}</div>
           </div>`;
@@ -15953,7 +16304,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           <div class="merged-routine-box">${realRows}${fillerRows}</div>
         </div>`;
       }).join('')
-    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','루틴 없음')}</div>`;
+    : `<div class="today-list-card merged-schedule-card merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
 
   const body=bothEmpty
     ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
@@ -15962,6 +16313,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
       ${body}
+      <div class="routine-manage-inline"><button type="button" onclick="openRoutineManagerFromSchedule()">반복 관리</button></div>
     </div>
   </div>`;
 }
@@ -16036,7 +16388,7 @@ function memoryAgeLabel(x){
   if(nb.date>todayKey())age--;
   age=Math.max(0,age||0);
   const title=String(x.name||'');
-  if(title.includes('기념') || title.includes('결혼'))return age===0?'올해':`${age}주년`;
+  if(title.includes('축하') || title.includes('결혼'))return age===0?'올해':`${age}주년`;
   if(title.includes('생일') || title.includes('탄생'))return `만 ${age}세`;
   return `${age}년째`;
 }
@@ -16111,7 +16463,7 @@ function renderCalendarShiftCounts(){
 
 
 function dashboardDateKey(){
-  // 일정 탭 상단 5일 근무 위젯의 첫 칸이 기준입니다.
+  // 일정 탭 상단 5일 상태 위젯의 첫 칸이 기준입니다.
   // 달력에서 선택한 날짜와 무관하게 항상 실제 오늘 날짜를 기준으로 대시보드를 표시합니다.
   return todayKey();
 }
@@ -16136,7 +16488,7 @@ function copyTodayBriefing(){
   const title=`[${m}월 ${d}일 (${DAYS[dt.getDay()]}) 가족 브리핑 🔔]`;
   const lines=[title];
   const shift=shiftData[key]||'';
-  if(shift)lines.push(`근무: ${shift}${STXT[shift]?` (${STXT[shift]})`:''}`);
+  if(shift)lines.push(`상태: ${shift}${STXT[shift]?` (${STXT[shift]})`:''}`);
 
   const evs=getBriefingEvents(key);
   if(evs.length){
@@ -16151,7 +16503,7 @@ function copyTodayBriefing(){
 
   const dueReqs=dueRequestsForDate(key);
   dueReqs.forEach(r=>{
-    lines.push(`📌 오늘까지 할일: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
+    lines.push(`📌 오늘까지 할일: ${r.title||'할일'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
   });
 
   const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
@@ -16318,7 +16670,7 @@ function renderStatsCard(){
     <div class="stat-card"><div class="stat-k">이번 달 완료</div><div class="stat-v">${s.done}/${s.total}</div></div>
     <div class="stat-card"><div class="stat-k">일정 완료율</div><div class="stat-v">${s.doneRate}%</div></div>
     <div class="stat-card"><div class="stat-k">할일 처리율</div><div class="stat-v">${s.reqRate}%</div></div>
-    <div class="stat-card"><div class="stat-k">근무 분포</div><div class="stat-v" style="font-size:14px;line-height:1.7">D ${s.shiftCount.D} · E ${s.shiftCount.E}<br>N ${s.shiftCount.N} · OFF ${s.shiftCount.OFF}</div></div>
+    <div class="stat-card"><div class="stat-k">상태 분포</div><div class="stat-v" style="font-size:14px;line-height:1.7">D ${s.shiftCount.D} · E ${s.shiftCount.E}<br>N ${s.shiftCount.N} · OFF ${s.shiftCount.OFF}</div></div>
   </div>`;
 }
 
@@ -16332,9 +16684,9 @@ function openDetailNote(id){
       <div class="modal-hd">${escapeHtml(n.title)}</div>
       <div class="detail-row"><span class="detail-key">대상</span><span class="detail-val">${escapeHtml(n.who||'공통')}</span></div>
       <div class="detail-row"><span class="detail-key">일시</span><span class="detail-val">${dts}</span></div>
-      <div class="detail-row"><span class="detail-key">루틴</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
-      ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">루틴 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
-      ${n.repeat?`<div class="detail-row"><span class="detail-key">루틴 예외</span><span class="detail-val">${(n.skipDates||[]).length}개</span></div>`:''}
+      <div class="detail-row"><span class="detail-key">반복</span><span class="detail-val">${repeatName(n.repeat||'')}</span></div>
+      ${n.repeatEnd?`<div class="detail-row"><span class="detail-key">반복 종료</span><span class="detail-val">${dateLabel(n.repeatEnd)}</span></div>`:''}
+      ${n.repeat?`<div class="detail-row"><span class="detail-key">반복 예외</span><span class="detail-val">${(n.skipDates||[]).length}개</span></div>`:''}
       ${n.alertMemo?`<div class="detail-row"><span class="detail-key">알림 메모</span><span class="detail-val">${escapeHtml(n.alertMemo)}</span></div>`:''}
       ${n.comment?`<div class="detail-row"><span class="detail-key">메모</span><span class="detail-val">${escapeHtml(n.comment)}</span></div>`:''}
       <div class="action-grid">
@@ -16441,7 +16793,7 @@ function render(opts={}){
   else if(main==='i')h=renderI();
   else if(main==='r')h=renderR();
   else if(main==='m')h=renderM();
-  document.getElementById('body').innerHTML=renderShiftWidget()+renderNoticeBanner()+renderManualNotice()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
+  document.getElementById('body').innerHTML=renderShiftWidget()+renderFirstUseGuide()+renderNoticeBanner()+renderManualNotice()+renderHomeWidgets()+renderSearchBox()+h+renderFab();
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }
@@ -16488,17 +16840,17 @@ function openAddModal(dateVal){
       <div class="type-sel person-chip-selector">
         ${personChoiceButtons(_mWho)}
       </div>
-      <details class="detail-settings" open>
+      <details class="detail-settings">
         <summary>⚙️ 상세 설정 열기</summary>
         <div class="detail-settings-panel">
-          <div class="ml">루틴</div>
+          <div class="ml">반복</div>
           <select class="mi" id="m-rp">
             <option value="">반복 없음</option>
             <option value="daily">매일</option>
             <option value="weekly">매주</option>
             <option value="monthly">매월</option>
           </select>
-          <div class="ml">루틴 종료일</div>
+          <div class="ml">반복 종료일</div>
           <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
           <div class="ml">날짜</div>
           <div class="mi-2">
@@ -16593,17 +16945,17 @@ function openEditNote(id){
       <div class="type-sel person-chip-selector">
         ${personChoiceButtons(_mWho)}
       </div>
-      <details class="detail-settings" open>
+      <details class="detail-settings">
         <summary>⚙️ 상세 설정 열기</summary>
         <div class="detail-settings-panel">
-          <div class="ml">루틴</div>
+          <div class="ml">반복</div>
           <select class="mi" id="e-rp">
             <option value="" ${!n.repeat?'selected':''}>반복 없음</option>
             <option value="daily" ${n.repeat==='daily'?'selected':''}>매일</option>
             <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
             <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
           </select>
-          <div class="ml">루틴 종료일</div>
+          <div class="ml">반복 종료일</div>
           <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
           <div class="ml">날짜</div>
           <div class="mi-2">
@@ -16740,7 +17092,7 @@ function editKid(i){
       </div>
 
       <div class="ml vacation-title-row">
-        <span>🌴 방학 기간 <em>루틴 쉴 때 적용</em></span>
+        <span>🌴 방학 기간 <em>반복 쉴 때 적용</em></span>
         <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">+ 추가</button>
       </div>
       <div class="vacation-box">
@@ -16966,7 +17318,7 @@ function openExport(){
     상태:isDone(n)?'완료':'진행중',
     구분:typeName(n.type),
     대상:n.who||'공통',
-    루틴:repeatName(n.repeat||''),
+    반복:repeatName(n.repeat||''),
     제목:n.title||'',
     시작일:n.start||'',
     종료일:n.end||'',
@@ -16978,7 +17330,7 @@ function openExport(){
   const requestRows=requests.map(r=>({
     상태:isDone(r)?'완료':'진행중',
     작성자:r.writer||'',
-    부탁할일:r.title||'',
+    할일할일:r.title||'',
     메모:r.comment||''
   }));
 
@@ -17002,7 +17354,7 @@ function openExport(){
 
   const shiftRows=Object.keys(shiftData).sort().map(k=>({
     날짜:k,
-    근무:shiftData[k]||''
+    상태:shiftData[k]||''
   }));
 
   const memoryRows=memories.map(x=>{
@@ -17021,10 +17373,10 @@ function openExport(){
   if(window.XLSX){
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(scheduleRows),'일정');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(requestRows),'부탁');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(requestRows),'할일');
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(familyRows),'아이정보');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(shiftRows),'근무표');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(memoryRows),'기념');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(shiftRows),'상태표');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(memoryRows),'축하');
     XLSX.writeFile(wb,`가족캘린더_${stamp}.xlsx`);
     return;
   }
