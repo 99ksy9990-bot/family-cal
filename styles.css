@@ -1751,3 +1751,63 @@ body.modal-open{overflow:hidden;touch-action:none}
 .modal-bg.modal-closing .modal-sheet{animation:sheetDown .14s ease both}
 .smart-fab-sheet .smart-fab-option:active,.card-routine-item:active{opacity:.72}
 .fab-add, .smart-fab{z-index:110;bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+
+
+/* v1.3.3 schedule page avatar / repeat layout cleanup */
+.shift-5day-widget.calendar-sync-shift-widget .shift-5day-row{
+  grid-template-columns:40px minmax(0,1fr);
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-person{
+  width:40px;
+  min-width:40px;
+  align-items:center;
+  justify-content:center;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-person-name{
+  display:none !important;
+}
+.shift-5day-widget.calendar-sync-shift-widget .shift-micro-avatar,
+.shift-5day-widget.calendar-sync-shift-widget .shift-micro-avatar.avatar-img,
+.shift-5day-widget.calendar-sync-shift-widget .shift-person .avatar-img{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+}
+.dashboard-standard-row .modern-schedule-avatar,
+.dashboard-standard-row .modern-schedule-avatar .avatar-img,
+.dashboard-standard-row .modern-schedule-avatar .avatar-img-small{
+  width:36px;
+  height:36px;
+  min-width:36px;
+  flex:0 0 36px;
+  object-fit:contain;
+}
+.today-dashboard .routine-2col-card{
+  background:#F4F4F6;
+}
+.today-dashboard .routine-2col-head .merged-routine-avatar,
+.person-routine-card .card-avatar{
+  width:48px;
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 4px;
+  border-radius:999px;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(15,23,42,.08);
+}
+.today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img,
+.person-routine-card .card-avatar .avatar-img{
+  width:36px;
+  height:36px;
+  object-fit:contain;
+}
+.today-dashboard .routine-2col-head .merged-routine-person.under-avatar,
+.person-routine-card .card-name{
+  margin-top:2px;
+}
+body[data-theme="dark"] .today-dashboard .routine-2col-head .merged-routine-avatar,
+body[data-theme="dark"] .person-routine-card .card-avatar{
+  background:rgba(255,255,255,.96);
+}

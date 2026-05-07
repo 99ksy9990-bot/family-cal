@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.1';
-const PASS_BUILD_VERSION='v1.3.1-css-section-merge-important-cleanup';
+const APP_VERSION='v1.3.3';
+const PASS_BUILD_VERSION='v1.3.3-avatar-repeat-layout';
 const APP_UPDATED='2026-05-07';
 
 
@@ -4820,9 +4820,8 @@ function renderShiftWidget(){
       ${shiftUsers.map(user=>{
         const p=(family||[]).find(f=>(f.name||'')===user);
         return `<div class="shift-5day-row">
-          <div class="shift-person" title="${escapeAttr(user)}">
+          <div class="shift-person" title="${escapeAttr(user)}" aria-label="${escapeAttr(user)}">
             ${avatarMarkup(p?.avatar||personAvatar(user),user,'shift-micro-avatar')}
-            <span class="shift-person-name">${escapeHtml(user)}</span>
           </div>
           <div class="shift-days-container">
             ${keys.map((k,i)=>{
