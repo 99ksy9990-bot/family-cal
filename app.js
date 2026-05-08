@@ -1,10 +1,10 @@
-const APP_VERSION='v1.3.6';
-const PASS_BUILD_VERSION='v1.3.6-repeat-align-slim-modal-swipe';
+const APP_VERSION='v1.3.8';
+const PASS_BUILD_VERSION='v1.3.8-design-polish';
 const APP_UPDATED='2026-05-08';
 
 
 
-const UPDATE_LOG=['styles.css 섹션 재정렬','동일 선택자 CSS 블록 병합','탭바·FAB·상태 위젯·대시보드 !important 제거','CSS 용량 및 중복 1차 정리'];
+const UPDATE_LOG=['캐릭터 이미지 정렬 세트 적용','상단 날짜·당일 표시 방식 개선','일정 필터를 돋보기 아이콘으로 정리','반복 일정 카드·액션 시트 정돈','FAB와 접힌 문구 레이아웃 조정'];
 let editUnlocked=false;
 let privateViewUnlocked=false;
 try{editUnlocked=sessionStorage.getItem('pass_edit_unlocked')==='1';privateViewUnlocked=sessionStorage.getItem('pass_private_unlocked')==='1'}catch(e){editUnlocked=false;privateViewUnlocked=false}
@@ -171,10 +171,11 @@ function randomYouthAvatar(name=''){
   return randomFrom([...avatarItems('teenM'),...avatarItems('teenF'),...avatarItems('childM'),...avatarItems('childF')]);
 }
 function avatarSrc(id){
+  if(AVATAR_IMAGE_IDS.has(id))return `./assets/avatars/aligned/${id}.png`;
   return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
 }
 function avatarFallbackSrc(id){
-  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.png`:'';
+  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
 }
 function handleAvatarError(img,id){
   if(!img)return;
@@ -196,7 +197,7 @@ function handleAvatarError(img,id){
 function avatarMarkup(id, alt='', cls='avatar-img'){
   const token=String(id||'');
   if(AVATAR_IMAGE_IDS.has(token)){
-    return `<img class="${cls}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
+    return `<img class="${cls} avatar-token-${escapeAttr(token)}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
   }
   return `<span class="avatar-fallback">${escapeHtml(token||'👤')}</span>`;
 }
@@ -389,7 +390,7 @@ function openShiftPicker(dateKey){
           const labels=shiftPersonLabelList(user);
           return `<div class="multi-shift-person">
             <div class="multi-shift-person-head">
-              <span class="multi-shift-avatar">${avatarMarkup(p?.avatar||personAvatar(user),user,'avatar-img-small')}</span>
+              <span class="multi-shift-avatar">${avatarMarkup(personAvatar(user),user,'avatar-img-small')}</span>
               <b>${escapeHtml(user)}</b>
               ${noneToday?`<span class="default-state-note none">오늘만 미입력</span>`:(defaultOnly?`<span class="default-state-note">기본 ${escapeHtml(cur)}</span>`:'')}
             </div>
@@ -2486,6 +2487,9 @@ function sortScheduleList(arr){
 function scheduleSortLabel(){
   return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별':scheduleSort==='manual'?'입력순':'다가오는';
 }
+function filterSearchSvg(){
+  return `<svg class="filter-search-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="5.8"/><path d="m15.2 15.2 4 4"/></svg>`;
+}
 function setScheduleSort(t){
   scheduleSort=t;
   closeM();
@@ -2662,6 +2666,50 @@ function setScheduleTarget(t){
   subF=t||'all';
   closeM();
   render();
+}
+function scheduleFilterLabel(){
+  return `${targetLabel(subF)} · ${periodLabel(activePer)}`;
+}
+function setScheduleTargetQuick(t){
+  filterToday=false;
+  subF=t||'all';
+  render({preserveScroll:true});
+  openScheduleFilterSheet();
+}
+function setActivePerQuick(t){
+  activePer=t;
+  render({preserveScroll:true});
+  openScheduleFilterSheet();
+}
+function setScheduleSortQuick(t){
+  scheduleSort=t;
+  render({preserveScroll:true});
+  openScheduleFilterSheet();
+}
+function openScheduleFilterSheet(){
+  const peopleOpts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  const periodOpts=[['today','당일'],['1w','1주'],['1m','1개월'],['3m','3개월'],['all','전체']];
+  const sortOpts=[['time','다가오는'],['person','대상별'],['special','특별'],['manual','입력순']];
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet schedule-filter-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">일정 보기</div>
+      <div class="filter-sheet-group">
+        <div class="filter-sheet-title">대상</div>
+        <div class="filter-sheet-options">${peopleOpts.map(o=>`<button class="filter-sheet-chip${subF===o[0]?' on':''}" onclick="setScheduleTargetQuick(${onclickArg(o[0])})">${escapeHtml(o[1])}</button>`).join('')}</div>
+      </div>
+      <div class="filter-sheet-group">
+        <div class="filter-sheet-title">기간</div>
+        <div class="filter-sheet-options">${periodOpts.map(o=>`<button class="filter-sheet-chip${activePer===o[0]?' on':''}" onclick="setActivePerQuick('${o[0]}')">${escapeHtml(o[1])}</button>`).join('')}</div>
+      </div>
+      <div class="filter-sheet-group">
+        <div class="filter-sheet-title">정렬</div>
+        <div class="filter-sheet-options">${sortOpts.map(o=>`<button class="filter-sheet-chip${scheduleSort===o[0]?' on':''}" onclick="setScheduleSortQuick('${o[0]}')">${escapeHtml(o[1])}</button>`).join('')}</div>
+      </div>
+      <button class="cancel-link" onclick="closeM()">닫기</button>
+    </div>
+  </div>`;
 }
 
 
@@ -3004,14 +3052,12 @@ function renderS(){
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openScheduleTargetSheet()">${targetLabel(subF)}</button>
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openActivePeriodSheet()">${periodLabel(activePer)}</button>
-      <button class="sec-chip-btn" onclick="event.stopPropagation();openSortSheet()">${scheduleSortLabel()}</button>
+      <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, ${escapeAttr(scheduleSortLabel())}" title="${escapeAttr(`${scheduleFilterLabel()} · ${scheduleSortLabel()}`)}">${filterSearchSvg()}</button>
     `)}
     ${activeCards}
     <div class="div"></div>
     ${sectionHeader('지나간 일정',doneFilt.length,doneOpen,'toggleDone',`
-      <button class="sec-chip-btn on" onclick="event.stopPropagation();openDonePeriodSheet()">${periodLabel(donePer)}</button>
+      <button class="sec-chip-btn filter-icon-btn done-filter-pill" onclick="event.stopPropagation();openDonePeriodSheet()" aria-label="완료 기간 필터: ${escapeAttr(periodLabel(donePer))}" title="${escapeAttr(periodLabel(donePer))}">${filterSearchSvg()}</button>
     `)}
     ${doneCards}
   </div>`;
@@ -3101,10 +3147,10 @@ function openRoutineInstanceDetail(title,who,timeText,dateKey,kind,id){
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(title||'반복')}</div>
       <div class="routine-action-sub">${escapeHtml(who||'공통')} · ${escapeHtml(timeText||dateLabel(dateKey)||'시간 미정')}</div>
-      <div class="action-grid calendar-action-grid routine-one-line-action-grid">
-        <button class="toss-btn" onclick="closeM()">닫기</button>
+      <div class="action-grid calendar-action-grid routine-instance-action-grid">
+        <button class="toss-btn" onclick="openRoutineManagerFromSchedule()">반복 관리</button>
+        <button class="toss-btn danger" onclick="skipCalendarRoutineInstance('${kind}','${id}','${dateKey}')">이번 회차만 삭제</button>
       </div>
-      <button class="toss-btn danger action-delete-full" onclick="skipCalendarRoutineInstance('${kind}','${id}','${dateKey}')">이번 회차만 삭제</button>
     </div>
   </div>`;
 }
@@ -4808,6 +4854,11 @@ function shiftDayColDateLabel(dateKey){
   const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
   return `${dd} ${dow}`;
 }
+function shiftDayColDateHtml(dateKey){
+  const [yy,mm,dd]=dateKey.split('-').map(Number);
+  const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
+  return `<span class="col-date-num">${dd}</span><span class="col-date-dow">${escapeHtml(dow)}</span>`;
+}
 
 function renderShiftWidget(){
   if(main!=='s')return '';
@@ -4824,7 +4875,7 @@ function renderShiftWidget(){
         const p=(family||[]).find(f=>(f.name||'')===user);
         return `<div class="shift-5day-row">
           <div class="shift-person" title="${escapeAttr(user)}">
-            ${avatarMarkup(p?.avatar||personAvatar(user),user,'shift-micro-avatar')}
+            ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
             <span class="shift-person-name">${escapeHtml(user)}</span>
           </div>
           <div class="shift-days-container">
@@ -4835,7 +4886,7 @@ function renderShiftWidget(){
               const [yy,mm,dd]=k.split('-').map(Number);
               const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
               return `<button type="button" class="shift-day-col ${i===2?'today':''}" title="${mm}/${dd} (${dow}) · ${escapeAttr(user)} · ${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')">
-                <span class="col-date">${escapeHtml(shiftDayColDateLabel(k))}</span>
+                <span class="col-date">${shiftDayColDateHtml(k)}</span>
                 <span class="col-badge shift-one ${badgeClass}">${escapeHtml(label)}</span>
               </button>`;
             }).join('')}
@@ -5294,9 +5345,7 @@ function renderTopSwipeZone(){
   if(main!=='s')return '';
   const parts=[renderShiftWidget(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
   if(!parts)return '';
-  return `<div class="top-swipe-zone"
-    ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
-    onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">${parts}</div>`;
+  return `<div class="top-swipe-zone">${parts}</div>`;
 }
 
 function renderManualNotice(){
