@@ -1164,10 +1164,10 @@ function syncOffBannerLabel(info){
 }
 function scheduleCollapsedSummary(list, count, type='active'){
   if(count<=0){
-    return type==='done'?'최근 지나간 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
+    return type==='done'?'지난 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
   }
   const first=(list||[]).find(x=>x&&x.title);
-  if(type==='done')return `최근 완료한 일정 ${count}개가 접혀 있어요.`;
+  if(type==='done')return `지난 일정 ${count}개가 접혀 있어요.`;
   const title=first?(first.title||'일정'):'일정';
   return `${title}${count>1?` 외 ${count-1}개`:''}가 접혀 있어요.`;
 }
@@ -1814,7 +1814,7 @@ function notesOnDate(y,m,d){
   const k=dk(y,m,d);
   // 완료된 일정은 달력 점/일정 목록에서 완전히 제외
   return notes.filter(n=>{
-    if(isDone(n) || !n.start) return false;
+    if(!n.start) return false;
 
     // 시간이 없는 단일 일정은 시작일 하루만 표시
     if(!n.sT && !n.eT && (!n.end || n.end===n.start)){
@@ -1851,8 +1851,20 @@ function togglePrivateField(id){
   const el=document.getElementById(id);
   if(!el)return;
   el.dataset.val=el.dataset.val==='1'?'':'1';
-  el.className='type-btn'+(el.dataset.val==='1'?' tf':'');
-  el.textContent=el.dataset.val==='1'?'🔒 비공개 ON':'🔓 비공개 OFF';
+  const inline=el.classList.contains('private-inline-toggle');
+  el.className=(inline?'private-inline-toggle':'type-btn')+(el.dataset.val==='1'?' tf':'');
+  if(inline){
+    const locked=el.dataset.val==='1';
+    el.innerHTML=`<span class="private-lock-icon" aria-hidden="true">${lockSvg(locked)}</span><span class="private-toggle-text">${locked?'비공개':'공개'}</span>`;
+    el.setAttribute('aria-label',locked?'비공개 일정':'공개 일정');
+  }else{
+    el.textContent=el.dataset.val==='1'?'🔒 비공개 ON':'🔓 비공개 OFF';
+  }
+}
+function lockSvg(locked=false){
+  return locked
+    ? '<svg viewBox="0 0 24 24"><rect x="5.5" y="10" width="13" height="10" rx="2.5"/><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10"/></svg>'
+    : '<svg viewBox="0 0 24 24"><rect x="5.5" y="10" width="13" height="10" rx="2.5"/><path d="M8.5 10V7.5a3.5 3.5 0 0 1 6.1-2.35"/></svg>';
 }
 function launchDoneConfetti(){
   try{
@@ -1980,8 +1992,8 @@ function endItemSwipe(e){
   itemSwipe=null;
   if(actionRight){
     if(kind==='request')toggleReq(id);
-    if(kind==='note')toggleNote(id);
-    if(kind==='request'||kind==='note')showToast(kind==='request'?'완료 상태를 변경했어요.':'일정 완료 상태를 변경했어요.');
+    if(kind==='note')openEditNote(id);
+    if(kind==='request')showToast('완료 상태를 변경했어요.');
   }else if(actionLeft){
     performSwipeDelete(kind,id);
   }
@@ -2637,7 +2649,7 @@ function weekCount(){
   let c=0;
   for(let i=0;i<7;i++){
     const k=addDaysStr(todayKey(),i);
-    c+=notes.filter(n=>!isDone(n)&&!n.repeat&&occursOn(n,k)).length;
+    c+=notes.filter(n=>!n.repeat&&occursOn(n,k)).length;
   }
   return c;
 }
@@ -2849,19 +2861,29 @@ function scheduleListDateTime(n){
   return [date,time].filter(Boolean).join(' ');
 }
 function isMissedSchedule(n,baseKey=scheduleBaseKey?scheduleBaseKey():todayKey()){
-  if(!n||isDone(n)||n._autoFamilyInfo)return false;
+  if(!n||n._autoFamilyInfo)return false;
   if(n.repeat)return false;
   const k=n.start||'';
-  return !!k && k<baseKey;
+  if(!k)return false;
+  if(isDone(n))return true;
+  if(k<baseKey)return true;
+  if(k>baseKey || baseKey!==todayKey())return false;
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const end=minuteOf(n.eT||'');
+  const start=minuteOf(n.sT||'');
+  const mark=end!==null?end:start;
+  return mark!==null && mark<nowMin;
 }
 function scheduleListSort(arr){
   return [...(arr||[])].sort((a,b)=>{
     const pa=personRank(a), pb=personRank(b);
-    if(pa!==pb)return pa-pb;
     const da=scheduleListDate(a)||'', db=scheduleListDate(b)||'';
+    if(scheduleSort==='person' && pa!==pb)return pa-pb;
     if(da!==db)return da.localeCompare(db);
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
     if(ta!==tb)return ta.localeCompare(tb);
+    if(pa!==pb)return pa-pb;
     return String(a.title||'').localeCompare(String(b.title||''),'ko');
   });
 }
@@ -2905,7 +2927,7 @@ function scheduleListDateLine(n){
 
 function makeScheduleRowCard(n,opts={}){
   if(!n)return '';
-  const done=isDone(n);
+  const done=false;
   const missed=opts.missed || isMissedSchedule(n);
   const who=n.who||'공통';
   const id=String(n.id||'');
@@ -2917,7 +2939,7 @@ function makeScheduleRowCard(n,opts={}){
   const drag=isAuto?'':`draggable="true" ondragstart="dragStart(event,'notes','${id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'notes','${id}')" ondragend="dragEnd(event)"`;
   const dday=scheduleDdayTextForList(n,opts);
   return `<div class="modern-schedule-item schedule-line-card swipe-card${done?' done':''}${missed?' missed':''}${isAuto?' auto':''}${n.isPrivate?' private':''}" ${click} ${swipe} ${drag}>
-    <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">메뉴</div>
+    <div class="swipe-bg swipe-bg-right">수정</div><div class="swipe-bg swipe-bg-left">메뉴</div>
     <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
     <div class="modern-schedule-content">
       <div class="modern-schedule-title${done?' done':''}">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
@@ -2932,11 +2954,11 @@ function renderSchedulePersonGroups(list,opts={}){
   return arr.map(n=>makeScheduleRowCard(n,opts)).join('');
 }
 function renderScheduleDashboardList(normal=[],missed=[],emptyText='등록 일정이 없어요',opts={}){
-  if(!normal.length&&!missed.length)return renderEmptyState(opts.done?'done':'schedule',emptyText,opts.done?'완료한 일정은 이곳에 모여요.':'최근 1개월 안에 표시할 일정이 없어요.');
+  if(!normal.length&&!missed.length)return renderEmptyState('schedule',emptyText,opts.past?'시간이 지나면 이곳으로 자동으로 내려와요.':'최근 1개월 안에 표시할 일정이 없어요.');
   let html='';
   if(missed.length){
     html+=`<div class="schedule-warning-group">
-      <div class="schedule-warning-title">⚠️ 지난 일정</div>
+      <div class="schedule-warning-title">지난 일정</div>
       ${scheduleListSort(missed).map(n=>makeScheduleRowCard(n,{missed:true})).join('')}
     </div>`;
   }
@@ -2991,29 +3013,76 @@ function performSwipeDelete(kind,id){
 
 function renderFab(){
   if(main==='s'){
-    return `<button class="fab-add smart-fab" onclick="openAddModal()" aria-label="일정 추가">+</button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended" onclick="openQuickAddSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='c' && !shiftSelectMode){
-    return `<button class="fab-add smart-fab calendar-fab-add" onclick="openAddModal('${calendarFabDate()}')" aria-label="달력 일정 추가">+</button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended calendar-fab-add" onclick="openQuickAddSheet('${calendarFabDate()}')" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='i'){
-    return `<button class="fab-add smart-fab" onclick="openRoutineFabSheet()" aria-label="반복 추가">+</button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended" onclick="openRoutineFabSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='r'){
-    return `<button class="fab-add smart-fab" onclick="openReqModal()" aria-label="할일 추가">+</button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended" onclick="openReqModal()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='m'){
-    return `<button class="fab-add smart-fab" onclick="openMemoryModal()" aria-label="축하 추가">+</button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended" onclick="openMemoryModal()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   return '';
+}
+
+function quickAddSvg(kind){
+  const map={
+    schedule:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M8.5 14h3M8.5 17h5"/></svg>',
+    todo:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12.5 2.4 2.4L16.5 9"/></svg>',
+    routine:'<svg viewBox="0 0 24 24"><path d="M17.5 7.5A7 7 0 0 0 5.2 11"/><path d="M5 6.5V11h4.5"/><path d="M6.5 16.5A7 7 0 0 0 18.8 13"/><path d="M19 17.5V13h-4.5"/></svg>',
+    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2.5"/><path d="M12 9v11M4 13h16"/><path d="M9.2 9C7.8 8.4 7 7.6 7 6.5A2 2 0 0 1 10.5 5C11.2 5.8 12 9 12 9s.8-3.2 1.5-4A2 2 0 0 1 17 6.5c0 1.1-.8 1.9-2.2 2.5"/></svg>',
+    family:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.8 19c.7-3.2 2.5-5 5.2-5s4.5 1.8 5.2 5"/><path d="M14.5 15c2.4.1 4 .9 5.7 3.7"/></svg>'
+  };
+  return `<span class="quick-add-icon quick-add-icon-${kind}" aria-hidden="true">${map[kind]||map.schedule}</span>`;
+}
+
+function openQuickAddSheet(dateVal){
+  const d=dateVal||todayKey();
+  document.body.classList.add('quick-add-open');
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg quick-add-bg" onclick="closeM(event)">
+    <div class="modal-sheet smart-fab-sheet quick-add-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="quick-add-panel">
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openAddModal('${d}')">
+          ${quickAddSvg('schedule')}
+          <span><b>일정</b></span>
+        </button>
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openReqModal()">
+          ${quickAddSvg('todo')}
+          <span><b>할일</b></span>
+        </button>
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openRoutineManagerFromSchedule();setTimeout(addRepeatItem,80)">
+          ${quickAddSvg('routine')}
+          <span><b>반복</b></span>
+        </button>
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openMemoryModal()">
+          ${quickAddSvg('memory')}
+          <span><b>축하</b></span>
+        </button>
+      </div>
+      <div class="quick-add-panel quick-add-panel-sub">
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openProfileCenter()">
+          ${quickAddSvg('family')}
+          <span><b>가족 설정</b></span>
+        </button>
+      </div>
+      <button class="quick-add-close" onclick="closeM()" aria-label="닫기">×</button>
+    </div>
+  </div>`;
 }
 
 function renderS(){
   const baseKey=scheduleBaseKey();
   const targetOk=n=>subF==='all'||(n.who||'공통')===subF;
-  const noteOk=n=>!isDone(n)&&matchSearchNote(n)&&targetOk(n);
+  const noteOk=n=>matchSearchNote(n)&&targetOk(n);
 
-  const missed=notes.filter(n=>{
+  const past=notes.filter(n=>{
     if(!noteOk(n))return false;
     return isMissedSchedule(n,baseKey);
   }).map(n=>({...n,_displayDate:n.start||''}));
@@ -3030,24 +3099,17 @@ function renderS(){
 
   active=scheduleListSort(active);
 
-  let doneFilt=notes.filter(n=>{
-    if(!isDone(n))return false;
-    if(!matchSearchNote(n))return false;
-    if(doneF!=='all'&&(n.who||'공통')!==doneF)return false;
-    if(!n.start)return true;
-    return new Date(n.start)>=doneAfter();
-  }).map(n=>({...n,_displayDate:n.start||''}));
-  doneFilt=scheduleListSort(doneFilt);
+  const pastList=scheduleListSort(past);
 
-  const activeCount=active.length+missed.length;
-  const activeAll=[...missed,...active];
+  const activeCount=active.length;
+  const activeAll=[...active];
   const activeCards = activeOpen
-    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,missed,'등록 일정이 없어요')}</div>`
+    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,[],'등록 일정이 없어요')}</div>`
     : `<div class="schedule-collapsed-hint warm-collapsed-hint">${escapeHtml(scheduleCollapsedSummary(activeAll,activeCount,'active'))}</div>`;
 
   const doneCards = doneOpen
-    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(doneFilt,[],'지나간 일정이 없어요',{done:true})}</div>`
-    : `<div class="schedule-collapsed-hint warm-collapsed-hint">${escapeHtml(scheduleCollapsedSummary(doneFilt,doneFilt.length,'done'))}</div>`;
+    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(pastList,[],'지난 일정이 없어요',{past:true})}</div>`
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint">${escapeHtml(scheduleCollapsedSummary(pastList,pastList.length,'done'))}</div>`;
 
   return`<div class="schedule-swipe-sync">
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
@@ -3056,9 +3118,7 @@ function renderS(){
     `)}
     ${activeCards}
     <div class="div"></div>
-    ${sectionHeader('지나간 일정',doneFilt.length,doneOpen,'toggleDone',`
-      <button class="sec-chip-btn filter-icon-btn done-filter-pill" onclick="event.stopPropagation();openDonePeriodSheet()" aria-label="완료 기간 필터: ${escapeAttr(periodLabel(donePer))}" title="${escapeAttr(periodLabel(donePer))}">${filterSearchSvg()}</button>
-    `)}
+    ${sectionHeader('지난 일정',pastList.length,doneOpen,'toggleDone')}
     ${doneCards}
   </div>`;
 }
@@ -4998,7 +5058,9 @@ function makeTodayDashboardStandardRow(n,opts={}){
   const title=isRoutine?(n.title||'반복 일정'):displayNoteTitle(n);
   const kindLabel=isRoutine?'반복':'일정';
   const metaDate=isRoutine?dateLabel(baseKey):scheduleListDateLine({...n,start:n.start||baseKey});
-  const meta=`<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span>${escapeHtml(kindLabel)}</span>${metaDate?`<span class="modern-schedule-dotsep">·</span><span>${escapeHtml(metaDate)}</span>`:''}`;
+  const meta=isRoutine
+    ? `<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span>${escapeHtml(kindLabel)}</span>${metaDate?`<span class="modern-schedule-dotsep">·</span><span>${escapeHtml(metaDate)}</span>`:''}`
+    : `<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span>${escapeHtml(metaDate)}`;
   let click='';
   if(isRoutine){
     const kind=n._autoFamilyInfo?'auto':'note';
@@ -5013,7 +5075,7 @@ function makeTodayDashboardStandardRow(n,opts={}){
       <div class="modern-schedule-title">${highlightText(title)}${!isRoutine?privateChip(n):''}</div>
       <div class="modern-schedule-date">${meta}</div>
     </div>
-    ${tm?`<div class="dashboard-row-time">${escapeHtml(tm)}</div>`:''}
+    ${isRoutine&&tm?`<div class="dashboard-row-time">${escapeHtml(tm)}</div>`:''}
   </div>`;
 }
 
@@ -5043,9 +5105,9 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
 
   schedule.sort((a,b)=>{
     const pa=personIdx(a.who||'공통'), pb=personIdx(b.who||'공통');
-    if(pa!==pb)return pa-pb;
     const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
     if(ta!==tb)return ta.localeCompare(tb);
+    if(pa!==pb)return pa-pb;
     return String(a.title||'').localeCompare(String(b.title||''),'ko');
   });
 
@@ -5341,9 +5403,32 @@ function renderHomeWidgets(){
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
   return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}</div>`;
 }
-function renderTopSwipeZone(){
+function bellSvg(){
+  return '<svg class="home-head-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9.8a6 6 0 1 0-12 0c0 6-2.4 6.7-2.4 6.7h16.8S18 15.8 18 9.8Z"/><path d="M9.8 19a2.4 2.4 0 0 0 4.4 0"/></svg>';
+}function renderHomeAppHeader(){
   if(main!=='s')return '';
-  const parts=[renderShiftWidget(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
+  const base=scheduleBaseKey();
+  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,base));
+  const routineToday=[...familyInfoEventsForKey(base),...notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,base))];
+  const due=dueRequestsForDate(base);
+  const people=scheduleCountsByPerson(base).join(', ')||'가족 일정 없음';
+  const total=normalToday.length+routineToday.length+due.length;
+  return `<section class="home-app-head">
+    <div class="home-head-row">
+      <div><div class="home-kicker">${escapeHtml(dateLabel(base))}</div><h1>오늘</h1></div>
+      <div class="home-head-actions">
+        <button onclick="openNoticeList()" aria-label="알림">${bellSvg()}</button>
+        <button onclick="openScheduleFilterSheet()" aria-label="검색">${filterSearchSvg()}</button>
+        <button onclick="openProfileCenter()" aria-label="가족 설정">${quickAddSvg('family')}</button>
+      </div>
+    </div>
+    <button class="home-brief-card" onclick="document.getElementById('today-briefing-capture')?.scrollIntoView({behavior:'smooth',block:'center'})">
+      <span>오늘 브리핑</span><b>${total}개 확인</b><em>${escapeHtml(people)}</em>
+    </button>
+  </section>`;
+}function renderTopSwipeZone(){
+  if(main!=='s')return '';
+  const parts=[renderHomeAppHeader(),renderShiftWidget(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
   if(!parts)return '';
   return `<div class="top-swipe-zone">${parts}</div>`;
 }
@@ -5615,6 +5700,32 @@ function setupModalStateObserver(){
   new MutationObserver(sync).observe(modal,{childList:true});
   sync();
 }
+let __smartFabScrollReady=false;
+function setupSmartFabScroll(){
+  if(__smartFabScrollReady)return;
+  __smartFabScrollReady=true;
+  const sync=()=>{
+    const y=Math.max(
+      window.scrollY||0,
+      document.documentElement?.scrollTop||0,
+      document.body?.scrollTop||0,
+      document.scrollingElement?.scrollTop||0,
+      document.getElementById('app')?.scrollTop||0,
+      document.getElementById('body')?.scrollTop||0
+    );
+    document.body.classList.toggle('smart-fab-compact',y>80);
+  };
+  window.addEventListener('scroll',sync,{passive:true});
+  document.addEventListener('scroll',sync,{passive:true,capture:true});
+  window.addEventListener('wheel',()=>document.body.classList.add('smart-fab-compact'),{passive:true});
+  window.addEventListener('touchmove',()=>document.body.classList.add('smart-fab-compact'),{passive:true});
+  window.addEventListener('keydown',e=>{
+    if(['PageDown','ArrowDown','Space','End'].includes(e.key))document.body.classList.add('smart-fab-compact');
+    if(['Home'].includes(e.key))sync();
+  });
+  setInterval(sync,250);
+  sync();
+}
 function formHasUnsavedRepeatDraft(ii){
   const draft=__repeatEditDrafts[ii];
   const item=repeatItems[ii];
@@ -5647,6 +5758,7 @@ function _renderImpl(opts={}){
     if(__renderErrorCount>2){main='s';searchQ='';searchDraft='';filterToday=false;}
   }
   setupModalStateObserver();
+  setupSmartFabScroll();
   if(preserve){
     requestAnimationFrame(()=>{try{window.scrollTo(0,y)}catch(e){}});
   }
@@ -5693,39 +5805,54 @@ function openAddModal(dateVal){
   const startDate=dateVal||todayKey();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet schedule-edit-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet add-flow-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">새 일정 추가</div>
-      <div class="ml">제목</div>
-      <input class="mi" id="m-ti" placeholder="어떤 일정인가요?"/>
-      <div class="ml">대상</div>
-      <div class="type-sel person-chip-selector">
-        ${personChoiceButtons(_mWho)}
+      <div class="add-flow-head">
+        <div>
+          <div class="modal-hd">일정 추가</div>
+          <p>누가, 언제, 무엇을만 먼저 적으면 돼요.</p>
+        </div>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>1</span><b>누가</b></div>
+        <div class="type-sel person-chip-selector add-person-row">
+          ${personChoiceButtons(_mWho)}
+        </div>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>2</span><b>언제</b></div>
+        <div class="add-when-grid">
+          <div><div class="sublabel">날짜</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
+          <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
+          <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
+        </div>
+      </div>
+      <div class="add-flow-card add-what-card">
+        <div class="add-step-head add-what-head">
+          <span>3</span><b>무엇을</b>
+          <button type="button" class="private-inline-toggle" id="m-private" data-val="" onclick="togglePrivateField('m-private')" aria-label="공개 일정"><span class="private-lock-icon" aria-hidden="true">${lockSvg(false)}</span><span class="private-toggle-text">공개</span></button>
+        </div>
+        <input class="mi" id="m-ti" placeholder="예: 수학, 병원, 회식"/>
       </div>
       <details class="detail-settings">
-        <summary>⚙️ 상세 설정 열기</summary>
+        <summary>반복, 알림 메모 더 설정</summary>
         <div class="detail-settings-panel">
-          <div class="ml">반복</div>
-          <select class="mi" id="m-rp">
-            <option value="">반복 없음</option>
-            <option value="daily">매일</option>
-            <option value="weekly">매주</option>
-            <option value="monthly">매월</option>
-          </select>
-          <div class="ml">반복 종료일</div>
-          <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
-          <div class="ml">날짜</div>
-          <div class="mi-2">
-            <div><div class="sublabel">시작일</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
-            <div><div class="sublabel">종료일</div><input class="picker-field empty" id="m-ed" readonly data-val="" value="종료일 없음" onclick="openDatePicker('m-ed')"/></div>
+          <div class="add-repeat-grid">
+            <div>
+              <div class="sublabel">반복</div>
+              <select class="mi" id="m-rp">
+                <option value="">반복 없음</option>
+                <option value="daily">매일</option>
+                <option value="weekly">매주</option>
+                <option value="monthly">매월</option>
+              </select>
+            </div>
+            <div>
+              <div class="sublabel">반복 종료일</div>
+              <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+            </div>
           </div>
-          <div class="ml">시간</div>
-          <div class="mi-2">
-            <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
-            <div><div class="sublabel">종료</div><input class="picker-field empty" id="m-et" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-et')"/></div>
-          </div>
-          <div class="ml">비공개</div>
-          <button class="type-btn" id="m-private" data-val="" onclick="togglePrivateField('m-private')">🔓 비공개 OFF</button>
+          <input type="hidden" id="m-ed" data-val=""/>
           <div class="ml">알림 메모</div>
           <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인"/>
         </div>
@@ -6189,12 +6316,12 @@ function closeM(e){
     const bg=modal.querySelector('.modal-bg');
     if(bg){
       bg.classList.add('modal-closing');
-      setTimeout(()=>{modal.innerHTML='';document.body.classList.remove('modal-open');},140);
+      setTimeout(()=>{modal.innerHTML='';document.body.classList.remove('modal-open','quick-add-open');},140);
       return;
     }
   }
   modal.innerHTML='';
-  document.body.classList.remove('modal-open');
+  document.body.classList.remove('modal-open','quick-add-open');
 }
 async function saveCalendarImage(){
   if(main!=='c'){
