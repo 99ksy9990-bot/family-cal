@@ -1,4 +1,4 @@
-const APP_VERSION='v1.3.8';
+﻿const APP_VERSION='v1.3.8';
 const PASS_BUILD_VERSION='v1.3.8-design-polish';
 const APP_UPDATED='2026-05-08';
 
@@ -2003,16 +2003,16 @@ function openSwipeNoteActions(id){
   const missed=isMissedSchedule(n);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact schedule-action-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(displayNoteTitle(n))}</div>
       <div class="action-grid schedule-row-action-grid${missed?' has-postpone':''}">
         ${missed?`<button class="toss-btn primary" onclick="postponeNoteToToday('${id}')">오늘로 미루기</button>`:''}
-        <button class="toss-btn primary" onclick="openEditNote('${id}')">수정</button>
-        <button class="toss-btn" onclick="copyNoteWithDate('${id}')">날짜변경복사</button>
+        <button class="toss-btn primary" onclick="openEditNote('${id}')">일정 수정</button>
+        <button class="toss-btn" onclick="copyNoteWithDate('${id}')">날짜 바꿔 복사</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="toss-btn danger action-delete-full" onclick="delNote('${id}');closeM()">이 일정 삭제</button>
-      <button class="cancel-link" onclick="closeM()">닫기</button>
+      <button class="toss-btn danger action-delete-full" onclick="delNote('${id}');closeM()">일정 삭제</button>
     </div>
   </div>`;
 }
@@ -2020,7 +2020,7 @@ function openSwipeReqActions(id){
   const r=requests.find(x=>String(x.id)===String(id));if(!r)return;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
+    <div class="modal-sheet action-sheet-compact schedule-action-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(r.title||'할일')}</div>
       <div class="action-grid request-swipe-action-grid">
@@ -3191,12 +3191,12 @@ function openCalendarNoteActions(id){
     <div class="modal-sheet action-sheet-compact" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">${escapeHtml(displayNoteTitle(n))}</div>
-      <div class="action-grid calendar-action-grid one-line-action-grid">
-        <button class="toss-btn primary" onclick="openEditNote('${n.id}')">수정</button>
-        <button class="toss-btn" onclick="copyNoteWithDate('${n.id}')">날짜변경복사</button>
+      <div class="action-grid calendar-action-grid one-line-action-grid schedule-row-action-grid">
+        <button class="toss-btn primary" onclick="openEditNote('${n.id}')">일정 수정</button>
+        <button class="toss-btn" onclick="copyNoteWithDate('${n.id}')">날짜 바꿔 복사</button>
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="toss-btn danger action-delete-full" onclick="delNote('${n.id}');closeM()">이 일정 삭제</button>
+      <button class="toss-btn danger action-delete-full" onclick="delNote('${n.id}');closeM()">일정 삭제</button>
     </div>
   </div>`;
 }
@@ -5923,41 +5923,58 @@ function openEditNote(id){
   const n=notes.find(x=>String(x.id)===String(id));if(!n)return;
   _mType=n.type||'family';
   _mWho=n.who||getPersons()[0]||'공통';
+  const startDate=n.start||todayKey();
+  const privateOn=!!n.isPrivate;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet schedule-edit-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet add-flow-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">일정 수정</div>
-      <div class="ml">제목</div>
-      <input class="mi" id="e-ti" value="${escapeAttr(n.title)}" placeholder="어떤 일정인가요?"/>
-      <div class="ml">대상</div>
-      <div class="type-sel person-chip-selector">
-        ${personChoiceButtons(_mWho)}
+      <div class="add-flow-head">
+        <div>
+          <div class="modal-hd">일정 수정</div>
+          <p>누가, 언제, 무엇을만 먼저 확인하면 돼요.</p>
+        </div>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>1</span><b>누가</b></div>
+        <div class="type-sel person-chip-selector add-person-row">
+          ${personChoiceButtons(_mWho)}
+        </div>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>2</span><b>언제</b></div>
+        <div class="add-when-grid">
+          <div><div class="sublabel">날짜</div><input class="picker-field" id="e-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('e-sd')"/></div>
+          <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
+          <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
+        </div>
+      </div>
+      <div class="add-flow-card add-what-card">
+        <div class="add-step-head add-what-head">
+          <span>3</span><b>무엇을</b>
+          <button type="button" class="private-inline-toggle${privateOn?' tf':''}" id="e-private" data-val="${privateOn?'1':''}" onclick="togglePrivateField('e-private')" aria-label="${privateOn?'비공개 일정':'공개 일정'}"><span class="private-lock-icon" aria-hidden="true">${lockSvg(privateOn)}</span><span class="private-toggle-text">${privateOn?'비공개':'공개'}</span></button>
+        </div>
+        <input class="mi" id="e-ti" value="${escapeAttr(n.title||'')}" placeholder="예: 수학, 병원, 회식"/>
       </div>
       <details class="detail-settings">
-        <summary>⚙️ 상세 설정 열기</summary>
+        <summary>반복, 알림 메모 더 설정</summary>
         <div class="detail-settings-panel">
-          <div class="ml">반복</div>
-          <select class="mi" id="e-rp">
-            <option value="" ${!n.repeat?'selected':''}>반복 없음</option>
-            <option value="daily" ${n.repeat==='daily'?'selected':''}>매일</option>
-            <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
-            <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
-          </select>
-          <div class="ml">반복 종료일</div>
-          <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
-          <div class="ml">날짜</div>
-          <div class="mi-2">
-            <div><div class="sublabel">시작일</div><input class="picker-field${n.start?'':' empty'}" id="e-sd" readonly data-val="${n.start||''}" value="${n.start?dateLabel(n.start):'시작일 없음'}" onclick="openDatePicker('e-sd')"/></div>
-            <div><div class="sublabel">종료일</div><input class="picker-field${n.end?'':' empty'}" id="e-ed" readonly data-val="${n.end||''}" value="${n.end?dateLabel(n.end):'종료일 없음'}" onclick="openDatePicker('e-ed')"/></div>
+          <div class="add-repeat-grid">
+            <div>
+              <div class="sublabel">반복</div>
+              <select class="mi" id="e-rp">
+                <option value="" ${!n.repeat?'selected':''}>반복 없음</option>
+                <option value="daily" ${n.repeat==='daily'?'selected':''}>매일</option>
+                <option value="weekly" ${n.repeat==='weekly'?'selected':''}>매주</option>
+                <option value="monthly" ${n.repeat==='monthly'?'selected':''}>매월</option>
+              </select>
+            </div>
+            <div>
+              <div class="sublabel">반복 종료일</div>
+              <input class="picker-field${n.repeatEnd?'':' empty'}" id="e-re" readonly data-val="${n.repeatEnd||''}" value="${n.repeatEnd?dateLabel(n.repeatEnd):'종료 없음'}" onclick="openDatePicker('e-re')"/>
+            </div>
           </div>
-          <div class="ml">시간</div>
-          <div class="mi-2">
-            <div><div class="sublabel">시작</div><input class="picker-field${n.sT?'':' empty'}" id="e-st" readonly data-val="${n.sT||''}" value="${n.sT?timeLabel(n.sT):'시간 없음'}" onclick="openTimePicker('e-st')"/></div>
-            <div><div class="sublabel">종료</div><input class="picker-field${n.eT?'':' empty'}" id="e-et" readonly data-val="${n.eT||''}" value="${n.eT?timeLabel(n.eT):'시간 없음'}" onclick="openTimePicker('e-et')"/></div>
-          </div>
-          <div class="ml">비공개</div>
-          <button class="type-btn${n.isPrivate?' tf':''}" id="e-private" data-val="${n.isPrivate?'1':''}" onclick="togglePrivateField('e-private')">${n.isPrivate?'🔒 비공개 ON':'🔓 비공개 OFF'}</button>
+          <input type="hidden" id="e-ed" data-val="${n.end||''}"/>
           <div class="ml">알림 메모</div>
           <input class="mi" id="e-alert" placeholder="예: D-1 준비물 확인" value="${escapeAttr(n.alertMemo||'')}"/>
           <div class="ml">메모</div>
