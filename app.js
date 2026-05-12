@@ -1,4 +1,4 @@
-﻿const APP_VERSION='v1.3.8';
+const APP_VERSION='v1.3.8';
 const PASS_BUILD_VERSION='v1.3.8-design-polish';
 const APP_UPDATED='2026-05-08';
 
@@ -115,7 +115,25 @@ const DEFAULT_DATA={
   deletedItems:[],
   customHolidays:[],
   holidayCache:{},
-  repeatItems:[]
+  repeatItems:[],
+  hrEmployees:[
+    {id:901,name:'김민수',branch:'서울지점',hireDate:'2024-05-01',status:'active',memo:''},
+    {id:902,name:'박지현',branch:'포항지점',hireDate:'2023-03-15',status:'active',memo:''},
+    {id:903,name:'이서준',branch:'광양지점',hireDate:'2025-11-10',status:'planned_retirement',memo:'연차 소진 퇴사 검토',lastWorkDate:'2026-05-10',retireDate:'2026-05-21',retireReason:'자진퇴사',settlementDate:'2026-05-21'}
+  ],
+  hrLeaveTypes:[
+    {id:'annual',name:'연차',deduct:1,workCredit:false,attendanceImpact:false,color:'#007AFF'},
+    {id:'half',name:'반차',deduct:.5,workCredit:false,attendanceImpact:false,color:'#5856D6'},
+    {id:'public',name:'공가',deduct:0,workCredit:true,attendanceImpact:false,color:'#34C759'},
+    {id:'training',name:'교육',deduct:0,workCredit:true,attendanceImpact:false,color:'#FF9500'},
+    {id:'business',name:'출장',deduct:0,workCredit:true,attendanceImpact:false,color:'#AF52DE'}
+  ],
+  hrLeaveEvents:[
+    {id:801,employeeId:901,typeId:'annual',start:'2026-05-18',end:'2026-05-18',status:'approved',memo:'개인 연차'},
+    {id:802,employeeId:903,typeId:'annual',start:'2026-05-11',end:'2026-05-14',status:'planned',memo:'퇴직 전 연차 소진'}
+  ],
+  hrAuditLogs:[],
+  hrSettings:{companyName:'포스코새마을금고',branches:['서울지점','포항지점','광양지점'],settlementPayDueDays:14}
 };
 
 const TODAY=new Date();
@@ -635,11 +653,11 @@ function annualHolidayName(k){
   return '';
 }
 
-function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return (c&&c.name)||holidayCache[k]||KR_HOLIDAYS[k]||annualHolidayName(k)||''}
+function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k && (!x.scope || x.scope==='all'));return (c&&c.name)||holidayCache[k]||KR_HOLIDAYS[k]||annualHolidayName(k)||''}
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],shiftDefaults={},notificationEnabled=false;
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],shiftDefaults={},notificationEnabled=false,hrEmployees=[],hrLeaveTypes=[],hrLeaveEvents=[],hrAuditLogs=[],hrSettings={};
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -1364,6 +1382,12 @@ function normalizeData(d){
   shiftLabels=Array.isArray(d.shiftLabels)?d.shiftLabels:[...DEFAULT_SHIFT_LABELS];
   shiftDefaults=(d.shiftDefaults&&typeof d.shiftDefaults==='object')?d.shiftDefaults:{};
   notificationEnabled=!!d.notificationEnabled;
+  hrEmployees=Array.isArray(d.hrEmployees)?d.hrEmployees:deepCopy(base.hrEmployees||[]);
+  hrLeaveTypes=Array.isArray(d.hrLeaveTypes)?d.hrLeaveTypes:deepCopy(base.hrLeaveTypes||[]);
+  hrLeaveEvents=Array.isArray(d.hrLeaveEvents)?d.hrLeaveEvents:deepCopy(base.hrLeaveEvents||[]);
+  hrAuditLogs=Array.isArray(d.hrAuditLogs)?d.hrAuditLogs:[];
+  hrSettings=(d.hrSettings&&typeof d.hrSettings==='object')?d.hrSettings:deepCopy(base.hrSettings||{});
+  normalizeHrData();
   ensureBaseTargets();
   normalizeShiftUsers();
 
@@ -1409,7 +1433,7 @@ function normalizeData(d){
   migrateShiftDataToMulti();
 }
 function currentData(){
-  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
+  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,hrEmployees,hrLeaveTypes,hrLeaveEvents,hrAuditLogs,hrSettings,updatedAt:Date.now()};
 }
 function saveLocal(){try{localStorage.setItem(SK.data,JSON.stringify(currentData()))}catch(e){console.warn('saveLocal failed',e)}}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
@@ -1418,7 +1442,7 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 function currentSettingsData(){
   return {
     family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
-    shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,
+    shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hrEmployees,hrLeaveTypes,hrLeaveEvents,hrAuditLogs,hrSettings,
     storageMode:'subcollections',
     updatedAt:Date.now()
   };
@@ -2270,6 +2294,205 @@ function renderFirstUseGuide(){
 }
 
 
+
+const HR_STATUS_LABELS={active:'재직',planned_retirement:'퇴직예정',retired:'퇴직완료',leave:'휴직',contract_end_planned:'계약만료예정'};
+let hrStatusFilter='active';
+function normalizeHrData(){
+  if(!Array.isArray(hrEmployees))hrEmployees=[];
+  if(!Array.isArray(hrLeaveTypes))hrLeaveTypes=[];
+  if(!Array.isArray(hrLeaveEvents))hrLeaveEvents=[];
+  if(!Array.isArray(hrAuditLogs))hrAuditLogs=[];
+  if(!hrSettings||typeof hrSettings!=='object')hrSettings={};
+  const baseTypes=(DEFAULT_DATA.hrLeaveTypes||[]);
+  baseTypes.forEach(t=>{if(!hrLeaveTypes.some(x=>x.id===t.id))hrLeaveTypes.push(deepCopy(t));});
+  if(!Array.isArray(hrSettings.branches)||!hrSettings.branches.length)hrSettings.branches=['서울지점','포항지점','광양지점'];
+  if(!hrSettings.companyName)hrSettings.companyName='포스코새마을금고';
+  hrEmployees.forEach(e=>{if(!e.id)e.id=Date.now()+Math.random(); if(!e.status)e.status='active'; if(!e.branch)e.branch=hrSettings.branches[0]||'서울지점';});
+  hrLeaveEvents.forEach(v=>{if(!v.id)v.id=Date.now()+Math.random(); if(!v.status)v.status='planned'; if(!v.end)v.end=v.start||'';});
+}
+function hrEmployee(id){return (hrEmployees||[]).find(e=>String(e.id)===String(id));}
+function hrLeaveType(id){return (hrLeaveTypes||[]).find(t=>String(t.id)===String(id))||hrLeaveTypes[0]||{name:'연차',deduct:1,color:'#007AFF'};}
+function hrStatusLabel(s){return HR_STATUS_LABELS[s]||s||'재직';}
+function hrLog(kind,text,before,after,reason){
+  hrAuditLogs.unshift({id:Date.now()+Math.random(),kind,text,reason:reason||'',before:before||null,after:after||null,editor:'관리자',at:Date.now()});
+  hrAuditLogs=hrAuditLogs.slice(0,200);
+}
+function hrSave(msg){normalizeHrData();saveSettingsOnly();render({preserveScroll:true});if(msg)showToast(msg);}
+function hrDateObj(v){const [y,m,d]=String(v||'').split('-').map(Number);return y&&m&&d?new Date(y,m-1,d):null;}
+function hrDateKey(dt){return dk(dt.getFullYear(),dt.getMonth(),dt.getDate());}
+function hrAddDays(v,n){const d=hrDateObj(v);if(!d)return '';d.setDate(d.getDate()+n);return hrDateKey(d);}
+function hrDaysBetween(a,b){const da=hrDateObj(a),db=hrDateObj(b);if(!da||!db)return 0;return Math.floor((db-da)/86400000);}
+function hrIsWeekend(k){const d=hrDateObj(k);return !d||d.getDay()===0||d.getDay()===6;}
+function hrIsWorkday(k,branch){return !!k && !hrIsWeekend(k) && !isHolidayKey(k) && !hrBranchHolidayName(k,branch);}
+function hrBranchHolidayName(k,branch){const h=(customHolidays||[]).find(x=>x.date===k && (x.branch===branch || x.scope===branch));return h? h.name||'지점 휴일':'';}
+function hrWorkdaysBetween(start,end,branch){
+  const s=hrDateObj(start),e=hrDateObj(end||start); if(!s||!e)return 0;
+  let cur=new Date(s), count=0;
+  while(cur<=e){const k=hrDateKey(cur); if(hrIsWorkday(k,branch))count++; cur.setDate(cur.getDate()+1);}
+  return count;
+}
+function hrLeaveEventDays(ev){
+  const emp=hrEmployee(ev.employeeId)||{};
+  const type=hrLeaveType(ev.typeId);
+  const wd=hrWorkdaysBetween(ev.start,ev.end||ev.start,emp.branch);
+  const d=Number(type.deduct||0);
+  return d===.5?Math.min(.5,wd*.5):wd*d;
+}
+function hrYearsCompleted(hire,asOf){return Math.max(0,Math.floor(hrDaysBetween(hire,asOf)/365));}
+function hrMonthsCompleted(hire,asOf){
+  const h=hrDateObj(hire),a=hrDateObj(asOf); if(!h||!a||a<h)return 0;
+  let m=(a.getFullYear()-h.getFullYear())*12+(a.getMonth()-h.getMonth());
+  if(a.getDate()<h.getDate())m--;
+  return Math.max(0,m);
+}
+function hrAnnualEntitlement(emp,asOf=todayKey()){
+  if(!emp||!emp.hireDate)return 0;
+  const years=hrYearsCompleted(emp.hireDate,asOf);
+  if(years<1)return Math.min(11,hrMonthsCompleted(emp.hireDate,asOf));
+  return Math.min(25,15+Math.floor(Math.max(0,years-1)/2));
+}
+function hrLeaveUsage(empId,asOf=todayKey(),includeFuture=true){
+  return (hrLeaveEvents||[]).filter(v=>String(v.employeeId)===String(empId) && v.status!=='cancelled' && (includeFuture || (v.start||'')<=asOf))
+    .reduce((sum,v)=>sum+hrLeaveEventDays(v),0);
+}
+function hrSettlement(emp,asOf=todayKey()){
+  const generated=hrAnnualEntitlement(emp,asOf);
+  const used=hrLeaveUsage(emp.id,asOf,false);
+  const planned=hrLeaveUsage(emp.id,asOf,true)-used;
+  const remain=Number((generated-used-planned+(Number(emp.manualAdjust)||0)).toFixed(1));
+  return {generated,used:Number(used.toFixed(1)),planned:Number(planned.toFixed(1)),remain,overuse:remain<0?Math.abs(remain):0,settlementTarget:remain>0?remain:0,final:Number((remain).toFixed(1))};
+}
+function hrRetirementWarnings(emp){
+  if(!emp||!emp.retireDate)return [];
+  const after=hrLeaveEvents.filter(v=>String(v.employeeId)===String(emp.id)&&v.status!=='cancelled'&&(v.start||'')>emp.retireDate);
+  const pending=hrLeaveEvents.filter(v=>String(v.employeeId)===String(emp.id)&&v.status==='pending');
+  const st=hrSettlement(emp,emp.settlementDate||emp.retireDate);
+  const out=[];
+  if(after.length)out.push(`퇴직일 이후 일정 ${after.length}건이 있어 취소 또는 관리자 확인이 필요합니다.`);
+  if(pending.length)out.push(`승인 대기 일정 ${pending.length}건이 있습니다.`);
+  if(st.remain>0)out.push(`남은 연차는 ${st.remain}일입니다. 연차 소진 또는 미사용 연차 정산이 필요합니다.`);
+  if(st.overuse>0)out.push(`초과 사용 연차 ${st.overuse}일이 있습니다.`);
+  return out;
+}
+function renderHrDashboard(){
+  normalizeHrData();
+  const active=hrEmployees.filter(e=>e.status==='active').length;
+  const planned=hrEmployees.filter(e=>e.status==='planned_retirement').length;
+  const retired=hrEmployees.filter(e=>e.status==='retired').length;
+  const rows=hrEmployees.filter(e=>hrStatusFilter==='all'||e.status===hrStatusFilter);
+  return `<div class="hr-page">
+    <div class="hr-hero">
+      <div><div class="hr-kicker">${escapeHtml(hrSettings.companyName||'포스코새마을금고')}</div><h2>달력 근태 · 연차 계산기</h2><p>서울지점 · 포항지점 · 광양지점 직원의 입사일 기준 연차와 퇴직 정산을 관리해요.</p></div>
+      <button class="toss-btn primary" onclick="openHrEmployeeModal()">직원 추가</button>
+    </div>
+    <div class="hr-stat-grid">
+      <div class="hr-stat"><b>${active}</b><span>재직</span></div><div class="hr-stat warn"><b>${planned}</b><span>퇴직예정</span></div><div class="hr-stat muted"><b>${retired}</b><span>퇴직완료</span></div>
+    </div>
+    <div class="hr-filter-row">${[['active','재직'],['planned_retirement','퇴직예정'],['retired','퇴직완료'],['all','전체']].map(([k,l])=>`<button class="routine-filter-chip${hrStatusFilter===k?' on':''}" onclick="hrStatusFilter='${k}';render({preserveScroll:true})">${l}</button>`).join('')}</div>
+    <div class="hr-action-row"><button class="toss-btn" onclick="openHrLeaveModal()">일정 등록</button><button class="toss-btn" onclick="openHrLeaveTypeManager()">휴가 유형 설정</button><button class="toss-btn" onclick="openHolidayManager()">공휴일/지점 휴일</button><button class="toss-btn" onclick="openHrAuditLogs()">수정 이력</button></div>
+    <div class="hr-card-list">${rows.map(renderHrEmployeeCard).join('') || '<div class="empty-card">표시할 직원이 없어요.</div>'}</div>
+  </div>`;
+}
+function renderHrEmployeeCard(emp){
+  const asOf=emp.settlementDate||emp.retireDate||todayKey();
+  const st=hrSettlement(emp,asOf);
+  const warnings=hrRetirementWarnings(emp);
+  return `<div class="hr-emp-card ${emp.status==='retired'?'retired':''}">
+    <div class="hr-emp-head"><div><b>${escapeHtml(emp.name||'이름 없음')}</b><span>${escapeHtml(emp.branch||'')} · ${hrStatusLabel(emp.status)}</span></div><button class="toss-btn small" onclick="openHrEmployeeDetail(${onclickArg(emp.id)})">상세</button></div>
+    <div class="hr-leave-main"><strong>${st.remain}</strong><span>잔여 연차</span></div>
+    <div class="hr-mini-grid"><span>입사 ${dateLabel(emp.hireDate)}</span><span>발생 ${st.generated}일</span><span>사용 ${st.used}일</span><span>예정 ${st.planned}일</span></div>
+    ${emp.retireDate?`<div class="hr-retire-chip">마지막 근무일 ${dateLabel(emp.lastWorkDate)} · 퇴직일 ${dateLabel(emp.retireDate)}</div>`:''}
+    ${warnings.length?`<div class="hr-warning">${warnings.map(escapeHtml).join('<br>')}</div>`:''}
+  </div>`;
+}
+function openHrEmployeeDetail(id){
+  const emp=hrEmployee(id); if(!emp)return;
+  const st=hrSettlement(emp,emp.settlementDate||emp.retireDate||todayKey());
+  const events=hrLeaveEvents.filter(v=>String(v.employeeId)===String(emp.id)).sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet hr-detail-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">${escapeHtml(emp.name)} 직원 상세</div>
+    <div class="hr-settlement"><div><span>최종 잔여 연차</span><b>${st.remain}일</b></div><div>발생 ${st.generated}일 · 사용 ${st.used}일 · 예정 ${st.planned}일 · 조정 ${Number(emp.manualAdjust||0)}일</div></div>
+    <div class="hr-action-row"><button class="toss-btn" onclick="openHrEmployeeModal(${onclickArg(emp.id)})">직원 정보 수정</button><button class="toss-btn primary" onclick="openHrRetirementModal(${onclickArg(emp.id)})">퇴직 등록</button><button class="toss-btn" onclick="createHrRetirementLeave(${onclickArg(emp.id)})">연차 소진 일정 만들기</button><button class="toss-btn" onclick="confirmHrRetirement(${onclickArg(emp.id)})">퇴직 확정</button></div>
+    <div class="hr-preview-list"><b>정산 미리보기</b><p>입사일 ${dateLabel(emp.hireDate)} · 퇴직일 ${dateLabel(emp.retireDate)} · 근속 ${hrYearsCompleted(emp.hireDate,emp.retireDate||todayKey())}년</p><p>정산 대상 연차 ${st.settlementTarget}일 · 초과 사용 ${st.overuse}일 · 최종 확정값 ${st.final}일</p></div>
+    <div class="hr-warning">${hrRetirementWarnings(emp).map(escapeHtml).join('<br>')||'퇴직 관련 자동 점검 특이사항이 없습니다.'}</div>
+    <div class="hr-event-list">${events.map(v=>`<div class="hr-event-row"><span>${dateLabel(v.start)}${v.end&&v.end!==v.start?' ~ '+dateLabel(v.end):''}</span><b>${escapeHtml(hrLeaveType(v.typeId).name)}</b><em>${escapeHtml(v.status)}</em></div>`).join('')||'등록된 근태 일정이 없어요.'}</div>
+    <button class="cancel-link" onclick="closeM()">닫기</button></div></div>`;
+}
+function openHrEmployeeModal(id){
+  if(!requireEditMode())return;
+  const emp=id?hrEmployee(id):{id:'',name:'',branch:hrSettings.branches[0]||'서울지점',hireDate:'',status:'active',memo:''};
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">직원 ${id?'수정':'추가'}</div>
+    <input id="hr-emp-name" class="inp" placeholder="직원명" value="${escapeAttr(emp.name||'')}">
+    <select id="hr-emp-branch" class="inp">${hrSettings.branches.map(b=>`<option ${emp.branch===b?'selected':''}>${escapeHtml(b)}</option>`).join('')}</select>
+    <input id="hr-emp-hire" class="inp" type="date" value="${escapeAttr(emp.hireDate||'')}">
+    <select id="hr-emp-status" class="inp">${Object.entries(HR_STATUS_LABELS).map(([k,l])=>`<option value="${k}" ${emp.status===k?'selected':''}>${l}</option>`).join('')}</select>
+    <textarea id="hr-emp-memo" class="inp" placeholder="메모">${escapeHtml(emp.memo||'')}</textarea>
+    <button class="primary-btn" onclick="saveHrEmployee(${onclickArg(id||'')})">저장</button><button class="cancel-link" onclick="closeM()">취소</button></div></div>`;
+}
+function saveHrEmployee(id){
+  const before=id?deepCopy(hrEmployee(id)):null;
+  const data={id:id||Date.now()+Math.random(),name:document.getElementById('hr-emp-name').value.trim(),branch:document.getElementById('hr-emp-branch').value,hireDate:document.getElementById('hr-emp-hire').value,status:document.getElementById('hr-emp-status').value,memo:document.getElementById('hr-emp-memo').value.trim()};
+  if(!data.name||!data.hireDate)return alert('직원명과 입사일을 입력해 주세요.');
+  const idx=hrEmployees.findIndex(e=>String(e.id)===String(id)); if(idx>=0)hrEmployees[idx]={...hrEmployees[idx],...data}; else hrEmployees.push(data);
+  hrLog('employee',`${data.name} 직원 정보 저장`,before,deepCopy(data),'직원 정보 입력/수정'); closeM(); hrSave('직원 정보를 저장했어요.');
+}
+function openHrLeaveModal(){
+  if(!requireEditMode())return;
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">근태 일정 등록</div>
+    <select id="hr-leave-emp" class="inp">${hrEmployees.filter(e=>e.status!=='retired').map(e=>`<option value="${e.id}">${escapeHtml(e.name)} · ${escapeHtml(e.branch)}</option>`).join('')}</select>
+    <select id="hr-leave-type" class="inp">${hrLeaveTypes.map(t=>`<option value="${t.id}">${escapeHtml(t.name)} · ${Number(t.deduct||0)}일 차감</option>`).join('')}</select>
+    <input id="hr-leave-start" class="inp" type="date" value="${todayKey()}"><input id="hr-leave-end" class="inp" type="date" value="${todayKey()}">
+    <select id="hr-leave-status" class="inp"><option value="planned">예정</option><option value="pending">승인대기</option><option value="approved">승인</option><option value="cancelled">취소</option></select>
+    <textarea id="hr-leave-memo" class="inp" placeholder="메모"></textarea>
+    <button class="primary-btn" onclick="saveHrLeaveEvent()">저장</button><button class="cancel-link" onclick="closeM()">취소</button></div></div>`;
+}
+function saveHrLeaveEvent(){
+  const emp=hrEmployee(document.getElementById('hr-leave-emp').value); if(!emp)return;
+  const ev={id:Date.now()+Math.random(),employeeId:emp.id,typeId:document.getElementById('hr-leave-type').value,start:document.getElementById('hr-leave-start').value,end:document.getElementById('hr-leave-end').value,status:document.getElementById('hr-leave-status').value,memo:document.getElementById('hr-leave-memo').value.trim()};
+  if(emp.retireDate && ev.start>emp.retireDate && !confirm('퇴직일 이후 일정입니다. 관리자 확인 대상으로 등록할까요?'))return;
+  hrLeaveEvents.push(ev); hrLog('leave',`${emp.name} ${hrLeaveType(ev.typeId).name} 등록`,null,deepCopy(ev),'근태 일정 등록'); closeM(); hrSave('근태 일정을 등록했어요.');
+}
+function openHrRetirementModal(id){
+  if(!requireEditMode())return; const emp=hrEmployee(id); if(!emp)return;
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">퇴직 등록</div>
+    <input id="hr-last-work" class="inp" type="date" value="${escapeAttr(emp.lastWorkDate||'')}"><input id="hr-retire-date" class="inp" type="date" value="${escapeAttr(emp.retireDate||'')}">
+    <select id="hr-retire-reason" class="inp">${['자진퇴사','계약만료','정년퇴직','권고사직','기타'].map(r=>`<option ${emp.retireReason===r?'selected':''}>${r}</option>`).join('')}</select>
+    <select id="hr-retire-use-leave" class="inp"><option value="yes" ${emp.retireUseLeave?'selected':''}>연차 소진 퇴사</option><option value="no" ${!emp.retireUseLeave?'selected':''}>미사용 연차 정산</option></select>
+    <input id="hr-settlement-date" class="inp" type="date" value="${escapeAttr(emp.settlementDate||emp.retireDate||todayKey())}">
+    <textarea id="hr-retire-memo" class="inp" placeholder="담당자 메모">${escapeHtml(emp.retireMemo||'')}</textarea>
+    <button class="primary-btn" onclick="saveHrRetirement(${onclickArg(id)})">퇴직예정 저장</button><button class="cancel-link" onclick="closeM()">취소</button></div></div>`;
+}
+function saveHrRetirement(id){
+  const emp=hrEmployee(id); if(!emp)return; const before=deepCopy(emp);
+  Object.assign(emp,{status:'planned_retirement',lastWorkDate:document.getElementById('hr-last-work').value,retireDate:document.getElementById('hr-retire-date').value,retireReason:document.getElementById('hr-retire-reason').value,retireUseLeave:document.getElementById('hr-retire-use-leave').value==='yes',settlementDate:document.getElementById('hr-settlement-date').value,retireMemo:document.getElementById('hr-retire-memo').value.trim(),retirementSnapshot:hrSettlement(emp,document.getElementById('hr-settlement-date').value||document.getElementById('hr-retire-date').value)});
+  hrLog('retirement',`${emp.name} 퇴직예정 등록`,before,deepCopy(emp),'퇴직 등록'); closeM(); hrSave('퇴직예정과 정산 스냅샷을 저장했어요.'); openHrEmployeeDetail(id);
+}
+function createHrRetirementLeave(id){
+  if(!requireEditMode())return; const emp=hrEmployee(id); if(!emp||!emp.retireDate)return alert('퇴직일을 먼저 등록해 주세요.');
+  let remain=Math.floor(hrSettlement(emp,emp.settlementDate||emp.retireDate).remain); if(remain<=0)return alert('자동 배치할 남은 연차가 없습니다.');
+  let cur=hrAddDays(emp.retireDate,-1), made=0;
+  while(remain>0 && cur && cur>=(emp.lastWorkDate||emp.hireDate)){
+    if(hrIsWorkday(cur,emp.branch)){hrLeaveEvents.push({id:Date.now()+Math.random(),employeeId:emp.id,typeId:'annual',start:cur,end:cur,status:'planned',memo:'퇴직 전 연차 자동 배치'}); remain--; made++;}
+    cur=hrAddDays(cur,-1);
+  }
+  hrLog('retirement_leave',`${emp.name} 퇴직 전 연차 ${made}일 자동 배치`,null,{made},'연차 소진 일정 자동 생성'); closeM(); hrSave(`${made}일을 근무일 기준으로 자동 배치했어요.`);
+}
+function confirmHrRetirement(id){
+  if(!requireEditMode())return; const emp=hrEmployee(id); if(!emp||!emp.retireDate)return alert('퇴직 등록이 필요합니다.');
+  if(!confirm(`${emp.name} 직원을 퇴직완료로 전환할까요? 직원은 삭제되지 않고 과거 기록이 보존됩니다.`))return;
+  const before=deepCopy(emp); emp.status='retired'; emp.retirementSnapshot=hrSettlement(emp,emp.settlementDate||emp.retireDate); emp.retiredAt=Date.now();
+  hrLeaveEvents.forEach(v=>{if(String(v.employeeId)===String(emp.id)&&(v.start||'')>emp.retireDate&&v.status!=='cancelled')v.status='needs_cancel';});
+  hrLog('retirement_confirm',`${emp.name} 퇴직완료 전환`,before,deepCopy(emp),'퇴직 확정'); closeM(); hrSave('퇴직완료로 전환하고 정산 스냅샷을 저장했어요.');
+}
+function openHrLeaveTypeManager(){
+  if(!requireEditMode())return;
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">휴가 유형 설정</div>
+    <div class="hr-type-list">${hrLeaveTypes.map((t,i)=>`<div class="hr-type-row"><input class="inp" value="${escapeAttr(t.name)}" onchange="hrLeaveTypes[${i}].name=this.value;hrLog('type','휴가 유형명 수정',null,deepCopy(hrLeaveTypes[${i}]),'유형 수정');saveSettingsOnly()"><input class="inp" type="number" step="0.5" value="${Number(t.deduct||0)}" onchange="hrLeaveTypes[${i}].deduct=Number(this.value||0);saveSettingsOnly()"><label><input type="checkbox" ${t.workCredit?'checked':''} onchange="hrLeaveTypes[${i}].workCredit=this.checked;saveSettingsOnly()"> 근무 인정</label><label><input type="checkbox" ${t.attendanceImpact?'checked':''} onchange="hrLeaveTypes[${i}].attendanceImpact=this.checked;saveSettingsOnly()"> 출근율 영향</label></div>`).join('')}</div>
+    <button class="toss-btn primary" onclick="hrLeaveTypes.push({id:'type_'+Date.now(),name:'새 유형',deduct:0,workCredit:false,attendanceImpact:false,color:'#8E8E93'});openHrLeaveTypeManager();saveSettingsOnly();">유형 추가</button><button class="cancel-link" onclick="closeM();render({preserveScroll:true})">닫기</button></div></div>`;
+}
+function openHrAuditLogs(){
+  document.getElementById('modal').innerHTML=`<div class="modal-bg" onclick="closeM(event)"><div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-ind"></div><div class="modal-hd">근태 수정 이력</div><div class="hr-audit-list">${(hrAuditLogs||[]).slice(0,50).map(l=>`<div class="hr-audit-row"><b>${escapeHtml(l.text||l.kind)}</b><span>${new Date(l.at||Date.now()).toLocaleString('ko-KR')} · ${escapeHtml(l.editor||'관리자')}</span><em>${escapeHtml(l.reason||'')}</em></div>`).join('')||'아직 수정 이력이 없어요.'}</div><button class="cancel-link" onclick="closeM()">닫기</button></div></div>`;
+}
+
 function settingsTabAvatarName(){return '공통';}
 function updateSettingsTabAvatar(){return;}
 function renderSettingsTab(){
@@ -2319,6 +2542,7 @@ function renderSettingsTab(){
       <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
       <button class="toss-btn" onclick="toggleEditMode()">모드 전환</button>
       <button class="toss-btn" onclick="openRoutineManagerFromProfile()">반복 관리</button>
+      <button class="toss-btn primary" onclick="setMain('hr')">근태 관리</button>
       <button class="toss-btn primary" onclick="openManageCenter()">관리 도구</button>
     </div>
     <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중...':'현재 로컬 저장 모드 · Firebase 설정 필요'}</div>
@@ -4240,11 +4464,11 @@ function renderSearchBox(){
 
 function updateTabUI(){
   const activeMain = main==='i' ? 'set' : main;
-  const keys=['s','c','r','m','set'];
+  const keys=['s','c','hr','r','m','set'];
   keys.forEach(k=>{
     const el=document.getElementById('tab-'+k);
     if(!el)return;
-    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='r'?'tab-r':k==='m'?'tab-m':'tab-set';
+    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='hr'?'tab-hr':k==='r'?'tab-r':k==='m'?'tab-m':'tab-set';
     const on=k===activeMain;
     el.className=`tab ${cls} tab-item${on?' on active':''}`;
     el.setAttribute('aria-selected',on?'true':'false');
@@ -4644,11 +4868,13 @@ function openHolidayManager(){
       <div class="ml">날짜</div>
       <input class="picker-field empty" id="hol-date" readonly data-val="" value="날짜 선택" onclick="openDatePicker('hol-date')"/>
       <div class="ml">공휴일 이름</div>
-      <input class="mi" id="hol-name" placeholder="예: 우리 가족 축하"/>
+      <input class="mi" id="hol-name" placeholder="예: 회사 창립기념일"/>
+      <div class="ml">적용 범위</div>
+      <select class="mi" id="hol-scope"><option value="all">전체 공통</option>${(hrSettings.branches||[]).map(b=>`<option value="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join('')}<option value="personal">직원 개인별 예외</option></select>
       <button class="primary-btn" onclick="saveCustomHoliday()">추가</button>
       <div class="div"></div>
       ${list.length?list.map(h=>`<div class="trash-item">
-        <div class="trash-title">${dateLabel(h.date)} · ${escapeHtml(h.name)}</div>
+        <div class="trash-title">${dateLabel(h.date)} · ${escapeHtml(h.name)}${h.scope&&h.scope!=='all'?` · ${escapeHtml(h.scope)}`:''}</div>
         <div class="action-grid"><button class="toss-btn" onclick="delCustomHoliday('${h.id}')">삭제</button></div>
       </div>`).join(''):'<div class="empty">추가한 공휴일이 없어요</div>'}
       <button class="cancel-link" onclick="closeM()">닫기</button>
@@ -4659,8 +4885,9 @@ function saveCustomHoliday(){
   if(!requireEditMode())return;
   const date=getPickerVal('hol-date');
   const name=(document.getElementById('hol-name')||{}).value||'';
+  const scope=(document.getElementById('hol-scope')||{}).value||'all';
   if(!date||!name.trim())return alert('날짜와 이름을 입력해 주세요.');
-  customHolidays.push({id:Date.now(),date,name:name.trim()});
+  customHolidays.push({id:Date.now(),date,name:name.trim(),scope,branch:(hrSettings.branches||[]).includes(scope)?scope:''});
   saveSettingsOnly();openHolidayManager();render();
 }
 function delCustomHoliday(id){
@@ -5746,6 +5973,7 @@ function _renderImpl(opts={}){
     else if(main==='i')h=renderI();
     else if(main==='r')h=renderR();
     else if(main==='m')h=renderM();
+    else if(main==='hr')h=renderHrDashboard();
     else if(main==='set')h=renderSettingsTab();
     else {main='s';h=renderS();}
     body.innerHTML=htmlJoin([renderTopSwipeZone(),renderFirstUseGuide(),renderSearchBox(),h,renderFab()]);
