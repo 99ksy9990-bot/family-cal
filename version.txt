@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.8
-PASS_BUILD=v1.3.8-design-polish
+PASS_VERSION=v1.3.9
+PASS_BUILD=v1.3.9-shift-in-today

@@ -1,6 +1,6 @@
-﻿const APP_VERSION='v1.3.8';
-const PASS_BUILD_VERSION='v1.3.8-design-polish';
-const APP_UPDATED='2026-05-08';
+﻿const APP_VERSION='v1.3.9';
+const PASS_BUILD_VERSION='v1.3.9-shift-in-today';
+const APP_UPDATED='2026-05-11';
 
 
 
@@ -3898,35 +3898,58 @@ function openReqModal(id){
   const writers=requestWriterOptions();
   const directMode=writer && !writers.includes(writer);
   const selectedWriter=directMode?'__direct':(writer||writers[0]||'__direct');
+  const dueDate=(r&&r.dueDate)||'';
+  const dueTime=(r&&r.dueTime)||'';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet add-flow-sheet todo-flow-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
-      <div class="ml">할일 내용</div>
-      <input class="mi" id="rq-ti" placeholder="무엇을 해야 하나요?" value="${r?escapeAttr(r.title):''}"/>
-      <div class="ml">작성자</div>
-      <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
-      <div class="request-writer-tabs">
-        ${writers.map(w=>`<button type="button" class="rq-writer-btn${selectedWriter===w?' on':''}" data-writer="${escapeAttr(w)}" onclick="selectReqWriter(${onclickArg(w)})">${escapeHtml(w)}</button>`).join('')}
-        <button type="button" class="rq-writer-btn${selectedWriter==='__direct'?' on':''}" data-writer="__direct" onclick="selectReqWriter('__direct')">직접 입력</button>
+      <div class="add-flow-head">
+        <div>
+          <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
+          <p>누가, 언제, 무엇을만 먼저 적으면 돼요.</p>
+        </div>
       </div>
-      <input class="mi rq-writer-direct" id="rq-wr" placeholder="직접 작성자 입력" value="${directMode?escapeAttr(writer):''}" style="display:${selectedWriter==='__direct'?'block':'none'}"/>
-      <div class="request-writer-help">프로필 센터에 등록된 가족을 작성자로 선택할 수 있어요.</div>
-      <div class="ml">요청 일자</div>
-      <input class="picker-field" id="rq-date" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openDatePicker('rq-date')"/>
-      <div class="ml">마감</div>
-      <div class="mi-2">
-        <div><div class="sublabel">마감일</div><input class="picker-field${r&&r.dueDate?'':' empty'}" id="rq-due-date" readonly data-val="${r&&r.dueDate?r.dueDate:''}" value="${r&&r.dueDate?dateLabel(r.dueDate):'마감일 없음'}" onclick="openDatePicker('rq-due-date')"/></div>
-        <div><div class="sublabel">마감 시간</div><input class="picker-field${r&&r.dueTime?'':' empty'}" id="rq-due-time" readonly data-val="${r&&r.dueTime?r.dueTime:''}" value="${r&&r.dueTime?timeLabel(r.dueTime):'시간 없음'}" onclick="openTimePicker('rq-due-time')"/></div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>1</span><b>누가</b></div>
+        <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
+        <div class="request-writer-tabs todo-person-row">
+          ${writers.map(w=>`<button type="button" class="rq-writer-btn avatar-only${selectedWriter===w?' on':''}" data-writer="${escapeAttr(w)}" onclick="selectReqWriter(${onclickArg(w)})" aria-label="${escapeAttr(w)}" title="${escapeAttr(w)}">${avatarMarkup(personAvatar(w),w,'avatar-img-small')}</button>`).join('')}
+          <button type="button" class="rq-writer-btn direct-writer-btn${selectedWriter==='__direct'?' on':''}" data-writer="__direct" onclick="selectReqWriter('__direct')">직접</button>
+        </div>
+        <input class="mi rq-writer-direct" id="rq-wr" placeholder="직접 작성자 입력" value="${directMode?escapeAttr(writer):''}" style="display:${selectedWriter==='__direct'?'block':'none'}"/>
       </div>
-      ${r&&isDone(r)?`<div class="ml">완료 일자</div><input class="picker-field${r.doneAt?'':' empty'}" id="rq-done" readonly data-val="${r.doneAt||''}" value="${r.doneAt?dateLabel(r.doneAt):'완료일 없음'}" onclick="openDatePicker('rq-done')"/>`:''}
-      <div class="ml">메모</div>
-      <textarea class="ta" id="rq-cm" placeholder="진행 상황이나 메모를 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>2</span><b>언제</b></div>
+        <input type="hidden" id="rq-date" data-val="${reqDate}" value="${dateLabel(reqDate)}"/>
+        <div class="add-when-grid todo-when-grid">
+          <div><div class="sublabel">요청일</div><input class="picker-field" id="rq-date-view" readonly data-val="${reqDate}" value="${dateLabel(reqDate)}" onclick="openTodoRequestDatePicker()"/></div>
+          <div><div class="sublabel">마감일</div><input class="picker-field${dueDate?'':' empty'}" id="rq-due-date" readonly data-val="${dueDate}" value="${dueDate?dateLabel(dueDate):'마감일 없음'}" onclick="openDatePicker('rq-due-date')"/></div>
+          <div><div class="sublabel">마감 시간</div><input class="picker-field${dueTime?'':' empty'}" id="rq-due-time" readonly data-val="${dueTime}" value="${dueTime?timeLabel(dueTime):'시간 없음'}" onclick="openTimePicker('rq-due-time')"/></div>
+        </div>
+      </div>
+      <div class="add-flow-card add-what-card">
+        <div class="add-step-head"><span>3</span><b>무엇을</b></div>
+        <input class="mi" id="rq-ti" placeholder="예: 준비물 확인, 병원 예약" value="${r?escapeAttr(r.title):''}"/>
+      </div>
+      <details class="detail-settings">
+        <summary>메모, 완료일 더 설정</summary>
+        <div class="detail-settings-panel">
+          ${r&&isDone(r)?`<div class="ml">완료 일자</div><input class="picker-field${r.doneAt?'':' empty'}" id="rq-done" readonly data-val="${r.doneAt||''}" value="${r.doneAt?dateLabel(r.doneAt):'완료일 없음'}" onclick="openDatePicker('rq-done')"/>`:''}
+          <div class="ml">메모</div>
+          <textarea class="ta" id="rq-cm" placeholder="진행 상황이나 메모를 적어주세요">${r?escapeHtml(r.comment||''):''}</textarea>
+        </div>
+      </details>
       <button class="primary-btn" onclick="saveReq('${r?r.id:''}')">저장</button>
       <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
   </div>`;
+}
+function openTodoRequestDatePicker(){
+  const main=document.getElementById('rq-date');
+  const view=document.getElementById('rq-date-view');
+  if(main&&view)main.dataset.val=view.dataset.val||main.dataset.val||todayKey();
+  openDatePicker('rq-date-view');
 }
 function openEditReq(id){openReqModal(id)}
 function saveReq(id){
@@ -3940,7 +3963,7 @@ function saveReq(id){
   const directWriter=(document.getElementById('rq-wr')||{}).value||'';
   const writer=writerMode==='__direct'?directWriter.trim():writerMode.trim();
   const comment=(document.getElementById('rq-cm')||{}).value||'';
-  const requestDate=getPickerVal('rq-date')||todayKey();
+  const requestDate=getPickerVal('rq-date-view')||getPickerVal('rq-date')||todayKey();
   const dueDate=getPickerVal('rq-due-date');
   const dueTime=getPickerVal('rq-due-time');
   let r=null;
@@ -4920,42 +4943,67 @@ function shiftDayColDateHtml(dateKey){
   return `<span class="col-date-num">${dd}</span><span class="col-date-dow">${escapeHtml(dow)}</span>`;
 }
 
+function renderShiftFiveDayBody(base=scheduleBaseKey()){
+  normalizeShiftUsers();
+  if(!shiftUsers.length)return '';
+  const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
+  const showHint=shiftSwipeHintInfo();
+  return `${shiftUsers.map(user=>`
+    <div class="shift-5day-row">
+      <div class="shift-person" title="${escapeAttr(user)}">
+        ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
+        <span class="shift-person-name">${escapeHtml(user)}</span>
+      </div>
+      <div class="shift-days-container">
+        ${keys.map((k,i)=>{
+          const status=shiftDisplayStatusFor(k,user);
+          const label=status?shortShiftLabel(status):'-';
+          const badgeClass=status?shiftBadgeClass(status):'shift-empty';
+          const [yy,mm,dd]=k.split('-').map(Number);
+          const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
+          return `<button type="button" class="shift-day-col ${i===2?'today':''}" title="${mm}/${dd} (${dow}) · ${escapeAttr(user)} · ${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')">
+            <span class="col-date">${shiftDayColDateHtml(k)}</span>
+            <span class="col-badge shift-one ${badgeClass}">${escapeHtml(label)}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('')}${showHint?`<div class="shift-swipe-hint-text compact">좌우로 밀어 날짜 이동</div>`:''}`;
+}
+
 function renderShiftWidget(){
   if(main!=='s')return '';
   normalizeShiftUsers();
   if(!shiftUsers.length)return '';
-  const base=scheduleBaseKey();
-  const keys=[-2,-1,0,1,2].map(i=>addDaysStr(base,i));
-  const showHint=shiftSwipeHintInfo();
   return `<div class="shift-widget-shell shift-5day-shell"
     ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
     onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
     <div class="shift-5day-widget calendar-sync-shift-widget">
-      ${shiftUsers.map(user=>{
-        const p=(family||[]).find(f=>(f.name||'')===user);
-        return `<div class="shift-5day-row">
-          <div class="shift-person" title="${escapeAttr(user)}">
-            ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
-            <span class="shift-person-name">${escapeHtml(user)}</span>
-          </div>
-          <div class="shift-days-container">
-            ${keys.map((k,i)=>{
-              const status=shiftDisplayStatusFor(k,user);
-              const label=status?shortShiftLabel(status):'-';
-              const badgeClass=status?shiftBadgeClass(status):'shift-empty';
-              const [yy,mm,dd]=k.split('-').map(Number);
-              const dow=DAYS[new Date(yy,mm-1,dd).getDay()];
-              return `<button type="button" class="shift-day-col ${i===2?'today':''}" title="${mm}/${dd} (${dow}) · ${escapeAttr(user)} · ${escapeAttr(status||'미입력')}" onclick="event.stopPropagation();openShiftPicker('${k}')">
-                <span class="col-date">${shiftDayColDateHtml(k)}</span>
-                <span class="col-badge shift-one ${badgeClass}">${escapeHtml(label)}</span>
-              </button>`;
-            }).join('')}
-          </div>
-        </div>`;
-      }).join('')}
-      ${showHint?`<div class="shift-swipe-hint-text compact">좌우로 밀어 날짜 이동</div>`:''}
+      ${renderShiftFiveDayBody()}
     </div>
   </div>`;
+}
+
+function renderTodayShiftSection(){
+  normalizeShiftUsers();
+  if(!shiftUsers.length)return '';
+  const baseKey=scheduleBaseKey();
+  const [y,m,d]=baseKey.split('-').map(Number);
+  const dow=DAYS[new Date(y,m-1,d).getDay()];
+  return `<section class="today-shift-section" aria-label="근무표">
+    <div class="today-shift-head">
+      <div>
+        <div class="today-shift-title">근무표</div>
+        <div class="today-shift-sub">${m}/${d} (${dow}) 기준</div>
+      </div>
+      <button type="button" class="today-shift-action" onclick="openShiftPicker('${baseKey}')">수정</button>
+    </div>
+    <div class="shift-5day-widget calendar-sync-shift-widget today-shift-widget"
+      ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
+      onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
+      ${renderShiftFiveDayBody(baseKey)}
+    </div>
+  </section>`;
 }
 
 
@@ -5156,9 +5204,11 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
       }).join('')}</div>`
     : `<div class="dashboard-standard-list dashboard-routine-list merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
 
-  const body=bothEmpty
+  const shiftSection=renderTodayShiftSection();
+  const scheduleRoutineBody=bothEmpty
     ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
     : `${scheduleBody}${schedule.length&&routines.length?`<div class="dashboard-section-divider merged-section-divider" aria-hidden="true"></div>`:''}${routineBody}`;
+  const body=`${shiftSection}${shiftSection?`<div class="dashboard-section-divider merged-section-divider today-shift-divider" aria-hidden="true"></div>`:''}${scheduleRoutineBody}`;
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
@@ -5428,7 +5478,7 @@ function bellSvg(){
   </section>`;
 }function renderTopSwipeZone(){
   if(main!=='s')return '';
-  const parts=[renderHomeAppHeader(),renderShiftWidget(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
+  const parts=[renderHomeAppHeader(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
   if(!parts)return '';
   return `<div class="top-swipe-zone">${parts}</div>`;
 }
@@ -6225,6 +6275,80 @@ function closePicker(){
   if(p)p.innerHTML='';
 }
 
+let pickerCalY=TY,pickerCalM=TM,pickerTargetId='';
+function datePickerTitle(id){
+  if(id==='m-sd'||id==='e-sd')return '일정 날짜 선택';
+  if(id==='rq-date-view')return '요청일 선택';
+  if(id==='rq-due-date')return '마감일 선택';
+  if(id==='m-re'||id==='e-re'||String(id||'').includes('-re'))return '반복 종료일 선택';
+  return '날짜 선택';
+}
+function renderDatePickerCalendarGrid(targetId){
+  const y=pickerCalY,m=pickerCalM;
+  ensureHolidayYear(y);
+  const selected=getPickerVal(targetId);
+  const dInM=new Date(y,m+1,0).getDate();
+  const firstDay=new Date(y,m,1).getDay();
+  let g='';
+  DAYS.forEach((d,idx)=>{g+=`<div class="cal-dname${idx===0?' sun-dname':idx===6?' sat-dname':''}">${d}</div>`});
+  for(let i=0;i<firstDay;i++)g+=`<div class="date-picker-empty"></div>`;
+  for(let d=1;d<=dInM;d++){
+    const key=dk(y,m,d);
+    const dayOfWeek=new Date(y,m,d).getDay();
+    const hName=holidayName(key);
+    const isToday=y===TY&&m===TM&&d===TD;
+    const isSel=selected===key;
+    const allEvs=notesOnDateAll(y,m,d);
+    const allMems=memoriesOnDate(y,m,d);
+    const evs=filterCalendarEventsByTarget(allEvs);
+    const mems=filterCalendarMemoriesByTarget(allMems);
+    const dotHtml=renderCalendarCellDots(evs,mems);
+    const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
+    g+=`<button type="button" class="cal-cell date-picker-day${isSel?' sel':''}" onclick="selectDatePickerDay('${targetId}','${key}')" aria-label="${dateLabel(key)}">
+      <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
+      <div class="cal-shift-line">${renderCalendarShiftBadges(key)}</div>
+      <div class="cal-dots">${dotHtml}</div>
+    </button>`;
+  }
+  return g;
+}
+function renderDatePickerCalendar(targetId){
+  return `
+  <div class="picker-bg action-picker-bg date-action-picker calendar-date-picker" onclick="closePicker()">
+    <div class="picker-sheet action-picker-sheet date-calendar-sheet" onclick="event.stopPropagation()">
+      <div class="date-picker-nav">
+        <button type="button" class="cal-nav-btn" onclick="changeDatePickerMonth(-1)" aria-label="이전 달">‹</button>
+        <div class="cal-nav-title">${pickerCalY}년 ${pickerCalM+1}월</div>
+        <button type="button" class="cal-nav-btn" onclick="changeDatePickerMonth(1)" aria-label="다음 달">›</button>
+      </div>
+      <div class="picker-title">${datePickerTitle(targetId)}</div>
+      <div class="cal-grid date-picker-calendar-grid">${renderDatePickerCalendarGrid(targetId)}</div>
+      <div class="picker-actions date-calendar-actions">
+        <button class="picker-cancel" onclick="setPickerField('${targetId}','','','날짜 없음');closePicker()">비우기</button>
+        <button class="picker-save" onclick="closePicker()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+}
+function changeDatePickerMonth(delta){
+  pickerCalM+=delta;
+  if(pickerCalM<0){pickerCalM=11;pickerCalY--}
+  if(pickerCalM>11){pickerCalM=0;pickerCalY++}
+  const root=pickerRoot();
+  if(root&&pickerTargetId)root.innerHTML=renderDatePickerCalendar(pickerTargetId);
+}
+function selectDatePickerDay(id,val){
+  setPickerField(id,val,dateLabel(val),'날짜 없음');
+  if(id==='rq-date-view'){
+    const hidden=document.getElementById('rq-date');
+    if(hidden){
+      hidden.dataset.val=val||'';
+      hidden.value=val?dateLabel(val):'날짜 없음';
+    }
+  }
+  closePicker();
+}
+
 function openBirthPicker(id){
   const cur=getPickerVal(id)||'2000-01-01';
   const [cy,cm,cd]=cur.split('-').map(Number);
@@ -6267,24 +6391,10 @@ function saveBirthPicker(id){
 function openDatePicker(id){
   const cur=getPickerVal(id)||new Date().toISOString().slice(0,10);
   const [cy,cm,cd]=cur.split('-').map(Number);
-  const years=[];
-  for(let y=TY-5;y<=TY+5;y++)years.push(y);
-  const opts=(arr,sel)=>arr.map(v=>`<option value="${v}" ${v===sel?'selected':''}>${v}</option>`).join('');
-  pickerRoot().innerHTML=`
-  <div class="picker-bg" onclick="closePicker()">
-    <div class="picker-sheet" onclick="event.stopPropagation()">
-      <div class="picker-title">날짜 선택</div>
-      <div class="picker-grid">
-        <select class="picker-select" id="pk-y">${opts(years,cy)}</select>
-        <select class="picker-select" id="pk-m">${opts(Array.from({length:12},(_,i)=>i+1),cm)}</select>
-        <select class="picker-select" id="pk-d">${opts(Array.from({length:31},(_,i)=>i+1),cd)}</select>
-      </div>
-      <div class="picker-actions">
-        <button class="picker-cancel" onclick="setPickerField('${id}','','${''}','날짜 없음');closePicker()">비우기</button>
-        <button class="picker-save" onclick="saveDatePicker('${id}')">선택</button>
-      </div>
-    </div>
-  </div>`;
+  pickerTargetId=id;
+  pickerCalY=cy||TY;
+  pickerCalM=(cm?cm-1:TM);
+  pickerRoot().innerHTML=renderDatePickerCalendar(id);
 }
 function saveDatePicker(id){
   const y=+document.getElementById('pk-y').value;
