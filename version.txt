@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.9
-PASS_BUILD=v1.3.9-shift-in-today
+PASS_VERSION=v1.3.19
+PASS_BUILD=v1.3.19-compact-schedule-rows

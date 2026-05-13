@@ -1,6 +1,6 @@
-﻿const APP_VERSION='v1.3.9';
-const PASS_BUILD_VERSION='v1.3.9-shift-in-today';
-const APP_UPDATED='2026-05-11';
+﻿const APP_VERSION='v1.3.19';
+const PASS_BUILD_VERSION='v1.3.19-compact-schedule-rows';
+const APP_UPDATED='2026-05-13';
 
 
 
@@ -2496,6 +2496,26 @@ function sortScheduleList(arr){
   if(scheduleSort==='manual')return arr;
   return [...arr].sort((a,b)=>scheduleSortKey(a).localeCompare(scheduleSortKey(b)));
 }
+function sortPastScheduleList(arr,baseKey=scheduleBaseKey()){
+  const ddayRank=n=>{
+    const k=scheduleListDate(n)||n.start||'';
+    if(!k)return 999999;
+    const diff=daysUntilDate(k);
+    if(diff===null || diff===undefined || Number.isNaN(diff))return 999999;
+    return Math.abs(diff);
+  };
+  return [...arr].sort((a,b)=>{
+    const aa=ddayRank(a);
+    const bb=ddayRank(b);
+    if(aa!==bb)return aa-bb;
+    const da=scheduleListDate(a)||a.start||'';
+    const db=scheduleListDate(b)||b.start||'';
+    if(da!==db)return db.localeCompare(da);
+    const ta=scheduleTimeKey(a), tb=scheduleTimeKey(b);
+    if(ta!==tb)return ta.localeCompare(tb);
+    return String(a.id||'').localeCompare(String(b.id||''));
+  });
+}
 function scheduleSortLabel(){
   return scheduleSort==='person'?'대상별':scheduleSort==='special'?'특별':scheduleSort==='manual'?'입력순':'다가오는';
 }
@@ -2816,6 +2836,15 @@ function renderBriefEmptyState(kind,title,sub=''){
   const c=kind==='routine'?pickRoutineEmpty(title,sub):kind==='request'?pickRequestEmpty(title,sub):pickScheduleEmpty(title,sub);
   return `<div class="brief-empty-state brief-empty-${kind}"><div class="brief-empty-art">${escapeHtml(c.emoji)}</div><div class="brief-empty-title">${escapeHtml(c.title)}</div>${c.sub?`<div class="brief-empty-sub">${escapeHtml(c.sub)}</div>`:''}</div>`;
 }
+function compactSchedulePrompt(){
+  const prompts=[
+    '+를 눌러 일정을 등록해보세요.',
+    '새 일정을 하나 적어볼까요?',
+    '오늘 챙길 일이 생기면 +로 추가해요.',
+    '가족 일정을 +에서 바로 등록해요.'
+  ];
+  return prompts[EMPTY_SCHEDULE_PICK%prompts.length];
+}
 function emptyMessageHtml(message){
   return escapeHtml(String(message||'')).replace(/&lt;br\s*\/?&gt;/gi,'<br>');
 }
@@ -2942,14 +2971,13 @@ function makeScheduleRowCard(n,opts={}){
     <div class="swipe-bg swipe-bg-right">수정</div><div class="swipe-bg swipe-bg-left">메뉴</div>
     <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
     <div class="modern-schedule-content">
-      <div class="modern-schedule-title${done?' done':''}">${highlightText(displayNoteTitle(n))}${privateChip(n)}</div>
-      <div class="modern-schedule-date"><span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span>${escapeHtml(scheduleListDateLine(n))}</div>
+      <div class="modern-schedule-inline${done?' done':''}"><span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span class="modern-schedule-when">${escapeHtml(scheduleListDateLine(n))}</span><span class="modern-schedule-title-inline">${highlightText(displayNoteTitle(n))}</span>${privateChip(n)}</div>
     </div>
     ${dday?`<div class="modern-dday-badge${missed?' missed':''}${done?' done':''}">${escapeHtml(dday)}</div>`:''}
   </div>`;
 }
 function renderSchedulePersonGroups(list,opts={}){
-  const arr=scheduleListSort(list||[]);
+  const arr=opts.keepOrder||opts.past ? (list||[]) : scheduleListSort(list||[]);
   if(!arr.length)return '';
   return arr.map(n=>makeScheduleRowCard(n,opts)).join('');
 }
@@ -3051,15 +3079,15 @@ function openQuickAddSheet(dateVal){
       <div class="quick-add-panel">
         <button class="smart-fab-option quick-add-row" onclick="closeM();openAddModal('${d}')">
           ${quickAddSvg('schedule')}
-          <span><b>일정</b></span>
+          <span><b>일정추가</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openReqModal()">
           ${quickAddSvg('todo')}
-          <span><b>할일</b></span>
+          <span><b>할일추가</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openRoutineManagerFromSchedule();setTimeout(addRepeatItem,80)">
           ${quickAddSvg('routine')}
-          <span><b>반복</b></span>
+          <span><b>반복추가</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openMemoryModal()">
           ${quickAddSvg('memory')}
@@ -3099,7 +3127,7 @@ function renderS(){
 
   active=scheduleListSort(active);
 
-  const pastList=scheduleListSort(past);
+  const pastList=sortPastScheduleList(past,baseKey);
 
   const activeCount=active.length;
   const activeAll=[...active];
@@ -3118,7 +3146,9 @@ function renderS(){
     `)}
     ${activeCards}
     <div class="div"></div>
-    ${sectionHeader('지난 일정',pastList.length,doneOpen,'toggleDone')}
+    ${sectionHeader('지난 일정',pastList.length,doneOpen,'toggleDone',`
+      <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="지난 일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, 가까운 순" title="${escapeAttr(`${scheduleFilterLabel()} · 가까운 순`)}">${filterSearchSvg()}</button>
+    `)}
     ${doneCards}
   </div>`;
 }
@@ -3896,8 +3926,7 @@ function openReqModal(id){
   const reqDate=(r&&r.requestDate)||todayKey();
   const writer=(r&&r.writer)||'';
   const writers=requestWriterOptions();
-  const directMode=writer && !writers.includes(writer);
-  const selectedWriter=directMode?'__direct':(writer||writers[0]||'__direct');
+  const selectedWriter=(writer&&writers.includes(writer))?writer:(writers[0]||'공통');
   const dueDate=(r&&r.dueDate)||'';
   const dueTime=(r&&r.dueTime)||'';
   document.getElementById('modal').innerHTML=`
@@ -3915,9 +3944,7 @@ function openReqModal(id){
         <input type="hidden" id="rq-writer-mode" value="${escapeAttr(selectedWriter)}"/>
         <div class="request-writer-tabs todo-person-row">
           ${writers.map(w=>`<button type="button" class="rq-writer-btn avatar-only${selectedWriter===w?' on':''}" data-writer="${escapeAttr(w)}" onclick="selectReqWriter(${onclickArg(w)})" aria-label="${escapeAttr(w)}" title="${escapeAttr(w)}">${avatarMarkup(personAvatar(w),w,'avatar-img-small')}</button>`).join('')}
-          <button type="button" class="rq-writer-btn direct-writer-btn${selectedWriter==='__direct'?' on':''}" data-writer="__direct" onclick="selectReqWriter('__direct')">직접</button>
         </div>
-        <input class="mi rq-writer-direct" id="rq-wr" placeholder="직접 작성자 입력" value="${directMode?escapeAttr(writer):''}" style="display:${selectedWriter==='__direct'?'block':'none'}"/>
       </div>
       <div class="add-flow-card">
         <div class="add-step-head"><span>2</span><b>언제</b></div>
@@ -3959,9 +3986,7 @@ function saveReq(id){
     alert('할일 이름을 먼저 적어주세요!');
     return;
   }
-  const writerMode=(document.getElementById('rq-writer-mode')||{}).value||'__direct';
-  const directWriter=(document.getElementById('rq-wr')||{}).value||'';
-  const writer=writerMode==='__direct'?directWriter.trim():writerMode.trim();
+  const writer=((document.getElementById('rq-writer-mode')||{}).value||requestWriterOptions()[0]||'공통').trim();
   const comment=(document.getElementById('rq-cm')||{}).value||'';
   const requestDate=getPickerVal('rq-date-view')||getPickerVal('rq-date')||todayKey();
   const dueDate=getPickerVal('rq-due-date');
@@ -4800,9 +4825,9 @@ function renderNoticeBanner(){
     : '';
   const scheduleParts=scheduleCountsByPerson(base);
   const scheduleBanner=scheduleParts.length
-    ? `<div class="notice-banner schedule-routine-brief-banner" onclick="document.getElementById('today-briefing-capture')?.scrollIntoView({behavior:'smooth',block:'center'})" style="cursor:pointer" role="button">🔔 일정 ${escapeHtml(scheduleParts.join(', '))} 확인해주세요 <span class="notice-go">›</span></div>`
+    ? `<div class="notice-banner schedule-routine-brief-banner" onclick="filterToday=true;activeOpen=true;render({preserveScroll:true})" style="cursor:pointer" role="button">🔔 일정 ${escapeHtml(scheduleParts.join(', '))} 확인해주세요 <span class="notice-go">›</span></div>`
     : '';
-  return workTodoBanner+scheduleBanner;
+  return scheduleBanner+workTodoBanner;
 }
 
 
@@ -4988,21 +5013,24 @@ function renderTodayShiftSection(){
   normalizeShiftUsers();
   if(!shiftUsers.length)return '';
   const baseKey=scheduleBaseKey();
-  const [y,m,d]=baseKey.split('-').map(Number);
-  const dow=DAYS[new Date(y,m-1,d).getDay()];
+  const rows=shiftUsers.map(user=>{
+    const status=shiftDisplayStatusFor(baseKey,user);
+    const label=status?shortShiftLabel(status):'-';
+    const badgeClass=status?shiftBadgeClass(status):'shift-empty';
+    return `<button type="button" class="today-shift-current-row" onclick="openShiftPicker('${baseKey}')" title="${escapeAttr(user)} · ${escapeAttr(status||'미입력')}">
+      <span class="today-shift-person">
+        ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
+        <span class="today-shift-name" style="color:${personColor(user)}">${escapeHtml(user)}</span>
+        <span class="today-shift-work-text">${escapeHtml(label)}</span>
+      </span>
+    </button>`;
+  }).join('');
   return `<section class="today-shift-section" aria-label="근무표">
     <div class="today-shift-head">
-      <div>
-        <div class="today-shift-title">근무표</div>
-        <div class="today-shift-sub">${m}/${d} (${dow}) 기준</div>
-      </div>
+      <div class="today-brief-section-title">근무표</div>
       <button type="button" class="today-shift-action" onclick="openShiftPicker('${baseKey}')">수정</button>
     </div>
-    <div class="shift-5day-widget calendar-sync-shift-widget today-shift-widget"
-      ontouchstart="startShiftSwipe(event)" ontouchmove="moveShiftSwipe(event)" ontouchend="endShiftSwipe(event)"
-      onmousedown="startShiftSwipe(event)" onmousemove="moveShiftSwipe(event)" onmouseup="endShiftSwipe(event)" onmouseleave="endShiftSwipe(event)">
-      ${renderShiftFiveDayBody(baseKey)}
-    </div>
+    <div class="today-shift-current-list">${rows}</div>
   </section>`;
 }
 
@@ -5171,8 +5199,8 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const bothEmpty=!schedule.length&&!routines.length;
 
   const scheduleBody=schedule.length
-    ? `<div class="dashboard-standard-list merged-schedule-wrap">${schedule.map(n=>makeTodayDashboardStandardRow(n,{baseKey})).join('')}</div>`
-    : `<div class="dashboard-standard-list merged-schedule-wrap merged-empty-card">${renderBriefEmptyState('schedule','등록 일정 없음')}</div>`;
+    ? `<section class="today-brief-section today-schedule-section"><div class="today-brief-section-title">등록 일정</div><div class="dashboard-standard-list merged-schedule-wrap">${schedule.map(n=>makeTodayDashboardStandardRow(n,{baseKey})).join('')}</div></section>`
+    : `<section class="today-brief-section today-schedule-section"><div class="today-brief-section-title">등록 일정</div><div class="dashboard-standard-list merged-schedule-wrap merged-empty-card compact-brief-empty"><div class="compact-brief-empty-title">${escapeHtml(compactSchedulePrompt())}</div></div></section>`;
 
   const routineGroups={};
   routines.forEach(n=>{
@@ -5183,13 +5211,13 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
   const maxRows=groupKeys.length?Math.max(...groupKeys.map(w=>routineGroups[w].length)):0;
   const routineBody=groupKeys.length
-    ? `<div class="merged-routine-wrap dashboard-routine-2col">${groupKeys.map(who=>{
+    ? `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div><button type="button" class="today-brief-section-action" onclick="openRoutineManagerFromSchedule()">관리</button></div><div class="merged-routine-wrap dashboard-routine-2col">${groupKeys.map(who=>{
         const rows=routineGroups[who];
         const filler=Math.max(0,maxRows-rows.length);
         return `<div class="merged-routine-group routine-2col-card">
           <div class="merged-routine-head routine-2col-head">
             <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-            <div class="merged-routine-person under-avatar">${escapeHtml(who)}</div>
+            <div class="merged-routine-person beside-avatar" style="color:${personColor(who)}">${escapeHtml(who)}</div>
           </div>
           <div class="merged-routine-box routine-2col-box">${rows.map(n=>{
             const tm=todayTimeOnly(n)||'';
@@ -5201,8 +5229,8 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
             </div>`;
           }).join('')}${Array.from({length:filler},()=>`<div class="merged-routine-row routine-2col-row routine-placeholder-row" aria-hidden="true"><div class="merged-routine-title">&nbsp;</div><div class="merged-routine-time">&nbsp;</div></div>`).join('')}</div>
         </div>`;
-      }).join('')}</div>`
-    : `<div class="dashboard-standard-list dashboard-routine-list merged-empty-card">${renderBriefEmptyState('routine','반복 없음')}</div>`;
+      }).join('')}</div></section>`
+    : `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div><button type="button" class="today-brief-section-action" onclick="openRoutineManagerFromSchedule()">관리</button></div><div class="dashboard-standard-list dashboard-routine-list merged-empty-card compact-brief-empty"><div class="compact-brief-empty-title">반복 없음</div></div></section>`;
 
   const shiftSection=renderTodayShiftSection();
   const scheduleRoutineBody=bothEmpty
@@ -5213,7 +5241,6 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
       ${body}
-      <div class="routine-manage-inline"><button type="button" onclick="openRoutineManagerFromSchedule()">반복 관리</button></div>
     </div>
   </div>`;
 }
@@ -5381,21 +5408,53 @@ function getBriefingEvents(baseKey=scheduleBaseKey()){
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   return sortByStartTime([...normal,...familyInfoEventsForKey(baseKey),...manual]);
 }
+function briefingPersonEmoji(who){
+  const w=String(who||'공통');
+  if(w.includes('아빠'))return '👨';
+  if(w.includes('엄마'))return '👩';
+  if(w.includes('첫째')||w.includes('초이'))return '👧';
+  if(w.includes('둘째')||w.includes('도미'))return '👦';
+  if(w==='공통')return '🏠';
+  return '👤';
+}
+function stripTimeFromBriefingTitle(title){
+  return String(title||'일정')
+    .replace(/\b([01]?\d|2[0-3])[:시]\s*([0-5]\d)?\s*(분)?\b/g,'')
+    .replace(/\s*[~\-–]\s*$/,'')
+    .replace(/\s{2,}/g,' ')
+    .trim() || String(title||'일정');
+}
+function briefingEventLine(n){
+  const title=stripTimeFromBriefingTitle(n.title||'일정');
+  const time=todayTimeOnly(n);
+  return `${title}${time?` ${time}`:''}`;
+}
 function copyTodayBriefing(){
   const key=scheduleBaseKey();
   const [y,m,d]=key.split('-').map(Number);
   const dt=new Date(y,m-1,d);
   const title=`[${m}월 ${d}일 (${DAYS[dt.getDay()]}) 가족 브리핑 🔔]`;
   const lines=[title];
-  const shift=shiftData[key]||'';
-  if(shift)lines.push(`상태: ${shift}${STXT[shift]?` (${STXT[shift]})`:''}`);
 
   const evs=getBriefingEvents(key);
   if(evs.length){
+    const order=[...getPersons(),...evs.map(n=>n.who||'공통')];
+    const groups={};
     evs.forEach(n=>{
       const who=n.who||'공통';
-      const time=todayTimeOnly(n);
-      lines.push(`${personAvatar(who).startsWith('family_')?'🏠':'•'} ${who}: ${n.title||'일정'}${time?` (${time})`:''}`);
+      if(!groups[who])groups[who]=[];
+      groups[who].push(n);
+    });
+    Object.keys(groups).sort((a,b)=>{
+      const ia=order.indexOf(a), ib=order.indexOf(b);
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    }).forEach(who=>{
+      lines.push('');
+      lines.push(`${briefingPersonEmoji(who)} ${who}`);
+      const shift=shiftDisplayStatusFor(key,who);
+      const items=groups[who].map(briefingEventLine);
+      if(shift)lines.push([`${shortShiftLabel(shift)}근무`,...items].join(' · '));
+      else lines.push(...items);
     });
   }else{
     lines.push('오늘 등록된 일정은 없어요.');
@@ -5451,30 +5510,33 @@ function renderHomeWidgets(){
   const noteRoutineToday=notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,baseKey))
     .map(n=>({...n,start:baseKey,end:baseKey,_repeatInstance:true}));
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
-  return `<div class="dashboard-swipe-sync">${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}</div>`;
+  const dueToday=dueRequestsForDate(baseKey);
+  const dueHtml=dueToday.length?`<div class="today-todo-nudge">
+    <div class="today-todo-nudge-title">오늘 할일</div>
+    ${dueToday.map(r=>`<button class="today-todo-nudge-row" onclick="setMain('r')">
+      <span>${escapeHtml(r.title||'할일')}</span>
+      <em>${escapeHtml(r.dueTime?timeLabel(r.dueTime):'오늘까지')}</em>
+    </button>`).join('')}
+  </div>`:'';
+  return `<div class="dashboard-swipe-sync">${dueHtml}${renderTodayListDashboard('오늘 일정',normalToday,routineToday)}</div>`;
 }
 function bellSvg(){
   return '<svg class="home-head-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9.8a6 6 0 1 0-12 0c0 6-2.4 6.7-2.4 6.7h16.8S18 15.8 18 9.8Z"/><path d="M9.8 19a2.4 2.4 0 0 0 4.4 0"/></svg>';
+}
+function familySettingsSvg(){
+  return '<svg class="home-head-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.8 19c.7-3.2 2.5-5 5.2-5s4.5 1.8 5.2 5"/><path d="M14.5 15c2.4.1 4 .9 5.7 3.7"/></svg>';
 }function renderHomeAppHeader(){
   if(main!=='s')return '';
   const base=scheduleBaseKey();
-  const normalToday=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,base));
-  const routineToday=[...familyInfoEventsForKey(base),...notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,base))];
-  const due=dueRequestsForDate(base);
-  const people=scheduleCountsByPerson(base).join(', ')||'가족 일정 없음';
-  const total=normalToday.length+routineToday.length+due.length;
   return `<section class="home-app-head">
     <div class="home-head-row">
       <div><div class="home-kicker">${escapeHtml(dateLabel(base))}</div><h1>오늘</h1></div>
       <div class="home-head-actions">
         <button onclick="openNoticeList()" aria-label="알림">${bellSvg()}</button>
         <button onclick="openScheduleFilterSheet()" aria-label="검색">${filterSearchSvg()}</button>
-        <button onclick="openProfileCenter()" aria-label="가족 설정">${quickAddSvg('family')}</button>
+        <button onclick="openProfileCenter()" aria-label="가족 설정">${familySettingsSvg()}</button>
       </div>
     </div>
-    <button class="home-brief-card" onclick="document.getElementById('today-briefing-capture')?.scrollIntoView({behavior:'smooth',block:'center'})">
-      <span>오늘 브리핑</span><b>${total}개 확인</b><em>${escapeHtml(people)}</em>
-    </button>
   </section>`;
 }function renderTopSwipeZone(){
   if(main!=='s')return '';

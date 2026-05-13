@@ -352,6 +352,12 @@ body, button, input, textarea, select{font-weight:500;font-family:"Pretendard","
 .default-state-note.none{background:var(--bg);color:var(--t3)}
 .schedule-collapsed-hint.warm-collapsed-hint{margin-left:18px;margin-right:18px;text-align:left;color:var(--t2);background:rgba(255,255,255,.72);border:1px solid rgba(0,0,0,.035)}
 .brief-empty-state{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:16px;text-align:center;background:var(--bg);border:none;box-shadow:none;min-height:120px;padding:18px 14px}
+.today-brief-section{display:flex;flex-direction:column;gap:8px}
+.today-brief-section-head{display:flex;align-items:center;gap:8px;min-height:24px}
+.today-brief-section-title{color:var(--t1);font-size:15px;font-weight:950;line-height:1.15}
+.today-brief-section-action{height:auto;padding:0;border:0;background:transparent;color:var(--blue-t);font-family:inherit;font-size:15px;font-weight:950;line-height:1.15}
+.compact-brief-empty{min-height:42px!important;padding:0 12px!important;justify-content:center!important;align-items:flex-start!important;background:var(--surface-sunken)!important;border-radius:14px!important}
+.compact-brief-empty-title{width:100%;height:38px;display:flex;align-items:center;color:var(--t3);font-size:13px;font-weight:900;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brief-empty-sub, .empty-sub{max-width:100%;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.35;min-height:auto}
 .brief-empty-title, .empty-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .tab{flex:1;cursor:pointer;font-family:inherit;text-align:center;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:52px;padding:0;border-radius:var(--r-md);font-size:11px;line-height:1;font-weight:850;letter-spacing:-.15px;color:var(--t1);background:var(--surface-raised);border:1px solid var(--divider);box-shadow:var(--shadow-card);backdrop-filter:blur(10px);transition:background var(--press-dur) var(--ease-smooth),
@@ -390,15 +396,22 @@ details[open] summary::after{transform:rotate(180deg);margin-top:4px}
 body > #body{width:100%;max-width:430px;margin:0 auto}
 .schedule-person-group{padding:4px 0 2px;display:contents}
 .schedule-person-group-title{align-items:center;gap:6px;height:28px;font-size:11px;font-weight:950;color:var(--t3);letter-spacing:-.1px;display:none}
-.modern-schedule-item{display:flex;align-items:center;padding:16px 4px;border-bottom:1px solid rgba(0,0,0,.05);gap:14px;background:transparent;box-shadow:none;border-radius:0;cursor:pointer;min-height:70px;position:relative}
+.modern-schedule-item{display:flex;align-items:center;padding:9px 4px;border-bottom:1px solid rgba(0,0,0,.05);gap:10px;background:transparent;box-shadow:none;border-radius:0;cursor:pointer;min-height:48px;position:relative}
 .modern-schedule-item:last-child{border-bottom:none}
 .modern-schedule-item.done{opacity:.55}
 .modern-schedule-item.missed .modern-schedule-date{color:#C0002C}
 .modern-schedule-content{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:hidden}
 .modern-schedule-title{display:flex;align-items:center;gap:6px;min-width:0;font-size:15px;font-weight:800;color:#1C1C1E;line-height:1.32;letter-spacing:-.25px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.schedule-line-card .modern-schedule-title{margin-top:4px}
+.modern-schedule-inline{display:flex;align-items:center;gap:4px;min-width:0;font-size:13.5px;font-weight:900;color:#1C1C1E;line-height:1.28;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modern-schedule-inline.done{text-decoration:line-through;color:#8B95A1}
+.modern-schedule-inline .modern-schedule-person{flex:0 0 auto}
+.modern-schedule-inline .modern-schedule-dotsep{flex:0 0 auto}
+.modern-schedule-when{flex:0 0 auto;color:var(--t2);font-weight:850}
+.modern-schedule-title-inline{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1);font-weight:950;margin-left:4px;font-size:13.5px;line-height:1.28}
 .modern-schedule-title.done{text-decoration:line-through;color:#8B95A1}
 .modern-schedule-title .private-chip{flex:0 0 auto;height:20px;padding:0 7px;border-radius:999px;background:#111;color:#fff;font-size:10px;line-height:1}
-.modern-schedule-date{min-width:0;font-size:13px;color:#8B95A1;margin-top:4px;font-weight:750;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.modern-schedule-date{min-width:0;font-size:13px;color:#8B95A1;margin-top:0;font-weight:750;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .modern-schedule-person{font-weight:900;margin-right:4px}
 .modern-schedule-dotsep{color:#C4C8CE;margin:0 5px 0 1px}
 .schedule-warning-group{padding:10px 0 0;border-bottom:1px solid var(--divider);margin-bottom:0}
@@ -1449,7 +1462,7 @@ button:focus-visible,
 .memory-date-col{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;gap:4px}
 .memory-upcoming-date{font-family:"Pretendard", "Freesentation", -apple-system, BlinkMacSystemFont, sans-serif;font-weight:800;color:#333D4B;letter-spacing:-0.2px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:12.5px}
 .memory-dday-chip{height:auto;background:#FFF0F3;color:#C0002C;border:none;font-family:"Pretendard", "Freesentation", -apple-system, BlinkMacSystemFont, sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-weight:900;border-radius:12px;box-shadow:none;font-size:11px;padding:3px 8px}
-.modern-dday-badge{flex-shrink:0;background:#FFF0F3;color:#C0002C;font-size:12px;font-weight:900;padding:6px 10px;border-radius:12px;font-variant-numeric:tabular-nums;line-height:1}
+.modern-dday-badge{flex-shrink:0;background:#FFF0F3;color:#C0002C;font-size:12px;font-weight:900;padding:5px 9px;border-radius:12px;font-variant-numeric:tabular-nums;line-height:1}
 .modern-dday-badge.missed{background:#FFF4E5;color:#7A3800}
 .modern-dday-badge.done{background:#F2F2F7;color:#8E8E93}
 .memory-row-v2{align-items:center}
@@ -1661,6 +1674,17 @@ details.manage-accordion[open] summary::after, details.detail-settings[open] sum
 .avatar-group{background:linear-gradient(180deg,#ffffff 0%,#f8f9fc 100%);border:1px solid #e8ebf2;border-radius:18px;box-shadow:0 6px 16px rgba(17,24,39,.04);padding:10px 8px}
 .avatar-group-title{font-weight:800;color:#2c2f36;margin:0 0 10px 2px;letter-spacing:-.2px;margin-bottom:6px;font-size:12px}
 .today-dashboard .routine-2col-head .merged-routine-person.under-avatar{display:none}
+.today-dashboard .routine-2col-head .merged-routine-person.beside-avatar{
+  display:block;
+  min-width:0;
+  color:var(--t1);
+  font-size:15px;
+  font-weight:950;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .today-dashboard .routine-2col-head .merged-routine-avatar, .today-dashboard .routine-2col-head .merged-routine-avatar .avatar-img{object-fit:contain;width:32px;height:32px}
 .person-routine-card .card-avatar, .person-routine-card .card-avatar .avatar-img{width:36px;height:36px}
 .person-routine-card .card-avatar{width:44px;height:44px;display:flex;align-items:center;justify-content:center;margin-bottom:3px}
@@ -1800,6 +1824,8 @@ body.modal-open{overflow:hidden;touch-action:none}
 }
 
 .merged-section-divider,.dashboard-section-divider{height:1.5px;background:rgba(0,122,255,.26) !important;margin:10px 0}
+.today-shift-divider{display:none!important}
+.today-schedule-section{border-bottom:1px solid var(--divider);padding-bottom:9px;margin-bottom:2px}
 .today-dashboard{margin-bottom:14px}
 .schedule-swipe-sync{margin-top:6px}
 
@@ -1854,7 +1880,7 @@ body[data-theme="dark"] .schedule-edit-sheet .detail-settings{background:rgba(25
   align-items:center;
   justify-content:flex-start;
   min-height:38px;
-  gap:0;
+  gap:6px;
   padding:0 8px;
 }
 .today-dashboard .routine-2col-head .merged-routine-avatar,
@@ -1984,6 +2010,33 @@ body,button,input,textarea,select{
   padding:0 16px;
   border-radius:var(--card-radius);
 }
+.schedule-card-list,
+.schedule-dashboard-list{
+  display:flex;
+  flex-direction:column;
+}
+.schedule-card-list .modern-schedule-item,
+.schedule-dashboard-list .modern-schedule-item{
+  width:100%;
+  padding-top:8px;
+  padding-bottom:8px;
+  min-height:46px;
+}
+.schedule-card-list .modern-schedule-avatar,
+.schedule-dashboard-list .modern-schedule-avatar{
+  --screen-avatar:32px;
+  width:32px !important;
+  height:32px !important;
+  min-width:32px !important;
+  flex:0 0 32px !important;
+}
+.schedule-card-list .modern-schedule-avatar .avatar-img,
+.schedule-card-list .modern-schedule-avatar .avatar-img-small,
+.schedule-dashboard-list .modern-schedule-avatar .avatar-img,
+.schedule-dashboard-list .modern-schedule-avatar .avatar-img-small{
+  width:32px !important;
+  height:32px !important;
+}
 
 .schedule-card-list .card,
 .request-list-wrap .card,
@@ -2012,8 +2065,8 @@ body,button,input,textarea,select{
 .compact-sec .sec-title,
 .schedule-swipe-sync .sec-title{
   color:var(--t1);
-  font-size:14px;
-  font-weight:850;
+  font-size:15px;
+  font-weight:950;
   letter-spacing:0;
 }
 
@@ -2024,16 +2077,16 @@ body,button,input,textarea,select{
 .today-dashboard-count,
 .today-dashboard-count.hot,
 .schedule-swipe-sync .sec-cnt{
-  min-width:28px;
-  height:26px;
-  padding:0 9px;
-  border:1px solid rgba(37,99,235,.16);
-  border-radius:999px;
-  background:var(--blue-bg);
+  min-width:0;
+  height:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
   color:var(--blue-t);
   box-shadow:none;
-  font-size:12px;
-  font-weight:850;
+  font-size:15px;
+  font-weight:950;
 }
 
 .toss-btn,
@@ -2424,6 +2477,7 @@ body[data-theme="dark"] .modal-sheet select.mi{
   flex-direction:row !important;
   align-items:center !important;
   justify-content:flex-start !important;
+  gap:6px !important;
   padding:0 10px 3px 0 !important;
   margin:0 !important;
 }
@@ -3138,8 +3192,8 @@ body[data-theme="dark"] .private-inline-toggle.tf{background:transparent!importa
 .today-shift-head{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-start;
+  gap:8px;
   margin:0 0 8px;
 }
 .today-shift-title{
@@ -3149,23 +3203,20 @@ body[data-theme="dark"] .private-inline-toggle.tf{background:transparent!importa
   line-height:1.1;
 }
 .today-shift-sub{
-  margin-top:3px;
-  color:var(--t3);
-  font-size:10.5px;
-  font-weight:850;
-  line-height:1.1;
+  display:none;
 }
 .today-shift-action{
   flex:0 0 auto;
-  height:28px;
-  padding:0 10px;
-  border:1px solid rgba(37,99,235,.16);
-  border-radius:999px;
-  background:var(--blue-bg);
+  height:auto;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
   color:var(--blue-t);
   font-family:inherit;
-  font-size:11px;
+  font-size:15px;
   font-weight:950;
+  line-height:1.15;
 }
 .today-dashboard .today-shift-widget{
   box-shadow:none;
@@ -3173,6 +3224,56 @@ body[data-theme="dark"] .private-inline-toggle.tf{background:transparent!importa
   border-radius:16px;
   background:var(--repeat-surface,#F4F4F6);
   padding:8px 9px;
+}
+.today-shift-current-list{
+  display:grid;
+  gap:7px;
+}
+.today-shift-current-row{
+  width:100%;
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:10px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--t1);
+  font-family:inherit;
+  padding:2px 0;
+  text-align:left;
+}
+.today-shift-person{
+  display:inline-flex;
+  align-items:center;
+  min-width:0;
+  gap:8px;
+}
+.today-shift-person .shift-micro-avatar{
+  width:30px;
+  height:30px;
+  object-fit:contain;
+}
+.today-shift-name{
+  min-width:0;
+  color:var(--t1);
+  font-size:15px;
+  font-weight:950;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.today-shift-work-text{
+  flex:0 0 auto;
+  color:var(--t3);
+  font-size:15px;
+  font-weight:950;
+  line-height:1.15;
+}
+.today-shift-current-badge{
+  flex:0 0 auto;
 }
 .today-dashboard .today-shift-widget .shift-5day-row{
   min-height:40px;
@@ -3188,6 +3289,9 @@ body[data-theme="dark"] .private-inline-toggle.tf{background:transparent!importa
 }
 body[data-theme="dark"] .today-dashboard .today-shift-widget{
   background:var(--repeat-surface-dark,#25262A);
+}
+body[data-theme="dark"] .today-shift-current-row{
+  background:transparent;
 }
 body[data-theme="dark"] .today-dashboard .today-shift-widget .shift-5day-row + .shift-5day-row{
   border-top-color:rgba(255,255,255,.07);
