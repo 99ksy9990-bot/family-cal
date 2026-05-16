@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.87';
-const PASS_BUILD_VERSION='v1.3.87-work-tab-rhythm';
+const APP_VERSION='v1.3.89';
+const PASS_BUILD_VERSION='v1.3.89-home-actions';
 const APP_UPDATED='2026-05-13';
 
 
@@ -5635,6 +5635,51 @@ function openScheduleCheckSheet(baseKey=''){
   </div>`;
 }
 
+function openTodayInboxSheet(baseKey=''){
+  const k=baseKey||scheduleBaseKey();
+  const {normal,routine}=todayScheduleHubItems(k);
+  const groups=makeTodayWWWGroups(normal,routine).filter(g=>g.items.length);
+  const activeRequests=(requests||[]).filter(r=>!isDone(r));
+  const upcoming=upcomingEvents(7,k);
+  const requestHtml=activeRequests.length?`
+    <div class="hub-inbox-section">
+      <div class="hub-inbox-section-title">남은 부탁</div>
+      <div class="hub-inbox-list">
+        ${activeRequests.slice(0,4).map(r=>`<button type="button" class="hub-inbox-row" onclick="openEditReq('${r.id}')">
+          <span>${escapeHtml(r.title||'부탁')}</span>
+          <em>${escapeHtml(r.dueDate?dateLabel(r.dueDate):'마감 없음')}</em>
+        </button>`).join('')}
+      </div>
+    </div>`:'';
+  const upcomingHtml=upcoming.length?`
+    <div class="hub-inbox-section">
+      <div class="hub-inbox-section-title">다가오는 일정</div>
+      <div class="hub-inbox-list">
+        ${upcoming.map(n=>`<button type="button" class="hub-inbox-row" onclick="openEditNote('${n.id}')">
+          <span>${escapeHtml(n.title||'일정')}</span>
+          <em>${escapeHtml(`${dateLabel(n.start||k)} · ${n.who||'가족'}`)}</em>
+        </button>`).join('')}
+      </div>
+    </div>`:'';
+  const hasAnything=groups.length||activeRequests.length||upcoming.length;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet hub-sheet today-inbox-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="hub-sheet-title">오늘 확인할 것</div>
+      <div class="hub-sheet-sub">${escapeHtml(dateLabel(k))}</div>
+      ${groups.length?`
+        <div class="hub-inbox-section">
+          <div class="hub-inbox-section-title">오늘 일정</div>
+          ${renderHubMiniGroups(groups,{emptyText:'확인할 일정이 없어요'})}
+        </div>`:''}
+      ${requestHtml}
+      ${upcomingHtml}
+      ${hasAnything?'':'<div class="hub-empty">오늘 확인할 항목이 없어요.</div>'}
+    </div>
+  </div>`;
+}
+
 function openPersonTodaySheet(who){
   const baseKey=scheduleBaseKey();
   const {normal,routine}=todayScheduleHubItems(baseKey);
@@ -6349,8 +6394,11 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title www-today-card" id="today-briefing-capture">
       <div class="www-today-head">
-        <div class="www-today-title">${escapeHtml(title||'WWW TODAY')}</div>
-        <div class="www-today-sub">Who · When · What</div>
+        <div>
+          <div class="www-today-title">${escapeHtml(title||'WWW TODAY')}</div>
+          <div class="www-today-sub">Who · When · What</div>
+        </div>
+        <button type="button" class="www-share-btn" onclick="openTodayShareSheet()" aria-label="WWW TODAY 공유">${shareIconSvg()}</button>
       </div>
       ${body}
     </div>
@@ -6546,79 +6594,197 @@ function briefingEventLine(n){
   const time=todayTimeOnly(n);
   return `${title}${time?` ${time}`:''}`;
 }
-function copyTodayBriefing(){
-  const key=scheduleBaseKey();
-  const [y,m,d]=key.split('-').map(Number);
-  const dt=new Date(y,m-1,d);
-  const title=`[${m}월 ${d}일 (${DAYS[dt.getDay()]}) 가족 브리핑 🔔]`;
-  const lines=[title];
+function shareIconSvg(){
+  return `<svg class="www-share-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 12.7 15.6 16.8"/><path d="M15.6 7.2 8.4 11.3"/><circle cx="6.5" cy="12" r="2.6"/><circle cx="17.5" cy="6" r="2.6"/><circle cx="17.5" cy="18" r="2.6"/></svg>`;
+}
 
-  const evs=getBriefingEvents(key);
-  if(evs.length){
-    const order=[...getPersons(),...evs.map(n=>n.who||'공통')];
-    const groups={};
-    evs.forEach(n=>{
-      const who=n.who||'공통';
-      if(!groups[who])groups[who]=[];
-      groups[who].push(n);
-    });
-    Object.keys(groups).sort((a,b)=>{
-      const ia=order.indexOf(a), ib=order.indexOf(b);
-      return (ia<0?999:ia)-(ib<0?999:ib);
-    }).forEach(who=>{
-      lines.push('');
-      lines.push(`${briefingPersonEmoji(who)} ${who}`);
-      const shift=shiftDisplayStatusFor(key,who);
-      const items=groups[who].map(briefingEventLine);
-      if(shift)lines.push([`${shortShiftLabel(shift)}근무`,...items].join(' · '));
-      else lines.push(...items);
+function todayShareDateTitle(key=scheduleBaseKey()){
+  const [y,m,d]=String(key||todayKey()).split('-').map(Number);
+  if(!y||!m||!d)return dateLabel(key||todayKey());
+  const dow=DAYS[new Date(y,m-1,d).getDay()]||'';
+  return `${y}.${m}.${d} ${dow}요일`;
+}
+
+function todayShareGroups(key=scheduleBaseKey()){
+  const normal=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&occursOn(n,key))
+    .map(n=>({...n,_rangeDate:key,_rangeMode:false}));
+  const routine=[
+    ...familyInfoEventsForKey(key).map(n=>({...n,_rangeDate:key,_rangeMode:false})),
+    ...notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,key))
+      .map(n=>({...n,start:key,end:key,_rangeDate:key,_rangeMode:false,_repeatInstance:true}))
+  ];
+  return makeTodayWWWGroups(normal,routine).filter(g=>g.items.length);
+}
+
+function todayShareItemText(item){
+  const title=String(item?.title||'').trim();
+  const time=String(item?.time||'').trim();
+  if(item?.kind==='shift')return title;
+  const prefix=item?.kind==='routine'?'↻ ':'';
+  return `${prefix}${time?`${time} `:''}${title}`.trim();
+}
+
+function buildTodayShareText(key=scheduleBaseKey()){
+  const groups=todayShareGroups(key);
+  const lines=[`📅 ${todayShareDateTitle(key)}`,''];
+  if(groups.length){
+    groups.forEach(g=>{
+      const items=g.items.map(todayShareItemText).filter(Boolean).join(', ');
+      lines.push(`${g.who}: ${items||'일정 없음'}`);
     });
   }else{
-    lines.push('오늘 등록된 일정은 없어요.');
+    lines.push('오늘 공유할 일정이 없어요.');
   }
+  return lines.join('\n');
+}
 
-  const dueReqs=dueRequestsForDate(key);
-  dueReqs.forEach(r=>{
-    lines.push(`📌 오늘까지 부탁: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
-  });
+function openTodayShareSheet(){
+  const key=scheduleBaseKey();
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet today-share-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="today-share-sheet-title">WWW TODAY 공유</div>
+      <div class="today-share-sheet-sub">${escapeHtml(todayShareDateTitle(key))}</div>
+      <div class="today-share-actions">
+        <button class="today-share-row" onclick="saveTodayBriefingImage()"><span>${downloadIconSvg()}</span><b>이미지로 저장</b></button>
+        <button class="today-share-row" onclick="shareTodayToKakao()"><span>${shareIconSvg()}</span><b>카카오톡 공유</b></button>
+        <button class="today-share-row" onclick="copyTodayBriefing()"><span>${copyIconSvg()}</span><b>텍스트로 복사</b></button>
+      </div>
+    </div>
+  </div>`;
+  document.body.classList.add('modal-open');
+}
 
-  const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
-    if(!!b.important!==!!a.important)return b.important?1:-1;
-    return (b.createdAt||0)-(a.createdAt||0);
-  })[0];
-  if(notice)lines.push(`📌 공지: ${notice.title||'가족 공지'}`);
+function downloadIconSvg(){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10"/><path d="m8 10 4 4 4-4"/><path d="M5 19h14"/></svg>`;
+}
 
-  const txt=lines.join('\n');
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(()=>showToast('오늘의 브리핑을 복사했어요.'));
-  }else{
-    const ta=document.createElement('textarea');
-    ta.value=txt;document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');showToast('오늘의 브리핑을 복사했어요.')}catch(e){alert(txt)}
-    ta.remove();
+function copyIconSvg(){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="10" height="12" rx="2"/><path d="M6 16H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg>`;
+}
+
+function todayShareTemplateHtml(key=scheduleBaseKey()){
+  const groups=todayShareGroups(key);
+  const rows=groups.length?groups.map(g=>`
+    <div class="today-share-card-row">
+      <div class="today-share-card-avatar">${avatarFrameMarkup(personAvatarConfig(g.who),g.who,'avatarFrame today-share-avatar')}</div>
+      <div class="today-share-card-name" style="color:${familyAccentColor(g.who)}">${escapeHtml(g.who)}</div>
+      <div class="today-share-card-items">
+        ${g.items.map(item=>{
+          const cls=item.kind==='shift'?` shift-chip ${item.className||''}`:(item.kind==='routine'?' routine':'');
+          return `<span class="today-share-chip${cls}">${escapeHtml(todayShareItemText(item))}</span>`;
+        }).join('')}
+      </div>
+    </div>`).join(''):`<div class="today-share-empty">오늘 공유할 일정이 없어요.</div>`;
+  return `<div class="today-share-render-card">
+    <div class="today-share-render-date">${escapeHtml(todayShareDateTitle(key))}</div>
+    <div class="today-share-render-head">
+      <div class="today-share-render-title">WWW TODAY</div>
+      <div class="today-share-render-sub">Who · When · What</div>
+    </div>
+    <div class="today-share-render-list">${rows}</div>
+    <div class="today-share-render-brand">Family Scheduler</div>
+  </div>`;
+}
+
+async function createTodayShareCanvas(key=scheduleBaseKey()){
+  if(!window.html2canvas)throw new Error('html2canvas unavailable');
+  const host=document.createElement('div');
+  host.className='today-share-render-host';
+  host.innerHTML=todayShareTemplateHtml(key);
+  document.body.appendChild(host);
+  try{
+    const card=host.querySelector('.today-share-render-card');
+    return await html2canvas(card,{backgroundColor:null,scale:2,useCORS:true,width:540,height:675});
+  }finally{
+    host.remove();
   }
 }
+
+async function canvasToBlob(canvas){
+  return await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+}
+
 async function saveTodayBriefingImage(){
-  if(main!=='s'){
-    setMain('s');
-    setTimeout(saveTodayBriefingImage,350);
-    return;
-  }
-  const el=document.getElementById('today-briefing-capture')||document.querySelector('.today-briefing-capture');
-  if(!el)return alert('저장할 오늘 일정 카드가 없어요.');
+  const key=scheduleBaseKey();
   if(!window.html2canvas)return alert('이미지 저장 라이브러리를 불러오는 중이에요. 잠시 후 다시 시도해 주세요.');
   try{
-    const canvas=await html2canvas(el,{backgroundColor:null,scale:2,useCORS:true});
+    const canvas=await createTodayShareCanvas(key);
+    const blob=await canvasToBlob(canvas);
     const a=document.createElement('a');
-    const base=scheduleBaseKey?String(scheduleBaseKey()):todayKey();
-    a.href=canvas.toDataURL('image/png');
-    a.download=`패스_오늘일정_${base}.png`;
+    const url=blob?URL.createObjectURL(blob):canvas.toDataURL('image/png');
+    a.href=url;
+    a.download=`www-today-${key}.png`;
+    a.style.display='none';
+    document.body.appendChild(a);
     a.click();
-    showToast('오늘 일정 이미지를 저장했어요.');
+    setTimeout(()=>{
+      a.remove();
+      if(blob)URL.revokeObjectURL(url);
+    },0);
+    closeM();
+    showToast('WWW TODAY 이미지를 저장했어요.');
   }catch(e){
     console.warn(e);
     showToast('이미지 저장 중 오류가 발생했어요.');
   }
+}
+
+async function shareTodayToKakao(){
+  const key=scheduleBaseKey();
+  const text=buildTodayShareText(key);
+  if(!window.html2canvas)return copyTodayBriefing();
+  try{
+    const canvas=await createTodayShareCanvas(key);
+    const blob=await canvasToBlob(canvas);
+    if(blob&&navigator.share&&window.File){
+      const file=new File([blob],`www-today-${key}.png`,{type:'image/png'});
+      const payload={title:'오늘 가족 일정',text,files:[file]};
+      if(!navigator.canShare || navigator.canShare(payload)){
+        await navigator.share(payload);
+        closeM();
+        return;
+      }
+    }
+    await copyTextToClipboard(text);
+    showToast('공유가 지원되지 않아 텍스트를 복사했어요.');
+  }catch(e){
+    console.warn(e);
+    await copyTextToClipboard(text);
+    showToast('이미지 공유 대신 텍스트를 복사했어요.');
+  }
+}
+
+async function copyTextToClipboard(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    try{
+      await navigator.clipboard.writeText(txt);
+      return true;
+    }catch(e){
+      console.warn('clipboard api failed, falling back',e);
+    }
+  }
+  const ta=document.createElement('textarea');
+  ta.value=txt;
+  ta.setAttribute('readonly','');
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  ta.style.top='0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{
+    return document.execCommand('copy');
+  }finally{
+    ta.remove();
+  }
+}
+
+function copyTodayBriefing(){
+  const txt=buildTodayShareText(scheduleBaseKey());
+  copyTextToClipboard(txt)
+    .then(()=>{closeM();showToast('WWW TODAY 텍스트를 복사했어요.');})
+    .catch(()=>alert(txt));
 }
 function renderHomeWidgets(){
   if(main!=='s')return '';
@@ -6660,9 +6826,8 @@ function familySettingsSvg(){
     <div class="home-head-row">
       <button type="button" class="home-date-button" onclick="handleDateHeaderClick('${base}')" aria-label="달력에서 ${escapeAttr(dateLabel(base))} 보기"><div class="home-kicker"><span class="home-date-main">${escapeHtml(dateLabel(base))}</span>${dow?`<span class="home-date-weekday">${escapeHtml(dow)}</span>`:''}</div></button>
       <div class="home-head-actions">
-        <button onclick="openNoticeList()" aria-label="알림">${bellSvg()}</button>
+        <button onclick="openTodayInboxSheet('${base}')" aria-label="오늘 확인할 것">${bellSvg()}</button>
         <button onclick="openScheduleFilterSheet()" aria-label="검색">${filterSearchSvg()}</button>
-        <button onclick="openProfileCenter()" aria-label="가족 설정">${familySettingsSvg()}</button>
       </div>
     </div>
     ${renderHomeRangePanel()}
