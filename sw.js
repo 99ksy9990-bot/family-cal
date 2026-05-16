@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.3.67-calendar-data-filter';
-const PASS_SW_BUILD_VERSION = 'v1.3.67-calendar-data-filter';
+const CACHE_NAME = 'pass-cal-v1.3.80-unified-schedule-edit';
+const PASS_SW_BUILD_VERSION = 'v1.3.80-unified-schedule-edit';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
