@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.53
-PASS_BUILD=v1.3.53-quiet-quick-add-icons
+PASS_VERSION=v1.3.54
+PASS_BUILD=v1.3.54-family-color-accents

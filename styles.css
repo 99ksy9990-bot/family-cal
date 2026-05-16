@@ -4396,7 +4396,7 @@ body[data-theme="dark"] .today-dashboard .today-shift-widget .shift-day-col.toda
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  background:var(--surface-sunken,#F4F6F8);
+  background:var(--avatar-tint,var(--surface-sunken,#F4F6F8));
   border:1px solid rgba(0,0,0,.045);
 }
 .avatarFrame img{
@@ -5124,4 +5124,40 @@ body[data-theme="dark"] .quick-add-row.smart-fab-option:focus-visible .quick-add
 body[data-theme="dark"] .quick-add-row.smart-fab-option:active .quick-add-icon{
   color:#93C5FD!important;
   background:rgba(96,165,250,.16)!important;
+}
+
+/* v1.3.54 family colors as quiet identity accents */
+.target-dot,
+.person-cal-dot,
+.cal-dot{
+  opacity:.72;
+}
+
+.profile-family-accent{
+  opacity:.78;
+}
+
+.calendar-family-filter .person-leg.on,
+.target-legend .leg.on,
+.person-filter-legend .person-leg.on{
+  background:rgba(37,99,235,.08) !important;
+  border-color:rgba(37,99,235,.18) !important;
+  color:var(--blue-t,#2563EB) !important;
+}
+
+.person-routine-card{
+  background:var(--repeat-surface,#F4F6F8) !important;
+  border-color:rgba(15,23,42,.055) !important;
+}
+
+.person-routine-card .card-name,
+.www-person-name,
+.modern-schedule-person,
+.today-shift-name,
+.today-target-name,
+.todo-compact-person,
+.memory-subject-name,
+.merged-routine-person,
+.cal-repeat-name{
+  filter:saturate(.76);
 }

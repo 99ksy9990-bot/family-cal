@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.53';
-const PASS_BUILD_VERSION='v1.3.53-quiet-quick-add-icons';
+const APP_VERSION='v1.3.54';
+const PASS_BUILD_VERSION='v1.3.54-family-color-accents';
 const APP_UPDATED='2026-05-13';
 
 
@@ -274,6 +274,7 @@ function avatarFrameMarkup(configOrId, alt='', cls='avatarFrame'){
   const fallbackId=resolveAvatarId(cfg.avatarId||defaultAvatarForName(alt));
   const safeAlt=escapeAttr(alt||'아바타');
   const safeCls=escapeAttr(cls||'avatarFrame');
+  const frameStyle=cfg.color?` style="--avatar-tint:${hexToRgba(cfg.color,.08)}"`:'';
   let body='';
   if(cfg.avatarType==='photo'&&cfg.avatarUrl){
     body=`<img src="${escapeAttr(cfg.avatarUrl)}" alt="${safeAlt}" loading="lazy" onerror="handleAvatarFrameError(this,'${escapeAttr(fallbackId)}')"/>`;
@@ -284,7 +285,7 @@ function avatarFrameMarkup(configOrId, alt='', cls='avatarFrame'){
   }else{
     body=`<span class="avatar-fallback">👤</span>`;
   }
-  return `<span class="${safeCls}">${body}</span>`;
+  return `<span class="${safeCls}"${frameStyle}>${body}</span>`;
 }
 function selectKidAvatar(icon){
   const el=document.getElementById('k-avatar');
@@ -508,7 +509,7 @@ function renderRepeatOnlyDetail(selDate,evs=[]){
     ? [...groups.entries()].sort((a,b)=>order(a[0])-order(b[0])).map(([who,items])=>`
       <div class="cal-repeat-person-group">
         <div class="cal-repeat-avatar">${avatarFrameMarkup(personAvatarConfig(who),who,'avatarFrame calendar-repeat-avatar-frame')}</div>
-        <div class="cal-repeat-name" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+        <div class="cal-repeat-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
         <div class="cal-repeat-chip-wrap">
           ${items.map(n=>{
             const tm=n._chipTime||'';
@@ -655,12 +656,12 @@ function calendarDotCandidates(evs,mems){
     oneOffs.sort(calendarDetailSort).forEach(n=>{
       const who=n.who||'공통';
       const rank=who==='공통'?2:10+personRank(n);
-      add(`person-${who}`, personColor(who), who, rank);
+      add(`person-${who}`, familyAccentColor(who), who, rank);
     });
   }else if(calViewMode==='routine'){
     routines.sort(calendarDetailSort).forEach(n=>{
       const who=n.who||'공통';
-      add(`routine-${who}`, personColor(who), who, 20+personRank(n));
+      add(`routine-${who}`, familyAccentColor(who), who, 20+personRank(n));
     });
   }
 
@@ -771,13 +772,33 @@ function hexToRgba(hex,a=.14){
   const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
   return `rgba(${r},${g},${b},${a})`;
 }
+function hexToRgb(hex){
+  const h=String(hex||'#6B6B6F').replace('#','');
+  const full=h.length===3?h.split('').map(x=>x+x).join(''):h.padEnd(6,'0').slice(0,6);
+  const n=parseInt(full,16);
+  return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function rgbToHex(r,g,b){
+  return '#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+}
+function mixHex(a,b,amount=.35){
+  const ca=hexToRgb(a), cb=hexToRgb(b);
+  const p=Math.max(0,Math.min(1,amount));
+  return rgbToHex(ca.r*(1-p)+cb.r*p,ca.g*(1-p)+cb.g*p,ca.b*(1-p)+cb.b*p);
+}
+function familyAccentColor(who){
+  return mixHex(personColor(who),'#334155',.32);
+}
+function familyTintColor(who,a=.10){
+  return hexToRgba(personColor(who),a);
+}
 function targetChipStyle(who,on=false){
   if(on)return `background:var(--blue-bg)!important;border-color:var(--blue)!important;color:var(--blue-t)!important`;
   return `background:var(--card)!important;border-color:var(--border)!important;color:var(--t2)!important`;
 }
 function targetPersonChipStyle(who){
-  const c=personColor(who);
-  return `background:${hexToRgba(c,.14)};color:${c};border:1px solid ${hexToRgba(c,.24)}`;
+  const c=familyAccentColor(who);
+  return `background:${familyTintColor(who,.10)};color:${c};border:1px solid ${familyTintColor(who,.16)}`;
 }
 function onclickArg(v){
   return escapeAttr(JSON.stringify(String(v??'')));
@@ -2497,7 +2518,7 @@ function renderProfileFamilyRows(){
         <div class="profile-family-avatar">${avatarMarkup(personAvatar(kid.name||'대상'),kid.name||'대상')}</div>
         <div class="profile-family-main">
           <div class="profile-family-name">
-            <span class="profile-family-accent" style="background:${personColor(kid.name||'공통')}"></span>
+            <span class="profile-family-accent" style="background:${familyAccentColor(kid.name||'공통')}"></span>
             ${escapeHtml(kid.name||'대상')}
           </div>
           <div class="profile-family-sub">프로필과 대표색</div>
@@ -2517,7 +2538,7 @@ function renderSettingsStatusBoard(){
     return `<div class="settings-status-person">
       <div class="settings-status-head">
         <span class="settings-status-avatar">${avatarMarkup(personAvatar(user),user,'avatar-img-small')}</span>
-        <b style="color:${personColor(user)}">${escapeHtml(user)}</b>
+        <b style="color:${familyAccentColor(user)}">${escapeHtml(user)}</b>
         <span class="settings-dot">·</span>
         <span class="settings-shift-chip ${shiftBadgeClass(status)}">${escapeHtml(status)}</span>
       </div>
@@ -3259,7 +3280,7 @@ function makeScheduleRowCard(n,opts={}){
     <div class="swipe-bg swipe-bg-right">수정</div><div class="swipe-bg swipe-bg-left">메뉴</div>
     <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
     <div class="modern-schedule-content">
-      <div class="modern-schedule-inline${done?' done':''}"><span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span class="modern-schedule-when">${escapeHtml(scheduleListDateLine(n))}</span><span class="modern-schedule-title-inline">${highlightText(displayNoteTitle(n))}</span>${privateChip(n)}</div>
+      <div class="modern-schedule-inline${done?' done':''}"><span class="modern-schedule-person" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span class="modern-schedule-when">${escapeHtml(scheduleListDateLine(n))}</span><span class="modern-schedule-title-inline">${highlightText(displayNoteTitle(n))}</span>${privateChip(n)}</div>
     </div>
     ${dday?`<div class="modern-dday-badge${missed?' missed':''}${done?' done':''}">${escapeHtml(dday)}</div>`:''}
   </div>`;
@@ -4159,9 +4180,9 @@ function renderI(){
       h+=`<div class="repeat-tab-grid">`;
       groupKeys.forEach(who=>{
         const arr=groups[who];
-        h+=`<div class="person-routine-card" style="--person-color:${personColor(who)}">
+        h+=`<div class="person-routine-card" style="--person-color:${familyTintColor(who,.10)};--person-accent:${familyAccentColor(who)}">
           <div class="card-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="card-name" style="color:${personColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${arr.length}</span></div>
+          <div class="card-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${arr.length}</span></div>
           <div class="person-routine-items">`;
         arr.forEach(({item,ii})=>{
           const rid=item.id||ii;
@@ -4280,7 +4301,7 @@ function makeReqCard(r){
   const done = isDone(r);
   const writer = r.writer || '공통';
   const avatar = `<div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>`;
-  const writerName = `<div class="todo-compact-person" style="color:${personColor(writer)}">${escapeHtml(writer)}</div>`;
+  const writerName = `<div class="todo-compact-person" style="color:${familyAccentColor(writer)}">${escapeHtml(writer)}</div>`;
   const check = `<div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
         <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>`;
@@ -4513,7 +4534,7 @@ function makeMemoryCard(x){
         <div class="memory-info-col memory-info-v3">
           <div class="memory-event-line">
             <span class="memory-event-kind">${escapeHtml(kind.icon)} ${escapeHtml(kind.label)}</span>
-            ${subject&&subject!=='공통'&&subject!=='怨듯넻'?`<span class="memory-title-dot">·</span><span class="memory-subject-name" style="color:${personColor(subject)}">${escapeHtml(subject)}</span>`:''}
+            ${subject&&subject!=='공통'&&subject!=='怨듯넻'?`<span class="memory-title-dot">·</span><span class="memory-subject-name" style="color:${familyAccentColor(subject)}">${escapeHtml(subject)}</span>`:''}
           </div>
           <div class="memory-date-line">${upcomingFullLabel?escapeHtml(upcomingFullLabel):'날짜 없음'}</div>
           <div class="memory-helper-line">
@@ -5318,7 +5339,7 @@ function renderHubMiniGroups(groups,{emptyText='확인할 항목이 없어요'}=
     <div class="hub-mini-person">
       <div class="hub-mini-head">
         ${avatarFrameMarkup(personAvatarConfig(g.who),g.who,'avatarFrame hub-mini-avatar')}
-        <b style="color:${personColor(g.who)}">${escapeHtml(g.who)}</b>
+        <b style="color:${familyAccentColor(g.who)}">${escapeHtml(g.who)}</b>
       </div>
       <div class="hub-mini-chips">
         ${g.items.map(item=>`<button type="button" class="www-chip ${item.className||''}" ${item.click?`onclick="event.stopPropagation();${item.click}"`:''}>${item.html}</button>`).join('')}
@@ -5365,7 +5386,7 @@ function openPersonTodaySheet(who){
       <div class="person-sheet-head">
         ${avatarFrameMarkup(personAvatarConfig(who),who,'avatarFrame person-sheet-avatar')}
         <div>
-          <div class="hub-sheet-title" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+          <div class="hub-sheet-title" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
           <div class="hub-sheet-sub">오늘 상태</div>
         </div>
       </div>
@@ -5568,7 +5589,7 @@ function renderTodayShiftSection(){
     return `<button type="button" class="today-shift-current-row" onclick="openCalendarWorkTab('${baseKey}')" title="${escapeAttr(user)} · ${escapeAttr(status||'미입력')}">
       <span class="today-shift-person">
         ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
-        <span class="today-shift-name" style="color:${personColor(user)}">${escapeHtml(user)}</span>
+        <span class="today-shift-name" style="color:${familyAccentColor(user)}">${escapeHtml(user)}</span>
         <span class="modern-schedule-dotsep">·</span>
         <span class="today-shift-current-date">${escapeHtml(when)}</span>
         <span class="today-shift-badge shift-one ${status?shiftBadgeClass(status):'shift-empty'}">${escapeHtml(label)}</span>
@@ -5656,7 +5677,7 @@ function renderTargetDashboard(title,allEvents,minRows,cls,targetMode='routine')
     // 사용자가 누락으로 느끼지 않도록 기본은 전체 출력, 하단 핸들로 접을 수 있게 유지합니다.
     const opts=isRoutine?{limit:4,expandable:true,expanded:true}:{};
     return `<div class="today-target-card">
-      <div class="today-target-name" style="color:${personColor(slot.label)}">${escapeHtml(slot.label)}</div>
+      <div class="today-target-name" style="color:${familyAccentColor(slot.label)}">${escapeHtml(slot.label)}</div>
       <div class="today-event-list">${renderDashboardEventRows(list,0,opts)}</div>
     </div>`;
   }).join('');
@@ -5684,8 +5705,8 @@ function makeTodayDashboardStandardRow(n,opts={}){
   const kindLabel=isRoutine?'반복':'일정';
   const metaDate=isRoutine?dateLabel(baseKey):scheduleListDateLine({...n,start:n.start||baseKey});
   const meta=isRoutine
-    ? `<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span>${escapeHtml(kindLabel)}</span>${metaDate?`<span class="modern-schedule-dotsep">·</span><span>${escapeHtml(metaDate)}</span>`:''}`
-    : `<span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span>${escapeHtml(metaDate)}`;
+    ? `<span class="modern-schedule-person" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span><span>${escapeHtml(kindLabel)}</span>${metaDate?`<span class="modern-schedule-dotsep">·</span><span>${escapeHtml(metaDate)}</span>`:''}`
+    : `<span class="modern-schedule-person" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</span><span class="modern-schedule-dotsep">·</span>${escapeHtml(metaDate)}`;
   let click='';
   if(isRoutine){
     const kind=n._autoFamilyInfo?'auto':'note';
@@ -5698,7 +5719,7 @@ function makeTodayDashboardStandardRow(n,opts={}){
     <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
     <div class="modern-schedule-content dashboard-standard-content">
       <div class="dashboard-standard-line">
-        <span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span>
+        <span class="modern-schedule-person" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</span>
         <span class="modern-schedule-dotsep">·</span>
         <span class="modern-schedule-date inline-date">${escapeHtml(metaDate)}</span>
         <span class="modern-schedule-title inline-title">${highlightText(title)}${!isRoutine?privateChip(n):''}</span>
@@ -5770,7 +5791,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
         return `<div class="merged-routine-group routine-2col-card">
           <div class="merged-routine-head routine-2col-head">
             <div class="merged-routine-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-            <div class="merged-routine-person beside-avatar" style="color:${personColor(who)}">${escapeHtml(who)}</div>
+            <div class="merged-routine-person beside-avatar" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
           </div>
           <div class="merged-routine-box routine-2col-box">${rows.map(n=>{
             const tm=todayTimeOnly(n)||'';
@@ -5895,7 +5916,7 @@ function makeTodayWWWGroups(schedule=[],routines=[]){
 function renderTodayWWWGroup(group){
   return `<div class="www-person-group" onclick="openPersonTodaySheet(${onclickArg(group.who)})" role="button" tabindex="0">
     <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(group.who),group.who,'avatarFrame www-avatar-frame')}</div>
-    <div class="www-person-name" style="color:${personColor(group.who)}">${escapeHtml(group.who)}</div>
+    <div class="www-person-name" style="color:${familyAccentColor(group.who)}">${escapeHtml(group.who)}</div>
     <div class="www-chip-wrap">
       ${group.items.map(item=>`<button type="button" class="www-chip ${item.className||''}" ${item.click?`onclick="event.stopPropagation();${item.click}"`:''}>${item.html}</button>`).join('')}
     </div>
