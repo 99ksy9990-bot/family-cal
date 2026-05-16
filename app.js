@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.56';
-const PASS_BUILD_VERSION='v1.3.56-calendar-family-label';
+const APP_VERSION='v1.3.57';
+const PASS_BUILD_VERSION='v1.3.57-request-empty-state';
 const APP_UPDATED='2026-05-13';
 
 
@@ -4353,12 +4353,30 @@ function toggleRequestDone(){
   render({preserveScroll:true});
 }
 
+function renderRequestAllClearState(){
+  return `<div class="request-clear-state">
+    <div class="request-clear-icon">🙏</div>
+    <div class="request-clear-title">남은 부탁이 없어요</div>
+    <div class="request-clear-sub">오늘은 모두 정리됐어요.</div>
+    <button type="button" class="request-clear-add" onclick="openReqModal()">+ 부탁 추가</button>
+  </div>`;
+}
+
 function renderR(){
   const active=requests.filter(r=>!isDone(r)&&matchSearchReq(r));
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
-  const activeBody = active.length
-    ? `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`
-    : `<div class="card-wrap todo-empty-wrap">${renderEmptyState('request','부탁할 일이 없어요','오른쪽 아래 + 버튼으로 부탁을 추가해 보세요.')}</div>`;
+  if(!active.length && !done.length){
+    return `<div class="request-empty-page">${renderRequestAllClearState()}</div>`;
+  }
+  if(!active.length){
+    return `
+      <div class="request-empty-page">${renderRequestAllClearState()}</div>
+      <div class="div"></div>
+      ${sectionHeader('최근 해결한 부탁',done.length,requestDoneOpen,'toggleRequestDone')}
+      ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.map(makeReqCard).join('')}</div>`:`<div class="schedule-collapsed-hint warm-collapsed-hint">해결한 부탁 ${done.length}개가 숨겨져 있어요.</div>`}
+    `;
+  }
+  const activeBody = `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`;
   return`
     ${sectionHeader('남은 부탁',active.length,requestOpen,'toggleRequest')}
     ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">부탁 목록을 잠시 접어뒀어요.</div>`}
