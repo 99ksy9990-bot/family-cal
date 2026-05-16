@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.30';
-const PASS_BUILD_VERSION='v1.3.30-filter-past-list';
+const APP_VERSION='v1.3.32';
+const PASS_BUILD_VERSION='v1.3.32-filter-sheet-trim';
 const APP_UPDATED='2026-05-13';
 
 
@@ -2757,13 +2757,11 @@ function setScheduleSortQuick(t){
   openScheduleFilterSheet();
 }
 function openScheduleFilterSheet(){
-  const peopleOpts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  const peopleOpts=getPersons().map(p=>[p,p]);
   const periodOpts=[['today','당일'],['1w','1주'],['1m','1개월'],['3m','3개월'],['all','전체']];
-  const sortOpts=[['time','다가오는'],['person','대상별'],['special','특별'],['manual','입력순']];
   const targetChip=o=>{
     const selected=subF===o[0];
-    const isAll=o[0]==='all';
-    const icon=isAll?'<span class="filter-avatar filter-avatar-all">전체</span>':avatarMarkup(personAvatar(o[0]),o[0],'avatar-img-small');
+    const icon=avatarMarkup(personAvatar(o[0]),o[0],'avatar-img-small');
     return `<button class="filter-sheet-chip filter-person-chip${selected?' on':''}" onclick="setScheduleTargetQuick(${onclickArg(o[0])})" aria-label="${escapeAttr(o[1])}" title="${escapeAttr(o[1])}">${icon}</button>`;
   };
   document.getElementById('modal').innerHTML=`
@@ -2778,10 +2776,6 @@ function openScheduleFilterSheet(){
       <div class="filter-sheet-group">
         <div class="filter-sheet-title">언제</div>
         <div class="filter-sheet-options">${periodOpts.map(o=>`<button class="filter-sheet-chip${activePer===o[0]?' on':''}" onclick="setActivePerQuick('${o[0]}')">${escapeHtml(o[1])}</button>`).join('')}</div>
-      </div>
-      <div class="filter-sheet-group">
-        <div class="filter-sheet-title">정렬</div>
-        <div class="filter-sheet-options">${sortOpts.map(o=>`<button class="filter-sheet-chip${scheduleSort===o[0]?' on':''}" onclick="setScheduleSortQuick('${o[0]}')">${escapeHtml(o[1])}</button>`).join('')}</div>
       </div>
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -5072,11 +5066,13 @@ function renderTodayShiftSection(){
   const rows=shiftUsers.map(user=>{
     const status=shiftDisplayStatusFor(baseKey,user);
     const label=status?shortShiftLabel(status):'-';
+    const when=shortDateWithDow(baseKey);
     return `<button type="button" class="today-shift-current-row" onclick="openCalendarWorkTab('${baseKey}')" title="${escapeAttr(user)} · ${escapeAttr(status||'미입력')}">
       <span class="today-shift-person">
         ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
         <span class="today-shift-name" style="color:${personColor(user)}">${escapeHtml(user)}</span>
         <span class="modern-schedule-dotsep">·</span>
+        <span class="today-shift-current-date">${escapeHtml(when)}</span>
         <span class="today-shift-badge shift-one ${status?shiftBadgeClass(status):'shift-empty'}">${escapeHtml(label)}</span>
       </span>
     </button>`;
@@ -5202,9 +5198,13 @@ function makeTodayDashboardStandardRow(n,opts={}){
   }
   return `<div class="modern-schedule-item dashboard-standard-row${isRoutine?' routine':''}" ${click} style="cursor:pointer">
     <div class="modern-schedule-avatar" title="${escapeAttr(who)}">${avatarMarkup(personAvatar(who),who,'avatar-img')}</div>
-    <div class="modern-schedule-content">
-      <div class="modern-schedule-title">${highlightText(title)}${!isRoutine?privateChip(n):''}</div>
-      <div class="modern-schedule-date">${meta}</div>
+    <div class="modern-schedule-content dashboard-standard-content">
+      <div class="dashboard-standard-line">
+        <span class="modern-schedule-person" style="color:${personColor(who)}">${escapeHtml(who)}</span>
+        <span class="modern-schedule-dotsep">·</span>
+        <span class="modern-schedule-date inline-date">${escapeHtml(metaDate)}</span>
+        <span class="modern-schedule-title inline-title">${highlightText(title)}${!isRoutine?privateChip(n):''}</span>
+      </div>
     </div>
     ${isRoutine&&tm?`<div class="dashboard-row-time">${escapeHtml(tm)}</div>`:''}
   </div>`;

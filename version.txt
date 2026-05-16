@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.30
-PASS_BUILD=v1.3.30-filter-past-list
+PASS_VERSION=v1.3.32
+PASS_BUILD=v1.3.32-filter-sheet-trim
