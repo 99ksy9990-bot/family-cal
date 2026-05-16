@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.37';
-const PASS_BUILD_VERSION='v1.3.37-avatar-frame';
+const APP_VERSION='v1.3.38';
+const PASS_BUILD_VERSION='v1.3.38-natural-collapse-copy';
 const APP_UPDATED='2026-05-13';
 
 
@@ -1297,14 +1297,39 @@ function syncOffBannerLabel(info){
   if(!info || !info.rows || !info.rows.length)return '';
   return info.type==='full'?'함께 쉬는 날이에요':'시간이 맞는 날이에요';
 }
-function scheduleCollapsedSummary(list, count, type='active'){
-  if(count<=0){
-    return type==='done'?'지난 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
+function hasFinalConsonantKo(text){
+  const chars=Array.from(String(text||'').trim());
+  if(!chars.length)return false;
+  const code=chars[chars.length-1].charCodeAt(0);
+  if(code<0xAC00 || code>0xD7A3)return false;
+  return ((code-0xAC00)%28)!==0;
+}
+function koParticle(text,pair='이/가'){
+  const [withBatchim,withoutBatchim]=String(pair||'이/가').split('/');
+  return hasFinalConsonantKo(text)?withBatchim:withoutBatchim;
+}
+function collapsedStateLabel({list=[],count=0,sectionName='일정',sectionType='active',singleNoun='일정',state='숨김'}={}){
+  const safeCount=Number(count)||0;
+  const verb=state==='fold'?'접혀 있어요':'숨겨져 있어요';
+  if(safeCount<=0){
+    return sectionType==='past'?'지난 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
   }
-  const first=(list||[]).find(x=>x&&x.title);
-  if(type==='done')return `지난 일정 ${count}개가 접혀 있어요.`;
-  const title=first?(first.title||'일정'):'일정';
-  return `${title}${count>1?` 외 ${count-1}개`:''}가 접혀 있어요.`;
+  const first=(list||[]).find(x=>x&&String(x.title||'').trim());
+  if(safeCount===1 && first){
+    const title=String(first.title||singleNoun).trim();
+    return `${title} ${singleNoun}${koParticle(singleNoun,'이/가')} ${verb}`;
+  }
+  return `${sectionName} ${safeCount}개가 ${verb}`;
+}
+function scheduleCollapsedSummary(list, count, type='active'){
+  return collapsedStateLabel({
+    list,
+    count,
+    sectionName:type==='done'?'지난 일정':'등록 일정',
+    sectionType:type==='done'?'past':'active',
+    singleNoun:'일정',
+    state:'hidden'
+  });
 }
 
 function normalizeShiftUsers(){
@@ -3948,7 +3973,7 @@ function renderI(){
       h+=renderEmptyState('routine','등록된 반복 일정이 없어요','오른쪽 아래 + 버튼으로 반복 일정을 추가해 보세요.');
     }
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">반복 일정이 접혀 있어요. 펼치면 반복 카드를 관리할 수 있어요.</div>`;
+    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">${escapeHtml(collapsedStateLabel({count:(repeatItems||[]).length,sectionName:'반복 일정',sectionType:'repeat',singleNoun:'일정',state:'fold'}))}</div>`;
   }
   h+=`</div>`;
   return h;

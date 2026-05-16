@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.37
-PASS_BUILD=v1.3.37-avatar-frame
+PASS_VERSION=v1.3.38
+PASS_BUILD=v1.3.38-natural-collapse-copy
