@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.38';
-const PASS_BUILD_VERSION='v1.3.38-natural-collapse-copy';
+const APP_VERSION='v1.3.39';
+const PASS_BUILD_VERSION='v1.3.39-request-wording';
 const APP_UPDATED='2026-05-13';
 
 
@@ -93,7 +93,7 @@ const DEFAULT_DATA={
     {id:3,title:'부모님께 연락',type:'personal',start:'2026-05-08',end:'',sT:'20:00',eT:'',done:false,comment:''}
   ],
   requests:[
-    {id:101,title:'엄마한테 준비물 확인 할일',writer:'첫째',done:false,comment:''}
+    {id:101,title:'엄마한테 준비물 확인 부탁',writer:'첫째',done:false,comment:''}
   ],
   notices:[
     {id:301,title:'가족 공지 예시',body:'이번 주 주요 일정을 함께 확인해 주세요.',read:false,createdAt:Date.now()}
@@ -2153,7 +2153,7 @@ function endItemSwipe(e){
   if(actionRight){
     if(kind==='request')toggleReq(id);
     if(kind==='note')openEditNote(id);
-    if(kind==='request')showToast('완료 상태를 변경했어요.');
+    if(kind==='request')showToast('해결 상태를 변경했어요.');
   }else if(actionLeft){
     performSwipeDelete(kind,id);
   }
@@ -2182,12 +2182,12 @@ function openSwipeReqActions(id){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet action-sheet-compact schedule-action-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${escapeHtml(r.title||'할일')}</div>
+      <div class="modal-hd">${escapeHtml(r.title||'부탁')}</div>
       <div class="action-grid request-swipe-action-grid">
         <button class="toss-btn primary" onclick="openEditReq('${id}')">수정</button>
         <button class="toss-btn" onclick="closeM()">닫기</button>
       </div>
-      <button class="toss-btn danger action-delete-full" onclick="delReq('${id}');closeM()">이 할일 삭제</button>
+      <button class="toss-btn danger action-delete-full" onclick="delReq('${id}');closeM()">이 부탁 삭제</button>
     </div>
   </div>`;
 }
@@ -2969,26 +2969,26 @@ const EMPTY_ROUTINE_VARIANTS=[
   {emoji:'🥛', title:'반복이 없어요', sub:'부드러운 템포의 하루예요.'}
 ];
 const EMPTY_REQUEST_VARIANTS=[
-  {emoji:'📭', title:'등록된 할일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
-  {emoji:'🧺', title:'등록된 할일이 없어요', sub:'오늘은 할일 바구니가 비어 있어요.'},
-  {emoji:'☕', title:'등록된 할일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
-  {emoji:'🌿', title:'등록된 할일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
-  {emoji:'🫖', title:'등록된 할일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
-  {emoji:'🍪', title:'등록된 할일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
-  {emoji:'🕊️', title:'등록된 할일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
-  {emoji:'🏡', title:'등록된 할일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
-  {emoji:'🧡', title:'등록된 할일이 없어요', sub:'할일 대신 미소를 나누기 좋은 날이에요.'},
-  {emoji:'🎈', title:'등록된 할일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
-  {emoji:'📚', title:'등록된 할일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
-  {emoji:'🌤️', title:'등록된 할일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
-  {emoji:'🛋️', title:'등록된 할일이 없어요', sub:'소파에 기대듯 편안히 쉬어보세요.'},
-  {emoji:'🍵', title:'등록된 할일이 없어요', sub:'한숨 돌리기에 딱 좋은 타이밍이에요.'},
-  {emoji:'🌈', title:'등록된 할일이 없어요', sub:'기분 좋은 여백이 생겼어요.'},
-  {emoji:'🪴', title:'등록된 할일이 없어요', sub:'작은 화분처럼 천천히 쉬어가요.'},
-  {emoji:'🧁', title:'등록된 할일이 없어요', sub:'달콤한 여유가 놓여 있어요.'},
-  {emoji:'🧸', title:'등록된 할일이 없어요', sub:'포근하게 마음을 풀어놓기 좋아요.'},
-  {emoji:'🐻', title:'등록된 할일이 없어요', sub:'느긋하고 포근한 하루를 보내요.'},
-  {emoji:'🌙', title:'등록된 할일이 없어요', sub:'차분하게 숨 고르기 좋은 시간이에요.'}
+  {emoji:'📭', title:'부탁할 일이 없어요', sub:'잠시 여유를 즐겨도 괜찮아요.'},
+  {emoji:'🧺', title:'부탁할 일이 없어요', sub:'오늘은 부탁 바구니가 비어 있어요.'},
+  {emoji:'☕', title:'부탁할 일이 없어요', sub:'차 한 잔의 여유를 누리기 좋아요.'},
+  {emoji:'🌿', title:'부탁할 일이 없어요', sub:'잔잔하게 흘러가는 하루예요.'},
+  {emoji:'🫖', title:'부탁할 일이 없어요', sub:'따뜻한 티타임 같은 여유가 있어요.'},
+  {emoji:'🍪', title:'부탁할 일이 없어요', sub:'작은 간식처럼 달콤한 빈 시간이에요.'},
+  {emoji:'🕊️', title:'부탁할 일이 없어요', sub:'마음이 한결 가볍고 포근해요.'},
+  {emoji:'🏡', title:'부탁할 일이 없어요', sub:'집 안에 평화가 머무는 하루예요.'},
+  {emoji:'🧡', title:'부탁할 일이 없어요', sub:'부탁 대신 미소를 나누기 좋은 날이에요.'},
+  {emoji:'🎈', title:'부탁할 일이 없어요', sub:'부담이 적어 가볍게 흘러가요.'},
+  {emoji:'📚', title:'부탁할 일이 없어요', sub:'비어 있는 틈에 좋아하는 시간을 채워봐요.'},
+  {emoji:'🌤️', title:'부탁할 일이 없어요', sub:'햇살처럼 산뜻하게 넘어가는 하루예요.'},
+  {emoji:'🛋️', title:'부탁할 일이 없어요', sub:'소파에 기대듯 편안히 쉬어보세요.'},
+  {emoji:'🍵', title:'부탁할 일이 없어요', sub:'한숨 돌리기에 딱 좋은 타이밍이에요.'},
+  {emoji:'🌈', title:'부탁할 일이 없어요', sub:'기분 좋은 여백이 생겼어요.'},
+  {emoji:'🪴', title:'부탁할 일이 없어요', sub:'작은 화분처럼 천천히 쉬어가요.'},
+  {emoji:'🧁', title:'부탁할 일이 없어요', sub:'달콤한 여유가 놓여 있어요.'},
+  {emoji:'🧸', title:'부탁할 일이 없어요', sub:'포근하게 마음을 풀어놓기 좋아요.'},
+  {emoji:'🐻', title:'부탁할 일이 없어요', sub:'느긋하고 포근한 하루를 보내요.'},
+  {emoji:'🌙', title:'부탁할 일이 없어요', sub:'차분하게 숨 고르기 좋은 시간이에요.'}
 ];
 let EMPTY_ROUTINE_PICK=Math.floor(Math.random()*EMPTY_ROUTINE_VARIANTS.length);
 let EMPTY_REQUEST_PICK=Math.floor(Math.random()*EMPTY_REQUEST_VARIANTS.length);
@@ -3264,7 +3264,7 @@ function openQuickAddSheet(dateVal){
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openReqModal()">
           ${quickAddSvg('todo')}
-          <span><b>할일추가</b></span>
+          <span><b>부탁 추가</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openRoutineManagerFromSchedule();setTimeout(addRepeatItem,80)">
           ${quickAddSvg('routine')}
@@ -4040,7 +4040,7 @@ function toggleReq(id){
     const willDone=!isDone(r);
     r.done=willDone;
     r.doneAt=r.done?todayKey():'';
-    addChangeLog(`${r.done?'할일 완료':'할일 완료 취소'}: ${r.title||'할일'}`);
+    addChangeLog(`${r.done?'부탁 해결':'부탁 해결 취소'}: ${r.title||'부탁'}`);
     saveRequestOnly(r);
     render({preserveScroll:true});
     if(willDone)launchDoneConfetti();
@@ -4050,8 +4050,8 @@ function delReq(id){
   if(!requireEditMode())return;
   const idx=requests.findIndex(x=>String(x.id)===String(id));
   if(idx>=0){
-    addChangeLog(`할일 삭제: ${requests[idx].title||'할일'}`);
-    softDelete('request',requests,idx,'할일을');
+    addChangeLog(`부탁 삭제: ${requests[idx].title||'부탁'}`);
+    softDelete('request',requests,idx,'부탁을');
   }
 }
 
@@ -4098,13 +4098,13 @@ function renderR(){
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   const activeBody = active.length
     ? `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`
-    : `<div class="card-wrap todo-empty-wrap">${renderEmptyState('request','등록된 할일이 없어요','오른쪽 아래 + 버튼으로 할일을 추가해 보세요.')}</div>`;
+    : `<div class="card-wrap todo-empty-wrap">${renderEmptyState('request','부탁할 일이 없어요','오른쪽 아래 + 버튼으로 부탁을 추가해 보세요.')}</div>`;
   return`
-    ${sectionHeader('진행 중',active.length,requestOpen,'toggleRequest')}
-    ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">할일 목록을 잠시 접어뒀어요.</div>`}
+    ${sectionHeader('남은 부탁',active.length,requestOpen,'toggleRequest')}
+    ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">부탁 목록을 잠시 접어뒀어요.</div>`}
     <div class="div"></div>
-    ${sectionHeader('완료',done.length,requestDoneOpen,'toggleRequestDone')}
-    ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','완료된 할일이 없어요','끝낸 할일은 이곳에 차곡차곡 모여요.')}</div>`:''}
+    ${sectionHeader('해결한 부탁',done.length,requestDoneOpen,'toggleRequestDone')}
+    ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','해결한 부탁이 없어요','해결한 부탁은 이곳에 차곡차곡 모여요.')}</div>`:''}
   `;
 }
 
@@ -4122,7 +4122,7 @@ function openReqModal(id){
       <div class="modal-ind"></div>
       <div class="add-flow-head">
         <div>
-          <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
+          <div class="modal-hd">${r?'부탁 수정':'부탁 추가'}</div>
         </div>
       </div>
       <div class="add-flow-card">
@@ -4169,7 +4169,7 @@ function saveReq(id){
   if(!requireEditMode())return;
   const title=(document.getElementById('rq-ti')||{}).value||'';
   if(!title.trim()){
-    alert('할일 이름을 먼저 적어주세요!');
+    alert('부탁 이름을 먼저 적어주세요!');
     return;
   }
   const writer=((document.getElementById('rq-writer-mode')||{}).value||requestWriterOptions()[0]||'공통').trim();
@@ -4183,13 +4183,13 @@ function saveReq(id){
     const oldTitle=r.title;
     r.title=title.trim(); r.writer=writer; r.comment=comment; r.requestDate=requestDate; r.dueDate=dueDate; r.dueTime=dueTime;
     if(document.getElementById('rq-done'))r.doneAt=getPickerVal('rq-done');
-    addChangeLog(`할일 수정: ${oldTitle||r.title} → ${r.title}`);
-    showToast('할일을 저장했어요 👏');
+    addChangeLog(`부탁 수정: ${oldTitle||r.title} → ${r.title}`);
+    showToast('부탁을 저장했어요 👏');
   }else{
     r={id:Date.now(),title:title.trim(),writer,requestDate,dueDate,dueTime,done:false,doneAt:'',comment};
     requests.push(r);
-    addChangeLog(`할일 추가: ${r.title}`);
-    showToast('할일을 등록했어요 👏');
+    addChangeLog(`부탁 추가: ${r.title}`);
+    showToast('부탁을 등록했어요 👏');
   }
   saveRequestOnly(r);closeM();render({preserveScroll:true});
 }
@@ -4376,7 +4376,7 @@ function openMemoryModal(id){
         <div class="kid-color-choice-row memory-subject-color-row">
           ${PERSON_COLOR_PALETTE.map(c=>`<button type="button" class="color-choice mem-subject-color-choice${c===subjectColor?' on':''}" data-color="${escapeAttr(c)}" onclick="selectMemorySubjectColor('${escapeAttr(c)}')" style="background:${c}"></button>`).join('')}
         </div>
-        <div class="memory-direct-note">직접 입력 인물은 일정·할일·상태 대상자에는 추가되지 않고, 축하 탭과 달력 축하 표시에만 사용돼요.</div>
+        <div class="memory-direct-note">직접 입력 인물은 일정·부탁·상태 대상자에는 추가되지 않고, 축하 탭과 달력 축하 표시에만 사용돼요.</div>
       </div>
 
       <div class="ml">날짜 방식</div>
@@ -4549,7 +4549,7 @@ function trashItem(kind,item){
   deletedItems.push({id:Date.now()+Math.random(),kind,item:deepCopy(item),deletedAt:Date.now()});
 }
 function trashKindName(k){
-  return k==='note'?'일정':k==='request'?'할일':k==='memory'?'축하':k==='kid'?'아이정보':'항목';
+  return k==='note'?'일정':k==='request'?'부탁':k==='memory'?'축하':k==='kid'?'아이정보':'항목';
 }
 function trashTitle(x){
   const it=x.item||{};
@@ -4648,7 +4648,7 @@ function repairData(){
   requests.forEach(r=>{
     if(!r.id || seen.has('r'+r.id)){r.id=Date.now()+Math.random();fixed++}
     seen.add('r'+r.id);
-    if(!r.title){r.title='제목 없는 할일';fixed++}
+    if(!r.title){r.title='제목 없는 부탁';fixed++}
     if(!r.dueDate)r.dueDate='';
     if(!r.dueTime)r.dueTime='';
     if(!('done' in r))r.done=false;
@@ -5062,8 +5062,8 @@ function renderNoticeBanner(){
   const req=requests.filter(r=>!isDone(r));
   const due=dueRequestsForDate(base);
   const todoLines=[];
-  if(due.length)todoLines.push(`오늘 마감 할일 ${due.length}개를 확인해 주세요`);
-  else if(req.length)todoLines.push(`할일 ${req.length}개가 남아 있어요`);
+  if(due.length)todoLines.push(`오늘 마감 부탁 ${due.length}개를 확인해 주세요`);
+  else if(req.length)todoLines.push(`부탁 ${req.length}개가 남아 있어요`);
   const canGo=req.length>0||due.length>0;
   const workTodoBanner=todoLines.length
     ? `<div class="notice-banner smart-brief-banner" ${canGo?`onclick="setMain('r')" style="cursor:pointer" role="button"`:''}>📝 ${escapeHtml(todoLines.join(' · '))}${canGo?` <span class="notice-go">›</span>`:''}</div>`
@@ -5847,7 +5847,7 @@ function copyTodayBriefing(){
 
   const dueReqs=dueRequestsForDate(key);
   dueReqs.forEach(r=>{
-    lines.push(`📌 오늘까지 할일: ${r.title||'할일'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
+    lines.push(`📌 오늘까지 부탁: ${r.title||'부탁'}${r.dueTime?` (${timeLabel(r.dueTime)})`:''}`);
   });
 
   const notice=(notices||[]).filter(n=>n.important||!n.read).sort((a,b)=>{
@@ -5897,9 +5897,9 @@ function renderHomeWidgets(){
   const routineToday=[...familyInfoEventsForKey(baseKey),...noteRoutineToday];
   const dueToday=dueRequestsForDate(baseKey);
   const dueHtml=dueToday.length?`<div class="today-todo-nudge">
-    <div class="today-todo-nudge-title">오늘 할일</div>
+    <div class="today-todo-nudge-title">오늘 부탁</div>
     ${dueToday.map(r=>`<button class="today-todo-nudge-row" onclick="setMain('r')">
-      <span>${escapeHtml(r.title||'할일')}</span>
+      <span>${escapeHtml(r.title||'부탁')}</span>
       <em>${escapeHtml(r.dueTime?timeLabel(r.dueTime):'오늘까지')}</em>
     </button>`).join('')}
   </div>`:'';
@@ -6047,7 +6047,7 @@ function renderStatsCard(){
   return `<div class="stat-grid">
     <div class="stat-card"><div class="stat-k">이번 달 완료</div><div class="stat-v">${s.done}/${s.total}</div></div>
     <div class="stat-card"><div class="stat-k">일정 완료율</div><div class="stat-v">${s.doneRate}%</div></div>
-    <div class="stat-card"><div class="stat-k">할일 처리율</div><div class="stat-v">${s.reqRate}%</div></div>
+    <div class="stat-card"><div class="stat-k">부탁 해결률</div><div class="stat-v">${s.reqRate}%</div></div>
     <div class="stat-card"><div class="stat-k">상태 분포</div><div class="stat-v" style="font-size:14px;line-height:1.7">D ${s.shiftCount.D} · E ${s.shiftCount.E}<br>N ${s.shiftCount.N} · OFF ${s.shiftCount.OFF}</div></div>
   </div>`;
 }
@@ -6980,7 +6980,7 @@ function openExport(){
   const requestRows=requests.map(r=>({
     상태:isDone(r)?'완료':'진행중',
     작성자:r.writer||'',
-    할일:r.title||'',
+    부탁:r.title||'',
     메모:r.comment||''
   }));
 
@@ -7028,7 +7028,7 @@ function openExport(){
   if(window.XLSX){
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(scheduleRows),'일정');
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(requestRows),'할일');
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(requestRows),'부탁');
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(familyRows),'아이정보');
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(shiftRows),'상태표');
     XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(memoryRows),'축하');
