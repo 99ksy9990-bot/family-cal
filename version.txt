@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.39
-PASS_BUILD=v1.3.39-request-wording
+PASS_VERSION=v1.3.40
+PASS_BUILD=v1.3.40-compact-fab-sheet

@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.39';
-const PASS_BUILD_VERSION='v1.3.39-request-wording';
+const APP_VERSION='v1.3.40';
+const PASS_BUILD_VERSION='v1.3.40-compact-fab-sheet';
 const APP_UPDATED='2026-05-13';
 
 
@@ -3256,32 +3256,30 @@ function openQuickAddSheet(dateVal){
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg quick-add-bg" onclick="closeM(event)">
     <div class="modal-sheet smart-fab-sheet quick-add-sheet" onclick="event.stopPropagation()">
-      <div class="modal-ind"></div>
+      <div class="quick-add-title">무엇을 추가할까요?</div>
       <div class="quick-add-panel">
         <button class="smart-fab-option quick-add-row" onclick="closeM();openAddModal('${d}')">
           ${quickAddSvg('schedule')}
-          <span><b>일정추가</b></span>
-        </button>
-        <button class="smart-fab-option quick-add-row" onclick="closeM();openReqModal()">
-          ${quickAddSvg('todo')}
-          <span><b>부탁 추가</b></span>
+          <span><b>일정</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openRoutineManagerFromSchedule();setTimeout(addRepeatItem,80)">
           ${quickAddSvg('routine')}
-          <span><b>반복추가</b></span>
+          <span><b>반복</b></span>
+        </button>
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openReqModal()">
+          ${quickAddSvg('todo')}
+          <span><b>부탁</b></span>
         </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openMemoryModal()">
           ${quickAddSvg('memory')}
-          <span><b>축하</b></span>
+          <span><b>기념일</b></span>
         </button>
-      </div>
-      <div class="quick-add-panel quick-add-panel-sub">
         <button class="smart-fab-option quick-add-row" onclick="closeM();openProfileCenter()">
           ${quickAddSvg('family')}
-          <span><b>가족 설정</b></span>
+          <span><b>가족</b></span>
         </button>
       </div>
-      <button class="quick-add-close" onclick="closeM()" aria-label="닫기">×</button>
+      <button class="quick-add-close" onclick="closeM()" aria-label="닫기"></button>
     </div>
   </div>`;
 }
