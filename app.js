@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.54';
-const PASS_BUILD_VERSION='v1.3.54-family-color-accents';
+const APP_VERSION='v1.3.55';
+const PASS_BUILD_VERSION='v1.3.55-family-stack-avatar';
 const APP_UPDATED='2026-05-13';
 
 
@@ -220,12 +220,28 @@ function handleAvatarError(img,id){
   }
 }
 function avatarMarkup(id, alt='', cls='avatar-img'){
+  if(isFamilyGroupTarget(alt))return familyStackAvatarMarkup(cls);
   const raw=String(id||'');
   const token=resolveAvatarId(raw);
   if(AVATAR_IMAGE_IDS.has(token)){
     return `<img class="${cls} avatar-token-${escapeAttr(raw)}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
   }
   return `<span class="avatar-fallback">${escapeHtml(raw||'👤')}</span>`;
+}
+function isFamilyGroupTarget(name){
+  const n=String(name||'').trim();
+  return n==='공통'||n==='가족'||n==='怨듯넻'||n.toLowerCase()==='family';
+}
+function familyStackNames(){
+  const names=(getPersons?getPersons():[]).filter(p=>p&&!isFamilyGroupTarget(p));
+  const fallback=['아빠','엄마','초이'].filter(p=>!names.includes(p));
+  return [...names,...fallback].slice(0,3);
+}
+function familyStackAvatarMarkup(cls='family-stack-avatar'){
+  const safeCls=escapeAttr(`${cls||''} family-stack-avatar`.trim());
+  const people=familyStackNames();
+  const items=people.map(p=>`<span class="family-stack-item" title="${escapeAttr(p)}">${avatarMarkup(personAvatar(p),p,'family-stack-img')}</span>`).join('');
+  return `<span class="${safeCls}" aria-label="가족">${items||'<span class="family-stack-fallback">가족</span>'}</span>`;
 }
 function defaultAvatarForName(name){
   const n=(name||'').trim();
@@ -275,6 +291,9 @@ function avatarFrameMarkup(configOrId, alt='', cls='avatarFrame'){
   const safeAlt=escapeAttr(alt||'아바타');
   const safeCls=escapeAttr(cls||'avatarFrame');
   const frameStyle=cfg.color?` style="--avatar-tint:${hexToRgba(cfg.color,.08)}"`:'';
+  if(isFamilyGroupTarget(alt) && cfg.avatarType!=='photo' && cfg.avatarType!=='emoji'){
+    return familyStackAvatarMarkup(safeCls);
+  }
   let body='';
   if(cfg.avatarType==='photo'&&cfg.avatarUrl){
     body=`<img src="${escapeAttr(cfg.avatarUrl)}" alt="${safeAlt}" loading="lazy" onerror="handleAvatarFrameError(this,'${escapeAttr(fallbackId)}')"/>`;
@@ -3368,12 +3387,12 @@ function renderFab(){
 }
 
 function quickAddSvg(kind){
+  if(kind==='family')return familyStackAvatarMarkup('quick-add-icon quick-add-icon-family family-stack-quick');
   const map={
     schedule:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M8.5 14h3M8.5 17h5"/></svg>',
     todo:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12.5 2.4 2.4L16.5 9"/></svg>',
     routine:'<svg viewBox="0 0 24 24"><path d="M17.5 7.5A7 7 0 0 0 5.2 11"/><path d="M5 6.5V11h4.5"/><path d="M6.5 16.5A7 7 0 0 0 18.8 13"/><path d="M19 17.5V13h-4.5"/></svg>',
-    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M12 17s-3.2-1.8-3.2-4a1.9 1.9 0 0 1 3.2-1.3A1.9 1.9 0 0 1 15.2 13c0 2.2-3.2 4-3.2 4Z"/></svg>',
-    family:'<svg viewBox="0 0 24 24"><path d="M4.5 11.5 12 5l7.5 6.5"/><path d="M6.5 10.5V19h11v-8.5"/><circle cx="10" cy="13" r="1.8"/><circle cx="14" cy="13" r="1.8"/><path d="M8.6 17c.6-1.4 1.7-2.1 3.4-2.1s2.8.7 3.4 2.1"/></svg>'
+    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M12 17s-3.2-1.8-3.2-4a1.9 1.9 0 0 1 3.2-1.3A1.9 1.9 0 0 1 15.2 13c0 2.2-3.2 4-3.2 4Z"/></svg>'
   };
   return `<span class="quick-add-icon quick-add-icon-${kind}" aria-hidden="true">${map[kind]||map.schedule}</span>`;
 }

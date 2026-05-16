@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.54
-PASS_BUILD=v1.3.54-family-color-accents
+PASS_VERSION=v1.3.55
+PASS_BUILD=v1.3.55-family-stack-avatar
