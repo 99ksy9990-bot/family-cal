@@ -5236,3 +5236,23 @@ body[data-theme="dark"] .quick-add-row.smart-fab-option:active .quick-add-icon{
 .cal-repeat-name{
   filter:saturate(.76);
 }
+
+/* v1.3.56 calendar family terminology + lighter month heading */
+.cal-outer .cal-nav{
+  margin-bottom:7px;
+}
+.cal-outer .cal-nav-title{
+  font-size:25px;
+  font-weight:700;
+  line-height:1.16;
+  letter-spacing:-0.01em;
+  color:#1F2937;
+}
+.cal-outer .cal-nav-btn{
+  width:34px;
+  height:34px;
+  border-radius:13px;
+  font-size:20px;
+  color:#64748B;
+  background:#F3F5F8;
+}

@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.55';
-const PASS_BUILD_VERSION='v1.3.55-family-stack-avatar';
+const APP_VERSION='v1.3.56';
+const PASS_BUILD_VERSION='v1.3.56-calendar-family-label';
 const APP_UPDATED='2026-05-13';
 
 
@@ -419,7 +419,7 @@ function calendarHiddenRoutineNotice(selDate){
     html+=`<div class="hidden-routine-note">💡 공휴일이라 반복 ${holidayCnt}개가 자동으로 쉬어요.</div>`;
   }
   if(oneOffModeHidden && routines){
-    html+=`<div class="hidden-routine-note">💡 전체 모드에서는 달력 칸의 반복 점을 숨겨요. 아래 상세에는 반복이 모두 표시됩니다. <button onclick="setCalendarViewMode('routine')">반복 보기</button></div>`;
+    html+=`<div class="hidden-routine-note">💡 가족 보기에서는 달력 칸의 반복 점을 숨겨요. 아래 상세에는 반복이 모두 표시됩니다. <button onclick="setCalendarViewMode('routine')">반복 보기</button></div>`;
   }
   return html;
 }
@@ -601,7 +601,7 @@ function handleDateHeaderClick(dateKey=''){
   },80);
 }
 function calendarViewLabel(mode){
-  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
+  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'가족';
 }
 function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
@@ -651,7 +651,7 @@ function setShiftFromModal(k,t){
 }
 
 function renderCalendarViewModeChips(){
-  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','반복']];
+  const modes=[['all','가족'],['work','근무'],['schedule','일정'],['routine','반복']];
   return `<div class="calendar-view-mode-row calendar-view-tabs">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
 }
 function filterCalendarEventsByTarget(evs){
@@ -695,9 +695,9 @@ function renderCalendarCellDots(evs,mems){
     (more>0?`<span class="cal-dot-more">+${more}</span>`:'');
 }
 function renderCalendarPersonLegend(){
-  const people=getPersons();
+  const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
   return `<div class="cal-legend target-legend person-filter-legend calendar-family-filter">
-    <button class="leg person-leg${calWhoF==='all'?' on':''}" onclick="setCalendarTarget('all')"><span class="filter-avatar-all">전체</span></button>
+    <button class="leg person-leg${calWhoF==='all'?' on':''}" onclick="setCalendarTarget('all')">${familyStackAvatarMarkup('calendar-filter-avatar')}<span>가족</span></button>
     ${people.map(p=>`<button class="leg person-leg${calWhoF===p?' on':''}" onclick="setCalendarTarget(${onclickArg(p)})">${avatarFrameMarkup(personAvatarConfig(p),p,'calendar-filter-avatar')}<span>${escapeHtml(p)}</span></button>`).join('')}
   </div>`;
 }
@@ -3001,10 +3001,10 @@ function weekCount(){
 
 
 function targetLabel(v){
-  return v==='all'?'전체':(v||'전체');
+  return v==='all'?'가족':(v||'가족');
 }
 function openScheduleTargetSheet(){
-  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  const opts=[['all','가족'],...getPersons().map(p=>[p,p])];
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -3012,7 +3012,7 @@ function openScheduleTargetSheet(){
       <div class="modal-hd">대상 선택</div>
       ${opts.map(o=>`<button class="sort-row${subF===o[0]?' on':''}" onclick="setScheduleTarget(${onclickArg(o[0])})">
         <span class="sort-check">${subF===o[0]?'✓':''}</span>
-        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'전체 대상 일정':'선택한 대상 일정만 표시'}</em></span>
+        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'가족 전체 일정':'선택한 대상 일정만 표시'}</em></span>
       </button>`).join('')}
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -4032,7 +4032,7 @@ function repeatDateSummary(item){
   return parts.join(' · ');
 }
 function renderRoutineTargetFilter(){
-  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  const opts=[['all','가족'],...getPersons().map(p=>[p,p])];
   return `<div class="routine-filter-row">${opts.map(([k,label])=>{
     const on=(routineTargetFilter||'all')===k;
     return `<button class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})">${escapeHtml(label)}</button>`;
@@ -6085,15 +6085,15 @@ function renderUpcomingPreview(){
   </div>`;
 }
 function openCalendarTargetSheet(){
-  const opts=[['all','전체'],...getPersons().map(p=>[p,p])];
+  const opts=[['all','가족'],...getPersons().map(p=>[p,p])];
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">달력 대상 선택</div>
+      <div class="modal-hd">달력 가족 선택</div>
       ${opts.map(o=>`<button class="sort-row${calWhoF===o[0]?' on':''}" onclick="setCalendarTarget(${onclickArg(o[0])})">
         <span class="sort-check">${calWhoF===o[0]?'✓':''}</span>
-        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'전체 대상 일정 표시':'선택한 대상만 표시'}</em></span>
+        <span><b>${escapeHtml(o[1])}</b><em>${o[0]==='all'?'가족 전체 일정 표시':'선택한 가족만 표시'}</em></span>
       </button>`).join('')}
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
