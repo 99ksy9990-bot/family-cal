@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.61';
-const PASS_BUILD_VERSION='v1.3.61-soft-selected-chips';
+const APP_VERSION='v1.3.67';
+const PASS_BUILD_VERSION='v1.3.67-calendar-data-filter';
 const APP_UPDATED='2026-05-13';
 
 
@@ -424,9 +424,10 @@ function calendarHiddenRoutineNotice(selDate){
   return html;
 }
 
-function renderSelectedDayList(mems,evs,selDate,sp){
-  const notice=calendarHiddenRoutineNotice(selDate);
+function renderSelectedDayList(mems,evs,selDate,sp,opts={}){
+  const notice=opts.suppressNotice?'':calendarHiddenRoutineNotice(selDate);
   if(!mems.length && !evs.length){
+    if(opts.hideEmpty)return notice;
     return renderEmptyState('generic','등록된 일정이 없어요','선택한 날짜에는 아직 기록이 없어요.')+notice;
   }
 
@@ -502,7 +503,57 @@ function calendarRepeatChipTime(n){
   if(e)return `~${e}`;
   return '';
 }
+function renderRepeatDetailSection(selDate,routines=[],opts={}){
+  routines=(routines||[])
+    .filter(n=>isRoutineCalendarEvent(n))
+    .filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+  const groups=new Map();
+  const seen=new Set();
+  routines.sort(calendarDetailSort).forEach(n=>{
+    const who=n.who||'공통';
+    const tm=calendarRepeatChipTime(n);
+    const title=n.title||'반복';
+    const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+    const key=`${rid||''}|${who}|${tm}|${title}`;
+    if(seen.has(key))return;
+    seen.add(key);
+    if(!groups.has(who))groups.set(who,[]);
+    groups.get(who).push({...n,_chipTime:tm});
+  });
+  const persons=getPersons();
+  const order=who=>{
+    const i=persons.indexOf(who);
+    return i<0?999:i;
+  };
+  const content=groups.size
+    ? [...groups.entries()].sort((a,b)=>order(a[0])-order(b[0])).map(([who,items])=>`
+      <div class="cal-repeat-person-group">
+        <div class="cal-repeat-avatar">${avatarFrameMarkup(personAvatarConfig(who),who,'avatarFrame calendar-repeat-avatar-frame')}</div>
+        <div class="cal-repeat-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
+        <div class="cal-repeat-chip-wrap">
+          ${items.map(n=>{
+            const tm=n._chipTime||'';
+            const title=n.title||'반복';
+            const kind=n._autoFamilyInfo?'auto':'note';
+            const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+            return `<button type="button" class="cal-repeat-chip" onclick="openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(tm)},${onclickArg(selDate)},${onclickArg(kind)},${onclickArg(rid)})"><span class="www-repeat-mark">&#8635;</span>${tm?`<span class="www-chip-time">${escapeHtml(tm)}</span>`:''}<span class="www-chip-title">${highlightText(title)}</span></button>`;
+          }).join('')}
+        </div>
+      </div>`).join('')
+    : (opts.hideWhenEmpty?'':`<div class="cal-repeat-empty">등록된 반복 일정이 없어요</div>`);
+  if(!content)return '';
+  return `<div class="cal-repeat-groups">${content}</div>`;
+}
 function renderRepeatOnlyDetail(selDate,evs=[]){
+  return `<div class="ev-card calendar-detail-card calendar-repeat-detail" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
+    <div class="calendar-detail-head">
+      <div class="calendar-detail-title">반복 일정</div>
+      <div class="calendar-detail-date">${escapeHtml(calendarSelectedDateLabel(selDate))}</div>
+    </div>
+    ${renderRepeatDetailSection(selDate,evs,{hideWhenEmpty:false})}
+  </div>`;
+}
+function renderRepeatOnlyDetailLegacy(selDate,evs=[]){
   const routines=(evs||[])
     .filter(n=>isRoutineCalendarEvent(n))
     .filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
@@ -582,6 +633,7 @@ function setCalendarViewMode(mode){
     calY=+sp[0];
     calM=+sp[1]-1;
   }
+  ensureCalendarTargetForView();
   render({preserveScroll:true});
 }
 function openCalendarWorkTab(dateKey=''){
@@ -713,10 +765,15 @@ function renderCalendarCellDots(evs,mems){
   const items=calendarDotCandidates(evs,mems);
   const shown=items.slice(0,3);
   const more=items.length-shown.length;
-  return shown.map(x=>`<span class="cal-dot person-cal-dot${calViewMode==='routine'?' repeat-dot':''}" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`).join('')+
+  return shown.map(x=>{
+    const isPersonKey=String(x.key||'').startsWith('person-')||String(x.key||'').startsWith('routine-');
+    const muted=calWhoF!=='all' && isPersonKey && !String(x.key||'').endsWith(`-${calWhoF}`);
+    return `<span class="cal-dot person-cal-dot${calViewMode==='routine'?' repeat-dot':''}${muted?' muted-dot':''}" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`;
+  }).join('')+
     (more>0?`<span class="cal-dot-more">+${more}</span>`:'');
 }
 function renderCalendarPersonLegend(){
+  return renderCalendarPersonFilter();
   const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
   return `<div class="cal-legend target-legend person-filter-legend calendar-family-filter">
     <button class="leg person-leg${calWhoF==='all'?' on':''}" onclick="setCalendarTarget('all')">${familyStackAvatarMarkup('calendar-filter-avatar')}<span>가족</span></button>
@@ -730,6 +787,57 @@ function renderCalendarAvatars(people){
   const more=arr.length-shown.length;
   return shown.map(p=>`<span class="cal-avatar" title="${escapeAttr(p)}">${avatarMarkup(personAvatar(p),p)}</span>`).join('')+
     (more>0?`<span class="cal-avatar-more">+${more}</span>`:'');
+}
+
+function monthKeysForCalendar(){
+  const days=new Date(calY,calM+1,0).getDate();
+  const keys=[];
+  for(let d=1;d<=days;d++)keys.push(dk(calY,calM,d));
+  return keys;
+}
+function calendarPeopleWithDataForMode(){
+  const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
+  if(calViewMode==='all')return people;
+  if(calViewMode==='work')return [];
+  if(calViewMode!=='schedule' && calViewMode!=='routine')return people;
+  const hasData=new Set();
+  const keys=monthKeysForCalendar();
+  keys.forEach(k=>{
+    const [y,m,d]=k.split('-').map(Number);
+    notesOnDateAll(y,m-1,d).forEach(n=>{
+      const isRoutine=isRoutineCalendarEvent(n);
+      if(calViewMode==='schedule' && isRoutine)return;
+      if(calViewMode==='routine' && !isRoutine)return;
+      const who=n.who||'공통';
+      if(people.includes(who))hasData.add(who);
+    });
+  });
+  return people.filter(p=>hasData.has(p));
+}
+function ensureCalendarTargetForView(){
+  if(calViewMode==='work'){
+    calWhoF='all';
+    return;
+  }
+  if(calViewMode==='all'){
+    if(!calWhoF)calWhoF='all';
+    return;
+  }
+  if(calViewMode!=='schedule' && calViewMode!=='routine')return;
+  const visible=calendarPeopleWithDataForMode();
+  if(calWhoF==='all' || !visible.includes(calWhoF)){
+    calWhoF=visible[0]||'all';
+  }
+}
+function renderCalendarPersonFilter(){
+  if(calViewMode==='work')return '';
+  ensureCalendarTargetForView();
+  const people=calendarPeopleWithDataForMode();
+  if(calViewMode!=='all' && !people.length)return '';
+  return `<div class="calendar-family-filter" aria-label="달력 가족 필터">
+    ${calViewMode==='all'?`<button class="person-leg${calWhoF==='all'?' on':''}" onclick="setCalendarTarget('all')"><span class="calendar-filter-dot neutral-dot"></span><span>가족</span></button>`:''}
+    ${people.map(p=>`<button class="person-leg${calWhoF===p?' on':''}" onclick="setCalendarTarget(${onclickArg(p)})"><span class="calendar-filter-dot" style="background:${familyAccentColor(p)}"></span><span>${escapeHtml(p)}</span></button>`).join('')}
+  </div>`;
 }
 
 function isHiddenBasePerson(name){
@@ -3630,6 +3738,7 @@ function renderC(){
     shiftSelectMode=false;
     shiftSelectedDates=[];
   }
+  ensureCalendarTargetForView();
   const dInM=new Date(y,m+1,0).getDate();
   const firstDay=new Date(y,m,1).getDay();
   let g='';
@@ -3648,7 +3757,7 @@ function renderC(){
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     const showShift=(calViewMode==='all'||calViewMode==='work');
-    const dotHtml=renderCalendarCellDots(evs,mems);
+    const dotHtml=renderCalendarCellDots(allEvs,allMems);
     const hasCalSearch=!!String(searchQ||'').trim();
     const q=normText(searchQ);
     const searchHit=calViewMode==='work' || !hasCalSearch || allEvs.some(n=>matchSearchNote(n)) || allMems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
@@ -3683,6 +3792,10 @@ function renderC(){
       evHtml=renderRepeatOnlyDetail(selDate,evs);
     }else{
       const detailTitle=calViewMode==='schedule'?'등록 일정':'오늘 보기';
+      const oneOffDetailEvs=calViewMode==='all'?evs.filter(n=>!isRoutineCalendarEvent(n)):evs;
+      const repeatDetailSection=calViewMode==='all'
+        ? renderRepeatDetailSection(selDate,evs,{hideWhenEmpty:true})
+        : '';
       evHtml=`<div class="ev-card calendar-detail-card" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
         <div class="calendar-detail-head selected-day-hd">
           <div>
@@ -3695,7 +3808,8 @@ function renderC(){
           </div>
         </div>
         ${renderSelectedDayShiftChips(selDate)}
-        ${renderSelectedDayList(mems,evs,selDate,sp)}
+        ${renderSelectedDayList(mems,oneOffDetailEvs,selDate,sp,{hideEmpty:calViewMode==='all'&&!!repeatDetailSection,suppressNotice:calViewMode==='all'&&!!repeatDetailSection})}
+        ${repeatDetailSection?`<div class="selected-day-section-label routine-label">반복 일정</div>${repeatDetailSection}`:''}
       </div>`;
     }
   }
@@ -3703,8 +3817,9 @@ function renderC(){
   return`<div class="cal-outer cal-mode-${calViewMode}">
     <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
       ${renderCalendarViewModeChips()}
-      ${isEditMode() && calViewMode==='work'?`<button class="sec-chip-btn${shiftSelectMode?' on':''} cal-bulk-btn" onclick="toggleShiftSelectMode()">${shiftSelectMode?'선택 중':'일괄 선택'}</button>`:''}
+      ${isEditMode() && calViewMode==='work'?`<button class="cal-work-more-btn${shiftSelectMode?' on':''}" onclick="toggleShiftSelectMode()" aria-label="일괄 선택">${shiftSelectMode?'선택 중':'⋯'}</button>`:''}
     </div>
+    ${calViewMode==='work'?'':renderCalendarPersonFilter()}
     ${renderCalendarShiftCounts()}
     ${renderShiftBulkBar()}
     <div class="cal-card" ontouchstart="startLayerSwipe(event,\'calendar\',\'.cal-card\')" ontouchmove="moveLayerSwipe(event)" ontouchend="endLayerSwipe(event)" onmousedown="startLayerSwipe(event,\'calendar\',\'.cal-card\')" onmousemove="moveLayerSwipe(event)" onmouseup="endLayerSwipe(event)" onmouseleave="endLayerSwipe(event)">
@@ -3714,7 +3829,6 @@ function renderC(){
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
-      ${calViewMode==='work'?'':renderCalendarPersonLegend()}
     </div>
     ${renderShiftQuickInputBar()}
     ${evHtml}
@@ -3747,6 +3861,17 @@ function shiftQuickDateLabel(dateKey){
   const [y,m,d]=dateKey.split('-').map(Number);
   const day=DAYS[new Date(y,m-1,d).getDay()];
   return `${m}/${d} ${day}`;
+}
+function shiftQuickDateTitle(dateKey){
+  if(!dateKey)return '날짜를 선택해 주세요';
+  const [y,m,d]=dateKey.split('-').map(Number);
+  const day=DAYS[new Date(y,m-1,d).getDay()];
+  return `${m}월 ${d}일 ${day}요일`;
+}
+function workQuickShiftLabel(status){
+  const v=String(status||'').toUpperCase();
+  if(v==='OFF'||v==='O')return '휴';
+  return workCalendarShiftLabel(status);
 }
 function advanceShiftQuickDate(dateKey){
   const next=addDaysStr(dateKey,1);
@@ -3791,25 +3916,28 @@ function renderShiftQuickInputBar(){
   const basePrimary=['D','E','N','OFF'];
   const primary=basePrimary.filter(x=>labels.includes(x));
   const primaryLabels=primary.length?primary:labels.slice(0,4);
-  const secondary=labels.filter(x=>!primaryLabels.includes(x)).slice(0,2);
+  const primaryDisplayLabels=new Set(primaryLabels.map(workQuickShiftLabel));
+  const secondary=labels.filter(x=>{
+    const v=String(x||'').toUpperCase();
+    return !primaryLabels.includes(x) && !['D','E','N','OFF','O'].includes(v) && !primaryDisplayLabels.has(workQuickShiftLabel(x));
+  }).slice(0,2);
   const current=selDate?shiftDisplayStatusFor(selDate,user):'';
+  const hasDate=!!selDate;
+  const selectedLabel=hasDate?`${shiftQuickDateTitle(selDate)} · ${user}`:'날짜를 선택해 주세요';
   return `<div class="shift-quick-input-bar">
     <div class="shift-quick-head">
       <div>
-        <b>연속 입력 ON</b>
-        <span>${escapeHtml(shiftQuickDateLabel(selDate))} 선택됨</span>
+        <span class="shift-quick-kicker">빠른 근무 입력</span>
+        <b>${escapeHtml(selectedLabel)}</b>
       </div>
-      <select class="shift-quick-user" onchange="shiftBulkUser=this.value;render({preserveScroll:true})">
-        <option value="${escapeAttr(user)}" selected>${escapeHtml(user)}</option>
-      </select>
+      <span class="shift-quick-mode">연속 입력</span>
     </div>
-    <div class="shift-quick-label">근무 선택</div>
     <div class="shift-quick-actions primary-shift-actions">
-      ${primaryLabels.map(s=>`<button class="shift-quick-chip ${shiftBadgeClass(s)}${current===s?' on':''}" onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workCalendarShiftLabel(s))}</button>`).join('')}
+      ${primaryLabels.map(s=>`<button class="shift-quick-chip${current===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workQuickShiftLabel(s))}</button>`).join('')}
     </div>
     <div class="shift-quick-sub-actions">
-      ${secondary.map(s=>`<button class="shift-quick-chip secondary ${shiftBadgeClass(s)}${current===s?' on':''}" onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
-      <button class="shift-quick-chip secondary clear" onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
+      ${secondary.map(s=>`<button class="shift-quick-chip secondary${current===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workQuickShiftLabel(s))}</button>`).join('')}
+      <button class="shift-quick-chip secondary clear" ${hasDate?'':'disabled'} onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
       <button class="shift-quick-cancel" onclick="clearShiftQuickSelection()">선택 취소</button>
     </div>
   </div>`;
@@ -5917,6 +6045,17 @@ function todayChipTimeLabel(n){
   if(datePrefix&&time)return `${datePrefix} ${time}`;
   return time||datePrefix;
 }
+function todayChipClockLabel(n){
+  const s=n?.sT||'';
+  const e=n?.eT||'';
+  if(s&&e)return `${s}-${e}`;
+  return s||e||'';
+}
+function weekDayMeta(dateKey){
+  const [y,m,d]=String(dateKey||todayKey()).split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  return {day:DAYS[dt.getDay()]||'',date:`${m}/${d}`,sort:dateKey||''};
+}
 function todayShiftChipLabel(status){
   const s=String(status||'').trim();
   if(!s)return '';
@@ -6009,6 +6148,109 @@ function renderTodayWWWGroup(group){
     </div>
   </div>`;
 }
+function makeWeekWWWGroups(schedule=[],routines=[],keys=[]){
+  normalizeShiftUsers();
+  const weekKeys=(keys&&keys.length?keys:homeRangeKeys()).filter(Boolean);
+  const keyOrder=new Map(weekKeys.map((k,i)=>[k,i]));
+  const peopleOrder=[...new Set([...getPersons(),...shiftUsers,...schedule.map(n=>n.who||'공통'),...routines.map(n=>n.who||'공통')])];
+  const groups=new Map();
+  const ensure=(who,dateKey)=>{
+    const person=who||'공통';
+    const dk=dateKey||weekKeys[0]||scheduleBaseKey();
+    if(!groups.has(person))groups.set(person,{who:person,days:new Map(),seen:new Set()});
+    const group=groups.get(person);
+    if(!group.days.has(dk))group.days.set(dk,{dateKey:dk,items:[]});
+    return {group,day:group.days.get(dk)};
+  };
+  let order=0;
+  const push=(who,dateKey,item)=>{
+    if(!dateKey)return;
+    const {group,day}=ensure(who,dateKey);
+    const key=item.key||`${item.kind}|${who}|${dateKey}|${item.time||''}|${item.title||''}`;
+    if(group.seen.has(key))return;
+    group.seen.add(key);
+    day.items.push({...item,dateKey,order:order++});
+  };
+  weekKeys.forEach(dateKey=>{
+    shiftUsers.forEach(user=>{
+      const status=shiftDisplayStatusFor(dateKey,user);
+      const label=todayShiftChipLabel(status);
+      if(!label||label==='-')return;
+      push(user,dateKey,{
+        kind:'shift',
+        title:label,
+        time:'',
+        className:`shift-chip ${shiftBadgeClass(status)}`,
+        html:`<span class="www-shift-label">${escapeHtml(label)}</span>`,
+        click:`openShiftPicker('${dateKey}')`,
+        key:`shift|${user}|${dateKey}|${label}`
+      });
+    });
+  });
+  (schedule||[]).forEach(n=>{
+    const who=n.who||'공통';
+    const dateKey=n._rangeDate||n.start||weekKeys.find(k=>occursOn(n,k))||'';
+    const time=todayChipClockLabel(n);
+    const title=displayNoteTitle(n);
+    push(who,dateKey,{
+      kind:'schedule',
+      title,
+      time,
+      className:isDone(n)?'done':'',
+      html:`<span class="www-chip-title">${highlightText(title)}</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}${privateChip(n)}`,
+      click:n.id?`openEditNote('${n.id}')`:'',
+      key:`schedule|${n.id||''}|${who}|${dateKey}|${time}|${title}`
+    });
+  });
+  (routines||[]).forEach(n=>{
+    const who=n.who||'공통';
+    const dateKey=n._rangeDate||n.start||weekKeys.find(k=>occursOn(n,k))||'';
+    const time=todayChipClockLabel(n);
+    const title=n.title||'반복';
+    const kind=n._autoFamilyInfo?'auto':'note';
+    const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+    push(who,dateKey,{
+      kind:'routine',
+      title,
+      time,
+      className:'routine',
+      html:`<span class="www-repeat-mark">&#8635;</span><span class="www-chip-title">${highlightText(title)}</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}`,
+      click:`openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(time)},${onclickArg(dateKey)},${onclickArg(kind)},${onclickArg(rid)})`,
+      key:`routine|${rid||''}|${who}|${dateKey}|${time}|${title}`
+    });
+  });
+  return [...groups.values()]
+    .map(group=>({
+      who:group.who,
+      days:[...group.days.values()]
+        .filter(day=>day.items.length)
+        .sort((a,b)=>(keyOrder.get(a.dateKey)??999)-(keyOrder.get(b.dateKey)??999))
+        .map(day=>({...day,items:day.items.sort((a,b)=>todayChipSortKey(a).localeCompare(todayChipSortKey(b),'ko'))}))
+    }))
+    .filter(group=>group.days.length)
+    .sort((a,b)=>{
+      const ia=peopleOrder.indexOf(a.who), ib=peopleOrder.indexOf(b.who);
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    });
+}
+function renderWeekWWWGroup(group){
+  const total=group.days.reduce((sum,day)=>sum+day.items.length,0);
+  return `<div class="www-person-group www-week-person-group" onclick="openPersonTodaySheet(${onclickArg(group.who)})" role="button" tabindex="0">
+    <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(group.who),group.who,'avatarFrame www-avatar-frame')}</div>
+    <div class="www-person-name www-week-person-name" style="color:${familyAccentColor(group.who)}"><span>${escapeHtml(group.who)}</span><em>이번주 ${total}개</em></div>
+    <div class="www-week-days">
+      ${group.days.map(day=>{
+        const meta=weekDayMeta(day.dateKey);
+        return `<div class="www-week-day-group">
+          <div class="www-week-day-head"><b>${escapeHtml(meta.day)}</b><span>${escapeHtml(meta.date)}</span></div>
+          <div class="www-chip-wrap www-week-chip-wrap">
+            ${day.items.map(item=>`<button type="button" class="www-chip www-week-chip ${item.className||''}" ${item.click?`onclick="event.stopPropagation();${item.click}"`:''}>${item.html}</button>`).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
 function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const schedule=(allEvents||[]).filter(n=>{
     const who=n.who||'공통';
@@ -6021,9 +6263,10 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
     return true;
   });
   const baseKey=scheduleBaseKey();
-  const groups=makeTodayWWWGroups(schedule,routines);
+  const isWeek=homeViewRange==='week';
+  const groups=isWeek?makeWeekWWWGroups(schedule,routines,homeRangeKeys()):makeTodayWWWGroups(schedule,routines);
   const body=groups.length
-    ? `<div class="www-today-list">${groups.map(renderTodayWWWGroup).join('')}</div>`
+    ? `<div class="www-today-list ${isWeek?'www-week-list':''}">${groups.map(isWeek?renderWeekWWWGroup:renderTodayWWWGroup).join('')}</div>`
     : `<div class="www-empty compact-brief-empty clickable-empty" onclick="openAddModal('${baseKey}')" role="button" tabindex="0"><div class="compact-brief-empty-title">${escapeHtml(compactSchedulePrompt())}</div></div>`;
 
   return `<div class="widget-wrap dashboard-wrap">
@@ -7258,7 +7501,7 @@ function renderDatePickerCalendarGrid(targetId){
     const allMems=memoriesOnDate(y,m,d);
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
-    const dotHtml=renderCalendarCellDots(evs,mems);
+    const dotHtml=renderCalendarCellDots(allEvs,allMems);
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
     g+=`<button type="button" class="cal-cell date-picker-day${isSel?' sel':''}" onclick="selectDatePickerDay('${targetId}','${key}')" aria-label="${dateLabel(key)}">
       <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
