@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.57';
-const PASS_BUILD_VERSION='v1.3.57-request-empty-state';
+const APP_VERSION='v1.3.61';
+const PASS_BUILD_VERSION='v1.3.61-soft-selected-chips';
 const APP_UPDATED='2026-05-13';
 
 
@@ -549,6 +549,27 @@ function renderRepeatOnlyDetail(selDate,evs=[]){
   </div>`;
 }
 
+function renderWorkOnlyDetail(selDate){
+  const user=calendarWorkUser();
+  const status=shiftDisplayStatusFor(selDate,user);
+  const statusHtml=status
+    ? `<button type="button" class="calendar-work-status-chip ${shiftBadgeClass(status)}" onclick="openShiftPicker('${selDate}',true)"><span>${escapeHtml(workCalendarShiftLabel(status))}</span><b>근무</b></button>`
+    : `<button type="button" class="calendar-work-status-chip empty" onclick="openShiftPicker('${selDate}',true)"><span>+</span><b>근무 입력</b></button>`;
+  return `<div class="ev-card calendar-detail-card calendar-work-detail" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
+    <div class="calendar-detail-head calendar-work-detail-head">
+      <div>
+        <div class="calendar-detail-title">근무</div>
+        <div class="calendar-detail-date">${escapeHtml(calendarSelectedDateLabel(selDate))}</div>
+      </div>
+    </div>
+    <div class="calendar-work-person-row">
+      <span class="calendar-work-avatar">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame calendar-work-avatar-frame')}</span>
+      <span class="calendar-work-name">${escapeHtml(user)}</span>
+      <span class="modern-schedule-dotsep">·</span>
+      ${statusHtml}
+    </div>
+  </div>`;
+}
 function setCalendarViewMode(mode){
   calViewMode=mode||'all';
   if(calViewMode!=='work' && shiftSelectMode){
@@ -607,9 +628,10 @@ function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
   return cur?`근무 ${cur}`:'근무 미입력';
 }
-function openShiftPicker(dateKey){
+function openShiftPicker(dateKey,workOnly=false){
   if(!requireEditMode())return;
   normalizeShiftUsers();
+  const pickerUsers=workOnly?[calendarWorkUser()]:shiftUsers;
   const [y,m,d]=dateKey.split('-').map(Number);
   const dow=DAYS[new Date(y,m-1,d).getDay()];
   document.getElementById('modal').innerHTML=`
@@ -618,7 +640,7 @@ function openShiftPicker(dateKey){
       <div class="modal-ind"></div>
       <div class="modal-hd">${m}월 ${d}일 (${dow}) 근무</div>
       <div class="multi-shift-list">
-        ${shiftUsers.map(user=>{
+        ${pickerUsers.map(user=>{
           const cur=shiftStatusFor(dateKey,user);
           const raw=shiftExplicitStatusFor(dateKey,user);
           const explicit=raw && !isShiftNoneValue(raw);
@@ -1479,6 +1501,11 @@ function firstShiftUser(){
   normalizeShiftUsers();
   return shiftUsers[0] || getPersons().find(p=>p!=='공통') || getPersons()[0] || '공통';
 }
+function calendarWorkUser(){
+  normalizeShiftUsers();
+  const mom=(shiftUsers||[]).find(u=>String(u||'').includes('엄마'));
+  return mom || firstShiftUser();
+}
 function isShiftObject(v){
   return v && typeof v==='object' && !Array.isArray(v);
 }
@@ -1592,10 +1619,11 @@ function isSyncOffDay(dateKey){
 }
 
 function renderCalendarShiftBadges(dateKey){
-  const rows=shiftStatusesForDate(dateKey).filter(x=>x.status && (calViewMode!=='work' || calWhoF==='all' || x.user===calWhoF));
+  const workUser=calendarWorkUser();
+  const rows=shiftStatusesForDate(dateKey).filter(x=>x.status && (calViewMode!=='work' || x.user===workUser));
   if(!rows.length)return '<span style="display:inline-block;height:18px"></span>';
   const shown=rows.slice(0,2);
-  return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}: ${escapeAttr(x.status)}">${escapeHtml(shortShiftLabel(x.status))}</span>`).join('')+
+  return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}: ${escapeAttr(x.status)}">${escapeHtml(workCalendarShiftLabel(x.status))}</span>`).join('')+
     (rows.length>2?`<span class="shift-more">+${rows.length-2}</span>`:'');
 }
 function renderSelectedDayShiftChips(dateKey){
@@ -3623,7 +3651,7 @@ function renderC(){
     const dotHtml=renderCalendarCellDots(evs,mems);
     const hasCalSearch=!!String(searchQ||'').trim();
     const q=normText(searchQ);
-    const searchHit=!hasCalSearch || allEvs.some(n=>matchSearchNote(n)) || allMems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
+    const searchHit=calViewMode==='work' || !hasCalSearch || allEvs.some(n=>matchSearchNote(n)) || allMems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
     const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
@@ -3642,14 +3670,16 @@ function renderC(){
   }
 
   let evHtml='';
-  if(selDate && !shiftSelectMode && calViewMode!=='work'){
+  if(selDate && !shiftSelectMode){
     const sp=selDate.split('-');
     const allEvs=notesOnDateAll(+sp[0],+sp[1]-1,+sp[2]);
     const allMems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     const selHoliday=holidayName(selDate);
-    if(calViewMode==='routine'){
+    if(calViewMode==='work'){
+      evHtml=renderWorkOnlyDetail(selDate);
+    }else if(calViewMode==='routine'){
       evHtml=renderRepeatOnlyDetail(selDate,evs);
     }else{
       const detailTitle=calViewMode==='schedule'?'등록 일정':'오늘 보기';
@@ -3684,7 +3714,7 @@ function renderC(){
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
-      ${renderCalendarPersonLegend()}
+      ${calViewMode==='work'?'':renderCalendarPersonLegend()}
     </div>
     ${renderShiftQuickInputBar()}
     ${evHtml}
@@ -3706,6 +3736,7 @@ function selectShiftQuickDate(dateKey){
 }
 function shiftQuickInputUser(){
   normalizeShiftUsers();
+  if(calViewMode==='work')return calendarWorkUser();
   if(calWhoF!=='all' && shiftUsers.includes(calWhoF))return calWhoF;
   if(shiftBulkUser && shiftUsers.includes(shiftBulkUser))return shiftBulkUser;
   shiftBulkUser=firstShiftUser();
@@ -3749,25 +3780,37 @@ function applyQuickShift(status){
   render({preserveScroll:true});
   try{showToast(`${shiftQuickDateLabel(savedDate)} ${user} ${status===SHIFT_NONE?'미입력':status||'기본값'} 저장`)}catch(e){}
 }
+function clearShiftQuickSelection(){
+  selDate=null;
+  render({preserveScroll:true});
+}
 function renderShiftQuickInputBar(){
   if(!isEditMode() || calViewMode!=='work' || shiftSelectMode)return '';
   const user=shiftQuickInputUser();
   const labels=shiftPersonLabelList(user).filter(Boolean);
-  const primary=labels.length?labels:['D','E','N','OFF'];
+  const basePrimary=['D','E','N','OFF'];
+  const primary=basePrimary.filter(x=>labels.includes(x));
+  const primaryLabels=primary.length?primary:labels.slice(0,4);
+  const secondary=labels.filter(x=>!primaryLabels.includes(x)).slice(0,2);
   const current=selDate?shiftDisplayStatusFor(selDate,user):'';
   return `<div class="shift-quick-input-bar">
     <div class="shift-quick-head">
       <div>
-        <b>근무 입력 중</b>
+        <b>연속 입력 ON</b>
         <span>${escapeHtml(shiftQuickDateLabel(selDate))} 선택됨</span>
       </div>
       <select class="shift-quick-user" onchange="shiftBulkUser=this.value;render({preserveScroll:true})">
-        ${shiftUsers.map(u=>`<option value="${escapeAttr(u)}" ${user===u?'selected':''}>${escapeHtml(u)}</option>`).join('')}
+        <option value="${escapeAttr(user)}" selected>${escapeHtml(user)}</option>
       </select>
     </div>
-    <div class="shift-quick-actions">
-      ${primary.map(s=>`<button class="shift-quick-chip ${shiftBadgeClass(s)}${current===s?' on':''}" onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
-      <button class="shift-quick-chip clear" onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
+    <div class="shift-quick-label">근무 선택</div>
+    <div class="shift-quick-actions primary-shift-actions">
+      ${primaryLabels.map(s=>`<button class="shift-quick-chip ${shiftBadgeClass(s)}${current===s?' on':''}" onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workCalendarShiftLabel(s))}</button>`).join('')}
+    </div>
+    <div class="shift-quick-sub-actions">
+      ${secondary.map(s=>`<button class="shift-quick-chip secondary ${shiftBadgeClass(s)}${current===s?' on':''}" onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
+      <button class="shift-quick-chip secondary clear" onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
+      <button class="shift-quick-cancel" onclick="clearShiftQuickSelection()">선택 취소</button>
     </div>
   </div>`;
 }
@@ -5319,6 +5362,13 @@ function shortShiftLabel(status){
   if(s.includes('연차') || s.includes('반차') || s.includes('휴'))return '휴';
   return Array.from(s)[0] || '-';
 }
+function workCalendarShiftLabel(status){
+  const s=String(status||'').trim();
+  if(!s)return '-';
+  const upper=s.toUpperCase();
+  if(upper==='OFF' || upper==='O')return 'OFF';
+  return shortShiftLabel(s);
+}
 function scheduleCountsByPerson(baseKey){
   const items=[
     ...notes.filter(n=>!isDone(n)&&!n._autoFamilyInfo&&occursOn(n,baseKey)),
@@ -6125,12 +6175,15 @@ function setCalendarTarget(t){
 function renderCalendarShiftCounts(){
   if(calViewMode!=='work')return '';
   normalizeShiftUsers();
-  const users=(calWhoF!=='all' && shiftUsers.includes(calWhoF))?[calWhoF]:shiftUsers;
+  const user=calendarWorkUser();
+  const users=[user];
   const sc=getShiftCount(calY,calM,users);
   const labels=shiftLabelList().filter(s=>(sc[s]||0)>0);
   if(!labels.length)return '';
-  return `<div class="shift-count-row calendar-count-inline">
-    ${labels.map(s=>`<span class="shift-count-item"><span class="leg-chip ${shiftBadgeClass(s)}">${escapeHtml(s)}</span>${sc[s]||0}</span>`).join('')}
+  return `<div class="month-shift-summary">
+    <div class="month-shift-title">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame month-shift-avatar')}<span>${escapeHtml(user)} 근무</span></div>
+    <div class="month-shift-meta">이번 달</div>
+    <div class="month-shift-line">${labels.map(s=>`${escapeHtml(workCalendarShiftLabel(s))} ${sc[s]||0}`).join(' · ')}</div>
   </div>`;
 }
 

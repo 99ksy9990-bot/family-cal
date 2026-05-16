@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.57
-PASS_BUILD=v1.3.57-request-empty-state
+PASS_VERSION=v1.3.61
+PASS_BUILD=v1.3.61-soft-selected-chips
