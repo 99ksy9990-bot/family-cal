@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.27';
-const PASS_BUILD_VERSION='v1.3.27-schedule-filter-default';
+const APP_VERSION='v1.3.30';
+const PASS_BUILD_VERSION='v1.3.30-filter-past-list';
 const APP_UPDATED='2026-05-13';
 
 
@@ -2642,6 +2642,24 @@ function activeInPeriod(n){
   if(n.end && n.end>=base && (n.start||k)<=end)return true;
   return k>=base && k<=end;
 }
+function periodStartForPast(baseKey=scheduleBaseKey()){
+  if(activePer==='today')return baseKey;
+  if(activePer==='1w')return addDaysStr(baseKey,-7);
+  if(activePer==='1m')return addMonthsStr(baseKey,-1);
+  if(activePer==='3m')return addMonthsStr(baseKey,-3);
+  return '';
+}
+function pastInPeriod(n,baseKey=scheduleBaseKey()){
+  if(activePer==='all')return true;
+  const k=scheduleListDate(n)||n.start||'';
+  if(!k)return true;
+  if(activePer==='today')return k===baseKey;
+  const lower=periodStartForPast(baseKey);
+  return lower ? (k>=lower && k<baseKey) : true;
+}
+function applyPastPeriodFilter(list,baseKey=scheduleBaseKey()){
+  return (list||[]).filter(n=>pastInPeriod(n,baseKey));
+}
 function setActivePer(t){
   activePer=t;
   render();
@@ -2742,17 +2760,23 @@ function openScheduleFilterSheet(){
   const peopleOpts=[['all','전체'],...getPersons().map(p=>[p,p])];
   const periodOpts=[['today','당일'],['1w','1주'],['1m','1개월'],['3m','3개월'],['all','전체']];
   const sortOpts=[['time','다가오는'],['person','대상별'],['special','특별'],['manual','입력순']];
+  const targetChip=o=>{
+    const selected=subF===o[0];
+    const isAll=o[0]==='all';
+    const icon=isAll?'<span class="filter-avatar filter-avatar-all">전체</span>':avatarMarkup(personAvatar(o[0]),o[0],'avatar-img-small');
+    return `<button class="filter-sheet-chip filter-person-chip${selected?' on':''}" onclick="setScheduleTargetQuick(${onclickArg(o[0])})" aria-label="${escapeAttr(o[1])}" title="${escapeAttr(o[1])}">${icon}</button>`;
+  };
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet schedule-filter-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="modal-hd">일정 보기</div>
       <div class="filter-sheet-group">
-        <div class="filter-sheet-title">대상</div>
-        <div class="filter-sheet-options">${peopleOpts.map(o=>`<button class="filter-sheet-chip${subF===o[0]?' on':''}" onclick="setScheduleTargetQuick(${onclickArg(o[0])})">${escapeHtml(o[1])}</button>`).join('')}</div>
+        <div class="filter-sheet-title">누구</div>
+        <div class="filter-sheet-options filter-person-options">${peopleOpts.map(targetChip).join('')}</div>
       </div>
       <div class="filter-sheet-group">
-        <div class="filter-sheet-title">기간</div>
+        <div class="filter-sheet-title">언제</div>
         <div class="filter-sheet-options">${periodOpts.map(o=>`<button class="filter-sheet-chip${activePer===o[0]?' on':''}" onclick="setActivePerQuick('${o[0]}')">${escapeHtml(o[1])}</button>`).join('')}</div>
       </div>
       <div class="filter-sheet-group">
@@ -2858,14 +2882,13 @@ function renderBriefEmptyState(kind,title,sub=''){
 }
 function compactSchedulePrompt(){
   const prompts=[
-    '+를 눌러 일정을 등록해보세요.',
-    '새 일정을 하나 적어볼까요?',
-    '오늘 챙길 일이 생기면 +로 추가해요.',
-    '가족 일정을 +에서 바로 등록해요.'
+    '오늘은 일정 없이 가볍게 지나가도 좋아요.',
+    '새 일정이 생기면 여기에서 바로 적어둘게요.',
+    '가족 일정이 생기면 이곳에 차곡차곡 모아둘게요.',
+    '오늘 챙길 일정은 아직 비어 있어요.'
   ];
   return prompts[EMPTY_SCHEDULE_PICK%prompts.length];
-}
-function emptyMessageHtml(message){
+}function emptyMessageHtml(message){
   return escapeHtml(String(message||'')).replace(/&lt;br\s*\/?&gt;/gi,'<br>');
 }
 function renderEmptyState(kind,title,sub=''){
@@ -3136,7 +3159,8 @@ function renderS(){
 
   const past=notes.filter(n=>{
     if(!noteOk(n))return false;
-    return isMissedSchedule(n,baseKey);
+    if(!isMissedSchedule(n,baseKey))return false;
+    return pastInPeriod(n,baseKey);
   }).map(n=>({...n,_displayDate:n.start||''}));
 
   let active=notes.filter(n=>{
@@ -3151,7 +3175,7 @@ function renderS(){
 
   active=scheduleListSort(active);
 
-  const pastList=sortPastScheduleList(past,baseKey);
+  const pastList=applyPastPeriodFilter(sortPastScheduleList(past,baseKey),baseKey);
 
   const activeCount=active.length;
   const activeAll=[...active];
@@ -5563,9 +5587,11 @@ function familySettingsSvg(){
 }function renderHomeAppHeader(){
   if(main!=='s')return '';
   const base=scheduleBaseKey();
+  const [hy,hm,hd]=String(base).split('-').map(Number);
+  const dow=hy&&hm&&hd?`${DAYS[new Date(hy,hm-1,hd).getDay()]}요일`:'';
   return `<section class="home-app-head">
     <div class="home-head-row">
-      <div><div class="home-kicker">${escapeHtml(dateLabel(base))}</div><h1>오늘</h1></div>
+      <div><div class="home-kicker">${escapeHtml(`${dateLabel(base)} ${dow}`.trim())}</div></div>
       <div class="home-head-actions">
         <button onclick="openNoticeList()" aria-label="알림">${bellSvg()}</button>
         <button onclick="openScheduleFilterSheet()" aria-label="검색">${filterSearchSvg()}</button>

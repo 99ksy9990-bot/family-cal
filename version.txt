@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.27
-PASS_BUILD=v1.3.27-schedule-filter-default
+PASS_VERSION=v1.3.30
+PASS_BUILD=v1.3.30-filter-past-list
