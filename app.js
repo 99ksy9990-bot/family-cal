@@ -1,5 +1,5 @@
-﻿const APP_VERSION='v1.3.19';
-const PASS_BUILD_VERSION='v1.3.19-compact-schedule-rows';
+const APP_VERSION='v1.3.27';
+const PASS_BUILD_VERSION='v1.3.27-schedule-filter-default';
 const APP_UPDATED='2026-05-13';
 
 
@@ -120,7 +120,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='1m',donePer='1m',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='time',scheduleBaseOffset=0,showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='1w',donePer='1w',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='time',scheduleBaseOffset=0,showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[],shiftBulkUser='';
 let weekOpen=false;
 let activeOpen=false;
@@ -362,12 +362,31 @@ function setCalendarViewMode(mode){
   }
   render({preserveScroll:true});
 }
+function openCalendarWorkTab(dateKey=''){
+  main='c';
+  calViewMode='work';
+  shiftSelectMode=false;
+  shiftSelectedDates=[];
+  selDate=null;
+  if(dateKey){
+    const parts=String(dateKey).split('-').map(Number);
+    if(parts.length>=2 && parts[0] && parts[1]){
+      calY=parts[0];
+      calM=parts[1]-1;
+    }
+  }
+  updateTabUI();
+  render({preserveScroll:false});
+  setTimeout(()=>{
+    try{document.querySelector('.cal-card')?.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
+  },80);
+}
 function calendarViewLabel(mode){
-  return mode==='work'?'상태':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
+  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
 }
 function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
-  return cur?`상태 ${cur}`:'상태 미입력';
+  return cur?`근무 ${cur}`:'근무 미입력';
 }
 function openShiftPicker(dateKey){
   if(!requireEditMode())return;
@@ -378,7 +397,7 @@ function openShiftPicker(dateKey){
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet shift-edit-sheet multi-shift-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">${m}월 ${d}일 (${dow}) 상태</div>
+      <div class="modal-hd">${m}월 ${d}일 (${dow}) 근무</div>
       <div class="multi-shift-list">
         ${shiftUsers.map(user=>{
           const cur=shiftStatusFor(dateKey,user);
@@ -413,7 +432,7 @@ function setShiftFromModal(k,t){
 }
 
 function renderCalendarViewModeChips(){
-  const modes=[['all','전체'],['work','상태'],['schedule','일정'],['routine','반복']];
+  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','반복']];
   return `<div class="calendar-view-mode-row">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
 }
 function filterCalendarEventsByTarget(evs){
@@ -677,13 +696,14 @@ function daysFmt(arr){if(!arr||!arr.length)return'매일';return arr.map(i=>DAYS
 function typeName(t){return t==='work'?'회사':t==='family'?'가족':'개인'}
 function typeChip(t){return t==='work'?'chip-w':t==='family'?'chip-f':'chip-p'}
 function dotCls(t){return t==='work'?'dw':t==='family'?'df':'dp'}
-function getShiftCount(y,m){
+function getShiftCount(y,m,users=null){
   const counts={};
   shiftLabelList().forEach(s=>counts[s]=0);
+  const userSet=Array.isArray(users)&&users.length?new Set(users):null;
   const days=new Date(y,m+1,0).getDate();
   for(let d=1;d<=days;d++){
     const key=dk(y,m,d);
-    shiftStatusesForDate(key).forEach(x=>{
+    shiftStatusesForDate(key).filter(x=>!userSet || userSet.has(x.user)).forEach(x=>{
       if(x.status){
         if(!(x.status in counts))counts[x.status]=0;
         counts[x.status]++;
@@ -1299,7 +1319,7 @@ function isSyncOffDay(dateKey){
 }
 
 function renderCalendarShiftBadges(dateKey){
-  const rows=shiftStatusesForDate(dateKey).filter(x=>x.status);
+  const rows=shiftStatusesForDate(dateKey).filter(x=>x.status && (calViewMode!=='work' || calWhoF==='all' || x.user===calWhoF));
   if(!rows.length)return '<span style="display:inline-block;height:18px"></span>';
   const shown=rows.slice(0,2);
   return shown.map(x=>`<span class="shift-one ${shiftBadgeClass(x.status)}" title="${escapeAttr(x.user)}: ${escapeAttr(x.status)}">${escapeHtml(shortShiftLabel(x.status))}</span>`).join('')+
@@ -2946,7 +2966,11 @@ function scheduleDdayTextForList(n,opts={}){
   if(diff===null || diff===undefined || Number.isNaN(diff))return '';
   if(diff===0)return 'D-Day';
   if(diff>0 && diff<=365)return `D-${diff}`;
-  if(diff<0)return `D+${Math.abs(diff)}`;
+  if(diff<0){
+    const past=Math.abs(diff);
+    if(opts.past && past>7)return '';
+    return `D+${past}`;
+  }
   return '';
 }
 function scheduleListDateLine(n){
@@ -3305,7 +3329,7 @@ function renderC(){
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${syncOff?' sync-off':''}${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
-      onclick="${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
+      onclick="if(!consumeSwipeTap())${shiftSelectMode?`toggleShiftDate('${key}')`:(calViewMode==='work'?`openShiftPicker('${key}')`:`selCal('${key}')`)}"
       onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
       onmouseleave="cancelLongAdd()"
@@ -3313,13 +3337,13 @@ function renderC(){
       ontouchend="cancelLongAdd()"
       ontouchmove="cancelLongAdd()">
       <div class="cal-date-line"><div class="cal-num${numCls}" ${hName?`title="${escapeAttr(hName)}"`:''}>${d}</div></div>
-      <div class="cal-shift-line">${showShift?renderCalendarShiftBadges(key):'<span style="display:inline-block;height:15px"></span>'}</div>
-      <div class="cal-dots">${dotHtml}</div>
+      <div class="cal-shift-line">${showShift?renderCalendarShiftBadges(key):(dotHtml||'<span style="display:inline-block;height:15px"></span>')}</div>
+      <div class="cal-dots">${showShift?dotHtml:''}</div>
     </div>`;
   }
 
   let evHtml='';
-  if(selDate && !shiftSelectMode){
+  if(selDate && !shiftSelectMode && calViewMode!=='work'){
     const sp=selDate.split('-');
     const allEvs=notesOnDateAll(+sp[0],+sp[1]-1,+sp[2]);
     const allMems=memoriesOnDate(+sp[0],+sp[1]-1,+sp[2]);
@@ -3331,7 +3355,7 @@ function renderC(){
         <span>${+sp[1]}/${+sp[2]} 일정 ${selHoliday?`<span class="holiday-title">${escapeHtml(selHoliday)}</span>`:''}</span>
         <div class="selected-day-actions">
           <button class="sec-chip-btn detail-target-btn" onclick="openCalendarTargetSheet()">대상 ${targetLabel(calWhoF)}</button>
-          <button class="sec-chip-btn shift-status-btn" onclick="openShiftPicker('${selDate}')">상태 편집</button>
+          <button class="sec-chip-btn shift-status-btn" onclick="openShiftPicker('${selDate}')">근무 수정</button>
         </div>
       </div>
       ${renderSelectedDayShiftChips(selDate)}
@@ -3362,6 +3386,10 @@ function setShift(k,t){
   setShiftStatus(k,firstShiftUser(),t||'',false);
 }
 function selCal(k){
+  if(calViewMode==='work'){
+    openShiftPicker(k);
+    return;
+  }
   selDate=selDate===k?null:k;
   const sp=k.split('-');
   calY=+sp[0];
@@ -3874,6 +3902,7 @@ function makeReqCard(r){
   const done = isDone(r);
   const writer = r.writer || '공통';
   const avatar = `<div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>`;
+  const writerName = `<div class="todo-compact-person" style="color:${personColor(writer)}">${escapeHtml(writer)}</div>`;
   const check = `<div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
         <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>`;
@@ -3884,14 +3913,14 @@ function makeReqCard(r){
     onclick="if(!consumeSwipeTap())openEditReq('${r.id}')" style="cursor:pointer">
     <div class="swipe-bg swipe-bg-right">완료</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
     <div class="todo-compact-grid ${done?'todo-done-grid':'todo-active-grid'}">
-      ${done?avatar:''}
       ${check}
+      ${avatar}
+      ${writerName}
       <div class="todo-compact-main">
         <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
         ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : ''}
       </div>
       <div class="todo-compact-due">${due ? escapeHtml(due) : ''}</div>
-      ${done?'':avatar}
     </div>
   </div>`;
 }
@@ -3936,7 +3965,6 @@ function openReqModal(id){
       <div class="add-flow-head">
         <div>
           <div class="modal-hd">${r?'할일 수정':'할일 추가'}</div>
-          <p>누가, 언제, 무엇을만 먼저 적으면 돼요.</p>
         </div>
       </div>
       <div class="add-flow-card">
@@ -4877,7 +4905,11 @@ function clearSwipeElements(){
   });
 }
 function startLayerSwipe(e,type,trackSelector='',syncSelector=''){
-  if(e.target&&e.target.closest&&e.target.closest('button,input,select,textarea,.chk,.small-link,.comment-pill,.day-btn,.shift-btn,.cal-cell'))return;
+  if(e.target&&e.target.closest){
+    const blockSelector='button,input,select,textarea,.chk,.small-link,.comment-pill,.day-btn,.shift-btn';
+    if(e.target.closest(blockSelector))return;
+    if(type!=='calendar' && e.target.closest('.cal-cell'))return;
+  }
   const p=swipePoint(e);
   const root=e.currentTarget;
   const track=trackSelector?root.querySelector(trackSelector):root;
@@ -5016,19 +5048,18 @@ function renderTodayShiftSection(){
   const rows=shiftUsers.map(user=>{
     const status=shiftDisplayStatusFor(baseKey,user);
     const label=status?shortShiftLabel(status):'-';
-    const badgeClass=status?shiftBadgeClass(status):'shift-empty';
-    return `<button type="button" class="today-shift-current-row" onclick="openShiftPicker('${baseKey}')" title="${escapeAttr(user)} · ${escapeAttr(status||'미입력')}">
+    return `<button type="button" class="today-shift-current-row" onclick="openCalendarWorkTab('${baseKey}')" title="${escapeAttr(user)} · ${escapeAttr(status||'미입력')}">
       <span class="today-shift-person">
         ${avatarMarkup(personAvatar(user),user,'shift-micro-avatar')}
         <span class="today-shift-name" style="color:${personColor(user)}">${escapeHtml(user)}</span>
-        <span class="today-shift-work-text">${escapeHtml(label)}</span>
+        <span class="modern-schedule-dotsep">·</span>
+        <span class="today-shift-badge shift-one ${status?shiftBadgeClass(status):'shift-empty'}">${escapeHtml(label)}</span>
       </span>
     </button>`;
   }).join('');
   return `<section class="today-shift-section" aria-label="근무표">
     <div class="today-shift-head">
-      <div class="today-brief-section-title">근무표</div>
-      <button type="button" class="today-shift-action" onclick="openShiftPicker('${baseKey}')">수정</button>
+      <div class="today-brief-section-title">근무</div>
     </div>
     <div class="today-shift-current-list">${rows}</div>
   </section>`;
@@ -5200,7 +5231,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
 
   const scheduleBody=schedule.length
     ? `<section class="today-brief-section today-schedule-section"><div class="today-brief-section-title">등록 일정</div><div class="dashboard-standard-list merged-schedule-wrap">${schedule.map(n=>makeTodayDashboardStandardRow(n,{baseKey})).join('')}</div></section>`
-    : `<section class="today-brief-section today-schedule-section"><div class="today-brief-section-title">등록 일정</div><div class="dashboard-standard-list merged-schedule-wrap merged-empty-card compact-brief-empty"><div class="compact-brief-empty-title">${escapeHtml(compactSchedulePrompt())}</div></div></section>`;
+    : `<section class="today-brief-section today-schedule-section"><div class="today-brief-section-title">등록 일정</div><div class="dashboard-standard-list merged-schedule-wrap merged-empty-card compact-brief-empty clickable-empty" onclick="openAddModal('${baseKey}')" role="button" tabindex="0"><div class="compact-brief-empty-title">${escapeHtml(compactSchedulePrompt())}</div></div></section>`;
 
   const routineGroups={};
   routines.forEach(n=>{
@@ -5211,7 +5242,7 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
   const groupKeys=Object.keys(routineGroups).sort((a,b)=>personIdx(a)-personIdx(b));
   const maxRows=groupKeys.length?Math.max(...groupKeys.map(w=>routineGroups[w].length)):0;
   const routineBody=groupKeys.length
-    ? `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div><button type="button" class="today-brief-section-action" onclick="openRoutineManagerFromSchedule()">관리</button></div><div class="merged-routine-wrap dashboard-routine-2col">${groupKeys.map(who=>{
+    ? `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div></div><div class="merged-routine-wrap dashboard-routine-2col">${groupKeys.map(who=>{
         const rows=routineGroups[who];
         const filler=Math.max(0,maxRows-rows.length);
         return `<div class="merged-routine-group routine-2col-card">
@@ -5230,13 +5261,13 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           }).join('')}${Array.from({length:filler},()=>`<div class="merged-routine-row routine-2col-row routine-placeholder-row" aria-hidden="true"><div class="merged-routine-title">&nbsp;</div><div class="merged-routine-time">&nbsp;</div></div>`).join('')}</div>
         </div>`;
       }).join('')}</div></section>`
-    : `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div><button type="button" class="today-brief-section-action" onclick="openRoutineManagerFromSchedule()">관리</button></div><div class="dashboard-standard-list dashboard-routine-list merged-empty-card compact-brief-empty"><div class="compact-brief-empty-title">반복 없음</div></div></section>`;
+    : `<section class="today-brief-section today-routine-section"><div class="today-brief-section-head"><div class="today-brief-section-title">반복 일정</div></div><div class="dashboard-standard-list dashboard-routine-list merged-empty-card compact-brief-empty"><div class="compact-brief-empty-title">반복 없음</div></div></section>`;
 
   const shiftSection=renderTodayShiftSection();
   const scheduleRoutineBody=bothEmpty
     ? `<div class="merged-empty-single">${renderBriefEmptyState('schedule','오늘 표시할 일정과 반복이 없어요')}</div>`
     : `${scheduleBody}${schedule.length&&routines.length?`<div class="dashboard-section-divider merged-section-divider" aria-hidden="true"></div>`:''}${routineBody}`;
-  const body=`${shiftSection}${shiftSection?`<div class="dashboard-section-divider merged-section-divider today-shift-divider" aria-hidden="true"></div>`:''}${scheduleRoutineBody}`;
+  const body=`${shiftSection}${scheduleRoutineBody}`;
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
@@ -5381,8 +5412,12 @@ function setCalendarTarget(t){
   render();
 }
 function renderCalendarShiftCounts(){
-  const sc=getShiftCount(calY,calM);
-  const labels=shiftLabelList();
+  if(calViewMode!=='work')return '';
+  normalizeShiftUsers();
+  const users=(calWhoF!=='all' && shiftUsers.includes(calWhoF))?[calWhoF]:shiftUsers;
+  const sc=getShiftCount(calY,calM,users);
+  const labels=shiftLabelList().filter(s=>(sc[s]||0)>0);
+  if(!labels.length)return '';
   return `<div class="shift-count-row calendar-count-inline">
     ${labels.map(s=>`<span class="shift-count-item"><span class="leg-chip ${shiftBadgeClass(s)}">${escapeHtml(s)}</span>${sc[s]||0}</span>`).join('')}
   </div>`;
@@ -5922,7 +5957,6 @@ function openAddModal(dateVal){
       <div class="add-flow-head">
         <div>
           <div class="modal-hd">일정 추가</div>
-          <p>누가, 언제, 무엇을만 먼저 적으면 돼요.</p>
         </div>
       </div>
       <div class="add-flow-card">
@@ -5932,7 +5966,9 @@ function openAddModal(dateVal){
         </div>
       </div>
       <div class="add-flow-card">
-        <div class="add-step-head"><span>2</span><b>언제</b></div>
+        <div class="add-step-head add-when-head">
+          <span>2</span><b>언제</b>
+        </div>
         <div class="add-when-grid">
           <div><div class="sublabel">날짜</div><input class="picker-field" id="m-sd" readonly data-val="${startDate}" value="${dateLabel(startDate)}" onclick="openDatePicker('m-sd')"/></div>
           <div><div class="sublabel">시작</div><input class="picker-field empty" id="m-st" readonly data-val="" value="시간 없음" onclick="openTimePicker('m-st')"/></div>
@@ -5942,28 +5978,21 @@ function openAddModal(dateVal){
       <div class="add-flow-card add-what-card">
         <div class="add-step-head add-what-head">
           <span>3</span><b>무엇을</b>
+          <label class="add-repeat-inline-toggle what-repeat-toggle"><input type="checkbox" id="m-repeat-on" onchange="toggleAddRepeatInline()"><span>반복</span></label>
+          <input class="picker-field add-repeat-end-inline empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
           <button type="button" class="private-inline-toggle" id="m-private" data-val="" onclick="togglePrivateField('m-private')" aria-label="공개 일정"><span class="private-lock-icon" aria-hidden="true">${lockSvg(false)}</span><span class="private-toggle-text">공개</span></button>
         </div>
         <input class="mi" id="m-ti" placeholder="예: 수학, 병원, 회식"/>
       </div>
       <details class="detail-settings">
-        <summary>반복, 알림 메모 더 설정</summary>
+        <summary>알림 메모 더 설정</summary>
         <div class="detail-settings-panel">
-          <div class="add-repeat-grid">
-            <div>
-              <div class="sublabel">반복</div>
-              <select class="mi" id="m-rp">
-                <option value="">반복 없음</option>
-                <option value="daily">매일</option>
-                <option value="weekly">매주</option>
-                <option value="monthly">매월</option>
-              </select>
-            </div>
-            <div>
-              <div class="sublabel">반복 종료일</div>
-              <input class="picker-field empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
-            </div>
-          </div>
+          <select class="mi add-repeat-hidden-select" id="m-rp" aria-hidden="true" tabindex="-1">
+            <option value="">반복 없음</option>
+            <option value="daily">매일</option>
+            <option value="weekly">매주</option>
+            <option value="monthly">매월</option>
+          </select>
           <input type="hidden" id="m-ed" data-val=""/>
           <div class="ml">알림 메모</div>
           <input class="mi" id="m-alert" placeholder="예: D-1 준비물 확인"/>
@@ -5995,6 +6024,21 @@ function selWho(w){
       }
     }
   });
+}
+
+function toggleAddRepeatInline(){
+  const on=!!(document.getElementById('m-repeat-on')||{}).checked;
+  const repeat=document.getElementById('m-rp');
+  const end=document.getElementById('m-re');
+  if(repeat)repeat.value=on?'weekly':'';
+  if(end){
+    end.classList.toggle('show',on);
+    if(!on){
+      end.dataset.val='';
+      end.value='종료 없음';
+      end.classList.add('empty');
+    }
+  }
 }
 
 function saveNote(){
