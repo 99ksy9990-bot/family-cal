@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.34';
-const PASS_BUILD_VERSION='v1.3.34-www-today';
+const APP_VERSION='v1.3.35';
+const PASS_BUILD_VERSION='v1.3.35-www-celebration';
 const APP_UPDATED='2026-05-13';
 
 
@@ -4075,6 +4075,23 @@ function sortedMemoriesForDisplay(){
   });
 }
 
+function memoryDdayClass(dday){
+  if(!dday)return '';
+  if(dday==='D-Day')return ' due-now';
+  const m=String(dday).match(/^D-([0-9]+)$/);
+  if(!m)return ' far';
+  const n=Number(m[1]);
+  if(n<=7)return ' due-soon';
+  if(n<=30)return ' due-month';
+  if(n<=100)return ' due-later';
+  return ' far';
+}
+function memoryEventKind(x){
+  const title=String(x?.name||'');
+  if(title.includes('결혼'))return {icon:'💍',label:'결혼기념일'};
+  if(title.includes('생일')||title.includes('탄생'))return {icon:'🎂',label:'생일'};
+  return {icon:memoryIcon(x)||'🎉',label:title||'기념일'};
+}
 function makeMemoryCard(x){
   const calType=memoryCalendarType(x);
   const isLunar=calType==='lunar';
@@ -4110,6 +4127,47 @@ function makeMemoryCard(x){
     </div>
   </div>`;
 }
+function makeMemoryCard(x){
+  const calType=memoryCalendarType(x);
+  const isLunar=calType==='lunar';
+  const nb=nextBirthInfo(x.birth,isLunar);
+  const ageLabel=memoryAgeLabel(x);
+  const upcomingFullLabel=nb.date?fullDateWithDow(nb.date):'';
+  const subject=memoryDisplaySubject(x);
+  const kind=memoryEventKind(x);
+  const ddayClass=memoryDdayClass(nb.dday);
+  const calChip=isLunar?'음력':'양력';
+  return `<div class="card mem-card reorder-card swipe-card memory-feed-card"
+    draggable="true"
+    data-reorder-list="memories" data-reorder-id="${x.id}"
+    ondragstart="dragStart(event,'memories','${x.id}')"
+    ondragover="dragOver(event)"
+    ondrop="dropItem(event,'memories','${x.id}')"
+    ondragend="dragEnd(event)"
+    ontouchstart="startItemSwipe(event,'memory','${x.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
+    onmousedown="startItemSwipe(event,'memory','${x.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)">
+    <div class="swipe-bg swipe-bg-left"></div>
+    <div class="c-row memory-row memory-row-v3" onclick="if(!consumeSwipeTap())openMemoryModal('${x.id}')" style="cursor:pointer">
+      <div class="memory-card-icon memory-display-avatar memory-avatar-v3">${memoryDisplayAvatarHtml(x,'avatar-img')}</div>
+      <div class="memory-body-grid memory-body-grid-v3">
+        <div class="memory-info-col memory-info-v3">
+          <div class="memory-event-line">
+            <span class="memory-event-kind">${escapeHtml(kind.icon)} ${escapeHtml(kind.label)}</span>
+            ${subject&&subject!=='공통'&&subject!=='怨듯넻'?`<span class="memory-title-dot">·</span><span class="memory-subject-name" style="color:${personColor(subject)}">${escapeHtml(subject)}</span>`:''}
+          </div>
+          <div class="memory-date-line">${upcomingFullLabel?escapeHtml(upcomingFullLabel):'날짜 없음'}</div>
+          <div class="memory-helper-line">
+            ${ageLabel?`<span>${escapeHtml(ageLabel)}</span>`:''}
+            ${x.birth?`<span>${escapeHtml(calChip)}</span>`:''}
+          </div>
+        </div>
+        <div class="memory-date-col memory-date-col-v3">
+          ${x.birth ? `<div class="modern-dday-badge memory-dday-standard memory-dday-v3${ddayClass}">${escapeHtml(nb.dday)}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
 function noopSection(){}
 let memoryOpen=true;
 function toggleMemory(){memoryOpen=!memoryOpen;render({preserveScroll:true});}
@@ -4121,6 +4179,7 @@ function renderM(){
     : `<div class="schedule-collapsed-hint warm-collapsed-hint">축하 목록을 잠시 접어뒀어요.</div>`;
   return`
     ${sectionHeader('축하',memories.length,memoryOpen,'toggleMemory')}
+    ${memoryOpen?`<div class="memory-www-head"><div class="memory-www-title">WWW CELEBRATION</div><div class="memory-www-sub">가족의 특별한 날</div></div>`:''}
     ${body}
   `;
 }

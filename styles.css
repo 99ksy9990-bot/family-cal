@@ -1506,6 +1506,173 @@ button:focus-visible,
 @media (max-width:360px){.memory-subject-avatar-grid .avatar-choice img,.avatar-choice img{width:32px;height:32px}}
 .memory-card-wrap{gap:10px;transition:opacity .15s ease}
 
+/* v1.3.35 WWW celebration feed */
+.memory-www-head{
+  margin:0 var(--page-x,18px) 10px;
+  padding:15px 16px 13px;
+  border-radius:22px;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.045);
+  box-shadow:0 4px 16px rgba(15,23,42,.04);
+}
+.memory-www-title{
+  color:var(--t1);
+  font-size:15px;
+  line-height:1.1;
+  font-weight:950;
+  letter-spacing:0;
+}
+.memory-www-sub{
+  margin-top:4px;
+  color:var(--t3);
+  font-size:11.5px;
+  line-height:1.15;
+  font-weight:850;
+  letter-spacing:0;
+}
+.memory-feed-card.mem-card{
+  padding:12px 14px;
+  border-radius:22px;
+}
+.memory-row-v3{
+  display:flex!important;
+  align-items:center!important;
+  gap:11px!important;
+  margin:0!important;
+}
+.memory-avatar-v3{
+  width:42px!important;
+  min-width:42px!important;
+  height:42px!important;
+  border-radius:50%!important;
+  background:var(--surface-sunken,#F4F6F8)!important;
+}
+.memory-avatar-v3 .avatar-img{
+  width:40px!important;
+  height:40px!important;
+  object-fit:contain;
+}
+.memory-body-grid-v3{
+  flex:1 1 auto;
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+.memory-info-v3{
+  min-width:0;
+  gap:3px;
+}
+.memory-event-line{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.memory-event-kind{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--t1);
+  font-size:13.5px;
+  line-height:1.22;
+  font-weight:950;
+}
+.memory-subject-name{
+  flex:0 1 auto;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:13px;
+  line-height:1.2;
+  font-weight:950;
+}
+.memory-date-line{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--t1);
+  font-size:13px;
+  line-height:1.25;
+  font-weight:850;
+  font-variant-numeric:tabular-nums;
+}
+.memory-helper-line{
+  min-height:15px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--t3);
+  font-size:11px;
+  line-height:1.2;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.memory-helper-line span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.memory-date-col-v3{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  min-width:52px;
+}
+.memory-dday-v3{
+  min-width:50px;
+  height:27px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 9px;
+  border-radius:999px;
+  background:#FFF0F3;
+  color:#C0002C;
+  font-size:11.5px;
+  line-height:1;
+  font-weight:900;
+  border:1px solid rgba(255,45,85,.12);
+}
+.memory-dday-v3.due-now,.memory-dday-v3.due-soon{
+  background:#FFE8E8;
+  color:#D92D20;
+  border-color:rgba(217,45,32,.18);
+}
+.memory-dday-v3.due-month{
+  background:#FFF0F3;
+  color:#C0002C;
+}
+.memory-dday-v3.due-later{
+  background:#FFF6F8;
+  color:#C44A68;
+}
+.memory-dday-v3.far{
+  background:#F5F5F7;
+  color:#8B95A1;
+  border-color:rgba(0,0,0,.04);
+}
+@media (max-width:380px){
+  .memory-feed-card.mem-card{padding:11px 12px;border-radius:20px}
+  .memory-row-v3{gap:9px!important}
+  .memory-avatar-v3{width:40px!important;min-width:40px!important;height:40px!important}
+  .memory-body-grid-v3{gap:8px;grid-template-columns:minmax(0,1fr) 50px}
+  .memory-event-kind{font-size:13px}
+  .memory-date-line{font-size:12.5px}
+  .memory-dday-v3{min-width:46px;padding:0 7px;font-size:11px}
+}
+body[data-theme="dark"] .memory-www-head,
+body[data-theme="dark"] .memory-feed-card.mem-card{
+  background:var(--surface-raised);
+  border-color:rgba(255,255,255,.08);
+}
+
 /* ===== 8. settings ===== */
 .share-banner{margin:14px 16px 0;background:var(--orange-bg);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);gap:10px}
 .share-txt{font-size:13px;font-weight:800;color:var(--orange-t)}

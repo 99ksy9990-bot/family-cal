@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.34
-PASS_BUILD=v1.3.34-www-today
+PASS_VERSION=v1.3.35
+PASS_BUILD=v1.3.35-www-celebration
