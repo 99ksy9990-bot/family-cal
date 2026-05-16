@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.52';
-const PASS_BUILD_VERSION='v1.3.52-family-status-hub-clicks';
+const APP_VERSION='v1.3.53';
+const PASS_BUILD_VERSION='v1.3.53-quiet-quick-add-icons';
 const APP_UPDATED='2026-05-13';
 
 
@@ -3351,8 +3351,8 @@ function quickAddSvg(kind){
     schedule:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M8.5 14h3M8.5 17h5"/></svg>',
     todo:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12.5 2.4 2.4L16.5 9"/></svg>',
     routine:'<svg viewBox="0 0 24 24"><path d="M17.5 7.5A7 7 0 0 0 5.2 11"/><path d="M5 6.5V11h4.5"/><path d="M6.5 16.5A7 7 0 0 0 18.8 13"/><path d="M19 17.5V13h-4.5"/></svg>',
-    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2.5"/><path d="M12 9v11M4 13h16"/><path d="M9.2 9C7.8 8.4 7 7.6 7 6.5A2 2 0 0 1 10.5 5C11.2 5.8 12 9 12 9s.8-3.2 1.5-4A2 2 0 0 1 17 6.5c0 1.1-.8 1.9-2.2 2.5"/></svg>',
-    family:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.8 19c.7-3.2 2.5-5 5.2-5s4.5 1.8 5.2 5"/><path d="M14.5 15c2.4.1 4 .9 5.7 3.7"/></svg>'
+    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M12 17s-3.2-1.8-3.2-4a1.9 1.9 0 0 1 3.2-1.3A1.9 1.9 0 0 1 15.2 13c0 2.2-3.2 4-3.2 4Z"/></svg>',
+    family:'<svg viewBox="0 0 24 24"><path d="M4.5 11.5 12 5l7.5 6.5"/><path d="M6.5 10.5V19h11v-8.5"/><circle cx="10" cy="13" r="1.8"/><circle cx="14" cy="13" r="1.8"/><path d="M8.6 17c.6-1.4 1.7-2.1 3.4-2.1s2.8.7 3.4 2.1"/></svg>'
   };
   return `<span class="quick-add-icon quick-add-icon-${kind}" aria-hidden="true">${map[kind]||map.schedule}</span>`;
 }
