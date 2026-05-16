@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.35';
-const PASS_BUILD_VERSION='v1.3.35-www-celebration';
+const APP_VERSION='v1.3.36';
+const PASS_BUILD_VERSION='v1.3.36-inline-chip-time';
 const APP_UPDATED='2026-05-13';
 
 
@@ -5420,7 +5420,7 @@ function makeTodayWWWGroups(schedule=[],routines=[]){
       title,
       time,
       className:isDone(n)?'done':'',
-      html:`${time?`<span class="www-chip-time">${escapeHtml(time)}</span> `:''}<span>${highlightText(title)}</span>${privateChip(n)}`,
+      html:`${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}<span class="www-chip-title">${highlightText(title)}</span>${privateChip(n)}`,
       click:n.id?`openCalendarNoteActions('${n.id}')`:'',
       key:`schedule|${n.id||''}|${who}|${time}|${title}`
     });
@@ -5436,7 +5436,7 @@ function makeTodayWWWGroups(schedule=[],routines=[]){
       title,
       time,
       className:'routine',
-      html:`<span class="www-repeat-mark">↻</span>${time?` <span class="www-chip-time">${escapeHtml(time)}</span>`:''} <span>${highlightText(title)}</span>`,
+      html:`<span class="www-repeat-mark">↻</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}<span class="www-chip-title">${highlightText(title)}</span>`,
       click:`openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(time)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})`,
       key:`routine|${rid||''}|${who}|${time}|${title}`
     });

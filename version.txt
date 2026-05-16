@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.35
-PASS_BUILD=v1.3.35-www-celebration
+PASS_VERSION=v1.3.36
+PASS_BUILD=v1.3.36-inline-chip-time

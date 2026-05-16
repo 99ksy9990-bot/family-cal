@@ -3619,23 +3619,34 @@ body[data-theme="dark"] .today-dashboard .today-shift-widget .shift-day-col.toda
   padding:7px 11px;
   display:inline-flex;
   align-items:center;
-  gap:2px;
+  gap:5px;
   text-align:left;
-  white-space:normal;
+  white-space:nowrap;
   word-break:keep-all;
+  overflow:hidden;
+  text-overflow:ellipsis;
   box-shadow:none;
 }
 .www-chip:active{opacity:.72}
 .www-chip-time{
   color:var(--t2);
-  font-weight:950;
+  font-size:.96em;
+  font-weight:700;
   font-variant-numeric:tabular-nums;
   white-space:nowrap;
+  flex:0 0 auto;
 }
 .www-repeat-mark{
   color:var(--blue-t);
   font-size:12px;
   font-weight:950;
+  flex:0 0 auto;
+}
+.www-chip-title{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 .www-chip.routine{
   background:#F5F7FB;
