@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.40
-PASS_BUILD=v1.3.40-compact-fab-sheet
+PASS_VERSION=v1.3.52
+PASS_BUILD=v1.3.52-family-status-hub-clicks
