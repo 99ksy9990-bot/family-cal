@@ -3359,3 +3359,169 @@ body[data-theme="dark"] .today-dashboard .today-shift-widget .shift-5day-row + .
 body[data-theme="dark"] .today-dashboard .today-shift-widget .shift-day-col.today{
   background:rgba(102,178,255,.10);
 }
+
+/* v1.3.33 WWW today card */
+.www-today-card{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:18px 18px 16px;
+}
+.www-today-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(0,0,0,.055);
+}
+.www-today-title{
+  color:var(--t1);
+  font-size:15px;
+  line-height:1.1;
+  font-weight:950;
+  letter-spacing:0;
+}
+.www-today-sub{
+  flex:0 0 auto;
+  color:var(--t3);
+  font-size:11.5px;
+  line-height:1.1;
+  font-weight:850;
+  letter-spacing:0;
+}
+.www-today-list{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.www-person-group{
+  display:grid;
+  grid-template-columns:74px minmax(0,1fr);
+  gap:10px;
+  align-items:flex-start;
+  padding-bottom:15px;
+  border-bottom:1px solid rgba(0,0,0,.05);
+}
+.www-person-group:last-child{
+  padding-bottom:0;
+  border-bottom:none;
+}
+.www-person-head{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+}
+.www-person-avatar,
+.www-person-avatar .avatar-img{
+  width:30px;
+  height:30px;
+  flex:0 0 30px;
+  object-fit:contain;
+}
+.www-person-name{
+  min-width:0;
+  color:var(--t1);
+  font-size:13.5px;
+  line-height:1.15;
+  font-weight:950;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.www-chip-wrap{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  min-width:0;
+}
+.www-chip{
+  min-width:0;
+  max-width:100%;
+  min-height:30px;
+  border:1px solid rgba(0,0,0,.055);
+  border-radius:999px;
+  background:var(--surface-sunken,#F4F6F8);
+  color:var(--t1);
+  font-family:inherit;
+  font-size:12.5px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:0;
+  padding:7px 11px;
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  text-align:left;
+  white-space:normal;
+  word-break:keep-all;
+  box-shadow:none;
+}
+.www-chip:active{opacity:.72}
+.www-chip-time{
+  color:var(--t2);
+  font-weight:950;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.www-repeat-mark{
+  color:var(--blue-t);
+  font-size:12px;
+  font-weight:950;
+}
+.www-chip.routine{
+  background:#F5F7FB;
+}
+.www-chip.done{
+  opacity:.54;
+  text-decoration:line-through;
+}
+.www-chip.shift-chip{
+  min-width:0;
+  width:auto;
+  height:30px;
+  padding:0 10px;
+  gap:5px;
+  color:#fff;
+}
+.www-chip.shift-day{background:var(--shift-d-bg,#007AFF);border-color:transparent;color:#fff}
+.www-chip.shift-evening{background:var(--shift-e-bg,#5AC8FA);border-color:transparent;color:#fff}
+.www-chip.shift-night{background:var(--shift-n-bg,#1C3A5E);border-color:transparent;color:#fff}
+.www-chip.shift-off{background:var(--shift-off-bg,#F2F2F7);border-color:#E5E5EA;color:var(--shift-off-t,#8E8E93)}
+.www-chip.s-d{background:var(--shift-d-bg,#007AFF);border-color:transparent;color:#fff}
+.www-chip.s-e{background:var(--shift-e-bg,#5AC8FA);border-color:transparent;color:#fff}
+.www-chip.s-n{background:var(--shift-n-bg,#1C3A5E);border-color:transparent;color:#fff}
+.www-chip.s-off{background:var(--shift-off-bg,#F2F2F7);border-color:#E5E5EA;color:var(--shift-off-t,#8E8E93)}
+.www-chip.shift-off .www-chip-muted{color:var(--shift-off-t,#8E8E93)}
+.www-chip.s-off .www-chip-muted{color:var(--shift-off-t,#8E8E93)}
+.www-chip.shift-half{background:var(--orange-bg,#FFF4E5);border-color:rgba(255,149,0,.22);color:var(--orange-t,#7A3800)}
+.www-chip.shift-half .www-chip-muted{color:var(--orange-t,#7A3800)}
+.www-chip.shift-custom{background:#F4F4F6;border-color:rgba(0,0,0,.06);color:var(--t1)}
+.www-chip.shift-custom .www-chip-muted{color:var(--t2)}
+.www-shift-label{
+  font-weight:950;
+  line-height:1;
+}
+.www-chip-muted{
+  color:rgba(255,255,255,.82);
+  font-size:11px;
+  font-weight:850;
+}
+.www-empty{
+  width:100%;
+}
+@media (max-width:380px){
+  .www-today-card{padding:16px 14px 14px}
+  .www-person-group{grid-template-columns:68px minmax(0,1fr);gap:8px}
+  .www-chip{font-size:12px;padding:7px 10px}
+  .www-today-sub{font-size:11px}
+}
+body[data-theme="dark"] .www-today-head,
+body[data-theme="dark"] .www-person-group{
+  border-color:rgba(255,255,255,.08);
+}
+body[data-theme="dark"] .www-chip{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.08);
+}

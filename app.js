@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.32';
-const PASS_BUILD_VERSION='v1.3.32-filter-sheet-trim';
+const APP_VERSION='v1.3.34';
+const PASS_BUILD_VERSION='v1.3.34-www-today';
 const APP_UPDATED='2026-05-13';
 
 
@@ -5295,6 +5295,135 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
 
   return `<div class="widget-wrap dashboard-wrap">
     <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title" id="today-briefing-capture">
+      ${body}
+    </div>
+  </div>`;
+}
+
+function todayChipTimeLabel(n){
+  const s=n?.sT||'';
+  const e=n?.eT||'';
+  if(s&&e)return `${s}-${e}`;
+  if(s)return s;
+  if(e)return e;
+  return '';
+}
+function todayShiftChipLabel(status){
+  const s=String(status||'').trim();
+  if(!s)return '';
+  const u=s.toUpperCase();
+  if(u==='OFF'||u==='O')return 'OFF';
+  return shortShiftLabel(s);
+}
+function todayChipSortKey(item){
+  if(item.kind==='shift')return `0-${item.order}`;
+  const t=item.time||'';
+  return `${t?'1':'2'}-${t||'99:99'}-${item.order}`;
+}
+function makeTodayWWWGroups(schedule=[],routines=[]){
+  normalizeShiftUsers();
+  const baseKey=scheduleBaseKey();
+  const peopleOrder=[...new Set([...getPersons(),...shiftUsers,...schedule.map(n=>n.who||'공통'),...routines.map(n=>n.who||'공통')])];
+  const groups=new Map();
+  const ensure=who=>{
+    const key=who||'공통';
+    if(!groups.has(key))groups.set(key,{who:key,items:[],seen:new Set()});
+    return groups.get(key);
+  };
+  let order=0;
+  const push=(who,item)=>{
+    const group=ensure(who);
+    const key=item.key||`${item.kind}|${who}|${item.time||''}|${item.title||''}`;
+    if(group.seen.has(key))return;
+    group.seen.add(key);
+    group.items.push({...item,order:order++});
+  };
+  shiftUsers.forEach(user=>{
+    const status=shiftDisplayStatusFor(baseKey,user);
+    const label=todayShiftChipLabel(status);
+    if(!label||label==='-')return;
+    push(user,{
+      kind:'shift',
+      title:label,
+      time:'',
+      className:`shift-chip ${shiftBadgeClass(status)}`,
+      html:`<span class="www-shift-label">${escapeHtml(label)}</span>`,
+      click:`openCalendarWorkTab('${baseKey}')`,
+      key:`shift|${user}|${label}`
+    });
+  });
+  (schedule||[]).forEach(n=>{
+    const who=n.who||'공통';
+    const time=todayChipTimeLabel(n);
+    const title=displayNoteTitle(n);
+    push(who,{
+      kind:'schedule',
+      title,
+      time,
+      className:isDone(n)?'done':'',
+      html:`${time?`<span class="www-chip-time">${escapeHtml(time)}</span> `:''}<span>${highlightText(title)}</span>${privateChip(n)}`,
+      click:n.id?`openCalendarNoteActions('${n.id}')`:'',
+      key:`schedule|${n.id||''}|${who}|${time}|${title}`
+    });
+  });
+  (routines||[]).forEach(n=>{
+    const who=n.who||'공통';
+    const time=todayChipTimeLabel(n);
+    const title=n.title||'반복';
+    const kind=n._autoFamilyInfo?'auto':'note';
+    const rid=n._autoFamilyInfo?n._originalRoutineId:n.id;
+    push(who,{
+      kind:'routine',
+      title,
+      time,
+      className:'routine',
+      html:`<span class="www-repeat-mark">↻</span>${time?` <span class="www-chip-time">${escapeHtml(time)}</span>`:''} <span>${highlightText(title)}</span>`,
+      click:`openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(time)},${onclickArg(baseKey)},${onclickArg(kind)},${onclickArg(rid)})`,
+      key:`routine|${rid||''}|${who}|${time}|${title}`
+    });
+  });
+  return [...groups.values()]
+    .filter(g=>g.items.length)
+    .sort((a,b)=>{
+      const ia=peopleOrder.indexOf(a.who), ib=peopleOrder.indexOf(b.who);
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    })
+    .map(g=>({...g,items:g.items.sort((a,b)=>todayChipSortKey(a).localeCompare(todayChipSortKey(b),'ko'))}));
+}
+function renderTodayWWWGroup(group){
+  return `<div class="www-person-group">
+    <div class="www-person-head">
+      <div class="www-person-avatar">${avatarMarkup(personAvatar(group.who),group.who,'avatar-img')}</div>
+      <div class="www-person-name" style="color:${personColor(group.who)}">${escapeHtml(group.who)}</div>
+    </div>
+    <div class="www-chip-wrap">
+      ${group.items.map(item=>`<button type="button" class="www-chip ${item.className||''}" ${item.click?`onclick="${item.click}"`:''}>${item.html}</button>`).join('')}
+    </div>
+  </div>`;
+}
+function renderTodayListDashboard(title,allEvents,routineEvents=[]){
+  const schedule=(allEvents||[]).filter(n=>{
+    const who=n.who||'공통';
+    if(subF!=='all'&&who!==subF)return false;
+    return true;
+  });
+  const routines=(routineEvents||[]).filter(n=>{
+    const who=n.who||'공통';
+    if(subF!=='all'&&who!==subF)return false;
+    return true;
+  });
+  const baseKey=scheduleBaseKey();
+  const groups=makeTodayWWWGroups(schedule,routines);
+  const body=groups.length
+    ? `<div class="www-today-list">${groups.map(renderTodayWWWGroup).join('')}</div>`
+    : `<div class="www-empty compact-brief-empty clickable-empty" onclick="openAddModal('${baseKey}')" role="button" tabindex="0"><div class="compact-brief-empty-title">${escapeHtml(compactSchedulePrompt())}</div></div>`;
+
+  return `<div class="widget-wrap dashboard-wrap">
+    <div class="widget-card today-dashboard merged-today-dashboard today-briefing-capture no-dashboard-title www-today-card" id="today-briefing-capture">
+      <div class="www-today-head">
+        <div class="www-today-title">WWW TODAY</div>
+        <div class="www-today-sub">Who · When · What</div>
+      </div>
       ${body}
     </div>
   </div>`;
