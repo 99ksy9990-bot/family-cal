@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.36';
-const PASS_BUILD_VERSION='v1.3.36-inline-chip-time';
+const APP_VERSION='v1.3.37';
+const PASS_BUILD_VERSION='v1.3.37-avatar-frame';
 const APP_UPDATED='2026-05-13';
 
 
@@ -157,7 +157,30 @@ const PERSON_AVATAR_GROUPS=[
   {key:'childM',label:'어린이 남자',items:['childM_1','childM_2','childM_3','childM_4','childM_5']},
   {key:'childF',label:'어린이 여자',items:['childF_1','childF_2','childF_3','childF_4','childF_5']}
 ];
+const DEFAULT_AVATAR_ALIASES={
+  dad_01:'adultM_1',dad_02:'adultM_2',dad_03:'adultM_3',dad_04:'adultM_4',dad_05:'adultM_5',
+  mom_01:'adultF_1',mom_02:'adultF_2',mom_03:'adultF_3',mom_04:'adultF_4',mom_05:'adultF_5',
+  boy_01:'childM_1',boy_02:'childM_2',boy_03:'childM_3',boy_04:'childM_4',boy_05:'childM_5',
+  girl_01:'childF_1',girl_02:'childF_2',girl_03:'childF_3',girl_04:'childF_4',girl_05:'childF_5',
+  grandpa_01:'seniorM_1',grandpa_02:'seniorM_2',grandpa_03:'seniorM_3',
+  grandma_01:'seniorF_1',grandma_02:'seniorF_2',grandma_03:'seniorF_3',
+  neutral_01:'family_1',neutral_02:'family_2',neutral_03:'family_3',neutral_04:'family_4'
+};
+const DEFAULT_AVATAR_GROUPS=[
+  {key:'dad',label:'아빠',items:['dad_01','dad_02','dad_03','dad_04','dad_05']},
+  {key:'mom',label:'엄마',items:['mom_01','mom_02','mom_03','mom_04','mom_05']},
+  {key:'boy',label:'남자아이',items:['boy_01','boy_02','boy_03','boy_04','boy_05']},
+  {key:'girl',label:'여자아이',items:['girl_01','girl_02','girl_03','girl_04','girl_05']},
+  {key:'grandpa',label:'할아버지',items:['grandpa_01','grandpa_02','grandpa_03']},
+  {key:'grandma',label:'할머니',items:['grandma_01','grandma_02','grandma_03']},
+  {key:'neutral',label:'공용',items:['neutral_01','neutral_02','neutral_03','neutral_04']}
+];
+const AVATAR_EMOJI_OPTIONS=['👤','🙂','😊','😎','🧑','👨','👩','👦','👧','🧓','👵','🏠'];
 const AVATAR_IMAGE_IDS=new Set(PERSON_AVATAR_GROUPS.flatMap(g=>g.items));
+function resolveAvatarId(id){
+  const token=String(id||'');
+  return DEFAULT_AVATAR_ALIASES[token]||token;
+}
 function avatarItems(key){
   return (PERSON_AVATAR_GROUPS.find(g=>g.key===key)||{}).items||[];
 }
@@ -171,11 +194,13 @@ function randomYouthAvatar(name=''){
   return randomFrom([...avatarItems('teenM'),...avatarItems('teenF'),...avatarItems('childM'),...avatarItems('childF')]);
 }
 function avatarSrc(id){
-  if(AVATAR_IMAGE_IDS.has(id))return `./assets/avatars/aligned/${id}.png`;
-  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
+  const token=resolveAvatarId(id);
+  if(AVATAR_IMAGE_IDS.has(token))return `./assets/avatars/aligned/${token}.png`;
+  return AVATAR_IMAGE_IDS.has(token)?`./assets/avatars/${token}.webp`:'';
 }
 function avatarFallbackSrc(id){
-  return AVATAR_IMAGE_IDS.has(id)?`./assets/avatars/${id}.webp`:'';
+  const token=resolveAvatarId(id);
+  return AVATAR_IMAGE_IDS.has(token)?`./assets/avatars/${token}.webp`:'';
 }
 function handleAvatarError(img,id){
   if(!img)return;
@@ -195,11 +220,12 @@ function handleAvatarError(img,id){
   }
 }
 function avatarMarkup(id, alt='', cls='avatar-img'){
-  const token=String(id||'');
+  const raw=String(id||'');
+  const token=resolveAvatarId(raw);
   if(AVATAR_IMAGE_IDS.has(token)){
-    return `<img class="${cls} avatar-token-${escapeAttr(token)}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
+    return `<img class="${cls} avatar-token-${escapeAttr(raw)}" src="${avatarSrc(token)}" alt="${escapeAttr(alt||'아바타')}" loading="lazy" onerror="handleAvatarError(this,'${escapeAttr(token)}')"/>`;
   }
-  return `<span class="avatar-fallback">${escapeHtml(token||'👤')}</span>`;
+  return `<span class="avatar-fallback">${escapeHtml(raw||'👤')}</span>`;
 }
 function defaultAvatarForName(name){
   const n=(name||'').trim();
@@ -218,17 +244,106 @@ function shouldAutoReplaceAvatar(k){
 function personAvatar(name){
   const n=(name||'공통').trim();
   const p=(family||[]).find(x=>(x.name||'').trim()===n);
-  const token=(p&&p.avatar)||defaultAvatarForName(n);
+  const token=resolveAvatarId((p&&p.avatar)||defaultAvatarForName(n));
   return AVATAR_IMAGE_IDS.has(token) ? token : defaultAvatarForName(n);
+}
+function personAvatarConfig(name){
+  const n=(name||'공통').trim();
+  const p=(family||[]).find(x=>(x.name||'').trim()===n);
+  const avatarId=(p&&((p.avatarId)||p.avatar))||defaultAvatarForName(n);
+  const avatarType=(p&&p.avatarType)||(p&&p.avatarUrl?'photo':(p&&p.avatarEmoji?'emoji':'default'));
+  return {
+    avatarType,
+    avatarId,
+    avatarEmoji:(p&&p.avatarEmoji)||'',
+    avatarUrl:(p&&p.avatarUrl)||'',
+    color:(p&&p.color)||personColor(n)
+  };
+}
+function handleAvatarFrameError(img,id){
+  if(!img)return;
+  if(img.dataset.fallbackTried==='1'){
+    handleAvatarError(img,resolveAvatarId(id));
+    return;
+  }
+  img.dataset.fallbackTried='1';
+  img.src=avatarSrc(resolveAvatarId(id||'family_1'));
+}
+function avatarFrameMarkup(configOrId, alt='', cls='avatarFrame'){
+  const cfg=(configOrId&&typeof configOrId==='object')?configOrId:{avatarType:'default',avatarId:configOrId};
+  const fallbackId=resolveAvatarId(cfg.avatarId||defaultAvatarForName(alt));
+  const safeAlt=escapeAttr(alt||'아바타');
+  const safeCls=escapeAttr(cls||'avatarFrame');
+  let body='';
+  if(cfg.avatarType==='photo'&&cfg.avatarUrl){
+    body=`<img src="${escapeAttr(cfg.avatarUrl)}" alt="${safeAlt}" loading="lazy" onerror="handleAvatarFrameError(this,'${escapeAttr(fallbackId)}')"/>`;
+  }else if(cfg.avatarType==='emoji'&&cfg.avatarEmoji){
+    body=`<span class="avatar-emoji">${escapeHtml(cfg.avatarEmoji)}</span>`;
+  }else if(AVATAR_IMAGE_IDS.has(fallbackId)){
+    body=`<img src="${avatarSrc(fallbackId)}" alt="${safeAlt}" loading="lazy" onerror="handleAvatarFrameError(this,'${escapeAttr(fallbackId)}')"/>`;
+  }else{
+    body=`<span class="avatar-fallback">👤</span>`;
+  }
+  return `<span class="${safeCls}">${body}</span>`;
 }
 function selectKidAvatar(icon){
   const el=document.getElementById('k-avatar');
   if(el)el.value=icon;
+  const avatarId=document.getElementById('k-avatar-id');
+  if(avatarId)avatarId.value=icon;
+  const type=document.getElementById('k-avatar-type');
+  if(type)type.value='default';
   const custom=document.getElementById('k-avatar-custom');
   if(custom)custom.value='1';
   document.querySelectorAll('.avatar-choice').forEach(b=>{
     b.classList.toggle('on',b.dataset.avatar===icon);
   });
+  document.querySelectorAll('.avatar-emoji-choice').forEach(b=>b.classList.remove('on'));
+  updateKidAvatarPreview();
+}
+
+function selectKidEmojiAvatar(emoji){
+  const type=document.getElementById('k-avatar-type');
+  const emojiEl=document.getElementById('k-avatar-emoji');
+  const custom=document.getElementById('k-avatar-custom');
+  if(type)type.value='emoji';
+  if(emojiEl)emojiEl.value=emoji||'';
+  if(custom)custom.value='1';
+  document.querySelectorAll('.avatar-choice').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.avatar-emoji-choice').forEach(b=>b.classList.toggle('on',b.dataset.emoji===String(emoji||'')));
+  updateKidAvatarPreview();
+}
+function updateKidAvatarPreview(){
+  const preview=document.getElementById('kid-avatar-preview');
+  if(!preview)return;
+  const type=(document.getElementById('k-avatar-type')||{}).value||'default';
+  const avatarId=(document.getElementById('k-avatar-id')||{}).value||(document.getElementById('k-avatar')||{}).value||'family_1';
+  const avatarEmoji=(document.getElementById('k-avatar-emoji')||{}).value||'';
+  const avatarUrl=(document.getElementById('k-avatar-url')||{}).value||'';
+  preview.innerHTML=avatarFrameMarkup({avatarType:type,avatarId,avatarEmoji,avatarUrl},'아바타','avatarFrame avatar-preview-frame');
+}
+function handleKidPhotoFile(input){
+  const file=input&&input.files&&input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const type=document.getElementById('k-avatar-type');
+    const url=document.getElementById('k-avatar-url');
+    const custom=document.getElementById('k-avatar-custom');
+    if(type)type.value='photo';
+    if(url)url.value=String(reader.result||'');
+    if(custom)custom.value='1';
+    document.querySelectorAll('.avatar-choice,.avatar-emoji-choice').forEach(b=>b.classList.remove('on'));
+    updateKidAvatarPreview();
+  };
+  reader.readAsDataURL(file);
+}
+function clearKidPhotoAvatar(){
+  const type=document.getElementById('k-avatar-type');
+  const url=document.getElementById('k-avatar-url');
+  if(type)type.value='default';
+  if(url)url.value='';
+  updateKidAvatarPreview();
 }
 
 function occursOnIgnoringHoliday(n,key){
@@ -5451,10 +5566,8 @@ function makeTodayWWWGroups(schedule=[],routines=[]){
 }
 function renderTodayWWWGroup(group){
   return `<div class="www-person-group">
-    <div class="www-person-head">
-      <div class="www-person-avatar">${avatarMarkup(personAvatar(group.who),group.who,'avatar-img')}</div>
-      <div class="www-person-name" style="color:${personColor(group.who)}">${escapeHtml(group.who)}</div>
-    </div>
+    <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(group.who),group.who,'avatarFrame www-avatar-frame')}</div>
+    <div class="www-person-name" style="color:${personColor(group.who)}">${escapeHtml(group.who)}</div>
     <div class="www-chip-wrap">
       ${group.items.map(item=>`<button type="button" class="www-chip ${item.className||''}" ${item.click?`onclick="${item.click}"`:''}>${item.html}</button>`).join('')}
     </div>
@@ -6443,7 +6556,10 @@ function editKid(i){
   const k=family[i];
   if(!k)return;
   if(!Array.isArray(k.vacations))k.vacations=[];
-  const curAvatar=AVATAR_IMAGE_IDS.has(k.avatar||'')?k.avatar:defaultAvatarForName(k.name);
+  const curAvatar=resolveAvatarId(k.avatarId||k.avatar||defaultAvatarForName(k.name));
+  const curAvatarType=k.avatarType||(k.avatarUrl?'photo':(k.avatarEmoji?'emoji':'default'));
+  const curAvatarEmoji=k.avatarEmoji||'';
+  const curAvatarUrl=k.avatarUrl||'';
   const curColor=k.color||defaultPersonColor(k.name);
   const vacHtml=(k.vacations||[]).map((v,vi)=>{
     const idp=`${i}-${vi}`;
@@ -6474,12 +6590,25 @@ function editKid(i){
       </div>
       <div class="ml">달력 아이콘</div>
       <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
+      <input type="hidden" id="k-avatar-id" value="${escapeAttr(curAvatar)}"/>
+      <input type="hidden" id="k-avatar-type" value="${escapeAttr(curAvatarType)}"/>
+      <input type="hidden" id="k-avatar-emoji" value="${escapeAttr(curAvatarEmoji)}"/>
+      <input type="hidden" id="k-avatar-url" value="${escapeAttr(curAvatarUrl)}"/>
       <input type="hidden" id="k-avatar-custom" value="${k.avatarCustom?'1':''}"/>
+      <div class="avatar-system-panel">
+        <div id="kid-avatar-preview" class="avatar-preview-slot">${avatarFrameMarkup({avatarType:curAvatarType,avatarId:curAvatar,avatarEmoji:curAvatarEmoji,avatarUrl:curAvatarUrl},k.name,'avatarFrame avatar-preview-frame')}</div>
+        <label class="avatar-upload-btn">사진 업로드<input type="file" accept="image/*" onchange="handleKidPhotoFile(this)"/></label>
+        <button type="button" class="avatar-clear-btn" onclick="clearKidPhotoAvatar()">기본으로</button>
+      </div>
       <div class="avatar-select-grid">
-        ${PERSON_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
+        ${DEFAULT_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
           <div class="avatar-group-title">${escapeHtml(g.label)}</div>
-          <div class="avatar-options">${g.items.map(ic=>`<button type="button" class="avatar-choice${ic===curAvatar?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${avatarMarkup(ic,g.label)}</button>`).join('')}</div>
+          <div class="avatar-options">${g.items.map(ic=>`<button type="button" class="avatar-choice${resolveAvatarId(ic)===curAvatar&&curAvatarType==='default'?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${avatarFrameMarkup({avatarType:'default',avatarId:ic},g.label,'avatarFrame avatar-picker-frame')}</button>`).join('')}</div>
         </div>`).join('')}
+        <div class="avatar-group">
+          <div class="avatar-group-title">이모지</div>
+          <div class="avatar-options">${AVATAR_EMOJI_OPTIONS.map(em=>`<button type="button" class="avatar-choice avatar-emoji-choice${curAvatarType==='emoji'&&curAvatarEmoji===em?' on':''}" data-emoji="${escapeAttr(em)}" onclick="selectKidEmojiAvatar(${onclickArg(em)})"><span class="avatarFrame avatar-picker-frame"><span class="avatar-emoji">${escapeHtml(em)}</span></span></button>`).join('')}</div>
+        </div>
       </div>
 
       <div class="ml vacation-title-row">
@@ -6499,7 +6628,8 @@ function editKid(i){
 function addKid(){
   if(!requireEditMode())return;
   const name='새 대상';
-  family.push({id:Date.now(),name,avatar:defaultAvatarForName(name),avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,showRequestWriter:true,vacations:[]});
+  const avatar=defaultAvatarForName(name);
+  family.push({id:Date.now(),name,avatar,avatarId:avatar,avatarType:'default',avatarEmoji:'',avatarUrl:'',avatarCustom:false,grade:'',year:'',cls:'',num:'',cats:[],showToday:false,showRoutine:false,showRequestWriter:true,vacations:[]});
   saveSettingsOnly();editKid(family.length-1);
 }
 function saveKid(i){
@@ -6512,12 +6642,24 @@ function saveKid(i){
   }
   const custom=(document.getElementById('k-avatar-custom')||{}).value==='1';
   let avatar=(document.getElementById('k-avatar')||{}).value||'';
+  let avatarId=(document.getElementById('k-avatar-id')||{}).value||avatar;
+  const avatarType=(document.getElementById('k-avatar-type')||{}).value||'default';
+  const avatarEmoji=(document.getElementById('k-avatar-emoji')||{}).value||'';
+  const avatarUrl=(document.getElementById('k-avatar-url')||{}).value||'';
   const color=(document.getElementById('k-color')||{}).value||old.color||defaultPersonColor(name);
-  if(!custom && (old.name||'')!==name)avatar=defaultAvatarForName(name);
+  if(!custom && (old.name||'')!==name){
+    avatar=defaultAvatarForName(name);
+    avatarId=avatar;
+  }
   if(!avatar)avatar=defaultAvatarForName(name);
+  const finalAvatarId=avatarId||avatar;
   family[i]={...old,
     name:name.trim(),
-    avatar,
+    avatar:resolveAvatarId(finalAvatarId),
+    avatarId:finalAvatarId,
+    avatarType,
+    avatarEmoji,
+    avatarUrl,
     avatarCustom:custom,
     color,
     grade:'',
