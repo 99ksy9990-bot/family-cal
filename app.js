@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.84';
-const PASS_BUILD_VERSION='v1.3.84-ux-system-polish';
+const APP_VERSION='v1.3.87';
+const PASS_BUILD_VERSION='v1.3.87-work-tab-rhythm';
 const APP_UPDATED='2026-05-13';
 
 
@@ -2813,14 +2813,14 @@ function renderSettingsToolPanel(){
   return `<details class="manage-accordion profile-accordion settings-tools-panel">
     <summary><span>도구</span><em>공유와 앱 설정</em></summary>
     <div class="manage-panel">
-      <div class="profile-quick-grid">
-        <button class="toss-btn" onclick="openNotificationGuide()">알림</button>
-        <button class="toss-btn" onclick="togglePrivateView()">${isPrivateVisible()?'나만 숨김':'나만 보기'}</button>
-        <button class="toss-btn" onclick="copyShareLink()">링크 복사</button>
-        <button class="toss-btn" onclick="openShareTools()">QR 공유</button>
-        <button class="toss-btn" onclick="toggleEditMode()">편집 모드</button>
-        <button class="toss-btn" onclick="openRoutineManagerFromProfile()">반복 관리</button>
-        <button class="toss-btn primary" onclick="openManageCenter()">고급 설정</button>
+      <div class="settings-tool-list">
+        <button class="settings-tool-row" onclick="openNotificationGuide()"><span>알림</span><em>권한과 안내</em></button>
+        <button class="settings-tool-row" onclick="copyShareLink()"><span>공유 링크</span><em>가족 방 링크 복사</em></button>
+        <button class="settings-tool-row" onclick="openShareTools()"><span>QR 공유</span><em>바로 초대하기</em></button>
+        <button class="settings-tool-row" onclick="openRoutineManagerFromProfile()"><span>반복 관리</span><em>반복 일정 정리</em></button>
+        <button class="settings-tool-row" onclick="togglePrivateView()"><span>${isPrivateVisible()?'나만 숨김':'나만 보기'}</span><em>비공개 일정 표시</em></button>
+        <button class="settings-tool-row" onclick="toggleEditMode()"><span>편집 모드</span><em>삭제와 정렬 허용</em></button>
+        <button class="settings-tool-row" onclick="openManageCenter()"><span>고급 설정</span><em>백업과 데이터 관리</em></button>
       </div>
       <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중':'현재 로컬 저장 모드'}</div>
     </div>
@@ -3392,10 +3392,10 @@ function renderBriefEmptyState(kind,title,sub=''){
 }
 function compactSchedulePrompt(){
   const prompts=[
-    '오늘은 일정 없이 가볍게 지나가도 좋아요.',
-    '새 일정이 생기면 여기에서 바로 적어둘게요.',
-    '가족 일정이 생기면 이곳에 차곡차곡 모아둘게요.',
-    '오늘 챙길 일정은 아직 비어 있어요.'
+    '오늘 등록 일정이 없어요.',
+    '오늘은 조금 가볍게 보내도 좋아요.',
+    '새 일정은 +에서 바로 등록해요.',
+    '챙길 일정이 생기면 적어둘게요.'
   ];
   return prompts[EMPTY_SCHEDULE_PICK%prompts.length];
 }function emptyMessageHtml(message){
@@ -3507,7 +3507,7 @@ function scheduleDdayTextForList(n,opts={}){
   return '';
 }
 function scheduleListDateLine(n){
-  const text=scheduleListDateTime(n)||'날짜 없음';
+  const text=shortDateWithDow(scheduleListDate(n))||'날짜 없음';
   return text.replace(/\s+/g,' ').trim();
 }
 
@@ -3539,7 +3539,7 @@ function renderSchedulePersonGroups(list,opts={}){
   return arr.map(n=>makeScheduleRowCard(n,opts)).join('');
 }
 function renderScheduleDashboardList(normal=[],missed=[],emptyText='등록 일정이 없어요',opts={}){
-  if(!normal.length&&!missed.length)return renderEmptyState('schedule',emptyText,opts.past?'시간이 지나면 이곳으로 자동으로 내려와요.':'최근 1개월 안에 표시할 일정이 없어요.');
+  if(!normal.length&&!missed.length)return renderEmptyState('schedule',emptyText,opts.past?'지난 일정이 없어요.':'오늘은 조금 가볍게 보내도 좋아요.');
   let html='';
   if(missed.length){
     html+=`<div class="schedule-warning-group">
@@ -3813,7 +3813,7 @@ function calendarEventItem(n,selDate){
 function renderC(){
   const y=calY,m=calM;
   ensureHolidayYear(y);
-  if(!isEditMode() && shiftSelectMode){
+  if(calViewMode==='work' || !isEditMode()){
     shiftSelectMode=false;
     shiftSelectedDates=[];
   }
@@ -3865,7 +3865,7 @@ function renderC(){
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     if(calViewMode==='work'){
-      evHtml=isEditMode()?'':renderWorkOnlyDetail(selDate);
+      evHtml='';
     }else if(calViewMode==='routine'){
       evHtml=renderRepeatOnlyDetail(selDate,evs);
     }else{
@@ -3882,10 +3882,7 @@ function renderC(){
   return`<div class="cal-outer cal-mode-${calViewMode}">
     <div class="cal-top-select-row calendar-control-line calendar-view-control-line">
       ${renderCalendarViewModeChips()}
-      ${isEditMode() && calViewMode==='work'?`<button class="cal-work-more-btn${shiftSelectMode?' on':''}" onclick="toggleShiftSelectMode()" aria-label="일괄 선택">${shiftSelectMode?'선택 중':'⋯'}</button>`:''}
     </div>
-    ${renderCalendarShiftCounts()}
-    ${renderShiftBulkBar()}
     <div class="cal-card" ontouchstart="startLayerSwipe(event,\'calendar\',\'.cal-card\')" ontouchmove="moveLayerSwipe(event)" ontouchend="endLayerSwipe(event)" onmousedown="startLayerSwipe(event,\'calendar\',\'.cal-card\')" onmousemove="moveLayerSwipe(event)" onmouseup="endLayerSwipe(event)" onmouseleave="endLayerSwipe(event)">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="chCal(-1)">‹</button>
@@ -3893,8 +3890,8 @@ function renderC(){
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
+      ${calViewMode==='work'?renderCalendarShiftCounts():renderCalendarPersonLegend()}
     </div>
-    ${renderCalendarPersonLegend()}
     ${renderShiftQuickInputBar()}
     ${evHtml}
   </div>`;
@@ -3969,36 +3966,27 @@ function clearShiftQuickSelection(){
   render({preserveScroll:true});
 }
 function renderShiftQuickInputBar(){
-  if(!isEditMode() || calViewMode!=='work' || shiftSelectMode)return '';
+  if(!isEditMode() || calViewMode!=='work')return '';
   const user=shiftQuickInputUser();
-  const labels=shiftPersonLabelList(user).filter(Boolean);
-  const basePrimary=['D','E','N','OFF'];
-  const primary=basePrimary.filter(x=>labels.includes(x));
-  const primaryLabels=primary.length?primary:labels.slice(0,4);
-  const primaryDisplayLabels=new Set(primaryLabels.map(workQuickShiftLabel));
-  const secondary=labels.filter(x=>{
-    const v=String(x||'').toUpperCase();
-    return !primaryLabels.includes(x) && !['D','E','N','OFF','O'].includes(v) && !primaryDisplayLabels.has(workQuickShiftLabel(x));
-  }).slice(0,2);
+  const primaryLabels=['D','E','N','OFF'];
   const current=selDate?shiftDisplayStatusFor(selDate,user):'';
+  const currentLabel=workQuickShiftLabel(current);
   const hasDate=!!selDate;
-  const selectedLabel=hasDate?`${shiftQuickDateLabel(selDate)} 선택됨`:'날짜를 선택해 주세요';
+  const selectedLabel=hasDate?shiftQuickDateLabel(selDate):'날짜를 선택해 주세요';
   return `<div class="shift-quick-input-bar">
     <div class="shift-quick-head">
       <div class="shift-quick-title-line">
-        <b>근무 입력 중</b>
+        <b>${escapeHtml(selectedLabel)}</b>
         <span>·</span>
-        <em>${escapeHtml(selectedLabel)}</em>
+        <em>${escapeHtml(user)}</em>
       </div>
       <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">${escapeHtml(user)} <span>⌄</span></button>
     </div>
     <div class="shift-quick-actions primary-shift-actions">
-      ${primaryLabels.map(s=>`<button class="shift-quick-chip${current===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workQuickShiftLabel(s))}</button>`).join('')}
+      ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
     </div>
     <div class="shift-quick-sub-actions">
-      ${secondary.map(s=>`<button class="shift-quick-chip secondary${current===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(workQuickShiftLabel(s))}</button>`).join('')}
       <button class="shift-quick-chip secondary clear" ${hasDate?'':'disabled'} onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
-      <button class="shift-quick-cancel" onclick="clearShiftQuickSelection()">선택 취소</button>
     </div>
   </div>`;
 }
@@ -5595,17 +5583,17 @@ function renderNoticeBanner(){
   const base=scheduleBaseKey ? scheduleBaseKey() : todayKey();
   const req=requests.filter(r=>!isDone(r));
   const due=dueRequestsForDate(base);
-  const todoText=due.length?`오늘 마감 부탁 ${due.length}개`:(req.length?`남은 부탁 ${req.length}개`:'');
-  const canGo=req.length>0||due.length>0;
-  const workTodoBanner=todoText
-    ? `<div class="notice-banner compact-status-banner smart-brief-banner" ${canGo?`onclick="openActiveRequestTab()" style="cursor:pointer" role="button"`:''}><span class="status-banner-icon">🙏</span><span class="status-banner-text">${escapeHtml(todoText)}</span>${canGo?`<span class="notice-go status-banner-go">›</span>`:''}</div>`
-    : '';
   const scheduleParts=scheduleCountsByPerson(base);
   const scheduleCount=scheduleCheckCountForDate(base);
-  const scheduleBanner=scheduleParts.length
-    ? `<div class="notice-banner compact-status-banner schedule-routine-brief-banner" onclick="openScheduleCheckSheet('${base}')" style="cursor:pointer" role="button"><span class="status-banner-icon">🔔</span><span class="status-banner-text">확인할 일정 ${scheduleCount||scheduleParts.length}개</span><span class="notice-go status-banner-go">›</span></div>`
-    : '';
-  return scheduleBanner+workTodoBanner;
+  const parts=[];
+  if(scheduleParts.length){
+    parts.push(`<button type="button" class="home-status-summary-item" onclick="openScheduleCheckSheet('${base}')" aria-label="일정 ${scheduleCount||scheduleParts.length}개 보기"><span class="home-status-summary-icon">🔔</span><span>일정 ${scheduleCount||scheduleParts.length}</span></button>`);
+  }
+  if(req.length||due.length){
+    parts.push(`<button type="button" class="home-status-summary-item" onclick="openActiveRequestTab()" aria-label="부탁 ${req.length||due.length}개 보기"><span class="home-status-summary-icon">🙏</span><span>부탁 ${req.length||due.length}</span></button>`);
+  }
+  if(!parts.length)return '';
+  return `<div class="notice-banner compact-status-banner home-status-summary" role="group" aria-label="오늘 상태 요약">${parts.join('<span class="home-status-summary-sep">·</span>')}</div>`;
 }
 
 function todayScheduleHubItems(baseKey=scheduleBaseKey()){
@@ -6508,14 +6496,12 @@ function renderCalendarShiftCounts(){
   if(calViewMode!=='work')return '';
   normalizeShiftUsers();
   const user=calendarWorkUser();
-  const users=[user];
-  const sc=getShiftCount(calY,calM,users);
-  const labels=shiftLabelList().filter(s=>(sc[s]||0)>0);
+  const sc=getShiftCount(calY,calM,[user]);
+  const countFor=(label)=>label==='OFF'?((sc.OFF||0)+(sc.O||0)):(sc[label]||0);
+  const labels=['D','E','N','OFF'].filter(x=>countFor(x)>0);
   if(!labels.length)return '';
-  return `<div class="month-shift-summary">
-    <div class="month-shift-title">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame month-shift-avatar')}<span>${escapeHtml(user)} 근무</span></div>
-    <div class="month-shift-meta">이번 달</div>
-    <div class="month-shift-line">${labels.map(s=>`${escapeHtml(workCalendarShiftLabel(s))} ${sc[s]||0}`).join(' · ')}</div>
+  return `<div class="calendar-shift-summary" aria-label="${escapeAttr(user)} 월간 근무 집계">
+    ${labels.map(s=>`<span class="calendar-shift-summary-item"><b class="${shiftBadgeClass(s)}">${escapeHtml(workCalendarShiftLabel(s))}</b><span>${countFor(s)}</span></span>`).join('<span class="calendar-shift-summary-sep">·</span>')}
   </div>`;
 }
 
