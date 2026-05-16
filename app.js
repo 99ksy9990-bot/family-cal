@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.80';
-const PASS_BUILD_VERSION='v1.3.80-unified-schedule-edit';
+const APP_VERSION='v1.3.84';
+const PASS_BUILD_VERSION='v1.3.84-ux-system-polish';
 const APP_UPDATED='2026-05-13';
 
 
@@ -505,8 +505,7 @@ function calendarRepeatChipTime(n){
 }
 function renderRepeatDetailSection(selDate,routines=[],opts={}){
   routines=(routines||[])
-    .filter(n=>isRoutineCalendarEvent(n))
-    .filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+    .filter(n=>isRoutineCalendarEvent(n));
   const groups=new Map();
   const seen=new Set();
   routines.sort(calendarDetailSort).forEach(n=>{
@@ -636,7 +635,6 @@ function renderCalendarWWWDetailRows(selDate,opts={}){
     normalizeShiftUsers();
     const users=calViewMode==='work'?[calendarWorkUser()]:shiftUsers;
     users.forEach(user=>{
-      if(calWhoF!=='all' && user!==calWhoF)return;
       const status=shiftDisplayStatusFor(selDate,user);
       if(!status)return;
       const label=workCalendarShiftLabel(status);
@@ -860,7 +858,7 @@ function calendarDotCandidates(evs,mems){
 }
 function renderCalendarCellDots(evs,mems){
   const items=calendarDotCandidates(evs,mems);
-  const shown=items.slice(0,3);
+  const shown=items.slice(0,2);
   const more=items.length-shown.length;
   return shown.map(x=>{
     return `<span class="cal-dot person-cal-dot${calViewMode==='routine'?' repeat-dot':''}" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`;
@@ -2891,7 +2889,6 @@ function renderSettingsTab(){
     </div>
     ${renderProfileFamilyRows()}
 
-    ${renderSettingsStatusBoard()}
     ${renderSettingsToolPanel()}
   </div>`;
 }
@@ -2912,7 +2909,6 @@ function openProfileCenter(){
       </div>
       ${renderProfileFamilyRows()}
 
-      ${renderSettingsStatusBoard()}
       ${renderSettingsToolPanel()}
       <button class="cancel-link" onclick="closeM()">닫기</button>
     </div>
@@ -3522,7 +3518,7 @@ function makeScheduleRowCard(n,opts={}){
   const who=n.who||'공통';
   const id=String(n.id||'');
   const isAuto=!!n._autoFamilyInfo;
-  const click=isAuto?'':`onclick="if(!consumeSwipeTap())openDetailNote('${id}')"`;
+  const click=isAuto?'':`onclick="if(!consumeSwipeTap())openEditNote('${id}')"`;
   const swipe=isAuto?'':`
     ontouchstart="startItemSwipe(event,'note','${id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'note','${id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"`;
@@ -3604,7 +3600,7 @@ function renderFab(){
   if(main==='s'){
     return `<button class="fab-add smart-fab smart-fab-extended" onclick="openQuickAddSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
-  if(main==='c' && !shiftSelectMode){
+  if(main==='c' && calViewMode!=='work' && !shiftSelectMode){
     return `<button class="fab-add smart-fab smart-fab-extended calendar-fab-add" onclick="openQuickAddSheet('${calendarFabDate()}')" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='i'){
@@ -3893,7 +3889,7 @@ function renderC(){
     <div class="cal-card" ontouchstart="startLayerSwipe(event,\'calendar\',\'.cal-card\')" ontouchmove="moveLayerSwipe(event)" ontouchend="endLayerSwipe(event)" onmousedown="startLayerSwipe(event,\'calendar\',\'.cal-card\')" onmousemove="moveLayerSwipe(event)" onmouseup="endLayerSwipe(event)" onmouseleave="endLayerSwipe(event)">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="chCal(-1)">‹</button>
-        <div class="cal-nav-title">${y}년 ${m+1}월</div>
+        <div class="cal-nav-title"><span class="cal-nav-year">${y}</span><span class="cal-nav-month">${m+1}월</span></div>
         <button class="cal-nav-btn" onclick="chCal(1)">›</button>
       </div>
       <div class="cal-grid">${g}</div>
@@ -3911,10 +3907,7 @@ function selectShiftQuickDate(dateKey){
   calViewMode='work';
   shiftSelectMode=false;
   shiftSelectedDates=[];
-  selDate=dateKey;
-  const sp=dateKey.split('-');
-  calY=+sp[0];
-  calM=+sp[1]-1;
+  setGlobalDateContext(dateKey,{syncCalendar:true,doRender:false});
   render({preserveScroll:true});
 }
 function shiftQuickInputUser(){
@@ -3939,15 +3932,12 @@ function shiftQuickDateTitle(dateKey){
 }
 function workQuickShiftLabel(status){
   const v=String(status||'').toUpperCase();
-  if(v==='OFF'||v==='O')return '휴';
+  if(v==='OFF'||v==='O')return 'OFF';
   return workCalendarShiftLabel(status);
 }
 function advanceShiftQuickDate(dateKey){
   const next=addDaysStr(dateKey,1);
-  selDate=next;
-  const sp=next.split('-');
-  calY=+sp[0];
-  calM=+sp[1]-1;
+  setGlobalDateContext(next,{syncCalendar:true,doRender:false});
 }
 function applyQuickShift(status){
   if(!requireEditMode())return;
@@ -4017,6 +4007,7 @@ function selCal(k){
     selectShiftQuickDate(k);
     return;
   }
+  setGlobalDateContext(k,{syncCalendar:false,doRender:false});
   selDate=selDate===k?null:k;
   const sp=k.split('-');
   calY=+sp[0];
@@ -5229,7 +5220,7 @@ function cancelLongAdd(){
   setTimeout(()=>{longAddOpened=false;},80);
 }
 function notesForCalendarDay(y,m,d){
-  return notesOnDateAll(y,m,d).filter(n=>calWhoF==='all'||(n.who||'공통')===calWhoF);
+  return notesOnDateAll(y,m,d);
 }
 function openRepeatExceptions(id){
   const n=notes.find(x=>String(x.id)===String(id)); if(!n)return;
@@ -5515,6 +5506,7 @@ function setMain(t){
   if(t==='r')refreshEmptyStatePick('request');
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
+  if(t==='c')syncCalendarDateContext(scheduleBaseKey());
   main=t;
   updateTabUI();
   render({preserveScroll:false});
@@ -5555,7 +5547,7 @@ function shortShiftLabel(status){
   const s=String(status||'').trim();
   if(!s)return '-';
   const upper=s.toUpperCase();
-  if(upper==='OFF' || upper==='O')return 'O';
+  if(upper==='OFF' || upper==='O')return 'OFF';
   if(s.includes('연차') || s.includes('반차') || s.includes('휴'))return '휴';
   return Array.from(s)[0] || '-';
 }
@@ -5571,6 +5563,11 @@ function scheduleCountsByPerson(baseKey){
     ...notes.filter(n=>!isDone(n)&&!n._autoFamilyInfo&&occursOn(n,baseKey)),
     ...familyInfoEventsForKey(baseKey)
   ];
+  normalizeShiftUsers();
+  shiftUsers.forEach(user=>{
+    const status=shiftDisplayStatusFor(baseKey,user);
+    if(status)items.push({who:user,title:workCalendarShiftLabel(status),_shiftStatus:status});
+  });
   if(!items.length)return [];
   const counts={};
   items.forEach(n=>{
@@ -5582,6 +5579,12 @@ function scheduleCountsByPerson(baseKey){
     const ia=persons.indexOf(a), ib=persons.indexOf(b);
     return (ia<0?999:ia)-(ib<0?999:ib);
   }).map(who=>`${who} ${counts[who]}개`);
+}
+function scheduleCheckCountForDate(baseKey){
+  return scheduleCountsByPerson(baseKey).reduce((sum,line)=>{
+    const m=String(line||'').match(/(\d+)개/);
+    return sum+(m?Number(m[1]):0);
+  },0);
 }
 function calendarMiniButtonSvg(){
   return `<svg class="shift-mini-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="5" width="15" height="15" rx="3"/><path d="M8 3.8v2.8"/><path d="M16 3.8v2.8"/><path d="M4.5 9h15"/><path d="M9 12.2h6"/><path d="M9 15.7h4.2"/></svg>`;
@@ -5598,10 +5601,7 @@ function renderNoticeBanner(){
     ? `<div class="notice-banner compact-status-banner smart-brief-banner" ${canGo?`onclick="openActiveRequestTab()" style="cursor:pointer" role="button"`:''}><span class="status-banner-icon">🙏</span><span class="status-banner-text">${escapeHtml(todoText)}</span>${canGo?`<span class="notice-go status-banner-go">›</span>`:''}</div>`
     : '';
   const scheduleParts=scheduleCountsByPerson(base);
-  const scheduleCount=scheduleParts.reduce((sum,line)=>{
-    const m=String(line||'').match(/(\d+)개/);
-    return sum+(m?Number(m[1]):0);
-  },0);
+  const scheduleCount=scheduleCheckCountForDate(base);
   const scheduleBanner=scheduleParts.length
     ? `<div class="notice-banner compact-status-banner schedule-routine-brief-banner" onclick="openScheduleCheckSheet('${base}')" style="cursor:pointer" role="button"><span class="status-banner-icon">🔔</span><span class="status-banner-text">확인할 일정 ${scheduleCount||scheduleParts.length}개</span><span class="notice-go status-banner-go">›</span></div>`
     : '';
@@ -5635,7 +5635,6 @@ function openScheduleCheckSheet(baseKey=''){
   const k=baseKey||scheduleBaseKey();
   const {normal,routine}=todayScheduleHubItems(k);
   const groups=makeTodayWWWGroups(normal,routine)
-    .map(g=>({...g,items:g.items.filter(item=>item.kind!=='shift')}))
     .filter(g=>g.items.length);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
@@ -5683,6 +5682,25 @@ function openPersonTodaySheet(who){
 function scheduleBaseKey(){
   return addDaysStr(todayKey(),scheduleBaseOffset||0);
 }
+function syncCalendarDateContext(dateKey){
+  if(!dateKey)return;
+  selDate=dateKey;
+  const parts=String(dateKey).split('-').map(Number);
+  if(parts.length>=2 && parts[0] && parts[1]){
+    calY=parts[0];
+    calM=parts[1]-1;
+  }
+}
+function setGlobalDateContext(dateKey,{syncCalendar=true,doRender=true,preserveScroll=true}={}){
+  const key=dateKey||todayKey();
+  scheduleBaseOffset=daysBetween(todayKey(),key);
+  if(syncCalendar)syncCalendarDateContext(key);
+  if(doRender)render({preserveScroll});
+}
+function resetScheduleBase(){
+  setGlobalDateContext(todayKey(),{syncCalendar:true,preserveScroll:false});
+  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}
+}
 function scheduleBaseSuffix(){
   if(!scheduleBaseOffset)return '';
   const k=scheduleBaseKey();
@@ -5690,8 +5708,9 @@ function scheduleBaseSuffix(){
   return ` · ${m}/${d} (${DAYS[new Date(y,m-1,d).getDay()]})`;
 }
 function moveScheduleBase(step=1){
-  scheduleBaseOffset=(scheduleBaseOffset||0)+step;
-  render({preserveScroll:true});
+  const next=addDaysStr(scheduleBaseKey(),step);
+  setGlobalDateContext(next,{syncCalendar:true,preserveScroll:true});
+  try{if(navigator.vibrate)navigator.vibrate(8)}catch(e){}
 }
 function daysBetween(fromKey,toKey){
   return Math.ceil((new Date(toKey+'T00:00:00')-new Date(fromKey+'T00:00:00'))/86400000);
@@ -5782,6 +5801,7 @@ function endLayerSwipe(e){
     setTimeout(()=>{
       if(type==='shift')moveScheduleBase(dir);
       else if(type==='calendar')chCal(dir);
+      else if(type==='home')moveScheduleBase(dir);
       swipeState=null;
     },95);
   }else{
@@ -6266,7 +6286,7 @@ function makeWeekWWWGroups(schedule=[],routines=[],keys=[]){
       title,
       time,
       className:isDone(n)?'done':'',
-      html:`<span class="www-chip-title">${highlightText(title)}</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}${privateChip(n)}`,
+      html:`${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}<span class="www-chip-title">${highlightText(title)}</span>${privateChip(n)}`,
       click:n.id?`openEditNote('${n.id}')`:'',
       key:`schedule|${n.id||''}|${who}|${dateKey}|${time}|${title}`
     });
@@ -6283,7 +6303,7 @@ function makeWeekWWWGroups(schedule=[],routines=[],keys=[]){
       title,
       time,
       className:'routine',
-      html:`<span class="www-repeat-mark">&#8635;</span><span class="www-chip-title">${highlightText(title)}</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}`,
+      html:`<span class="www-repeat-mark">&#8635;</span>${time?`<span class="www-chip-time">${escapeHtml(time)}</span>`:''}<span class="www-chip-title">${highlightText(title)}</span>`,
       click:`openRoutineInstanceDetail(${onclickArg(title)},${onclickArg(who)},${onclickArg(time)},${onclickArg(dateKey)},${onclickArg(kind)},${onclickArg(rid)})`,
       key:`routine|${rid||''}|${who}|${dateKey}|${time}|${title}`
     });
@@ -6670,6 +6690,10 @@ function renderHomeRangePanel(){
     </div>
   </div>`;
 }
+function renderTodayResetChip(){
+  if(!scheduleBaseOffset)return '';
+  return `<button type="button" class="today-reset-chip" onclick="resetScheduleBase()">오늘로 돌아가기</button>`;
+}
 function homeStatusSummary(){
   const keys=homeRangeKeys();
   const label=homeViewRange==='week'?'이번주':'오늘';
@@ -6684,9 +6708,16 @@ function homeStatusSummary(){
 }
 function renderTopSwipeZone(){
   if(main!=='s')return '';
-  const parts=[renderHomeAppHeader(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
+  const parts=[renderHomeAppHeader(),renderTodayResetChip(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
   if(!parts)return '';
-  return `<div class="top-swipe-zone">${parts}</div>`;
+  return `<div class="top-swipe-zone"
+    ontouchstart="startLayerSwipe(event,'home','.top-swipe-zone')"
+    ontouchmove="moveLayerSwipe(event)"
+    ontouchend="endLayerSwipe(event)"
+    onmousedown="startLayerSwipe(event,'home','.top-swipe-zone')"
+    onmousemove="moveLayerSwipe(event)"
+    onmouseup="endLayerSwipe(event)"
+    onmouseleave="endLayerSwipe(event)">${parts}</div>`;
 }
 
 function renderManualNotice(){
