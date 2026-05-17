@@ -1,6 +1,6 @@
-const APP_VERSION='v1.3.98';
-const PASS_BUILD_VERSION='v1.3.97-settings-quiet-tools';
-const APP_UPDATED='2026-05-13';
+const APP_VERSION='v1.3.103';
+const PASS_BUILD_VERSION='v1.3.103-soft-selected-day';
+const APP_UPDATED='2026-05-17';
 
 
 
@@ -3617,6 +3617,30 @@ function renderScheduleDashboardList(normal=[],missed=[],emptyText='등록 일�
 function renderScheduleCardList(list,emptyText='진행 중인 일정이 없어요'){
   return renderScheduleDashboardList(list,[],emptyText,{});
 }
+function renderScheduleFlow(active=[],recent=[],baseKey=scheduleBaseKey()){
+  if(!active.length&&!recent.length){
+    return `<div class="card-wrap schedule-card-list schedule-dashboard-list schedule-flow-card">
+      <div class="schedule-flow-empty main">오늘은 조금 가볍게 보내도 좋아요.</div>
+    </div>`;
+  }
+  const activeHtml=active.length
+    ? renderSchedulePersonGroups(active,{})
+    : `<div class="schedule-flow-empty">오늘은 조금 가볍게 보내도 좋아요.</div>`;
+  const recentHtml=recent.length
+    ? renderSchedulePersonGroups(recent,{past:true})
+    : `<div class="schedule-flow-empty subtle">최근 기록이 아직 없어요.</div>`;
+  return `<div class="card-wrap schedule-card-list schedule-dashboard-list schedule-flow-card">
+    <div class="schedule-flow-block">
+      <div class="schedule-flow-label">예정 일정</div>
+      <div class="schedule-flow-list">${activeHtml}</div>
+    </div>
+    <div class="schedule-flow-divider"></div>
+    <div class="schedule-flow-block recent">
+      <div class="schedule-flow-label">최근 기록</div>
+      <div class="schedule-flow-list">${recentHtml}</div>
+    </div>
+  </div>`;
+}
 function openRoutineFabSheet(){
   if(!requireEditMode())return;
   document.getElementById('modal').innerHTML=`
@@ -3761,29 +3785,18 @@ function renderS(){
   const pastList=applyPastPeriodFilter(sortPastScheduleList(past,baseKey),baseKey);
 
   const activeCount=active.length;
-  const activeAll=[...active];
-  const warmPreviewHtml=activeCount<=1?renderUpcomingPreview(3,baseKey):'';
-  const activeCards = activeOpen
-    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,[],'등록 일정이 없어요')}</div>`
-    : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleActive()" role="button" tabindex="0">${escapeHtml(scheduleCollapsedSummary(activeAll,activeCount,'active'))}</div>`;
-
-  const doneCards = doneOpen
-    ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(pastList,[],'지난 일정이 없어요',{past:true})}</div>`
-    : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleDone()" role="button" tabindex="0">${escapeHtml(scheduleCollapsedSummary(pastList,pastList.length,'done'))}</div>`;
+  const flowCount=activeCount+pastList.length;
+  const flowCards = activeOpen
+    ? renderScheduleFlow(active,pastList,baseKey)
+    : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleActive()" role="button" tabindex="0">${escapeHtml(collapsedStateLabel({count:flowCount,sectionName:'일정',sectionType:'schedule',singleNoun:'일정',state:'hide'}))}</div>`;
 
   return`<div class="schedule-swipe-sync home-context-panel">
     ${homeTabs}
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
+    ${sectionHeader('일정',flowCount,activeOpen,'toggleActive',`
       <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, ${escapeAttr(scheduleSortLabel())}" title="${escapeAttr(`${scheduleFilterLabel()} · ${scheduleSortLabel()}`)}">${filterSearchSvg()}</button>
     `)}
-    ${activeCards}
-    ${warmPreviewHtml}
-    <div class="div"></div>
-    ${sectionHeader('지난 일정',pastList.length,doneOpen,'toggleDone',`
-      <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="지난 일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, 가까운 순" title="${escapeAttr(`${scheduleFilterLabel()} · 가까운 순`)}">${filterSearchSvg()}</button>
-    `)}
-    ${doneCards}
+    ${flowCards}
   </div>`;
 }
 
@@ -4349,7 +4362,7 @@ function repeatDateSummary(item){
   return parts.join(' · ');
 }
 function renderRoutineTargetFilter(){
-  const opts=[['all','가족'],...getPersons().map(p=>[p,p])];
+  const opts=[['all','전체'],...getPersons().filter(p=>!isFamilyGroupTarget(p)).map(p=>[p,p])];
   return `<div class="routine-filter-row">${opts.map(([k,label])=>{
     const on=(routineTargetFilter||'all')===k;
     return `<button class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})">${escapeHtml(label)}</button>`;
@@ -4423,7 +4436,7 @@ function openRepeatEditModal(ii){
       </div>
 
       <details class="detail-settings">
-        <summary>반복 조건 더 설정</summary>
+        <summary>추가 설정</summary>
         <div class="detail-settings-panel">
           <div class="ml">방학</div>
           <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${draft.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
@@ -4485,16 +4498,14 @@ function repeatCompactMeta(item){
 }
 
 function renderI(){
-  let h=`<div class="routine-subscreen-head"><button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button><div class="subscreen-title">반복 관리</div></div><div class="fi-outer routine-only-outer">`;
+  let h=`<div class="routine-subscreen-head"><button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button><div class="subscreen-title">반복 일정</div></div><div class="fi-outer routine-only-outer">`;
 
   const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
     if((routineTargetFilter||'all')==='all')return true;
     return (x.item.who||'공통')===routineTargetFilter;
   });
 
-  h+=`${sectionHeader('반복 일정',visibleRepeats.length,routineOpen,'toggleRoutine',`
-    <span class="collapsed-hint routine-reorder-hint">카드를 누르면 수정해요</span>
-  `)}`;
+  h+=`${sectionHeader('반복 일정',visibleRepeats.length,routineOpen,'toggleRoutine')}`;
 
   if(routineOpen){
     h+=renderRoutineTargetFilter();
@@ -6602,7 +6613,10 @@ function renderTodayListDashboard(title,allEvents,routineEvents=[]){
           <div class="www-today-title">${escapeHtml(title||'WWW TODAY')}</div>
           <div class="www-today-sub">Who · When · What</div>
         </div>
-        <button type="button" class="www-share-btn" onclick="openTodayShareSheet()" aria-label="WWW TODAY 공유">${shareIconSvg()}</button>
+        <div class="www-today-actions">
+          <button type="button" class="www-share-btn" onclick="openTodayShareSheet()" aria-label="WWW TODAY 공유">${shareIconSvg()}</button>
+          ${renderTodayResetChip()}
+        </div>
       </div>
       ${body}
     </div>
@@ -7044,7 +7058,7 @@ function renderHomeRangePanel(){
 }
 function renderTodayResetChip(){
   if(!scheduleBaseOffset)return '';
-  return `<button type="button" class="today-reset-chip" onclick="resetScheduleBase()">오늘로 돌아가기</button>`;
+  return `<button type="button" class="today-reset-chip" onclick="resetScheduleBase()" aria-label="오늘로 돌아가기">오늘</button>`;
 }
 function homeStatusSummary(){
   const keys=homeRangeKeys();
@@ -7060,7 +7074,7 @@ function homeStatusSummary(){
 }
 function renderTopSwipeZone(){
   if(main!=='s')return '';
-  const parts=[renderHomeAppHeader(),renderTodayResetChip(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
+  const parts=[renderHomeAppHeader(),renderNoticeBanner(),renderManualNotice(),renderHomeWidgets()].filter(Boolean).join('');
   if(!parts)return '';
   return `<div class="top-swipe-zone"
     ontouchstart="startLayerSwipe(event,'home','.top-swipe-zone')"
@@ -7403,8 +7417,18 @@ function personChoiceButtons(selected){
     ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}
   </button>`).join('');
 }
+function scheduleAddPersons(){
+  const names=getPersons().filter(p=>!isFamilyGroupTarget(p));
+  return names.length?names:getPersons();
+}
+function scheduleAddPersonChoiceButtons(selected){
+  return scheduleAddPersons().map(p=>`<button type="button" class="type-btn person-check-label avatar-only${p===selected?' selected tf':''}" id="who-${escapeAttr(p)}" onclick="selWho(${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
+    ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}
+  </button>`).join('');
+}
 function repeatPersonChoiceButtons(ii,selected){
-  return getPersons().map(p=>`<button type="button" class="type-btn person-check-label repeat-person-choice avatar-only${p===selected?' selected tf':''}" data-repeat-who="${ii}" data-who="${escapeAttr(p)}" onclick="selectRepeatModalWho(${ii},${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
+  const names=scheduleAddPersons();
+  return names.map(p=>`<button type="button" class="type-btn person-check-label repeat-person-choice avatar-only${p===selected?' selected tf':''}" data-repeat-who="${ii}" data-who="${escapeAttr(p)}" onclick="selectRepeatModalWho(${ii},${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
     ${avatarMarkup(personAvatar(p),p,'avatar-img-small')}
   </button>`).join('');
 }
@@ -7419,11 +7443,11 @@ function selectRepeatModalWho(ii,who){
 
 function openAddModal(dateVal){
   _mType='family';
-  _mWho=getPersons()[0]||'공통';
+  _mWho=scheduleAddPersons()[0]||getPersons()[0]||'공통';
   const startDate=dateVal||todayKey();
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet schedule-edit-sheet add-flow-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet schedule-edit-sheet add-flow-sheet schedule-add-flow" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="add-flow-head">
         <div>
@@ -7433,7 +7457,7 @@ function openAddModal(dateVal){
       <div class="add-flow-card">
         <div class="add-step-head"><span>WHO</span><b>누가</b></div>
         <div class="type-sel person-chip-selector add-person-row">
-          ${personChoiceButtons(_mWho)}
+          ${scheduleAddPersonChoiceButtons(_mWho)}
         </div>
       </div>
       <div class="add-flow-card">
@@ -7452,16 +7476,11 @@ function openAddModal(dateVal){
       <div class="add-flow-card add-what-card">
         <div class="add-step-head add-what-head">
           <span>WHAT</span><b>무엇을</b>
-          <div class="add-option-row">
-            <label class="add-option-chip add-repeat-inline-toggle what-repeat-toggle" id="m-repeat-chip"><input type="checkbox" id="m-repeat-on" onchange="toggleAddRepeatInline()"><span>↻ 반복</span></label>
-            <button type="button" class="private-inline-toggle share-toggle" id="m-private" data-val="" onclick="togglePrivateField('m-private')" aria-label="가족 공유 일정"><span class="private-lock-icon" aria-hidden="true">${shareToggleSvg()}</span><span class="private-toggle-text">공유</span></button>
-          </div>
-          <input class="picker-field add-repeat-end-inline empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
         </div>
         <input class="mi add-title-input" id="m-ti" placeholder="무엇을 하나요?"/>
       </div>
       <details class="detail-settings schedule-extra-settings">
-        <summary>반복, 알림, 메모 더 설정</summary>
+        <summary>추가 설정</summary>
         <div class="detail-settings-panel">
           <select class="mi add-repeat-hidden-select" id="m-rp" aria-hidden="true" tabindex="-1">
             <option value="">반복 없음</option>
@@ -7469,6 +7488,11 @@ function openAddModal(dateVal){
             <option value="weekly">매주</option>
             <option value="monthly">매월</option>
           </select>
+          <div class="add-extra-toggle-row">
+            <label class="add-option-chip add-repeat-inline-toggle what-repeat-toggle" id="m-repeat-chip"><input type="checkbox" id="m-repeat-on" onchange="toggleAddRepeatInline()"><span>↻ 반복</span></label>
+            <input class="picker-field add-repeat-end-inline empty" id="m-re" readonly data-val="" value="종료 없음" onclick="openDatePicker('m-re')"/>
+            <button type="button" class="private-inline-toggle share-toggle" id="m-private" data-val="" onclick="togglePrivateField('m-private')" aria-label="가족 공유 일정"><span class="private-lock-icon" aria-hidden="true">${shareToggleSvg()}</span><span class="private-toggle-text">공유</span></button>
+          </div>
           <input type="hidden" id="m-ed" data-val=""/>
           <input type="hidden" id="m-alert" value=""/>
           <div class="schedule-alert-row">
@@ -7483,7 +7507,6 @@ function openAddModal(dateVal){
         </div>
       </details>
       <button class="primary-btn" onclick="saveNote()">저장</button>
-      <button class="cancel-link" onclick="closeM()">취소</button>
     </div>
   </div>`;
 }
@@ -7502,7 +7525,7 @@ function selWho(w){
       el.classList.toggle('selected', p===w);
       el.classList.toggle('tf', p===w);
       if(el.classList.contains('person-check-label')){
-        el.className='type-btn person-check-label'+(p===w?' selected tf':'');
+        el.className='type-btn person-check-label avatar-only'+(p===w?' selected tf':'');
       }else{
         el.className='type-btn'+(p===w?' tf':'');
       }
