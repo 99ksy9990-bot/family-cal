@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.89';
-const PASS_BUILD_VERSION='v1.3.89-home-actions';
+const APP_VERSION='v1.3.95';
+const PASS_BUILD_VERSION='v1.3.95-profile-detail-quiet';
 const APP_UPDATED='2026-05-13';
 
 
@@ -764,7 +764,7 @@ function handleDateHeaderClick(dateKey=''){
   },80);
 }
 function calendarViewLabel(mode){
-  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'가족';
+  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
 }
 function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
@@ -815,7 +815,7 @@ function setShiftFromModal(k,t){
 }
 
 function renderCalendarViewModeChips(){
-  const modes=[['all','가족'],['work','근무'],['schedule','일정'],['routine','반복']];
+  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','반복']];
   return `<div class="calendar-view-mode-row calendar-view-tabs">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
 }
 function filterCalendarEventsByTarget(evs){
@@ -1663,7 +1663,7 @@ function collapsedStateLabel({list=[],count=0,sectionName='일정',sectionType='
   const safeCount=Number(count)||0;
   const verb=state==='fold'?'접혀 있어요':'숨겨져 있어요';
   if(safeCount<=0){
-    return sectionType==='past'?'지난 일정이 없어요.':'등록 일정이 비어 있어요. 오늘은 조금 가볍게 보내도 좋아요.';
+    return sectionType==='past'?'지난 일정이 없어요.':'오늘은 조금 가볍게 보내도 좋아요.';
   }
   const first=(list||[]).find(x=>x&&String(x.title||'').trim());
   if(safeCount===1 && first){
@@ -3418,6 +3418,16 @@ function renderEmptyState(kind,title,sub=''){
 }
 
 
+function compactSchedulePrompt(){
+  const prompts=[
+    '오늘은 조금 가볍게 보내도 좋아요.',
+    '가족과 쉬어가는 하루예요.',
+    '오늘은 비교적 여유로운 하루예요.',
+    '잠깐 숨 고르기 좋은 날이에요.'
+  ];
+  return prompts[EMPTY_SCHEDULE_PICK%prompts.length];
+}
+
 function scheduleListDate(n){
   if(!n)return '';
   if(n._displayDate)return n._displayDate;
@@ -3616,12 +3626,12 @@ function renderFab(){
 }
 
 function quickAddSvg(kind){
-  if(kind==='family')return familyStackAvatarMarkup('quick-add-icon quick-add-icon-family family-stack-quick');
   const map={
     schedule:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M8.5 14h3M8.5 17h5"/></svg>',
     todo:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8 12.5 2.4 2.4L16.5 9"/></svg>',
     routine:'<svg viewBox="0 0 24 24"><path d="M17.5 7.5A7 7 0 0 0 5.2 11"/><path d="M5 6.5V11h4.5"/><path d="M6.5 16.5A7 7 0 0 0 18.8 13"/><path d="M19 17.5V13h-4.5"/></svg>',
-    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M12 17s-3.2-1.8-3.2-4a1.9 1.9 0 0 1 3.2-1.3A1.9 1.9 0 0 1 15.2 13c0 2.2-3.2 4-3.2 4Z"/></svg>'
+    memory:'<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/><path d="M12 17s-3.2-1.8-3.2-4a1.9 1.9 0 0 1 3.2-1.3A1.9 1.9 0 0 1 15.2 13c0 2.2-3.2 4-3.2 4Z"/></svg>',
+    family:'<svg viewBox="0 0 24 24"><path d="M9 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M15.5 10.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/><path d="M4.5 19c.5-3.2 2.1-5 4.5-5s4 1.8 4.5 5"/><path d="M13.5 14.4c.7-.4 1.4-.6 2.2-.6 2 0 3.3 1.5 3.8 4.2"/></svg>'
   };
   return `<span class="quick-add-icon quick-add-icon-${kind}" aria-hidden="true">${map[kind]||map.schedule}</span>`;
 }
@@ -3632,8 +3642,8 @@ function openQuickAddSheet(dateVal){
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg quick-add-bg" onclick="closeM(event)">
     <div class="modal-sheet smart-fab-sheet quick-add-sheet" onclick="event.stopPropagation()">
-      <div class="quick-add-title">무엇을 추가할까요?</div>
       <div class="quick-add-panel">
+        <div class="quick-add-title">무엇을 추가할까요?</div>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openAddModal('${d}')">
           ${quickAddSvg('schedule')}
           <span><b>일정</b></span>
@@ -3651,7 +3661,6 @@ function openQuickAddSheet(dateVal){
           <span><b>가족</b></span>
         </button>
       </div>
-      <button class="quick-add-close" onclick="closeM()" aria-label="닫기"></button>
     </div>
   </div>`;
 }
@@ -3683,6 +3692,7 @@ function renderS(){
 
   const activeCount=active.length;
   const activeAll=[...active];
+  const warmPreviewHtml=activeCount<=1?renderUpcomingPreview(3,baseKey):'';
   const activeCards = activeOpen
     ? `<div class="card-wrap schedule-card-list schedule-dashboard-list">${renderScheduleDashboardList(active,[],'등록 일정이 없어요')}</div>`
     : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleActive()" role="button" tabindex="0">${escapeHtml(scheduleCollapsedSummary(activeAll,activeCount,'active'))}</div>`;
@@ -3697,6 +3707,7 @@ function renderS(){
       <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, ${escapeAttr(scheduleSortLabel())}" title="${escapeAttr(`${scheduleFilterLabel()} · ${scheduleSortLabel()}`)}">${filterSearchSvg()}</button>
     `)}
     ${activeCards}
+    ${warmPreviewHtml}
     <div class="div"></div>
     ${sectionHeader('지난 일정',pastList.length,doneOpen,'toggleDone',`
       <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="지난 일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, 가까운 순" title="${escapeAttr(`${scheduleFilterLabel()} · 가까운 순`)}">${filterSearchSvg()}</button>
@@ -3843,7 +3854,7 @@ function renderC(){
     const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
-    g+=`<div class="cal-cell${syncOff?' sync-off':''}${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
+    g+=`<div class="cal-cell${isToday?' today-cell':''}${syncOff?' sync-off':''}${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
       onclick="if(!consumeSwipeTap())${shiftSelectMode?`toggleShiftDate('${key}')`:`selCal('${key}')`}"
       onmousedown="if(!shiftSelectMode)startLongAdd(event,'${key}')"
       onmouseup="cancelLongAdd()"
@@ -6479,7 +6490,7 @@ function memoryAgeLabel(x){
   if(title.includes('생일') || title.includes('탄생'))return `만 ${age}세`;
   return `${age}년째`;
 }
-function upcomingEvents(days=7,baseKey=scheduleBaseKey()){
+function upcomingEvents(days=7,baseKey=scheduleBaseKey(),limit=3){
   const end=addDaysStr(baseKey,days);
   return notes.filter(n=>{
     if(isDone(n)||n.repeat)return false;
@@ -6491,32 +6502,29 @@ function upcomingEvents(days=7,baseKey=scheduleBaseKey()){
     const ka=(a.start||'')+'|'+scheduleTimeKey(a)+'|'+(a.who||'');
     const kb=(b.start||'')+'|'+scheduleTimeKey(b)+'|'+(b.who||'');
     return ka.localeCompare(kb);
-  }).slice(0,2);
+  }).slice(0,limit);
 }
-function renderUpcomingPreview(){
+function renderUpcomingPreview(limit=3,baseKey=scheduleBaseKey()){
   if(main!=='s')return '';
-  const baseKey=scheduleBaseKey();
-  const list=upcomingEvents(7,baseKey);
+  const list=upcomingEvents(7,baseKey,limit);
   if(!list.length)return '';
-  return `<div class="widget-wrap dashboard-wrap upcoming-wrap">
-    <div class="widget-card upcoming-card refreshed-upcoming-card">
-      <div class="merged-dashboard-head upcoming-dashboard-head">
-        <div class="merged-dashboard-summary">
-          <span class="merged-summary-label">미리 보는 다음 일정 (D-7)</span>
-          <span class="sec-cnt merged-count">${list.length}</span>
-        </div>
-      </div>
-      <div class="upcoming-list">
+  return `<div class="home-upcoming-preview">
+    <div class="home-upcoming-head">
+      <span>${'\uB2E4\uAC00\uC624\uB294 \uC77C\uC815'}</span>
+      <em>${list.length}</em>
+    </div>
+    <div class="home-upcoming-list">
         ${list.map(n=>{
           const d=daysBetween(baseKey,n.start);
-          const dd=d===1?'다음날':`D-${d}`;
-          return `<div class="upcoming-row refreshed-upcoming-row">
-            <span class="upcoming-dday">${dd}</span>
-            <span class="upcoming-title">${escapeHtml(n.title||'일정')}</span>
-            <span class="upcoming-meta">${escapeHtml(n.who||'공통')}</span>
-          </div>`;
+          const dd=d===1?'\uB0B4\uC77C':`D-${d}`;
+          const dateText=shortDateWithDow(n.start||'');
+          const who=n.who||'\uAC00\uC871';
+          return `<button type="button" class="home-upcoming-row" onclick="openEditNote('${n.id}')">
+            <span class="home-upcoming-date">${escapeHtml(dateText||dd)}</span>
+            <span class="home-upcoming-main"><b style="color:${familyAccentColor(who)}">${escapeHtml(who)}</b><em>${escapeHtml(n.title||'\uC77C\uC815')}</em></span>
+            <span class="home-upcoming-dday">${escapeHtml(dd)}</span>
+          </button>`;
         }).join('')}
-      </div>
     </div>
   </div>`;
 }
@@ -7521,6 +7529,18 @@ function selectKidProfileColor(color){
   document.querySelectorAll('.kid-color-choice').forEach(b=>{
     b.classList.toggle('on', b.dataset.color===String(color||''));
   });
+  const dot=document.getElementById('kid-color-preview-dot');
+  if(dot)dot.style.background=color||'';
+  const text=document.getElementById('kid-color-preview-text');
+  if(text)text.textContent=color||'기본색';
+}
+function openKidProfilePanel(id){
+  document.querySelectorAll('.kid-subpanel').forEach(p=>p.classList.remove('show'));
+  const panel=document.getElementById(id);
+  if(panel)panel.classList.add('show');
+}
+function closeKidProfilePanels(){
+  document.querySelectorAll('.kid-subpanel').forEach(p=>p.classList.remove('show'));
 }
 
 function editKid(i){
@@ -7548,51 +7568,99 @@ function editKid(i){
     </div>`;
   }).join('');
 
+  const quietColors=PERSON_COLOR_PALETTE.slice(0,6);
+  const avatarGroups=DEFAULT_AVATAR_GROUPS.filter(g=>!/(공용|할머니)/.test(g.label||'')).slice(0,4);
+  const vacationText=vacationSummary(k)||'등록된 방학이 없어요';
+  const shiftStatus=shiftUsers.includes(k.name)?'근무표 표시 중':'근무표 미표시';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
-    <div class="modal-sheet profile-edit-sheet" onclick="event.stopPropagation()">
+    <div class="modal-sheet profile-edit-sheet profile-state-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
-      <div class="modal-hd">기본 정보 수정</div>
-      <div class="ml">이름</div><input class="mi" id="k-n" value="${escapeAttr(k.name)}"/>
-      <div class="ml">달력 색상</div>
-      <input type="hidden" id="k-color" value="${escapeAttr(curColor)}"/>
-      <div class="kid-color-choice-row">
-        ${PERSON_COLOR_PALETTE.map(c=>`<button type="button" class="color-choice kid-color-choice${c===curColor?' on':''}" data-color="${escapeAttr(c)}" onclick="selectKidProfileColor('${escapeAttr(c)}')" style="background:${c}"></button>`).join('')}
+      <div class="profile-state-head">
+        <div id="kid-avatar-preview" class="profile-state-avatar">${avatarFrameMarkup({avatarType:curAvatarType,avatarId:curAvatar,avatarEmoji:curAvatarEmoji,avatarUrl:curAvatarUrl,color:curColor},k.name,'avatarFrame profile-state-avatar-frame')}</div>
+        <div class="profile-state-title-wrap">
+          <div class="modal-hd">${escapeHtml(k.name||'가족')}</div>
+          <div class="profile-state-sub">현재 프로필과 일정 표시 기준</div>
+        </div>
       </div>
-      <div class="ml">달력 아이콘</div>
+
+      <div class="profile-state-card">
+        <label class="profile-state-row profile-name-row">
+          <span>이름</span>
+          <input id="k-n" value="${escapeAttr(k.name)}" aria-label="이름"/>
+        </label>
+        <button type="button" class="profile-state-row" onclick="openKidProfilePanel('kid-avatar-panel')">
+          <span>현재 아바타</span>
+          <em>변경</em>
+        </button>
+        <button type="button" class="profile-state-row" onclick="openKidProfilePanel('kid-color-panel')">
+          <span>대표색</span>
+          <em><i id="kid-color-preview-dot" style="background:${escapeAttr(curColor)}"></i><b id="kid-color-preview-text">${escapeHtml(curColor)}</b></em>
+        </button>
+        <div class="profile-state-row muted">
+          <span>근무 유형</span>
+          <em>${escapeHtml(shiftStatus)}</em>
+        </div>
+      </div>
+
+      <input type="hidden" id="k-color" value="${escapeAttr(curColor)}"/>
       <input type="hidden" id="k-avatar" value="${escapeAttr(curAvatar)}"/>
       <input type="hidden" id="k-avatar-id" value="${escapeAttr(curAvatar)}"/>
       <input type="hidden" id="k-avatar-type" value="${escapeAttr(curAvatarType)}"/>
       <input type="hidden" id="k-avatar-emoji" value="${escapeAttr(curAvatarEmoji)}"/>
       <input type="hidden" id="k-avatar-url" value="${escapeAttr(curAvatarUrl)}"/>
       <input type="hidden" id="k-avatar-custom" value="${k.avatarCustom?'1':''}"/>
-      <div class="avatar-system-panel">
-        <div id="kid-avatar-preview" class="avatar-preview-slot">${avatarFrameMarkup({avatarType:curAvatarType,avatarId:curAvatar,avatarEmoji:curAvatarEmoji,avatarUrl:curAvatarUrl},k.name,'avatarFrame avatar-preview-frame')}</div>
-        <label class="avatar-upload-btn">사진 업로드<input type="file" accept="image/*" onchange="handleKidPhotoFile(this)"/></label>
-        <button type="button" class="avatar-clear-btn" onclick="clearKidPhotoAvatar()">기본으로</button>
+
+      <div class="profile-state-section">
+        <div class="profile-state-section-head">
+          <div>
+            <b>학사 일정</b>
+            <span>${escapeHtml(vacationText)}</span>
+          </div>
+          <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">추가</button>
+        </div>
+        <div class="vacation-box profile-vacation-box">
+          ${vacHtml || '<div class="empty compact-empty">방학 기간이 없어요</div>'}
+        </div>
       </div>
-      <div class="avatar-select-grid">
-        ${DEFAULT_AVATAR_GROUPS.map(g=>`<div class="avatar-group">
+
+      <div class="kid-subpanel" id="kid-avatar-panel" onclick="event.stopPropagation()">
+        <div class="kid-subpanel-bar"></div>
+        <div class="kid-subpanel-head">
+          <b>아바타 변경</b>
+          <button type="button" onclick="closeKidProfilePanels()">닫기</button>
+        </div>
+        <div class="avatar-system-panel compact-avatar-actions">
+          <label class="avatar-upload-btn">사진 업로드<input type="file" accept="image/*" onchange="handleKidPhotoFile(this)"/></label>
+          <button type="button" class="avatar-clear-btn" onclick="clearKidPhotoAvatar()">기본으로</button>
+        </div>
+        <div class="avatar-select-grid quiet-avatar-select-grid">
+        ${avatarGroups.map(g=>`<div class="avatar-group">
           <div class="avatar-group-title">${escapeHtml(g.label)}</div>
           <div class="avatar-options">${g.items.map(ic=>`<button type="button" class="avatar-choice${resolveAvatarId(ic)===curAvatar&&curAvatarType==='default'?' on':''}" data-avatar="${escapeAttr(ic)}" onclick="selectKidAvatar(${onclickArg(ic)})">${avatarFrameMarkup({avatarType:'default',avatarId:ic},g.label,'avatarFrame avatar-picker-frame')}</button>`).join('')}</div>
         </div>`).join('')}
         <div class="avatar-group">
           <div class="avatar-group-title">이모지</div>
-          <div class="avatar-options">${AVATAR_EMOJI_OPTIONS.map(em=>`<button type="button" class="avatar-choice avatar-emoji-choice${curAvatarType==='emoji'&&curAvatarEmoji===em?' on':''}" data-emoji="${escapeAttr(em)}" onclick="selectKidEmojiAvatar(${onclickArg(em)})"><span class="avatarFrame avatar-picker-frame"><span class="avatar-emoji">${escapeHtml(em)}</span></span></button>`).join('')}</div>
+          <div class="avatar-options">${AVATAR_EMOJI_OPTIONS.slice(0,8).map(em=>`<button type="button" class="avatar-choice avatar-emoji-choice${curAvatarType==='emoji'&&curAvatarEmoji===em?' on':''}" data-emoji="${escapeAttr(em)}" onclick="selectKidEmojiAvatar(${onclickArg(em)})"><span class="avatarFrame avatar-picker-frame"><span class="avatar-emoji">${escapeHtml(em)}</span></span></button>`).join('')}</div>
+        </div>
         </div>
       </div>
 
-      <div class="ml vacation-title-row">
-        <span>🌴 방학 기간 <em>반복 쉴 때 적용</em></span>
-        <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">추가</button>
-      </div>
-      <div class="vacation-box">
-        ${vacHtml || '<div class="empty compact-empty">등록된 방학이 없어요</div>'}
+      <div class="kid-subpanel" id="kid-color-panel" onclick="event.stopPropagation()">
+        <div class="kid-subpanel-bar"></div>
+        <div class="kid-subpanel-head">
+          <b>대표색 변경</b>
+          <button type="button" onclick="closeKidProfilePanels()">닫기</button>
+        </div>
+        <div class="kid-color-choice-row quiet-color-choice-row">
+          ${quietColors.map(c=>`<button type="button" class="color-choice kid-color-choice${c===curColor?' on':''}" data-color="${escapeAttr(c)}" onclick="selectKidProfileColor('${escapeAttr(c)}')" style="background:${c}"></button>`).join('')}
+        </div>
       </div>
 
-      <button class="primary-btn" onclick="saveKid(${i})">저장</button>
-      <button class="toss-btn danger profile-delete-full-btn" onclick="delKid(${i})">이 가족 삭제</button>
-      <button class="cancel-link" onclick="openProfileCenter()">가족과 설정으로 돌아가기</button>
+      <div class="profile-state-actions">
+        <button class="primary-btn" onclick="saveKid(${i})">저장</button>
+        <button class="edit-danger-text" onclick="delKid(${i})">이 가족 삭제</button>
+      </div>
     </div>
   </div>`;
 }

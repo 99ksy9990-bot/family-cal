@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.89
-PASS_BUILD=v1.3.89-home-actions
+PASS_VERSION=v1.3.95
+PASS_BUILD=v1.3.95-profile-detail-quiet
