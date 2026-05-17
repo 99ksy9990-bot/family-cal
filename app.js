@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.103';
-const PASS_BUILD_VERSION='v1.3.103-soft-selected-day';
+const APP_VERSION='v1.3.109';
+const PASS_BUILD_VERSION='v1.3.109-routine-life-list';
 const APP_UPDATED='2026-05-17';
 
 
@@ -2373,7 +2373,13 @@ function waitFirebase(){return new Promise(resolve=>setTimeout(resolve,300));}
 
 function updateSyncPill(txt){
   const el=document.getElementById('sync-status');
-  if(el)el.textContent=txt;
+  if(!el)return;
+  if(el.classList.contains('settings-sync-footer')){
+    if(String(txt).includes('로컬')){el.textContent='로컬 저장 중';return;}
+    if(String(txt).includes('실패')||String(txt).includes('오류')||String(txt).includes('지연')){el.textContent='동기화 확인 필요';return;}
+    if(String(txt).includes('실시간')||String(txt).includes('최적화')){el.textContent='실시간 동기화 중';return;}
+  }
+  el.textContent=txt;
 }
 
 function doneAfter(){
@@ -2846,38 +2852,56 @@ function renderSettingsStatusBoard(){
 }
 
 function renderSettingsToolPanel(){
-  const groups=[
-    {title:'공유',items:[
-      {label:'공유 링크',sub:'가족 방 링크 복사',action:'copyShareLink()'},
-      {label:'QR 공유',sub:'바로 초대하기',action:'openShareTools()'}
-    ]},
-    {title:'관리',items:[
-      {label:'반복 관리',sub:'반복 일정 정리',action:'openRoutineManagerFromProfile()'},
-      {label:'알림',sub:'권한과 안내',action:'openNotificationGuide()'}
-    ]},
-    {title:'고급',items:[
-      {label:isPrivateVisible()?'나만 숨김':'나만 보기',sub:'비공개 일정 표시',action:'togglePrivateView()'},
-      {label:'편집 모드',sub:'삭제와 정렬 허용',action:'toggleEditMode()'},
-      {label:'고급 설정',sub:'백업과 데이터 관리',action:'openManageCenter()'}
-    ]}
+  const tools=[
+    {label:'알림',action:'openNotificationGuide()'},
+    {label:'공유',action:'openSettingsShareSheet()'},
+    {label:'반복 관리',action:'openRoutineManagerFromProfile()'},
+    {label:'고급 설정',action:'openAdvancedSettingsSheet()'}
   ];
   return `<section class="settings-tools-panel">
     <div class="settings-tools-head">
       <div class="settings-tools-title">공유 및 설정</div>
     </div>
-    <div class="settings-tool-groups">
-      ${groups.map(group=>`<div class="settings-tool-group">
-        <div class="settings-tool-group-title">${escapeHtml(group.title)}</div>
-        <div class="settings-tool-list">
-          ${group.items.map(item=>`<button class="settings-tool-row" onclick="${item.action}">
-            <span>${escapeHtml(item.label)}</span>
-            <em>${escapeHtml(item.sub)}</em>
-          </button>`).join('')}
-        </div>
-      </div>`).join('')}
+    <div class="settings-tool-list settings-tool-list-simple">
+      ${tools.map(item=>`<button class="settings-tool-row" onclick="${item.action}">
+        <span>${escapeHtml(item.label)}</span>
+      </button>`).join('')}
     </div>
-    <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중':'현재 로컬 저장 모드'}</div>
+    <div class="settings-sync-footer" id="sync-status">${window.__firebaseReady?'실시간 동기화 중':'로컬 저장 중'}</div>
   </section>`;
+}
+
+function openSettingsShareSheet(){
+  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet settings-action-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">공유</div>
+      <div class="settings-action-list">
+        <button type="button" class="settings-action-row" onclick="copyShareLink()">링크 복사</button>
+        <button type="button" class="settings-action-row" onclick="openShareTools()">QR 공유</button>
+      </div>
+      <div class="settings-share-url">${escapeHtml(url)}</div>
+    </div>
+  </div>`;
+}
+
+function openAdvancedSettingsSheet(){
+  const privateLabel=isPrivateVisible()?'나만 숨김':'나만 보기';
+  const editLabel=isEditMode()?'편집 모드 끄기':'편집 모드';
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet settings-action-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">고급 설정</div>
+      <div class="settings-action-list">
+        <button type="button" class="settings-action-row" onclick="togglePrivateView()">${privateLabel}</button>
+        <button type="button" class="settings-action-row" onclick="toggleEditMode()">${editLabel}</button>
+        <button type="button" class="settings-action-row" onclick="openManageCenter()">백업과 데이터 관리</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 function openRoutineManagerFromProfile(){
@@ -3697,7 +3721,7 @@ function renderFab(){
     return `<button class="fab-add smart-fab smart-fab-extended calendar-fab-add" onclick="openQuickAddSheet('${calendarFabDate()}')" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='i'){
-    return `<button class="fab-add smart-fab smart-fab-extended" onclick="openRoutineFabSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
+    return `<button class="fab-add smart-fab smart-fab-extended routine-fab-add" onclick="openRoutineFabSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='r'){
     return `<button class="fab-add smart-fab smart-fab-extended" onclick="openReqModal()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
@@ -4362,7 +4386,9 @@ function repeatDateSummary(item){
   return parts.join(' · ');
 }
 function renderRoutineTargetFilter(){
-  const opts=[['all','전체'],...getPersons().filter(p=>!isFamilyGroupTarget(p)).map(p=>[p,p])];
+  const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
+  if((routineTargetFilter||'all')!=='all' && !people.includes(routineTargetFilter))routineTargetFilter='all';
+  const opts=[['all','전체'],...people.map(p=>[p,p])];
   return `<div class="routine-filter-row">${opts.map(([k,label])=>{
     const on=(routineTargetFilter||'all')===k;
     return `<button class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})">${escapeHtml(label)}</button>`;
@@ -4496,71 +4522,84 @@ function repeatCompactMeta(item){
   if(item?.pauseOnVacation)parts.push('방학 쉼');
   return parts.filter(Boolean).join(' · ');
 }
+function routineLifeMeta(item){
+  const parts=[repeatDaysSummary(item?.days)];
+  const time=repeatTimeSummary(item);
+  if(time && time!=='시간 없음')parts.push(time);
+  return parts.filter(Boolean).join(' · ');
+}
 
 function renderI(){
-  let h=`<div class="routine-subscreen-head"><button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button><div class="subscreen-title">반복 일정</div></div><div class="fi-outer routine-only-outer">`;
-
   const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
     if((routineTargetFilter||'all')==='all')return true;
     return (x.item.who||'공통')===routineTargetFilter;
   });
 
-  h+=`${sectionHeader('반복 일정',visibleRepeats.length,routineOpen,'toggleRoutine')}`;
+  let h=`<div class="routine-subscreen-head routine-life-head">
+    <button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button>
+    <div class="routine-life-title-wrap">
+      <div class="subscreen-title">반복</div>
+      <div class="routine-life-count">${visibleRepeats.length}개</div>
+    </div>
+  </div><div class="fi-outer routine-only-outer routine-life-outer">`;
 
-  if(routineOpen){
-    h+=renderRoutineTargetFilter();
+  h+=renderRoutineTargetFilter();
 
-    if(visibleRepeats.length){
-      const groups={};
-      visibleRepeats.forEach(x=>{
-        const who=x.item.who||'공통';
-        if(!groups[who])groups[who]=[];
-        groups[who].push(x);
-      });
-      const order=getPersons();
-      const groupKeys=Object.keys(groups).sort((a,b)=>{
-        const ia=order.indexOf(a), ib=order.indexOf(b);
-        return (ia<0?999:ia)-(ib<0?999:ib);
-      });
+  if(visibleRepeats.length){
+    const groups={};
+    visibleRepeats.forEach(x=>{
+      const who=x.item.who||'공통';
+      if(!groups[who])groups[who]=[];
+      groups[who].push(x);
+    });
+    const order=getPersons();
+    const groupKeys=Object.keys(groups).sort((a,b)=>{
+      const ia=order.indexOf(a), ib=order.indexOf(b);
+      return (ia<0?999:ia)-(ib<0?999:ib);
+    });
 
-      h+=`<div class="repeat-tab-grid">`;
-      groupKeys.forEach(who=>{
-        const arr=groups[who];
-        h+=`<div class="person-routine-card" style="--person-color:${familyTintColor(who,.10)};--person-accent:${familyAccentColor(who)}">
-          <div class="card-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="card-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${arr.length}</span></div>
-          <div class="person-routine-items">`;
-        arr.forEach(({item,ii})=>{
-          const rid=item.id||ii;
-          const time=repeatTimeSummary(item);
-          const meta=repeatCompactMeta(item);
-          h+=`<div class="card-routine-item reorder-card"
-            draggable="true"
-            data-reorder-list="repeatItems" data-reorder-id="${rid}"
-            onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
-            ondragstart="dragStart(event,'repeatItems','${rid}')"
-            ondragover="dragOver(event)"
-            ondrop="dropItem(event,'repeatItems','${rid}')"
-            ondragend="dragEnd(event)"
-            ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
-            ontouchmove="touchReorderMove(event)"
-            ontouchend="touchReorderEnd(event)"
-            ontouchcancel="touchReorderCancel()">
-            <div class="routine-title-wrap">
-              <div class="routine-title">${escapeHtml(item.title||'등록된 반복 일정이 없어요')}</div>
-              <div class="routine-submeta">${escapeHtml(meta)}</div>
-            </div>
-            <div class="routine-meta">${escapeHtml(time)}</div>
-          </div>`;
-        });
-        h+=`</div></div>`;
+    h+=`<div class="routine-life-list">`;
+    groupKeys.forEach(who=>{
+      const arr=groups[who];
+      h+=`<section class="routine-life-person" style="--person-accent:${familyAccentColor(who)}">
+        <div class="routine-life-person-head">
+          <div class="routine-life-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+          <div class="routine-life-person-text">
+            <div class="routine-life-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
+            <div class="routine-life-sub">반복 ${arr.length}개</div>
+          </div>
+        </div>
+        <div class="routine-life-items">`;
+      arr.forEach(({item,ii})=>{
+        const rid=item.id||ii;
+        const meta=routineLifeMeta(item);
+        h+=`<div class="routine-life-row reorder-card"
+          draggable="true"
+          data-reorder-list="repeatItems" data-reorder-id="${rid}"
+          role="button"
+          tabindex="0"
+          onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRepeatEditModal(${ii})}"
+          ondragstart="dragStart(event,'repeatItems','${rid}')"
+          ondragover="dragOver(event)"
+          ondrop="dropItem(event,'repeatItems','${rid}')"
+          ondragend="dragEnd(event)"
+          ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+          ontouchmove="touchReorderMove(event)"
+          ontouchend="touchReorderEnd(event)"
+          ontouchcancel="touchReorderCancel()">
+          <div class="routine-life-mark" aria-hidden="true">↻</div>
+          <div class="routine-life-main">
+            <div class="routine-life-row-title">${escapeHtml(item.title||'반복 일정')}</div>
+            <div class="routine-life-row-meta">${escapeHtml(meta)}</div>
+          </div>
+        </div>`;
       });
-      h+=`</div>`;
-    }else{
-      h+=renderEmptyState('routine','등록된 반복 일정이 없어요','오른쪽 아래 + 버튼으로 반복 일정을 추가해 보세요.');
-    }
+      h+=`</div></section>`;
+    });
+    h+=`</div>`;
   }else{
-    h+=`<div class="basic-info-collapsed" onclick="toggleRoutine()">${escapeHtml(collapsedStateLabel({count:(repeatItems||[]).length,sectionName:'반복 일정',sectionType:'repeat',singleNoun:'일정',state:'fold'}))}</div>`;
+    h+=renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 루틴을 추가해 보세요.');
   }
   h+=`</div>`;
   return h;
@@ -4648,6 +4687,10 @@ function makeReqCard(r){
   const writer = r.writer || '공통';
   const avatar = `<div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>`;
   const writerName = `<div class="todo-compact-person" style="color:${familyAccentColor(writer)}">${escapeHtml(writer)}</div>`;
+  const metaParts = [];
+  if(due) metaParts.push(escapeHtml(due));
+  if(r.comment) metaParts.push(escapeHtml(r.comment));
+  const meta = metaParts.length ? `<div class="todo-compact-meta">${metaParts.join(' · ')}</div>` : '';
   const check = `<div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
         <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>`;
@@ -4663,9 +4706,8 @@ function makeReqCard(r){
       ${writerName}
       <div class="todo-compact-main">
         <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
-        ${r.comment ? `<div class="todo-memo">↳ ${escapeHtml(r.comment)}</div>` : ''}
+        ${meta}
       </div>
-      <div class="todo-compact-due">${due ? escapeHtml(due) : ''}</div>
     </div>
   </div>`;
 }
@@ -4706,7 +4748,7 @@ function renderR(){
   const activeBody = `<div class="request-list-wrap todo-list-wrap">${active.map(makeReqCard).join('')}</div>`;
   return`
     ${sectionHeader('남은 부탁',active.length,requestOpen,'toggleRequest')}
-    ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">부탁 목록을 잠시 접어뒀어요.</div>`}
+    ${requestOpen?activeBody:`<div class="schedule-collapsed-hint warm-collapsed-hint">남은 부탁 ${active.length}개가 숨겨져 있어요.</div>`}
     <div class="div"></div>
     ${sectionHeader('해결한 부탁',done.length,requestDoneOpen,'toggleRequestDone')}
     ${requestDoneOpen?`<div class="request-list-wrap todo-list-wrap done-list">${done.length?done.map(makeReqCard).join(''):renderEmptyState('done','해결한 부탁이 없어요','해결한 부탁은 이곳에 차곡차곡 모여요.')}</div>`:''}
@@ -5895,6 +5937,107 @@ function openTodayInboxSheet(baseKey=''){
   </div>`;
 }
 
+function recentTimestampFromItem(item){
+  const raw=item&&(item.createdAt||item.updatedAt||item.at||item.id);
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>1000000000000?n:0;
+}
+function isRecentInboxItem(item,days=3){
+  const ts=recentTimestampFromItem(item);
+  return !!ts && Date.now()-ts<=days*86400000;
+}
+function tomorrowInboxItems(baseKey){
+  const nextKey=addDaysStr(baseKey||todayKey(),1);
+  const items=[];
+  const shiftUser=calendarWorkUser();
+  const shift=shiftDisplayStatusFor(nextKey,shiftUser);
+  if(shift){
+    items.push({
+      type:'shift',
+      title:`내일 ${shiftUser} ${todayShiftChipLabel(shift)}`,
+      meta:'근무',
+      click:`openCalendarWorkTab('${nextKey}')`
+    });
+  }
+  upcomingEvents(2,baseKey)
+    .filter(n=>(n.start||'')===nextKey)
+    .slice(0,3)
+    .forEach(n=>{
+      const time=todayChipTimeLabel(n);
+      items.push({
+        type:'schedule',
+        title:`내일 ${time?`${time} `:''}${displayNoteTitle(n)}`,
+        meta:n.who||'가족',
+        click:`openEditNote('${n.id}')`
+      });
+    });
+  return items;
+}
+function inboxRows(baseKey){
+  const rows=[];
+  (notices||[])
+    .filter(n=>n.important||!n.read)
+    .sort((a,b)=>{
+      if(!!b.important!==!!a.important)return b.important?1:-1;
+      return (b.createdAt||0)-(a.createdAt||0);
+    })
+    .slice(0,4)
+    .forEach(n=>rows.push({
+      type:'notice',
+      title:n.title||'가족 공지',
+      meta:n.important?'중요':'새 공지',
+      click:'openNoticeList()'
+    }));
+  (requests||[])
+    .filter(r=>!isDone(r)&&isRecentInboxItem(r,5))
+    .sort((a,b)=>recentTimestampFromItem(b)-recentTimestampFromItem(a))
+    .slice(0,3)
+    .forEach(r=>rows.push({
+      type:'request',
+      title:`새 부탁 · ${r.title||'부탁'}`,
+      meta:r.dueDate?dateLabel(r.dueDate):'마감 없음',
+      click:`openEditReq('${r.id}')`
+    }));
+  (changeLogs||[])
+    .filter(log=>isRecentInboxItem(log,3))
+    .slice(0,4)
+    .forEach(log=>rows.push({
+      type:'change',
+      title:log.text||'변경된 항목이 있어요',
+      meta:'최근 변경',
+      click:'closeM()'
+    }));
+  tomorrowInboxItems(baseKey).forEach(item=>rows.push(item));
+  const seen=new Set();
+  return rows.filter(row=>{
+    const key=`${row.type}:${row.title}:${row.meta}`;
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  }).slice(0,8);
+}
+function openTodayInboxSheet(baseKey=''){
+  const k=baseKey||scheduleBaseKey();
+  const rows=inboxRows(k);
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet hub-sheet today-inbox-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="hub-sheet-title">새로 확인할 것</div>
+      <div class="hub-sheet-sub">새 알림과 최근 변경만 모았어요</div>
+      ${rows.length?`
+        <div class="hub-inbox-section">
+          <div class="hub-inbox-list">
+            ${rows.map(row=>`<button type="button" class="hub-inbox-row hub-inbox-${escapeAttr(row.type)}" onclick="${row.click||'closeM()'}">
+              <span>${escapeHtml(row.title)}</span>
+              <em>${escapeHtml(row.meta||'')}</em>
+            </button>`).join('')}
+          </div>
+        </div>`:'<div class="hub-empty">새로 확인할 알림이 없어요.</div>'}
+    </div>
+  </div>`;
+}
+
 function openPersonTodaySheet(who){
   const baseKey=scheduleBaseKey();
   const {normal,routine}=todayScheduleHubItems(baseKey);
@@ -6764,7 +6907,7 @@ function renderCalendarShiftCounts(){
   const labels=['D','E','N','OFF'].filter(x=>countFor(x)>0);
   if(!labels.length)return '';
   return `<div class="calendar-shift-summary" aria-label="${escapeAttr(user)} 월간 근무 집계">
-    ${labels.map(s=>`<span class="calendar-shift-summary-item"><b class="${shiftBadgeClass(s)}">${escapeHtml(workCalendarShiftLabel(s))}</b><span>${countFor(s)}</span></span>`).join('<span class="calendar-shift-summary-sep">·</span>')}
+    ${labels.map(s=>`<span class="calendar-shift-summary-item"><i class="${shiftBadgeClass(s)}" aria-hidden="true"></i><b>${escapeHtml(workCalendarShiftLabel(s))}</b><span>${countFor(s)}</span></span>`).join('')}
   </div>`;
 }
 
