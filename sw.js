@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.3.95-profile-detail-quiet';
-const PASS_SW_BUILD_VERSION = 'v1.3.83-home-date-context';
+const CACHE_NAME = 'pass-cal-v1.3.98-calendar-memory-tab';
+const PASS_SW_BUILD_VERSION = 'v1.3.98-calendar-memory-tab';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';

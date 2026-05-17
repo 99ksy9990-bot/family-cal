@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.95';
-const PASS_BUILD_VERSION='v1.3.95-profile-detail-quiet';
+const APP_VERSION='v1.3.98';
+const PASS_BUILD_VERSION='v1.3.97-settings-quiet-tools';
 const APP_UPDATED='2026-05-13';
 
 
@@ -120,7 +120,7 @@ const DEFAULT_DATA={
 
 const TODAY=new Date();
 const TY=TODAY.getFullYear(),TM=TODAY.getMonth(),TD=TODAY.getDate();
-let main='s',subF='all',doneF='all',activePer='1w',donePer='1w',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='time',scheduleBaseOffset=0,homeViewRange='today',showRoutineInCalendar=false;
+let main='s',subF='all',doneF='all',activePer='1w',donePer='1w',searchQ='',searchDraft='',isComposing=false,calWhoF='all',calViewMode='all',routineTargetFilter='all',scheduleSort='time',scheduleBaseOffset=0,homeViewRange='today',homeContentMode='schedule',archiveMode='past',showRoutineInCalendar=false;
 let shiftSelectMode=false,shiftSelectedDates=[],shiftBulkUser='';
 let weekOpen=false;
 let activeOpen=false;
@@ -709,7 +709,7 @@ function renderCalendarWWWDetailRows(selDate,opts={}){
 
   if(rows)return rows;
   if(opts.hideEmpty)return '';
-  return `<div class="calendar-www-empty">선택한 날짜에는 아직 일정이 없어요.</div>`;
+  return `<div class="calendar-www-empty">${escapeHtml(opts.emptyText||'선택한 날짜에는 아직 일정이 없어요.')}</div>`;
 }
 function setCalendarViewMode(mode){
   calViewMode=mode||'all';
@@ -764,7 +764,7 @@ function handleDateHeaderClick(dateKey=''){
   },80);
 }
 function calendarViewLabel(mode){
-  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':'전체';
+  return mode==='work'?'근무':mode==='schedule'?'일정':mode==='routine'?'반복':mode==='memory'?'기념일':'전체';
 }
 function shiftLabelForDate(k){
   const cur=shiftData[k]||'';
@@ -815,7 +815,7 @@ function setShiftFromModal(k,t){
 }
 
 function renderCalendarViewModeChips(){
-  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','반복']];
+  const modes=[['all','전체'],['work','근무'],['schedule','일정'],['routine','반복'],['memory','기념일']];
   return `<div class="calendar-view-mode-row calendar-view-tabs">${modes.map(([k,label])=>`<button class="cal-view-chip${calViewMode===k?' on':''}" onclick="setCalendarViewMode('${k}')">${label}</button>`).join('')}</div>`;
 }
 function filterCalendarEventsByTarget(evs){
@@ -833,24 +833,37 @@ function calendarDotCandidates(evs,mems){
   const oneOffs=(evs||[]).filter(n=>!isRoutineCalendarEvent(n));
   const routines=(evs||[]).filter(n=>isRoutineCalendarEvent(n));
   let out=[];
-  const add=(key,color,title,rank=100)=>{
-    if(!out.some(x=>x.key===key))out.push({key,color,title,rank});
+  const memoryColor='var(--memory-dot,#FF8A80)';
+  const add=(key,color,title,rank=100,type='schedule')=>{
+    if(!out.some(x=>x.key===key))out.push({key,color,title,rank,type});
   };
 
   if(calViewMode==='work')return [];
 
-  if(calViewMode==='all' || calViewMode==='schedule'){
-    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, 'var(--orange)', x.name||'축하', 1));
+  if(calViewMode==='all'){
+    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, memoryColor, x.name||'기념일', 1, 'memory'));
     oneOffs.sort(calendarDetailSort).forEach(n=>{
       const who=n.who||'공통';
       const rank=who==='공통'?2:10+personRank(n);
-      add(`person-${who}`, calendarLegendDotColor(who), who, rank);
+      add(`person-${who}`, calendarLegendDotColor(who), who, rank, 'schedule');
+    });
+    routines.sort(calendarDetailSort).forEach(n=>{
+      const who=n.who||'공통';
+      add(`routine-${who}`, calendarLegendDotColor(who), who, 40+personRank(n), 'routine');
+    });
+  }else if(calViewMode==='schedule'){
+    oneOffs.sort(calendarDetailSort).forEach(n=>{
+      const who=n.who||'공통';
+      const rank=who==='공통'?2:10+personRank(n);
+      add(`person-${who}`, calendarLegendDotColor(who), who, rank, 'schedule');
     });
   }else if(calViewMode==='routine'){
     routines.sort(calendarDetailSort).forEach(n=>{
       const who=n.who||'공통';
-      add(`routine-${who}`, calendarLegendDotColor(who), who, 20+personRank(n));
+      add(`routine-${who}`, calendarLegendDotColor(who), who, 20+personRank(n), 'routine');
     });
+  }else if(calViewMode==='memory'){
+    (mems||[]).forEach(x=>add(`mem-${x.id||x.name}`, memoryColor, x.name||'기념일', 1, 'memory'));
   }
 
   out.sort((a,b)=>a.rank-b.rank);
@@ -861,17 +874,41 @@ function renderCalendarCellDots(evs,mems){
   const shown=items.slice(0,2);
   const more=items.length-shown.length;
   return shown.map(x=>{
-    return `<span class="cal-dot person-cal-dot${calViewMode==='routine'?' repeat-dot':''}" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`;
+    const cls=x.type==='routine'?' repeat-dot':(x.type==='memory'?' memory-dot':'');
+    return `<span class="cal-dot person-cal-dot${cls}" style="background:${x.color}" title="${escapeAttr(x.title)}"></span>`;
   }).join('')+
     (more>0?`<span class="cal-dot-more">+${more}</span>`:'');
 }
 function renderCalendarPersonLegend(){
   if(calViewMode==='work')return '';
+  if(calViewMode==='memory')return '';
   const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
+  const memoryLegend=calViewMode==='all'?`<span class="calendar-dot-legend-item"><span class="calendar-filter-dot memory-legend-dot"></span><span>기념일</span></span>`:'';
   return `<div class="calendar-dot-legend" aria-label="달력 점 색상 범례">
     <span class="calendar-dot-legend-item"><span class="calendar-filter-dot neutral-dot"></span><span>가족</span></span>
     ${people.map(p=>`<span class="calendar-dot-legend-item"><span class="calendar-filter-dot" style="background:${calendarLegendDotColor(p)}"></span><span>${escapeHtml(p)}</span></span>`).join('')}
+    ${memoryLegend}
   </div>`;
+}
+
+function renderMemoryOnlyDetail(selDate,mems){
+  const rows=(mems||[]).sort(calendarMemorySort).map(x=>{
+    const kind=memoryEventKind(x);
+    const subject=memoryDisplaySubject(x);
+    const label=subject && subject!=='공통' && subject!==kind.label && !String(x.name||'').includes(subject)
+      ? `${subject} ${kind.label}`
+      : (x.name||kind.label||'기념일');
+    const sub=memoryAgeLabel(x);
+    const click=x.id?` onclick="openMemoryModal('${x.id}')"`:'';
+    return `<button type="button" class="calendar-memory-row"${click}>
+      <span class="calendar-memory-row-icon">${escapeHtml(kind.icon||'🎉')}</span>
+      <span class="calendar-memory-row-main">
+        <span class="calendar-memory-row-title">${escapeHtml(label)}</span>
+        ${sub?`<span class="calendar-memory-row-sub">${escapeHtml(sub)}</span>`:''}
+      </span>
+    </button>`;
+  }).join('');
+  return renderCalendarWWWDetailCard(selDate,rows||'<div class="calendar-www-empty">선택한 날짜에는 기념일이 없어요.</div>','calendar-memory-detail calendar-memory-only-detail');
 }
 
 function renderCalendarAvatars(people){
@@ -2771,7 +2808,6 @@ function renderProfileFamilyRows(){
             <span class="profile-family-accent" style="background:${familyAccentColor(kid.name||'공통')}"></span>
             ${escapeHtml(kid.name||'대상')}
           </div>
-          <div class="profile-family-sub">프로필과 대표색</div>
         </div>
         <span class="profile-family-arrow">›</span>
       </button>
@@ -2810,21 +2846,38 @@ function renderSettingsStatusBoard(){
 }
 
 function renderSettingsToolPanel(){
-  return `<details class="manage-accordion profile-accordion settings-tools-panel">
-    <summary><span>도구</span><em>공유와 앱 설정</em></summary>
-    <div class="manage-panel">
-      <div class="settings-tool-list">
-        <button class="settings-tool-row" onclick="openNotificationGuide()"><span>알림</span><em>권한과 안내</em></button>
-        <button class="settings-tool-row" onclick="copyShareLink()"><span>공유 링크</span><em>가족 방 링크 복사</em></button>
-        <button class="settings-tool-row" onclick="openShareTools()"><span>QR 공유</span><em>바로 초대하기</em></button>
-        <button class="settings-tool-row" onclick="openRoutineManagerFromProfile()"><span>반복 관리</span><em>반복 일정 정리</em></button>
-        <button class="settings-tool-row" onclick="togglePrivateView()"><span>${isPrivateVisible()?'나만 숨김':'나만 보기'}</span><em>비공개 일정 표시</em></button>
-        <button class="settings-tool-row" onclick="toggleEditMode()"><span>편집 모드</span><em>삭제와 정렬 허용</em></button>
-        <button class="settings-tool-row" onclick="openManageCenter()"><span>고급 설정</span><em>백업과 데이터 관리</em></button>
-      </div>
-      <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중':'현재 로컬 저장 모드'}</div>
+  const groups=[
+    {title:'공유',items:[
+      {label:'공유 링크',sub:'가족 방 링크 복사',action:'copyShareLink()'},
+      {label:'QR 공유',sub:'바로 초대하기',action:'openShareTools()'}
+    ]},
+    {title:'관리',items:[
+      {label:'반복 관리',sub:'반복 일정 정리',action:'openRoutineManagerFromProfile()'},
+      {label:'알림',sub:'권한과 안내',action:'openNotificationGuide()'}
+    ]},
+    {title:'고급',items:[
+      {label:isPrivateVisible()?'나만 숨김':'나만 보기',sub:'비공개 일정 표시',action:'togglePrivateView()'},
+      {label:'편집 모드',sub:'삭제와 정렬 허용',action:'toggleEditMode()'},
+      {label:'고급 설정',sub:'백업과 데이터 관리',action:'openManageCenter()'}
+    ]}
+  ];
+  return `<section class="settings-tools-panel">
+    <div class="settings-tools-head">
+      <div class="settings-tools-title">공유 및 설정</div>
     </div>
-  </details>`;
+    <div class="settings-tool-groups">
+      ${groups.map(group=>`<div class="settings-tool-group">
+        <div class="settings-tool-group-title">${escapeHtml(group.title)}</div>
+        <div class="settings-tool-list">
+          ${group.items.map(item=>`<button class="settings-tool-row" onclick="${item.action}">
+            <span>${escapeHtml(item.label)}</span>
+            <em>${escapeHtml(item.sub)}</em>
+          </button>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="sync-pill" id="sync-status">${window.__firebaseReady?'실시간 공유 연결 중':'현재 로컬 저장 모드'}</div>
+  </section>`;
 }
 
 function openRoutineManagerFromProfile(){
@@ -3608,9 +3661,15 @@ function performSwipeDelete(kind,id){
 
 function renderFab(){
   if(main==='s'){
+    if(homeContentMode==='request'){
+      return `<button class="fab-add smart-fab smart-fab-extended" onclick="openReqModal()" aria-label="부탁 추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
+    }
     return `<button class="fab-add smart-fab smart-fab-extended" onclick="openQuickAddSheet()" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='c' && calViewMode!=='work' && !shiftSelectMode){
+    if(calViewMode==='memory'){
+      return `<button class="fab-add smart-fab smart-fab-extended calendar-fab-add" onclick="openMemoryModalForDate('${calendarFabDate()}')" aria-label="기념일 추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
+    }
     return `<button class="fab-add smart-fab smart-fab-extended calendar-fab-add" onclick="openQuickAddSheet('${calendarFabDate()}')" aria-label="추가"><span class="fab-plus">+</span><span class="fab-label">추가</span></button>`;
   }
   if(main==='i'){
@@ -3656,6 +3715,10 @@ function openQuickAddSheet(dateVal){
           ${quickAddSvg('todo')}
           <span><b>부탁</b></span>
         </button>
+        <button class="smart-fab-option quick-add-row" onclick="closeM();openMemoryModalForDate('${d}')">
+          ${quickAddSvg('memory')}
+          <span><b>기념일</b></span>
+        </button>
         <button class="smart-fab-option quick-add-row" onclick="closeM();openProfileCenter()">
           ${quickAddSvg('family')}
           <span><b>가족</b></span>
@@ -3666,6 +3729,13 @@ function openQuickAddSheet(dateVal){
 }
 
 function renderS(){
+  const homeTabs=renderHomeContentTabs();
+  if(homeContentMode==='request'){
+    return `<div class="schedule-swipe-sync home-context-panel">
+      ${homeTabs}
+      ${renderR()}
+    </div>`;
+  }
   const baseKey=scheduleBaseKey();
   const targetOk=n=>subF==='all'||(n.who||'공통')===subF;
   const noteOk=n=>matchSearchNote(n)&&targetOk(n);
@@ -3701,7 +3771,8 @@ function renderS(){
     ? `<div class="card-wrap schedule-card-list schedule-dashboard-list done-list" style="margin-top:8px">${renderScheduleDashboardList(pastList,[],'지난 일정이 없어요',{past:true})}</div>`
     : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleDone()" role="button" tabindex="0">${escapeHtml(scheduleCollapsedSummary(pastList,pastList.length,'done'))}</div>`;
 
-  return`<div class="schedule-swipe-sync">
+  return`<div class="schedule-swipe-sync home-context-panel">
+    ${homeTabs}
     ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
     ${sectionHeader('등록 일정',activeCount,activeOpen,'toggleActive',`
       <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, ${escapeAttr(scheduleSortLabel())}" title="${escapeAttr(`${scheduleFilterLabel()} · ${scheduleSortLabel()}`)}">${filterSearchSvg()}</button>
@@ -3879,11 +3950,13 @@ function renderC(){
       evHtml='';
     }else if(calViewMode==='routine'){
       evHtml=renderRepeatOnlyDetail(selDate,evs);
+    }else if(calViewMode==='memory'){
+      evHtml=renderMemoryOnlyDetail(selDate,mems);
     }else{
       const detailEvs=calViewMode==='all'?evs:evs.filter(n=>!isRoutineCalendarEvent(n));
       evHtml=renderCalendarWWWDetailCard(selDate,renderCalendarWWWDetailRows(selDate,{
         evs:detailEvs,
-        mems,
+        mems:calViewMode==='all'?mems:[],
         includeShift:calViewMode==='all',
         hideEmpty:false
       }));
@@ -3906,6 +3979,19 @@ function renderC(){
     ${renderShiftQuickInputBar()}
     ${evHtml}
   </div>`;
+}
+
+function renderHomeContentTabs(){
+  return `<div class="home-content-tabs" role="tablist" aria-label="홈 보기">
+    <button type="button" class="home-content-tab${homeContentMode==='schedule'?' on':''}" onclick="setHomeContentMode('schedule')" aria-selected="${homeContentMode==='schedule'?'true':'false'}">일정</button>
+    <button type="button" class="home-content-tab${homeContentMode==='request'?' on':''}" onclick="setHomeContentMode('request')" aria-selected="${homeContentMode==='request'?'true':'false'}">부탁</button>
+  </div>`;
+}
+
+function setHomeContentMode(mode){
+  homeContentMode=mode==='request'?'request':'schedule';
+  if(homeContentMode==='request')refreshEmptyStatePick('request');
+  render({preserveScroll:false});
 }
 function setShift(k,t){
   setShiftStatus(k,firstShiftUser(),t||'',false);
@@ -4616,6 +4702,99 @@ function renderR(){
   `;
 }
 
+function setArchiveMode(mode){
+  archiveMode=['past','repeat','request'].includes(mode)?mode:'past';
+  render({preserveScroll:false});
+}
+
+function renderArchiveTabs(){
+  const tabs=[
+    ['past','지난 일정'],
+    ['repeat','반복'],
+    ['request','해결한 부탁']
+  ];
+  return `<div class="archive-head">
+    <div class="archive-title">보관함</div>
+    <div class="archive-sub">지난 흐름과 반복 기록을 모아 봐요.</div>
+    <div class="archive-tabs" role="tablist" aria-label="보관함 보기">
+      ${tabs.map(([key,label])=>`<button type="button" class="archive-tab${archiveMode===key?' on':''}" onclick="setArchiveMode('${key}')" aria-selected="${archiveMode===key?'true':'false'}">${label}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function archiveSectionHeader(title,count){
+  return `<div class="archive-section-head">
+    <span class="archive-section-title">${escapeHtml(title)}</span>
+    <span class="archive-section-count">· ${count}</span>
+  </div>`;
+}
+
+function renderArchivePast(){
+  const baseKey=scheduleBaseKey();
+  const past=notes.filter(n=>{
+    if(!matchSearchNote(n))return false;
+    if(!isMissedSchedule(n,baseKey))return false;
+    return pastInPeriod(n,baseKey);
+  }).map(n=>({...n,_displayDate:n.start||''}));
+  const list=applyPastPeriodFilter(sortPastScheduleList(past,baseKey),baseKey);
+  return `
+    ${archiveSectionHeader('지난 일정',list.length)}
+    <div class="card-wrap schedule-card-list schedule-dashboard-list done-list">${renderScheduleDashboardList(list,[],'지난 일정이 없어요',{past:true})}</div>
+  `;
+}
+
+function renderArchiveRepeat(){
+  const items=(repeatItems||[]).map((item,ii)=>({item,ii}));
+  if(!items.length){
+    return `<div class="archive-empty">${renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 일정을 등록하면 이곳에 모여요.')}</div>`;
+  }
+  const groups={};
+  items.forEach(x=>{
+    const who=x.item.who||'공통';
+    if(!groups[who])groups[who]=[];
+    groups[who].push(x);
+  });
+  const order=getPersons();
+  const groupKeys=Object.keys(groups).sort((a,b)=>{
+    const ia=order.indexOf(a), ib=order.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  return `
+    ${archiveSectionHeader('반복',items.length)}
+    <div class="repeat-tab-grid archive-repeat-grid">
+      ${groupKeys.map(who=>`<div class="person-routine-card" style="--person-color:${familyTintColor(who,.10)};--person-accent:${familyAccentColor(who)}">
+        <div class="card-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+        <div class="card-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${groups[who].length}</span></div>
+        <div class="person-routine-items">
+          ${groups[who].map(({item,ii})=>`<div class="card-routine-item" onclick="openRepeatEditModal(${ii})" role="button" tabindex="0">
+            <div class="routine-title-wrap">
+              <div class="routine-title">${escapeHtml(item.title||'반복 일정')}</div>
+              <div class="routine-submeta">${escapeHtml(repeatCompactMeta(item))}</div>
+            </div>
+            <div class="routine-meta">${escapeHtml(repeatTimeSummary(item))}</div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+function renderArchiveRequests(){
+  const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
+  return `
+    ${archiveSectionHeader('해결한 부탁',done.length)}
+    ${done.length?`<div class="request-list-wrap todo-list-wrap done-list">${done.map(makeReqCard).join('')}</div>`:`<div class="archive-empty">${renderEmptyState('done','해결한 부탁이 없어요','해결한 부탁은 이곳에 차곡차곡 모여요.')}</div>`}
+  `;
+}
+
+function renderArchive(){
+  const body=archiveMode==='repeat'?renderArchiveRepeat():archiveMode==='request'?renderArchiveRequests():renderArchivePast();
+  return `<div class="archive-page">
+    ${renderArchiveTabs()}
+    ${body}
+  </div>`;
+}
+
 function openReqModal(id){
   const r=id?requests.find(x=>String(x.id)===String(id)):null;
   const reqDate=(r&&r.requestDate)||todayKey();
@@ -4831,6 +5010,13 @@ function renderM(){
     ${body}
   `;
 }
+function openMemoryModalForDate(dateKey){
+  openMemoryModal();
+  if(dateKey){
+    setTimeout(()=>setPickerField('mem-birth',dateKey,dateLabel(dateKey),'날짜 선택'),0);
+  }
+}
+
 function openMemoryModal(id){
   const x=id?memories.find(v=>String(v.id)===String(id)):null;
   const icon=x?memoryIcon(x):'🎂';
@@ -5040,12 +5226,12 @@ function renderSearchBox(){
 
 
 function updateTabUI(){
-  const activeMain = main==='i' ? 'set' : main;
-  const keys=['s','c','r','m','set'];
+  const activeMain = main==='i' ? 'set' : (main==='r'?'s':main);
+  const keys=['s','c','a','set'];
   keys.forEach(k=>{
     const el=document.getElementById('tab-'+k);
     if(!el)return;
-    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='r'?'tab-r':k==='m'?'tab-m':'tab-set';
+    const cls=k==='s'?'tab-s':k==='c'?'tab-c':k==='a'?'tab-a':'tab-set';
     const on=k===activeMain;
     el.className=`tab ${cls} tab-item${on?' on active':''}`;
     el.setAttribute('aria-selected',on?'true':'false');
@@ -5501,8 +5687,12 @@ function saveCopyNoteWithDate(id){
 }
 
 function setMain(t){
+  if(t==='r'){
+    homeContentMode='request';
+    t='s';
+  }
   if(t==='s')refreshEmptyStatePick('all');
-  if(t==='r')refreshEmptyStatePick('request');
+  if(t==='a' && archiveMode==='request')refreshEmptyStatePick('request');
   if(main!==t){searchQ='';searchDraft='';}
   filterToday=false;
   if(t==='c')syncCalendarDateContext(scheduleBaseKey());
@@ -5515,7 +5705,8 @@ function openActiveRequestTab(){
   requestOpen=true;
   requestDoneOpen=false;
   doneF='all';
-  setMain('r');
+  homeContentMode='request';
+  setMain('s');
 }
 
 
@@ -5525,6 +5716,7 @@ function onWidgetClick(el){
   const action = el?.dataset?.action || '';
   if(action==='today'){
     main='s';
+    homeContentMode='schedule';
     subF='all';
     searchQ='';
     searchDraft='';
@@ -5534,7 +5726,8 @@ function onWidgetClick(el){
     return;
   }
   if(action==='request'){
-    setMain('r');
+    homeContentMode='request';
+    setMain('s');
     return;
   }
 }
@@ -6813,7 +7006,7 @@ function renderHomeWidgets(){
   const dueToday=keys.flatMap(k=>dueRequestsForDate(k).map(r=>({...r,_rangeDate:k,_rangeMode:isWeek})));
   const dueHtml=dueToday.length?`<div class="today-todo-nudge">
     <div class="today-todo-nudge-title">${isWeek?'이번주 부탁':'오늘 부탁'}</div>
-    ${dueToday.map(r=>`<button class="today-todo-nudge-row" onclick="setMain('r')">
+    ${dueToday.map(r=>`<button class="today-todo-nudge-row" onclick="openActiveRequestTab()">
       <span>${escapeHtml(r.title||'부탁')}</span>
       <em>${escapeHtml(r.dueTime?`${isWeek?fmtD(r._rangeDate)+' ':''}${timeLabel(r.dueTime)}`:(isWeek?fmtD(r._rangeDate):'오늘까지'))}</em>
     </button>`).join('')}
@@ -7167,6 +7360,7 @@ function _renderImpl(opts={}){
     let h='';
     if(main==='s')h=renderS();
     else if(main==='c')h=renderC();
+    else if(main==='a')h=renderArchive();
     else if(main==='i')h=renderI();
     else if(main==='r')h=renderR();
     else if(main==='m')h=renderM();
