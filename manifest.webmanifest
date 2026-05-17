@@ -1,14 +1,39 @@
 {
-  "name": "아워 - 우리의 시간을 가볍게",
-  "short_name": "아워",
-  "description": "우리의 시간을 가볍게",
+  "name": "패스 - 우리 시간표를 가볍게",
+  "short_name": "패스",
+  "description": "우리 가족 일정을 가볍게 공유하는 WWW 가족 스케줄러",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F5F5F7",
-  "theme_color": "#0D47A1",
+  "theme_color": "#2563EB",
   "orientation": "portrait-primary",
   "icons": [
+    {
+      "src": "./favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "./favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/brand/www-app-icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/brand/www-app-icon-120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/brand/www-app-icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
     {
       "src": "./icon-180.png",
       "sizes": "180x180",
@@ -21,10 +46,20 @@
       "purpose": "any maskable"
     },
     {
+      "src": "./assets/brand/www-app-icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/brand/www-app-icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
     }
   ]
 }
