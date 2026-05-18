@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.135';
-const PASS_BUILD_VERSION='v1.3.135-unified-routine-list';
+const APP_VERSION='v1.3.144';
+const PASS_BUILD_VERSION='v1.3.144-week-summary-align';
 const APP_UPDATED='2026-05-17';
 const BRAND_LOGO_SRC='./assets/brand/www-logo.png?v=133';
 
@@ -154,53 +154,57 @@ const PROFILE_COLOR_PALETTE=[
 
 
 const PERSON_AVATAR_ITEMS=[
-  'mascot_family','mascot_tiger','mascot_tiger_sand','mascot_tiger_coral',
-  'mascot_rabbit','mascot_rabbit_cream','mascot_rabbit_lavender',
-  'mascot_dog','mascot_dog_cream','mascot_dog_blue',
-  'mascot_chick','mascot_chick_cream','mascot_chick_mint',
-  'mascot_bear','mascot_bear_cocoa','mascot_bear_milk',
-  'mascot_hamster','mascot_hamster_peach',
-  'mascot_fox','mascot_fox_cream',
-  'mascot_panda','mascot_panda_blue',
-  'mascot_koala','mascot_koala_lavender'
+  'mascot_family','mascot_tiger','mascot_rabbit','mascot_dog',
+  'mascot_cat','mascot_chick','mascot_duck','mascot_bear',
+  'mascot_hamster','mascot_fox','mascot_panda','mascot_koala',
+  'mascot_otter','mascot_sheep','mascot_penguin','mascot_lion',
+  'mascot_monkey','mascot_alpaca','mascot_raccoon','mascot_deer',
+  'mascot_seal','mascot_squirrel','mascot_hedgehog','mascot_turtle'
 ];
 const PERSON_AVATAR_GROUPS=[
   {key:'all',label:'아바타',items:PERSON_AVATAR_ITEMS}
 ];
 const MASCOT_AVATAR_SPECS={
-  mascot_family:{type:'bear',base:'#D8B38A',accent:'#B88962',bg:'#F7EFE6',nose:'#6B4B3F'},
+  mascot_family:{type:'family',base:'#D8B38A',accent:'#B88962',bg:'#F7EFE6',nose:'#6B4B3F'},
   mascot_tiger:{type:'tiger',base:'#EAB06B',accent:'#C57A3D',bg:'#FFF3E4',nose:'#704B34'},
-  mascot_tiger_sand:{type:'tiger',base:'#DDB985',accent:'#A97750',bg:'#F8EFE3',nose:'#6E4D39'},
-  mascot_tiger_coral:{type:'tiger',base:'#E9A081',accent:'#B96F58',bg:'#FFF0EA',nose:'#70483C'},
   mascot_rabbit:{type:'rabbit',base:'#F2D5DD',accent:'#E7AEBE',bg:'#FFF0F4',nose:'#B66F83'},
-  mascot_rabbit_cream:{type:'rabbit',base:'#F0E1CF',accent:'#DDB99C',bg:'#FFF7ED',nose:'#A97962'},
-  mascot_rabbit_lavender:{type:'rabbit',base:'#D9D2EC',accent:'#BDB0DA',bg:'#F4F1FF',nose:'#8576A8'},
   mascot_dog:{type:'dog',base:'#E4C39B',accent:'#B88B62',bg:'#FFF4E7',nose:'#72533D'},
-  mascot_dog_cream:{type:'dog',base:'#E9DCC6',accent:'#B99B79',bg:'#FAF3E9',nose:'#77604A'},
-  mascot_dog_blue:{type:'dog',base:'#C9D7E8',accent:'#8BA8C4',bg:'#EEF6FF',nose:'#546B82'},
+  mascot_cat:{type:'cat',base:'#DCC7A7',accent:'#A98765',bg:'#FFF5E8',nose:'#9B6D73'},
   mascot_chick:{type:'chick',base:'#F4D66E',accent:'#E8A74A',bg:'#FFF8D8',nose:'#D08134'},
-  mascot_chick_cream:{type:'chick',base:'#F0DA8B',accent:'#D8A857',bg:'#FFF8DF',nose:'#B67836'},
-  mascot_chick_mint:{type:'chick',base:'#D7E6A4',accent:'#AFC76D',bg:'#F5FBE6',nose:'#8B9C4F'},
+  mascot_duck:{type:'duck',base:'#F1D67A',accent:'#E6A24D',bg:'#FFF7DA',nose:'#D78335'},
   mascot_bear:{type:'bear',base:'#C9A27A',accent:'#956E50',bg:'#F6EBDD',nose:'#5F4538'},
-  mascot_bear_cocoa:{type:'bear',base:'#B58A6B',accent:'#855D46',bg:'#F1E5DC',nose:'#584033'},
-  mascot_bear_milk:{type:'bear',base:'#D8C8AE',accent:'#A98F70',bg:'#F8F0E7',nose:'#6A5542'},
   mascot_hamster:{type:'hamster',base:'#E9C89C',accent:'#C99467',bg:'#FFF1DD',nose:'#7A5942'},
-  mascot_hamster_peach:{type:'hamster',base:'#EBC1A7',accent:'#C88B72',bg:'#FFF1EA',nose:'#806050'},
   mascot_fox:{type:'fox',base:'#E19A63',accent:'#F1D6BC',bg:'#FFF0E5',nose:'#5F3F35'},
-  mascot_fox_cream:{type:'fox',base:'#DFAF82',accent:'#F2DDC4',bg:'#FFF3E6',nose:'#71503C'},
   mascot_panda:{type:'panda',base:'#F4F0E8',accent:'#52606D',bg:'#F3F5F7',nose:'#2F3A45'},
-  mascot_panda_blue:{type:'panda',base:'#EDF2F6',accent:'#66798B',bg:'#EEF6FA',nose:'#3A4652'},
   mascot_koala:{type:'koala',base:'#BFC8CC',accent:'#8C9AA0',bg:'#EDF2F4',nose:'#58646A'},
-  mascot_koala_lavender:{type:'koala',base:'#C8C3D6',accent:'#9D95B8',bg:'#F2F0FA',nose:'#666078'}
+  mascot_otter:{type:'otter',base:'#B88B67',accent:'#E7C8A8',bg:'#F5EAE0',nose:'#5D4237'},
+  mascot_sheep:{type:'sheep',base:'#EFE4D2',accent:'#B9A58A',bg:'#FAF5EC',nose:'#79634F'},
+  mascot_penguin:{type:'penguin',base:'#64748B',accent:'#F5F1E8',bg:'#EEF3F8',nose:'#E6A24D'},
+  mascot_lion:{type:'lion',base:'#D49A57',accent:'#A96E3F',bg:'#FFF0DB',nose:'#674532'},
+  mascot_monkey:{type:'monkey',base:'#B88466',accent:'#E2C3A6',bg:'#F6E9DD',nose:'#684838'},
+  mascot_alpaca:{type:'alpaca',base:'#E7D6BC',accent:'#BAA07D',bg:'#FAF0E4',nose:'#77604C'},
+  mascot_raccoon:{type:'raccoon',base:'#BFC5C9',accent:'#6B7280',bg:'#F1F4F6',nose:'#384150'},
+  mascot_deer:{type:'deer',base:'#C99B73',accent:'#8F6749',bg:'#F7ECE2',nose:'#6B4A39'},
+  mascot_seal:{type:'seal',base:'#C5D2D8',accent:'#91A5AF',bg:'#EDF5F8',nose:'#566872'},
+  mascot_squirrel:{type:'squirrel',base:'#D29567',accent:'#A96F4B',bg:'#FFF0E6',nose:'#684638'},
+  mascot_hedgehog:{type:'hedgehog',base:'#C59B75',accent:'#8B6249',bg:'#F5EADF',nose:'#604337'},
+  mascot_turtle:{type:'turtle',base:'#98B789',accent:'#6F8E64',bg:'#EEF7EA',nose:'#53694C'}
 };
 const DEFAULT_AVATAR_ALIASES={
   dad_01:'mascot_tiger',dad_02:'mascot_dog',dad_03:'mascot_bear',dad_04:'mascot_fox',dad_05:'mascot_panda',
-  mom_01:'mascot_rabbit',mom_02:'mascot_rabbit',mom_03:'mascot_koala',mom_04:'mascot_bear',mom_05:'mascot_panda',
-  boy_01:'mascot_dog',boy_02:'mascot_hamster',boy_03:'mascot_tiger',boy_04:'mascot_fox',boy_05:'mascot_panda',
-  girl_01:'mascot_chick',girl_02:'mascot_rabbit',girl_03:'mascot_koala',girl_04:'mascot_hamster',girl_05:'mascot_fox',
-  grandpa_01:'mascot_bear',grandpa_02:'mascot_panda',grandpa_03:'mascot_tiger',
-  grandma_01:'mascot_rabbit',grandma_02:'mascot_koala',grandma_03:'mascot_bear',
-  neutral_01:'mascot_family',neutral_02:'mascot_panda',neutral_03:'mascot_bear',neutral_04:'mascot_koala'
+  mom_01:'mascot_rabbit',mom_02:'mascot_cat',mom_03:'mascot_koala',mom_04:'mascot_sheep',mom_05:'mascot_deer',
+  boy_01:'mascot_dog',boy_02:'mascot_hamster',boy_03:'mascot_tiger',boy_04:'mascot_penguin',boy_05:'mascot_lion',
+  girl_01:'mascot_chick',girl_02:'mascot_duck',girl_03:'mascot_koala',girl_04:'mascot_squirrel',girl_05:'mascot_fox',
+  grandpa_01:'mascot_bear',grandpa_02:'mascot_panda',grandpa_03:'mascot_turtle',
+  grandma_01:'mascot_rabbit',grandma_02:'mascot_alpaca',grandma_03:'mascot_sheep',
+  neutral_01:'mascot_family',neutral_02:'mascot_otter',neutral_03:'mascot_raccoon',neutral_04:'mascot_seal',
+  mascot_tiger_sand:'mascot_tiger',mascot_tiger_coral:'mascot_tiger',
+  mascot_rabbit_cream:'mascot_rabbit',mascot_rabbit_lavender:'mascot_rabbit',
+  mascot_dog_cream:'mascot_dog',mascot_dog_blue:'mascot_dog',
+  mascot_chick_cream:'mascot_chick',mascot_chick_mint:'mascot_chick',
+  mascot_bear_cocoa:'mascot_bear',mascot_bear_milk:'mascot_bear',
+  mascot_hamster_peach:'mascot_hamster',mascot_fox_cream:'mascot_fox',
+  mascot_panda_blue:'mascot_panda',mascot_koala_lavender:'mascot_koala'
 };
 const DEFAULT_AVATAR_GROUPS=PERSON_AVATAR_GROUPS;
 const AVATAR_IMAGE_IDS=new Set(PERSON_AVATAR_GROUPS.flatMap(g=>g.items));
@@ -222,9 +226,9 @@ function randomFrom(arr){
 }
 function randomYouthAvatar(name=''){
   const n=String(name||'');
-  if(/남|아들|형|오빠|boy|male/i.test(n))return randomFrom(['mascot_dog','mascot_tiger','mascot_hamster']);
-  if(/여|딸|누나|언니|girl|female/i.test(n))return randomFrom(['mascot_chick','mascot_rabbit','mascot_koala']);
-  return randomFrom(['mascot_hamster','mascot_panda','mascot_fox','mascot_koala']);
+  if(/남|아들|형|오빠|boy|male/i.test(n))return randomFrom(['mascot_dog','mascot_tiger','mascot_hamster','mascot_penguin','mascot_lion','mascot_otter']);
+  if(/여|딸|누나|언니|girl|female/i.test(n))return randomFrom(['mascot_chick','mascot_rabbit','mascot_duck','mascot_koala','mascot_squirrel','mascot_fox']);
+  return randomFrom(['mascot_hamster','mascot_panda','mascot_fox','mascot_koala','mascot_cat','mascot_seal','mascot_turtle']);
 }
 function mascotAvatarSpec(id){
   const token=resolveAvatarId(id);
@@ -232,44 +236,135 @@ function mascotAvatarSpec(id){
 }
 function mascotAvatarSvg(id){
   const s=mascotAvatarSpec(id);
-  const earRound=`<circle cx="30" cy="31" r="12" fill="${s.base}"/><circle cx="66" cy="31" r="12" fill="${s.base}"/>`;
-  const earSmall=`<circle cx="31" cy="32" r="10" fill="${s.base}"/><circle cx="65" cy="32" r="10" fill="${s.base}"/>`;
-  const earTri=`<path d="M27 39 34 17 47 40Z" fill="${s.base}"/><path d="M49 40 62 17 69 39Z" fill="${s.base}"/>`;
-  const rabbitEars=`<path d="M34 38c-8-19-5-29 2-31 8 2 9 15 5 32z" fill="${s.base}"/><path d="M62 38c8-19 5-29-2-31-8 2-9 15-5 32z" fill="${s.base}"/><path d="M37 36c-4-13-3-20 0-22 4 3 5 11 2 23z" fill="${s.accent}" opacity=".42"/><path d="M59 36c4-13 3-20 0-22-4 3-5 11-2 23z" fill="${s.accent}" opacity=".42"/>`;
-  const foxEars=`<path d="M26 40 36 15l14 30z" fill="${s.base}"/><path d="M46 45 60 15l10 25z" fill="${s.base}"/><path d="M33 35 38 23l7 17z" fill="${s.accent}" opacity=".55"/><path d="M53 40l7-17 5 12z" fill="${s.accent}" opacity=".55"/>`;
-  let ears=earRound;
-  if(s.type==='rabbit')ears=rabbitEars;
-  if(s.type==='dog'||s.type==='hamster'||s.type==='koala')ears=earSmall;
-  if(s.type==='tiger')ears=earTri;
-  if(s.type==='fox')ears=foxEars;
-  if(s.type==='chick')ears=`<path d="M43 24c3-8 8-8 11 0-4-2-7-2-11 0z" fill="${s.accent}"/>`;
-  const cheek = s.type==='panda'
-    ? `<ellipse cx="36" cy="48" rx="10" ry="12" fill="${s.accent}" opacity=".92"/><ellipse cx="60" cy="48" rx="10" ry="12" fill="${s.accent}" opacity=".92"/>`
-    : `<circle cx="34" cy="60" r="5" fill="#FFFFFF" opacity=".24"/><circle cx="62" cy="60" r="5" fill="#FFFFFF" opacity=".24"/>`;
-  const muzzle = s.type==='fox'
-    ? `<path d="M35 57c8 8 18 8 26 0-2 12-8 18-13 18s-11-6-13-18z" fill="${s.accent}" opacity=".72"/>`
-    : `<ellipse cx="48" cy="61" rx="14" ry="11" fill="#FFF7EF" opacity=".58"/>`;
-  const marks = s.type==='tiger'
-    ? `<path d="M48 35v9" stroke="${s.accent}" stroke-width="3" stroke-linecap="round"/><path d="M34 42l-6-4M62 42l6-4M35 51l-7 1M61 51l7 1" stroke="${s.accent}" stroke-width="3" stroke-linecap="round"/>`
-    : '';
-  const beak = s.type==='chick'
-    ? `<path d="M44 58h8l-4 5z" fill="${s.nose}"/>`
-    : `<ellipse cx="48" cy="58" rx="4.2" ry="3.1" fill="${s.nose}"/>`;
+  const type=s.type||'bear';
+  const dark='#26323D';
+  const softWhite='#FFF7EF';
+  let behind='';
+  let ears=`<circle cx="30" cy="31" r="12" fill="${s.base}"/><circle cx="66" cy="31" r="12" fill="${s.base}"/>`;
+  let face=`<circle cx="48" cy="51" r="31" fill="${s.base}"/>`;
+  let cheeks=`<circle cx="34" cy="61" r="4.6" fill="#FFFFFF" opacity=".22"/><circle cx="62" cy="61" r="4.6" fill="#FFFFFF" opacity=".22"/>`;
+  let marks='';
+  let muzzle=`<ellipse cx="48" cy="61" rx="14" ry="11" fill="${softWhite}" opacity=".56"/>`;
+  let nose=`<ellipse cx="48" cy="58" rx="4.2" ry="3.1" fill="${s.nose}"/>`;
+  let mouth=`<path d="M42 67c4 3 8 3 12 0" fill="none" stroke="${dark}" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>`;
+  let eyes=`<circle cx="37" cy="51" r="3.3" fill="${dark}"/><circle cx="59" cy="51" r="3.3" fill="${dark}"/>`;
+
+  if(type==='family'){
+    ears='';
+    face=`<circle cx="39" cy="47" r="20" fill="${s.base}"/><circle cx="59" cy="47" r="20" fill="#E8C6A5"/><circle cx="49" cy="57" r="22" fill="#F2D5DD" opacity=".94"/>`;
+    cheeks='';
+    muzzle=`<ellipse cx="49" cy="62" rx="10" ry="8" fill="${softWhite}" opacity=".5"/>`;
+    eyes=`<circle cx="35" cy="48" r="2.5" fill="${dark}"/><circle cx="63" cy="48" r="2.5" fill="${dark}"/><circle cx="49" cy="57" r="2.8" fill="${dark}"/>`;
+  }
+  if(type==='rabbit'){
+    ears=`<path d="M34 38c-8-19-5-29 2-31 8 2 9 15 5 32z" fill="${s.base}"/><path d="M62 38c8-19 5-29-2-31-8 2-9 15-5 32z" fill="${s.base}"/><path d="M37 36c-4-13-3-20 0-22 4 3 5 11 2 23z" fill="${s.accent}" opacity=".38"/><path d="M59 36c4-13 3-20 0-22-4 3-5 11-2 23z" fill="${s.accent}" opacity=".38"/>`;
+  }
+  if(type==='cat'){
+    ears=`<path d="M27 40 35 17 48 42Z" fill="${s.base}"/><path d="M48 42 61 17 69 40Z" fill="${s.base}"/><path d="M34 35 38 25l6 14z" fill="${s.accent}" opacity=".42"/><path d="M56 39l6-14 4 10z" fill="${s.accent}" opacity=".42"/>`;
+    marks=`<path d="M29 59h9M58 59h9M30 65h8M58 65h8" stroke="${s.accent}" stroke-width="2" stroke-linecap="round" opacity=".65"/>`;
+  }
+  if(type==='dog'){
+    ears=`<path d="M28 31c-9 7-8 21 1 23 7-3 9-16 6-25z" fill="${s.accent}" opacity=".78"/><path d="M68 31c9 7 8 21-1 23-7-3-9-16-6-25z" fill="${s.accent}" opacity=".78"/>`;
+  }
+  if(type==='tiger'){
+    ears=`<path d="M27 39 34 17 47 40Z" fill="${s.base}"/><path d="M49 40 62 17 69 39Z" fill="${s.base}"/>`;
+    marks=`<path d="M48 35v9" stroke="${s.accent}" stroke-width="3" stroke-linecap="round"/><path d="M34 42l-6-4M62 42l6-4M35 51l-7 1M61 51l7 1" stroke="${s.accent}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  if(type==='fox'){
+    ears=`<path d="M26 40 36 15l14 30z" fill="${s.base}"/><path d="M46 45 60 15l10 25z" fill="${s.base}"/><path d="M33 35 38 23l7 17z" fill="${s.accent}" opacity=".55"/><path d="M53 40l7-17 5 12z" fill="${s.accent}" opacity=".55"/>`;
+    muzzle=`<path d="M35 57c8 8 18 8 26 0-2 12-8 18-13 18s-11-6-13-18z" fill="${s.accent}" opacity=".7"/>`;
+  }
+  if(type==='chick'||type==='duck'){
+    ears=type==='chick' ? `<path d="M43 24c3-8 8-8 11 0-4-2-7-2-11 0z" fill="${s.accent}"/>` : `<path d="M42 25c2-7 10-7 12 0-4-2-8-2-12 0z" fill="${s.accent}" opacity=".72"/>`;
+    face=`<circle cx="48" cy="52" r="30" fill="${s.base}"/>`;
+    muzzle='';
+    nose=type==='duck' ? `<path d="M39 58c6-6 12-6 18 0-2 5-16 5-18 0z" fill="${s.nose}"/>` : `<path d="M44 58h8l-4 5z" fill="${s.nose}"/>`;
+  }
+  if(type==='panda'){
+    ears=`<circle cx="30" cy="31" r="12" fill="${s.accent}"/><circle cx="66" cy="31" r="12" fill="${s.accent}"/>`;
+    cheeks=`<ellipse cx="36" cy="48" rx="10" ry="12" fill="${s.accent}" opacity=".88"/><ellipse cx="60" cy="48" rx="10" ry="12" fill="${s.accent}" opacity=".88"/>`;
+  }
+  if(type==='koala'){
+    ears=`<circle cx="29" cy="32" r="14" fill="${s.accent}" opacity=".82"/><circle cx="67" cy="32" r="14" fill="${s.accent}" opacity=".82"/><circle cx="29" cy="32" r="8" fill="${s.bg}" opacity=".55"/><circle cx="67" cy="32" r="8" fill="${s.bg}" opacity=".55"/>`;
+    nose=`<ellipse cx="48" cy="58" rx="5.2" ry="4.4" fill="${s.nose}"/>`;
+  }
+  if(type==='hamster'){
+    ears=`<circle cx="31" cy="33" r="9" fill="${s.base}"/><circle cx="65" cy="33" r="9" fill="${s.base}"/>`;
+    cheeks=`<circle cx="34" cy="61" r="7" fill="#FFFFFF" opacity=".22"/><circle cx="62" cy="61" r="7" fill="#FFFFFF" opacity=".22"/>`;
+  }
+  if(type==='otter'){
+    ears=`<circle cx="31" cy="35" r="8" fill="${s.base}"/><circle cx="65" cy="35" r="8" fill="${s.base}"/>`;
+    muzzle=`<ellipse cx="48" cy="61" rx="17" ry="10" fill="${s.accent}" opacity=".74"/>`;
+  }
+  if(type==='sheep'){
+    ears=`<circle cx="27" cy="44" r="8" fill="${s.accent}"/><circle cx="69" cy="44" r="8" fill="${s.accent}"/>`;
+    behind=`<circle cx="33" cy="31" r="10" fill="${s.base}"/><circle cx="47" cy="27" r="12" fill="${s.base}"/><circle cx="61" cy="31" r="10" fill="${s.base}"/>`;
+    face=`<ellipse cx="48" cy="54" rx="26" ry="29" fill="${s.base}"/>`;
+  }
+  if(type==='penguin'){
+    ears='';
+    face=`<circle cx="48" cy="51" r="31" fill="${s.base}"/><ellipse cx="48" cy="55" rx="21" ry="25" fill="${s.accent}"/>`;
+    cheeks='';
+    muzzle='';
+    nose=`<path d="M43 58h10l-5 4z" fill="${s.nose}"/>`;
+  }
+  if(type==='lion'){
+    ears=`<circle cx="30" cy="35" r="9" fill="${s.accent}"/><circle cx="66" cy="35" r="9" fill="${s.accent}"/>`;
+    behind=`<circle cx="48" cy="50" r="35" fill="${s.accent}" opacity=".9"/>`;
+    face=`<circle cx="48" cy="51" r="28" fill="${s.base}"/>`;
+  }
+  if(type==='monkey'){
+    ears=`<circle cx="25" cy="45" r="12" fill="${s.base}"/><circle cx="71" cy="45" r="12" fill="${s.base}"/><circle cx="25" cy="45" r="7" fill="${s.accent}"/><circle cx="71" cy="45" r="7" fill="${s.accent}"/>`;
+    muzzle=`<path d="M32 45c4-12 28-12 32 0 4 16-6 29-16 29S28 61 32 45z" fill="${s.accent}" opacity=".84"/>`;
+  }
+  if(type==='alpaca'){
+    ears=`<path d="M32 39 35 18l9 20z" fill="${s.base}"/><path d="M52 38l9-20 3 21z" fill="${s.base}"/>`;
+    behind=`<circle cx="39" cy="30" r="8" fill="${s.base}"/><circle cx="49" cy="27" r="9" fill="${s.base}"/><circle cx="58" cy="31" r="8" fill="${s.base}"/>`;
+    face=`<ellipse cx="48" cy="54" rx="25" ry="31" fill="${s.base}"/>`;
+  }
+  if(type==='raccoon'){
+    ears=`<path d="M28 39 35 20l13 21z" fill="${s.base}"/><path d="M48 41l13-21 7 19z" fill="${s.base}"/>`;
+    marks=`<path d="M29 48c9-9 29-9 38 0-5 9-33 9-38 0z" fill="${s.accent}" opacity=".78"/>`;
+  }
+  if(type==='deer'){
+    ears=`<path d="M29 39 35 22l11 18z" fill="${s.base}"/><path d="M50 40l11-18 6 17z" fill="${s.base}"/>`;
+    behind=`<path d="M35 24v-9m0 6-6-4m0 0v-7M61 24v-9m0 6 6-4m0 0v-7" stroke="${s.accent}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  if(type==='seal'){
+    ears='';
+    face=`<ellipse cx="48" cy="54" rx="32" ry="29" fill="${s.base}"/>`;
+    marks=`<path d="M34 61h8M54 61h8M34 66h8M54 66h8" stroke="${s.accent}" stroke-width="2" stroke-linecap="round" opacity=".58"/>`;
+  }
+  if(type==='squirrel'){
+    behind=`<path d="M68 65c18-15 10-38-8-34 12 8 13 20 3 31z" fill="${s.accent}" opacity=".65"/>`;
+    ears=`<path d="M28 39 35 21l12 20z" fill="${s.base}"/><circle cx="65" cy="33" r="10" fill="${s.base}"/>`;
+  }
+  if(type==='hedgehog'){
+    behind=`<path d="M19 55c4-26 22-41 46-32 15 6 20 20 16 38-10-9-49-12-62-6z" fill="${s.accent}" opacity=".78"/>`;
+    ears='';
+    face=`<ellipse cx="47" cy="56" rx="27" ry="25" fill="${s.base}"/>`;
+  }
+  if(type==='turtle'){
+    ears='';
+    behind=`<circle cx="48" cy="58" r="30" fill="${s.accent}" opacity=".8"/><path d="M31 54h34M39 35v43M57 35v43" stroke="${s.base}" stroke-width="2" opacity=".45"/>`;
+    face=`<circle cx="48" cy="43" r="24" fill="${s.base}"/>`;
+    muzzle=`<ellipse cx="48" cy="57" rx="12" ry="8" fill="${softWhite}" opacity=".48"/>`;
+  }
+
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-hidden="true">
     <circle cx="48" cy="48" r="48" fill="${s.bg}"/>
+    ${behind}
     ${ears}
-    <circle cx="48" cy="51" r="31" fill="${s.base}"/>
-    ${cheek}
+    ${face}
+    ${cheeks}
     ${marks}
     ${muzzle}
-    <circle cx="37" cy="51" r="3.3" fill="#26323D"/>
-    <circle cx="59" cy="51" r="3.3" fill="#26323D"/>
-    ${beak}
-    <path d="M42 67c4 3 8 3 12 0" fill="none" stroke="#26323D" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>
+    ${eyes}
+    ${nose}
+    ${mouth}
   </svg>`;
   return svg.replace(/\s+/g,' ').trim();
-}
-function mascotAvatarDataUri(id){
+}function mascotAvatarDataUri(id){
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(mascotAvatarSvg(id))}`;
 }
 function avatarInitials(name){
@@ -723,22 +818,8 @@ function renderRepeatOnlyDetailLegacy(selDate,evs=[]){
 function renderWorkOnlyDetail(selDate){
   if(!selDate)return '';
   normalizeShiftUsers();
-  const user=calendarWorkUser();
-  const status=shiftDisplayStatusFor(selDate,user);
-  const label=status?workCalendarShiftLabel(status):'';
-  const body=status
-    ? `<div class="calendar-www-row calendar-work-status-row">
-        <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame www-avatar-frame')}</div>
-        <div class="www-person-name" style="color:${familyAccentColor(user)}">${escapeHtml(user)}</div>
-        <div class="www-chip-wrap">
-          <span class="www-chip shift-chip ${shiftBadgeClass(status)} calendar-work-current-chip"><span class="www-shift-label">${escapeHtml(label)}</span></span>
-        </div>
-      </div>`
-    : `<div class="calendar-work-empty">
-        <b>등록된 근무가 없어요.</b>
-        <span>근무 상태를 입력해보세요.</span>
-      </div>`;
-  return renderCalendarWWWDetailCard(selDate,`${body}${renderShiftQuickInputBar()}`,'calendar-work-detail calendar-work-input-detail');
+  const body=renderWorkDirectInputRows(selDate);
+  return renderCalendarWWWDetailCard(selDate,body,'calendar-work-detail calendar-work-direct-input-detail');
 }
 function calendarWWWChipTime(n){
   if(isRoutineCalendarEvent(n))return calendarRepeatChipTime(n);
@@ -1869,10 +1950,6 @@ function normalizeShiftUsers(){
   const people=getPersons().filter(p=>p&&p!=='공통');
   if(!Array.isArray(shiftUsers))shiftUsers=[];
   shiftUsers=shiftUsers.filter(u=>people.includes(u));
-  if(shiftUsers.length>1){
-    const configured=shiftUsers.find(u=>String(u||'').includes('엄마'))||shiftUsers[0];
-    shiftUsers=configured?[configured]:[];
-  }
   if(!shiftUsers.length){
     const preferred=people.find(p=>String(p||'').includes('엄마'));
     shiftUsers=preferred?[preferred]:people.slice(0,1);
@@ -3075,6 +3152,53 @@ function openSettingsShareSheet(){
   </div>`;
 }
 
+function shareInviteUrl(){
+  return `${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+}
+
+function buildInviteShareText(url=shareInviteUrl()){
+  return ['WWW 가족 스케줄러','우리 가족 일정을 함께 확인해보세요.','',url].join('\n');
+}
+
+function openManualCopySheet(text,title='공유 텍스트'){
+  const modal=document.getElementById('modal');
+  if(!modal)return;
+  modal.innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet settings-action-sheet manual-copy-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="modal-hd">${escapeHtml(title)}</div>
+      <div class="manual-copy-helper">자동 복사가 어려워서 공유 문구를 준비했어요.</div>
+      <textarea class="manual-copy-text" readonly>${escapeHtml(text)}</textarea>
+      <div class="action-grid manual-copy-actions">
+        <button class="toss-btn primary" onclick="copyManualShareText()">다시 복사</button>
+        <button class="toss-btn" onclick="closeM()">닫기</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.classList.add('modal-open');
+  setTimeout(()=>{
+    const ta=document.querySelector('.manual-copy-text');
+    if(ta){ta.focus();ta.select();}
+  },0);
+}
+
+async function copyTextWithFallback(text,successMessage='공유 링크를 복사했어요.',fallbackTitle='공유 텍스트'){
+  const copied=await copyTextToClipboard(text);
+  if(copied){
+    showToast(successMessage);
+    return true;
+  }
+  openManualCopySheet(text,fallbackTitle);
+  showToast('복사할 내용을 준비했어요.');
+  return false;
+}
+
+function copyManualShareText(){
+  const ta=document.querySelector('.manual-copy-text');
+  const text=ta?.value||'';
+  copyTextWithFallback(text,'공유 텍스트를 복사했어요.','공유 텍스트');
+}
 function openAdvancedSettingsSheet(){
   const privateLabel=isPrivateVisible()?'나만 숨김':'나만 보기';
   const editLabel=isEditMode()?'편집 모드 끄기':'편집 모드';
@@ -3854,6 +3978,37 @@ function renderScheduleFlow(active=[],recent=[],baseKey=scheduleBaseKey()){
     </div>
   </div>`;
 }
+function schedulePreviewDateLine(n,baseKey=scheduleBaseKey()){
+  const key=n?._displayDate||scheduleListDate(n)||n?.start||'';
+  if(!key)return '';
+  if(key===baseKey)return '오늘';
+  return shortDateWithDow(key)||fmtD(key);
+}
+function renderScheduleFlowPreview(active=[],recent=[],baseKey=scheduleBaseKey()){
+  const preview=[...(active||[]),...(recent||[])].filter(Boolean).slice(0,2);
+  const total=(active||[]).length+(recent||[]).length;
+  if(!preview.length){
+    return `<div class="schedule-preview-panel empty" onclick="toggleActive()" role="button" tabindex="0">
+      <div class="schedule-flow-empty main">오늘은 조금 가볍게 보내도 좋아요.</div>
+    </div>`;
+  }
+  const rows=preview.map(n=>{
+    const who=n.who||'가족';
+    const title=displayNoteTitle(n);
+    const when=schedulePreviewDateLine(n,baseKey);
+    const click=n.id?`if(!consumeSwipeTap())openEditNote(${onclickArg(n.id)})`:'toggleActive()';
+    return `<button type="button" class="schedule-preview-row" onclick="${click}" aria-label="${escapeAttr(`${who} ${title} 보기`)}">
+      <span class="schedule-preview-person" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</span>
+      <span class="schedule-preview-title">${highlightText(title)}</span>
+      ${when?`<span class="schedule-preview-date">${escapeHtml(when)}</span>`:''}
+    </button>`;
+  }).join('');
+  const hidden=Math.max(0,total-preview.length);
+  return `<div class="schedule-preview-panel">
+    ${rows}
+    ${hidden?`<button type="button" class="schedule-preview-more" onclick="toggleActive()">일정 ${hidden}개 더 보기</button>`:''}
+  </div>`;
+}
 function openRoutineFabSheet(){
   if(!requireEditMode())return;
   document.getElementById('modal').innerHTML=`
@@ -3974,8 +4129,7 @@ function renderS(){
     </div>`;
   }
   const baseKey=scheduleBaseKey();
-  const targetOk=n=>subF==='all'||(n.who||'공통')===subF;
-  const noteOk=n=>matchSearchNote(n)&&targetOk(n);
+  const noteOk=n=>true;
 
   const past=notes.filter(n=>{
     if(!noteOk(n))return false;
@@ -3986,7 +4140,6 @@ function renderS(){
   let active=notes.filter(n=>{
     if(!noteOk(n))return false;
     if(isMissedSchedule(n,baseKey))return false;
-    if(filterToday)return occursOn(n,baseKey);
     return activeInPeriod(n);
   }).map(n=>{
     const k=n.repeat?nextOccurrence(n,baseKey):(n.start||'');
@@ -4001,14 +4154,11 @@ function renderS(){
   const flowCount=activeCount+pastList.length;
   const flowCards = activeOpen
     ? renderScheduleFlow(active,pastList,baseKey)
-    : `<div class="schedule-collapsed-hint warm-collapsed-hint" onclick="toggleActive()" role="button" tabindex="0">${escapeHtml(collapsedStateLabel({count:flowCount,sectionName:'일정',sectionType:'schedule',singleNoun:'일정',state:'hide'}))}</div>`;
+    : renderScheduleFlowPreview(active,pastList,baseKey);
 
   return`<div class="schedule-swipe-sync home-context-panel">
     ${homeTabs}
-    ${filterToday?`<div class="sync-pill" style="margin:10px 16px 0">기준일 일정만 보는 중 · <button class="small-link" onclick="filterToday=false;render()">전체 보기</button></div>`:''}
-    ${sectionHeader('일정',flowCount,activeOpen,'toggleActive',`
-      <button class="sec-chip-btn filter-icon-btn schedule-filter-pill" onclick="event.stopPropagation();openScheduleFilterSheet()" aria-label="일정 보기 필터: ${escapeAttr(scheduleFilterLabel())}, ${escapeAttr(scheduleSortLabel())}" title="${escapeAttr(`${scheduleFilterLabel()} · ${scheduleSortLabel()}`)}">${filterSearchSvg()}</button>
-    `)}
+    ${sectionHeader('일정',flowCount,activeOpen,'toggleActive')}
     ${flowCards}
   </div>`;
 }
@@ -4213,10 +4363,7 @@ function renderC(){
     const mems=filterCalendarMemoriesByTarget(allMems);
     const showShift=(calViewMode==='all'||calViewMode==='work');
     const dotHtml=renderCalendarCellDots(allEvs,allMems);
-    const hasCalSearch=!!String(searchQ||'').trim();
-    const q=normText(searchQ);
-    const searchHit=calViewMode==='work' || !hasCalSearch || allEvs.some(n=>matchSearchNote(n)) || allMems.some(x=>[x.name,x.memo,x.birth].some(v=>normText(v).includes(q)));
-    const searchCls=hasCalSearch?(searchHit?' search-hit':' search-dim'):'';
+    const searchCls='';
     const numCls=isToday?' today-n':(hName||dayOfWeek===0?' holiday-n':(dayOfWeek===6?' sat-n':''));
 
     g+=`<div class="cal-cell${isToday?' today-cell':''}${syncOff?' sync-off':''}${isSel?' sel':''}${isBulk?' bulk-sel':''}${searchCls}"
@@ -4270,7 +4417,7 @@ function renderC(){
       <div class="cal-grid">${g}</div>
       ${calViewMode==='work'?renderCalendarShiftCounts():renderCalendarPersonLegend()}
     </div>
-    ${calViewMode==='work'?`${evHtml||renderShiftQuickInputBar()}`:`${renderShiftQuickInputBar()}${evHtml}`}
+    ${calViewMode==='work'?`${evHtml}`:`${renderShiftQuickInputBar()}${evHtml}`}
   </div>`;
 }
 
@@ -4288,6 +4435,37 @@ function setHomeContentMode(mode){
 }
 function setShift(k,t){
   setShiftStatus(k,firstShiftUser(),t||'',false);
+}
+function workInputUsers(){
+  normalizeShiftUsers();
+  return shiftUsers.length?shiftUsers:[firstShiftUser()].filter(Boolean);
+}
+function applyWorkShiftForUser(dateKey,user,status){
+  if(!requireEditMode())return;
+  if(!dateKey||!user)return;
+  setShiftStatus(dateKey,user,status,false);
+}
+function renderWorkDirectInputRows(dateKey){
+  const users=workInputUsers();
+  const labels=['D','E','N','OFF'];
+  if(!users.length){
+    return `<div class="calendar-work-empty">
+      <b>등록된 근무 대상이 없어요.</b>
+      <span>설정에서 근무 대상자를 먼저 정해 주세요.</span>
+    </div>`;
+  }
+  return `<div class="work-direct-input-list">${users.map(user=>{
+    const current=workQuickShiftLabel(shiftDisplayStatusFor(dateKey,user));
+    return `<div class="work-direct-input-row">
+      <div class="work-direct-person">
+        <div class="work-direct-avatar">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame www-avatar-frame')}</div>
+        <div class="work-direct-name" style="color:${familyAccentColor(user)}">${escapeHtml(user)}</div>
+      </div>
+      <div class="work-direct-segment" role="group" aria-label="${escapeAttr(`${user} 근무 상태 입력`)}">
+        ${labels.map(label=>`<button type="button" class="work-direct-chip ${shiftBadgeClass(label)}${current===label?' on':''}" onclick="applyWorkShiftForUser(${onclickArg(dateKey)},${onclickArg(user)},${onclickArg(label)})">${escapeHtml(label)}</button>`).join('')}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
 }
 function selectShiftQuickDate(dateKey){
   if(!dateKey)return;
@@ -5481,7 +5659,7 @@ function openMemoryModal(id){
   const subjectAvatar=(x&&x.subjectAvatar)||'seniorF_1';
   const subjectColor=(x&&x.subjectColor)||'#A2845E';
   const linkedPeople=getPersons().filter(p=>p!=='공통');
-  const subjectAvatars=[...avatarItems('seniorF'),...avatarItems('seniorM')];
+  const subjectAvatars=PERSON_AVATAR_ITEMS;
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet" onclick="event.stopPropagation()">
@@ -6178,7 +6356,7 @@ function onWidgetClick(el){
     subF='all';
     searchQ='';
     searchDraft='';
-    filterToday=true;
+    filterToday=false;
     updateTabUI();
     render();
     return;
@@ -6953,6 +7131,29 @@ function todayChipSortKey(item){
   const t=item.time||'';
   return `${t?'1':'2'}-${t||'99:99'}-${item.order}`;
 }
+function homeWeekSummaryKeys(baseKey=scheduleBaseKey()){
+  return Array.from({length:7},(_,i)=>addDaysStr(baseKey,i));
+}
+function todayPersonWeekSummary(who){
+  const person=who||'가족';
+  const keys=homeWeekSummaryKeys();
+  const baseKey=keys[0]||scheduleBaseKey();
+  const normal=notes.filter(n=>!isDone(n)&&!n.repeat&&!n._autoFamilyInfo&&keys.some(k=>occursOn(n,k)))
+    .map(n=>({...n,_rangeDate:keys.find(k=>occursOn(n,k))||baseKey,_rangeMode:true}));
+  const manualRoutine=keys.flatMap(k=>notes.filter(n=>!isDone(n)&&n.repeat&&occursOn(n,k))
+    .map(n=>({...n,start:k,end:k,_rangeDate:k,_rangeMode:true,_repeatInstance:true})));
+  const routine=keys.flatMap(k=>[
+    ...familyInfoEventsForKey(k).map(n=>({...n,_rangeDate:k,_rangeMode:true})),
+    ...manualRoutine.filter(n=>n.start===k)
+  ]);
+  const group=makeWeekWWWGroups(normal,routine,keys).find(g=>g.who===person);
+  if(!group)return '';
+  const total=(group.days||[]).reduce((sum,day)=>sum+(day.items||[]).length,0);
+  if(!total)return '';
+  const summary=weekWWWGroupSummary(group);
+  if(summary.counts)return `이번주 근무 ${total}회`;
+  return summary.label||`이번주 일정 ${total}개`;
+}
 function makeTodayWWWGroups(schedule=[],routines=[]){
   normalizeShiftUsers();
   const baseKey=scheduleBaseKey();
@@ -7025,9 +7226,13 @@ function makeTodayWWWGroups(schedule=[],routines=[]){
     .map(g=>({...g,items:g.items.sort((a,b)=>todayChipSortKey(a).localeCompare(todayChipSortKey(b),'ko'))}));
 }
 function renderTodayWWWGroup(group){
+  const summary=todayPersonWeekSummary(group.who);
   return `<div class="www-person-group">
     <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(group.who),group.who,'avatarFrame www-avatar-frame')}</div>
-    <div class="www-person-name" style="color:${familyAccentColor(group.who)}">${escapeHtml(group.who)}</div>
+    <div class="www-person-name www-today-person-meta" style="color:${familyAccentColor(group.who)}">
+      <span class="www-person-name-label">${escapeHtml(group.who)}</span>
+      ${summary?`<em>${escapeHtml(summary)}</em>`:''}
+    </div>
     <div class="www-chip-wrap">
       ${group.items.map(item=>item.click?`<button type="button" class="www-chip ${item.className||''}" onclick="event.stopPropagation();${item.click}" aria-label="${escapeAttr(`${group.who} ${item.title||'항목'} 수정`)}">${item.html}</button>`:`<span class="www-chip ${item.className||''} static">${item.html}</span>`).join('')}
     </div>
@@ -7121,12 +7326,11 @@ function makeWeekWWWGroups(schedule=[],routines=[],keys=[]){
 function renderWeekWWWGroup(group){
   const total=group.days.reduce((sum,day)=>sum+day.items.length,0);
   const summary=weekWWWGroupSummary(group);
+  const label=summary.label||`이번주 ${total}개`;
   return `<button type="button" class="www-person-group www-week-person-group www-week-summary-row" onclick="openWeekPersonDetail(${onclickArg(group.who)})" aria-label="${escapeAttr(`${group.who} 이번주 상세 보기`)}">
     <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(group.who),group.who,'avatarFrame www-avatar-frame')}</div>
-    <div class="www-person-name www-week-person-name" style="color:${familyAccentColor(group.who)}"><span>${escapeHtml(group.who)}</span><em>${escapeHtml(summary.label||`이번주 ${total}개`)}</em></div>
-    <div class="www-week-summary-chips">
-      ${summary.tokens.map(t=>`<span class="www-week-summary-chip">${escapeHtml(t)}</span>`).join('')}
-    </div>
+    <div class="www-person-name www-week-person-name" style="color:${familyAccentColor(group.who)}"><span>${escapeHtml(group.who)}</span></div>
+    <div class="www-week-summary-text">${escapeHtml(label)}</div>
   </button>`;
 }
 function weekWWWGroupSummary(group){
@@ -7142,21 +7346,10 @@ function weekWWWGroupSummary(group){
       const key=String(label).toUpperCase()==='O'?'OFF':String(label).toUpperCase();
       if(counts[key]!==undefined)counts[key]++;
     });
-    const tokens=SHIFTS.filter(k=>counts[k]).map(k=>`${k} ${counts[k]}`);
-    return {label:`이번주 근무 ${total}개`,tokens:tokens.length?tokens:[`근무 ${total}`]};
+    return {label:`이번주 근무 ${total}개`,counts};
   }
-  const dayTokens=days
-    .map(day=>{
-      const count=(day.items||[]).filter(item=>item.kind!=='shift').length || (day.items||[]).length;
-      if(!count)return null;
-      const meta=weekDayMeta(day.dateKey);
-      return {text:`${meta.day} ${count}`,sort:meta.sort};
-    })
-    .filter(Boolean);
-  const visible=dayTokens.slice(0,4).map(x=>x.text);
-  if(dayTokens.length>4)visible.push(`+${dayTokens.length-4}일`);
   const label=shiftItems.length&&eventItems.length?`이번주 ${total}개`:`이번주 일정 ${total}개`;
-  return {label,tokens:visible.length?visible:[`일정 ${total}`]};
+  return {label};
 }
 function renderWeekPersonDetailDay(group,day){
   const meta=weekDayMeta(day.dateKey);
@@ -7565,7 +7758,12 @@ async function saveTodayBriefingImage(){
 async function shareTodayToKakao(){
   const key=scheduleBaseKey();
   const text=buildTodayShareText(key);
-  if(!window.html2canvas)return copyTodayBriefing();
+  const copyFallback=async()=>{
+    const copied=await copyTextWithFallback(text,'카카오 공유를 사용할 수 없어 오늘 일정을 복사했어요.','오늘 공유 텍스트');
+    if(copied)closeM();
+    return copied;
+  };
+  if(!window.html2canvas)return copyFallback();
   try{
     const canvas=await createTodayShareCanvas(key);
     const blob=await canvasToBlob(canvas);
@@ -7575,18 +7773,15 @@ async function shareTodayToKakao(){
       if(!navigator.canShare || navigator.canShare(payload)){
         await navigator.share(payload);
         closeM();
-        return;
+        return true;
       }
     }
-    await copyTextToClipboard(text);
-    showToast('공유가 지원되지 않아 텍스트를 복사했어요.');
+    return copyFallback();
   }catch(e){
-    console.warn(e);
-    await copyTextToClipboard(text);
-    showToast('이미지 공유 대신 텍스트를 복사했어요.');
+    console.warn('today share failed, copied text fallback',e);
+    return copyFallback();
   }
 }
-
 async function copyTextToClipboard(txt){
   if(navigator.clipboard&&navigator.clipboard.writeText){
     try{
@@ -7600,22 +7795,29 @@ async function copyTextToClipboard(txt){
   ta.value=txt;
   ta.setAttribute('readonly','');
   ta.style.position='fixed';
-  ta.style.left='-9999px';
+  ta.style.left='0';
   ta.style.top='0';
+  ta.style.width='1px';
+  ta.style.height='1px';
+  ta.style.opacity='0';
+  ta.style.pointerEvents='none';
   document.body.appendChild(ta);
-  ta.select();
   try{
-    return document.execCommand('copy');
+    ta.focus({preventScroll:true});
+    ta.select();
+    ta.setSelectionRange(0,ta.value.length);
+    return !!document.execCommand('copy');
+  }catch(e){
+    console.warn('textarea clipboard fallback failed',e);
+    return false;
   }finally{
     ta.remove();
   }
 }
-
 function copyTodayBriefing(){
   const txt=buildTodayShareText(scheduleBaseKey());
-  copyTextToClipboard(txt)
-    .then(()=>{closeM();showToast('오늘 일정 텍스트를 복사했어요.');})
-    .catch(()=>alert(txt));
+  copyTextWithFallback(txt,'오늘 일정 텍스트를 복사했어요.','오늘 공유 텍스트')
+    .then(copied=>{if(copied)closeM();});
 }
 function renderHomeWidgets(){
   if(main!=='s')return '';
@@ -7658,7 +7860,6 @@ function familySettingsSvg(){
       <button type="button" class="home-date-button" onclick="handleDateHeaderClick('${base}')" aria-label="달력에서 ${escapeAttr(dateLabel(base))} 보기"><div class="home-kicker"><span class="home-date-main">${escapeHtml(dateLabel(base))}</span>${dow?`<span class="home-date-weekday">${escapeHtml(dow)}</span>`:''}</div></button>
       <div class="home-head-actions">
         <button onclick="openTodayInboxSheet('${base}')" aria-label="오늘 확인할 것">${bellSvg()}</button>
-        <button onclick="openScheduleFilterSheet()" aria-label="검색">${filterSearchSvg()}</button>
       </div>
     </div>
     ${renderHomeRangePanel()}
@@ -7901,15 +8102,22 @@ function openShareTools(){
   },50);
 }
 
-function shareNative(){
-  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
+async function shareNative(){
+  const url=shareInviteUrl();
+  const text=buildInviteShareText(url);
   if(navigator.share){
-    navigator.share({title:'가족 캘린더 - 패스',text:'가족 일정 공유 링크',url});
-  }else{
-    copyShareLink();
+    try{
+      await navigator.share({title:'WWW 가족 스케줄러',text,url});
+      closeM();
+      return true;
+    }catch(e){
+      console.warn('native share failed, copied invite fallback',e);
+    }
   }
+  const copied=await copyTextWithFallback(text,'카카오 공유를 사용할 수 없어 초대 링크를 복사했어요.','초대 링크');
+  if(copied)closeM();
+  return copied;
 }
-
 
 let __renderErrorCount=0;
 let __modalObserverReady=false;
@@ -7996,7 +8204,7 @@ function _renderImpl(opts={}){
     else if(main==='m')h=renderM();
     else if(main==='set')h=renderSettingsTab();
     else {main='s';h=renderS();}
-    body.innerHTML=htmlJoin([renderTopSwipeZone(),renderFirstUseGuide(),renderSearchBox(),h,renderFab()]);
+    body.innerHTML=htmlJoin([renderTopSwipeZone(),renderFirstUseGuide(),h,renderFab()]);
     updateSettingsTabAvatar();
     __renderErrorCount=0;
   }catch(e){
@@ -8021,12 +8229,12 @@ function render(opts={}){
   },16);
 }
 
-function copyShareLink(){
-  const url=`${location.origin}${location.pathname}?room=${encodeURIComponent(roomId)}`;
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>alert('가족 공유 링크가 복사됐어요.'));}
-  else{alert('주소창의 URL을 복사해서 가족에게 보내주세요:\n'+url);}
+async function copyShareLink(){
+  const text=buildInviteShareText(shareInviteUrl());
+  const copied=await copyTextWithFallback(text,'공유 링크를 복사했어요.','초대 링크');
+  if(copied)closeM();
+  return copied;
 }
-
 
 function personChoiceButtons(selected){
   return getPersons().map(p=>`<button type="button" class="type-btn person-check-label avatar-only${p===selected?' selected tf':''}" id="who-${escapeAttr(p)}" onclick="selWho(${onclickArg(p)})" aria-label="${escapeAttr(p)}" title="${escapeAttr(p)}">
