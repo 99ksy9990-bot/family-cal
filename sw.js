@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pass-cal-v1.3.132-work-tab-rhythm';
-const PASS_SW_BUILD_VERSION = 'v1.3.132-work-tab-rhythm';
+const CACHE_NAME = 'pass-cal-v1.3.133-transparent-www-logo';
+const PASS_SW_BUILD_VERSION = 'v1.3.133-transparent-www-logo';
 const LUNAR_CDN = 'https://cdn.jsdelivr.net/npm/lunar-javascript/lunar.min.js';
 const HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 const CONFETTI_CDN = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   './favicon-64.png',
   './og.png',
   './assets/brand/www-logo.png',
+  './assets/brand/www-logo-symbol.png',
   './assets/brand/www-app-icon.png',
   './assets/brand/www-app-icon-1024.png',
   './assets/brand/www-app-icon-512.png',

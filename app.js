@@ -1,7 +1,7 @@
-const APP_VERSION='v1.3.132';
-const PASS_BUILD_VERSION='v1.3.132-work-tab-rhythm';
+const APP_VERSION='v1.3.133';
+const PASS_BUILD_VERSION='v1.3.133-transparent-www-logo';
 const APP_UPDATED='2026-05-17';
-const BRAND_LOGO_SRC='./assets/brand/www-logo.png';
+const BRAND_LOGO_SRC='./assets/brand/www-logo.png?v=133';
 
 
 
@@ -7418,11 +7418,8 @@ function brandLogoImg(cls='brand-logo-symbol', alt='WWW'){
   return `<img class="${escapeAttr(cls)}" src="${BRAND_LOGO_SRC}" alt="${escapeAttr(alt)}" loading="lazy" decoding="async"/>`;
 }
 function dashboardBrandHead(title='WWW TODAY'){
-  return `<div class="www-brand-heading">
+  return `<div class="www-brand-heading www-brand-heading-logo-only">
     ${brandLogoImg('www-card-logo','WWW')}
-    <div class="www-brand-copy">
-      <span>Who · When · What</span>
-    </div>
   </div>`;
 }
 function shareIconSvg(){
@@ -7514,7 +7511,7 @@ function todayShareTemplateHtml(key=scheduleBaseKey()){
       <div class="today-share-render-date">${escapeHtml(todayShareDateTitle(key))}</div>
     </div>
     <div class="today-share-render-list">${rows}</div>
-    <div class="today-share-render-brand">${brandLogoImg('today-share-watermark','WWW')}<span>Who · When · What</span></div>
+    <div class="today-share-render-brand">${brandLogoImg('today-share-watermark','WWW')}</div>
   </div>`;
 }
 
