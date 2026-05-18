@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.133';
-const PASS_BUILD_VERSION='v1.3.133-transparent-www-logo';
+const APP_VERSION='v1.3.135';
+const PASS_BUILD_VERSION='v1.3.135-unified-routine-list';
 const APP_UPDATED='2026-05-17';
 const BRAND_LOGO_SRC='./assets/brand/www-logo.png?v=133';
 
@@ -731,14 +731,14 @@ function renderWorkOnlyDetail(selDate){
         <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame www-avatar-frame')}</div>
         <div class="www-person-name" style="color:${familyAccentColor(user)}">${escapeHtml(user)}</div>
         <div class="www-chip-wrap">
-          <button type="button" class="www-chip shift-chip ${shiftBadgeClass(status)}" onclick="event.stopPropagation();openShiftPicker('${selDate}',true)" aria-label="${escapeAttr(`${user} 근무 수정`)}"><span class="www-shift-label">${escapeHtml(label)}</span></button>
+          <span class="www-chip shift-chip ${shiftBadgeClass(status)} calendar-work-current-chip"><span class="www-shift-label">${escapeHtml(label)}</span></span>
         </div>
       </div>`
     : `<div class="calendar-work-empty">
         <b>등록된 근무가 없어요.</b>
         <span>근무 상태를 입력해보세요.</span>
       </div>`;
-  return renderCalendarWWWDetailCard(selDate,body,'calendar-work-detail');
+  return renderCalendarWWWDetailCard(selDate,`${body}${renderShiftQuickInputBar()}`,'calendar-work-detail calendar-work-input-detail');
 }
 function calendarWWWChipTime(n){
   if(isRoutineCalendarEvent(n))return calendarRepeatChipTime(n);
@@ -4270,7 +4270,7 @@ function renderC(){
       <div class="cal-grid">${g}</div>
       ${calViewMode==='work'?renderCalendarShiftCounts():renderCalendarPersonLegend()}
     </div>
-    ${calViewMode==='work'?`${evHtml}${renderShiftQuickInputBar()}`:`${renderShiftQuickInputBar()}${evHtml}`}
+    ${calViewMode==='work'?`${evHtml||renderShiftQuickInputBar()}`:`${renderShiftQuickInputBar()}${evHtml}`}
   </div>`;
 }
 
@@ -4396,6 +4396,31 @@ function renderShiftQuickInputBar(){
         <em>${escapeHtml(currentLabel||'미입력')}</em>
       </div>
       <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">${escapeHtml(user)}<span>⌄</span></button>
+    </div>
+    <div class="shift-quick-actions primary-shift-actions">
+      ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
+    </div>
+    <div class="shift-quick-sub-actions">
+      <button class="shift-quick-chip secondary clear" ${hasDate?'':'disabled'} onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
+    </div>
+  </div>`;
+}
+
+function renderShiftQuickInputBar(){
+  if(calViewMode!=='work')return '';
+  const user=shiftQuickInputUser();
+  const primaryLabels=['D','E','N','OFF'];
+  const current=selDate?shiftDisplayStatusFor(selDate,user):'';
+  const currentLabel=workQuickShiftLabel(current);
+  const hasDate=!!selDate;
+  const selectedLabel=hasDate?shiftQuickDateLabel(selDate):'날짜를 선택해 주세요';
+  return `<div class="shift-quick-input-bar" aria-label="근무 상태 입력">
+    <div class="shift-quick-head">
+      <div class="shift-quick-title-line">
+        <b>${escapeHtml(selectedLabel)}</b>
+        <em>${escapeHtml(currentLabel||'미입력')}</em>
+      </div>
+      <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()" aria-label="근무 대상 변경">${escapeHtml(user)}<span>⌄</span></button>
     </div>
     <div class="shift-quick-actions primary-shift-actions">
       ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
@@ -4670,9 +4695,9 @@ function renderRoutineTargetFilter(){
   const people=getPersons().filter(p=>!isFamilyGroupTarget(p));
   if((routineTargetFilter||'all')!=='all' && !people.includes(routineTargetFilter))routineTargetFilter='all';
   const opts=[['all','전체'],...people.map(p=>[p,p])];
-  return `<div class="routine-filter-row">${opts.map(([k,label])=>{
+  return `<div class="routine-filter-row" role="tablist" aria-label="반복 대상 보기">${opts.map(([k,label])=>{
     const on=(routineTargetFilter||'all')===k;
-    return `<button class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})">${escapeHtml(label)}</button>`;
+    return `<button type="button" role="tab" class="routine-filter-chip${on?' on':''}" onclick="setRoutineTargetFilter(${onclickArg(k)})" aria-selected="${on?'true':'false'}">${escapeHtml(label)}</button>`;
   }).join('')}</div>`;
 }
 function toggleRepeatModalDay(ii,di){
@@ -4829,6 +4854,60 @@ function routineLifeMeta(item){
   return parts.filter(Boolean).join(' · ');
 }
 
+function renderRoutineLifeList(items=[],opts={}){
+  const visible=(items||[]).map(x=>('ii' in x&&'item' in x)?x:{item:x,ii:(repeatItems||[]).indexOf(x)}).filter(x=>x.item);
+  if(!visible.length)return opts.emptyHtml||renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 루틴을 추가해 보세요.');
+  const groups={};
+  visible.forEach(x=>{
+    const who=x.item.who||'공통';
+    if(!groups[who])groups[who]=[];
+    groups[who].push(x);
+  });
+  const order=getPersons();
+  const groupKeys=Object.keys(groups).sort((a,b)=>{
+    const ia=order.indexOf(a), ib=order.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  return `<div class="routine-life-list ${opts.className||''}">${groupKeys.map(who=>{
+    const arr=groups[who];
+    return `<section class="routine-life-person" style="--person-accent:${familyAccentColor(who)}">
+      <div class="routine-life-person-head">
+        <div class="routine-life-avatar">${avatarMarkup(personAvatar(who),who)}</div>
+        <div class="routine-life-person-text">
+          <div class="routine-life-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
+          <div class="routine-life-sub">반복 ${arr.length}개</div>
+        </div>
+      </div>
+      <div class="routine-life-items">${arr.map(({item,ii})=>{
+        const rid=item.id||ii;
+        const meta=routineLifeMeta(item);
+        const reorder=opts.reorder!==false;
+        return `<div class="routine-life-row reorder-card"
+          draggable="${reorder?'true':'false'}"
+          data-reorder-list="repeatItems" data-reorder-id="${rid}"
+          role="button"
+          tabindex="0"
+          onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRepeatEditModal(${ii})}"
+          ${reorder?`ondragstart="dragStart(event,'repeatItems','${rid}')"
+          ondragover="dragOver(event)"
+          ondrop="dropItem(event,'repeatItems','${rid}')"
+          ondragend="dragEnd(event)"
+          ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
+          ontouchmove="touchReorderMove(event)"
+          ontouchend="touchReorderEnd(event)"
+          ontouchcancel="touchReorderCancel()"`:''}>
+          <div class="routine-life-mark" aria-hidden="true">↻</div>
+          <div class="routine-life-main">
+            <div class="routine-life-row-title">${escapeHtml(item.title||'반복 일정')}</div>
+            <div class="routine-life-row-meta">${escapeHtml(meta)}</div>
+          </div>
+        </div>`;
+      }).join('')}</div>
+    </section>`;
+  }).join('')}</div>`;
+}
+
 function renderI(){
   const visibleRepeats=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
     if((routineTargetFilter||'all')==='all')return true;
@@ -4836,7 +4915,7 @@ function renderI(){
   });
 
   let h=`<div class="routine-subscreen-head routine-life-head">
-    <button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 일정으로 돌아가기</button>
+    <button class="subscreen-back-btn" onclick="backToScheduleFromRoutine()">← 반복</button>
     <div class="routine-life-title-wrap">
       <div class="subscreen-title">반복</div>
       <div class="routine-life-count">${visibleRepeats.length}개</div>
@@ -4844,63 +4923,7 @@ function renderI(){
   </div><div class="fi-outer routine-only-outer routine-life-outer">`;
 
   h+=renderRoutineTargetFilter();
-
-  if(visibleRepeats.length){
-    const groups={};
-    visibleRepeats.forEach(x=>{
-      const who=x.item.who||'공통';
-      if(!groups[who])groups[who]=[];
-      groups[who].push(x);
-    });
-    const order=getPersons();
-    const groupKeys=Object.keys(groups).sort((a,b)=>{
-      const ia=order.indexOf(a), ib=order.indexOf(b);
-      return (ia<0?999:ia)-(ib<0?999:ib);
-    });
-
-    h+=`<div class="routine-life-list">`;
-    groupKeys.forEach(who=>{
-      const arr=groups[who];
-      h+=`<section class="routine-life-person" style="--person-accent:${familyAccentColor(who)}">
-        <div class="routine-life-person-head">
-          <div class="routine-life-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-          <div class="routine-life-person-text">
-            <div class="routine-life-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)}</div>
-            <div class="routine-life-sub">반복 ${arr.length}개</div>
-          </div>
-        </div>
-        <div class="routine-life-items">`;
-      arr.forEach(({item,ii})=>{
-        const rid=item.id||ii;
-        const meta=routineLifeMeta(item);
-        h+=`<div class="routine-life-row reorder-card"
-          draggable="true"
-          data-reorder-list="repeatItems" data-reorder-id="${rid}"
-          role="button"
-          tabindex="0"
-          onclick="if(!consumeSwipeTap())openRepeatEditModal(${ii})"
-          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openRepeatEditModal(${ii})}"
-          ondragstart="dragStart(event,'repeatItems','${rid}')"
-          ondragover="dragOver(event)"
-          ondrop="dropItem(event,'repeatItems','${rid}')"
-          ondragend="dragEnd(event)"
-          ontouchstart="touchReorderStart(event,'repeatItems','${rid}')"
-          ontouchmove="touchReorderMove(event)"
-          ontouchend="touchReorderEnd(event)"
-          ontouchcancel="touchReorderCancel()">
-          <div class="routine-life-mark" aria-hidden="true">↻</div>
-          <div class="routine-life-main">
-            <div class="routine-life-row-title">${escapeHtml(item.title||'반복 일정')}</div>
-            <div class="routine-life-row-meta">${escapeHtml(meta)}</div>
-          </div>
-        </div>`;
-      });
-      h+=`</div></section>`;
-    });
-    h+=`</div>`;
-  }else{
-    h+=renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 루틴을 추가해 보세요.');
-  }
+  h+=renderRoutineLifeList(visibleRepeats);
   h+=`</div>`;
   return h;
 }
@@ -5099,41 +5122,22 @@ function renderArchivePast(){
 }
 
 function renderArchiveRepeat(){
-  const items=(repeatItems||[]).map((item,ii)=>({item,ii}));
-  if(!items.length){
-    return `<div class="archive-empty">${renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 일정을 등록하면 이곳에 모여요.')}</div>`;
+  const items=(repeatItems||[]).map((item,ii)=>({item,ii})).filter(x=>{
+    if((routineTargetFilter||'all')==='all')return true;
+    return (x.item.who||'공통')===routineTargetFilter;
+  });
+  const total=(repeatItems||[]).length;
+  if(!total){
+    return `<div class="archive-empty">${renderEmptyState('routine','반복 일정이 아직 없어요','반복되는 가족 루틴을 추가해 보세요.')}</div>`;
   }
-  const groups={};
-  items.forEach(x=>{
-    const who=x.item.who||'공통';
-    if(!groups[who])groups[who]=[];
-    groups[who].push(x);
-  });
-  const order=getPersons();
-  const groupKeys=Object.keys(groups).sort((a,b)=>{
-    const ia=order.indexOf(a), ib=order.indexOf(b);
-    return (ia<0?999:ia)-(ib<0?999:ib);
-  });
   return `
     ${archiveSectionHeader('반복',items.length)}
-    <div class="repeat-tab-grid archive-repeat-grid">
-      ${groupKeys.map(who=>`<div class="person-routine-card" style="--person-color:${familyTintColor(who,.10)};--person-accent:${familyAccentColor(who)}">
-        <div class="card-avatar">${avatarMarkup(personAvatar(who),who)}</div>
-        <div class="card-name" style="color:${familyAccentColor(who)}">${escapeHtml(who)} <span class="person-routine-count">${groups[who].length}</span></div>
-        <div class="person-routine-items">
-          ${groups[who].map(({item,ii})=>`<div class="card-routine-item" onclick="openRepeatEditModal(${ii})" role="button" tabindex="0">
-            <div class="routine-title-wrap">
-              <div class="routine-title">${escapeHtml(item.title||'반복 일정')}</div>
-              <div class="routine-submeta">${escapeHtml(repeatCompactMeta(item))}</div>
-            </div>
-            <div class="routine-meta">${escapeHtml(repeatTimeSummary(item))}</div>
-          </div>`).join('')}
-        </div>
-      </div>`).join('')}
+    ${renderRoutineTargetFilter()}
+    <div class="archive-routine-life routine-life-outer">
+      ${renderRoutineLifeList(items,{className:'archive-routine-life-list',reorder:false,emptyHtml:renderEmptyState('routine','해당 가족의 반복 일정이 없어요','다른 가족을 선택해 루틴을 확인해 보세요.')})}
     </div>
   `;
 }
-
 function renderArchiveRequests(){
   const done=requests.filter(r=>isDone(r)&&matchSearchReq(r));
   return `
