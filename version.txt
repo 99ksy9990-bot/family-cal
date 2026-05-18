@@ -1,2 +1,2 @@
-PASS_VERSION=v1.3.127
-PASS_BUILD=v1.3.127-work-input-only
+PASS_VERSION=v1.3.132
+PASS_BUILD=v1.3.132-work-tab-rhythm

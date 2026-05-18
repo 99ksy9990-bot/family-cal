@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.127';
-const PASS_BUILD_VERSION='v1.3.127-work-input-only';
+const APP_VERSION='v1.3.132';
+const PASS_BUILD_VERSION='v1.3.132-work-tab-rhythm';
 const APP_UPDATED='2026-05-17';
 const BRAND_LOGO_SRC='./assets/brand/www-logo.png';
 
@@ -146,25 +146,52 @@ const MEMORY_ICONS=['🎂','🌹','🎆','🎉','🎊','🎁','⭐','💐','🥳
 const BASE_PERSONS = ['공통','아빠','엄마','초이','도미'];
 const PERSON_COLORS=['#6B6B6F','#007AFF','#FF2D55','#34C759','#7C3AED','#FF9500','#00B7C2','#AF52DE'];
 const PERSON_COLOR_PALETTE=['#8E8E93','#007AFF','#FF2D55','#34C759','#FF9500','#7C3AED','#00C7BE','#5856D6','#AF52DE','#FF6B00','#111827','#A2845E'];
+const PROFILE_COLOR_PALETTE=[
+  '#2563EB','#38BDF8','#1E3A5F','#2DD4BF','#14B8A6',
+  '#22C55E','#84A98C','#D6C3A5','#A2845E','#FF7A6B',
+  '#F5A3B7','#C7B8EA','#8B5CF6','#64748B','#F59E0B'
+];
 
 
+const PERSON_AVATAR_ITEMS=[
+  'mascot_family','mascot_tiger','mascot_tiger_sand','mascot_tiger_coral',
+  'mascot_rabbit','mascot_rabbit_cream','mascot_rabbit_lavender',
+  'mascot_dog','mascot_dog_cream','mascot_dog_blue',
+  'mascot_chick','mascot_chick_cream','mascot_chick_mint',
+  'mascot_bear','mascot_bear_cocoa','mascot_bear_milk',
+  'mascot_hamster','mascot_hamster_peach',
+  'mascot_fox','mascot_fox_cream',
+  'mascot_panda','mascot_panda_blue',
+  'mascot_koala','mascot_koala_lavender'
+];
 const PERSON_AVATAR_GROUPS=[
-  {key:'recommended',label:'추천',items:['mascot_family','mascot_tiger','mascot_rabbit','mascot_dog']},
-  {key:'adult',label:'성인 느낌',items:['mascot_tiger','mascot_rabbit','mascot_dog','mascot_bear']},
-  {key:'kid',label:'아이 느낌',items:['mascot_chick','mascot_hamster','mascot_fox','mascot_koala']},
-  {key:'neutral',label:'중성',items:['mascot_panda','mascot_bear','mascot_koala','mascot_hamster']}
+  {key:'all',label:'아바타',items:PERSON_AVATAR_ITEMS}
 ];
 const MASCOT_AVATAR_SPECS={
   mascot_family:{type:'bear',base:'#D8B38A',accent:'#B88962',bg:'#F7EFE6',nose:'#6B4B3F'},
   mascot_tiger:{type:'tiger',base:'#EAB06B',accent:'#C57A3D',bg:'#FFF3E4',nose:'#704B34'},
+  mascot_tiger_sand:{type:'tiger',base:'#DDB985',accent:'#A97750',bg:'#F8EFE3',nose:'#6E4D39'},
+  mascot_tiger_coral:{type:'tiger',base:'#E9A081',accent:'#B96F58',bg:'#FFF0EA',nose:'#70483C'},
   mascot_rabbit:{type:'rabbit',base:'#F2D5DD',accent:'#E7AEBE',bg:'#FFF0F4',nose:'#B66F83'},
+  mascot_rabbit_cream:{type:'rabbit',base:'#F0E1CF',accent:'#DDB99C',bg:'#FFF7ED',nose:'#A97962'},
+  mascot_rabbit_lavender:{type:'rabbit',base:'#D9D2EC',accent:'#BDB0DA',bg:'#F4F1FF',nose:'#8576A8'},
   mascot_dog:{type:'dog',base:'#E4C39B',accent:'#B88B62',bg:'#FFF4E7',nose:'#72533D'},
+  mascot_dog_cream:{type:'dog',base:'#E9DCC6',accent:'#B99B79',bg:'#FAF3E9',nose:'#77604A'},
+  mascot_dog_blue:{type:'dog',base:'#C9D7E8',accent:'#8BA8C4',bg:'#EEF6FF',nose:'#546B82'},
   mascot_chick:{type:'chick',base:'#F4D66E',accent:'#E8A74A',bg:'#FFF8D8',nose:'#D08134'},
+  mascot_chick_cream:{type:'chick',base:'#F0DA8B',accent:'#D8A857',bg:'#FFF8DF',nose:'#B67836'},
+  mascot_chick_mint:{type:'chick',base:'#D7E6A4',accent:'#AFC76D',bg:'#F5FBE6',nose:'#8B9C4F'},
   mascot_bear:{type:'bear',base:'#C9A27A',accent:'#956E50',bg:'#F6EBDD',nose:'#5F4538'},
+  mascot_bear_cocoa:{type:'bear',base:'#B58A6B',accent:'#855D46',bg:'#F1E5DC',nose:'#584033'},
+  mascot_bear_milk:{type:'bear',base:'#D8C8AE',accent:'#A98F70',bg:'#F8F0E7',nose:'#6A5542'},
   mascot_hamster:{type:'hamster',base:'#E9C89C',accent:'#C99467',bg:'#FFF1DD',nose:'#7A5942'},
+  mascot_hamster_peach:{type:'hamster',base:'#EBC1A7',accent:'#C88B72',bg:'#FFF1EA',nose:'#806050'},
   mascot_fox:{type:'fox',base:'#E19A63',accent:'#F1D6BC',bg:'#FFF0E5',nose:'#5F3F35'},
+  mascot_fox_cream:{type:'fox',base:'#DFAF82',accent:'#F2DDC4',bg:'#FFF3E6',nose:'#71503C'},
   mascot_panda:{type:'panda',base:'#F4F0E8',accent:'#52606D',bg:'#F3F5F7',nose:'#2F3A45'},
-  mascot_koala:{type:'koala',base:'#BFC8CC',accent:'#8C9AA0',bg:'#EDF2F4',nose:'#58646A'}
+  mascot_panda_blue:{type:'panda',base:'#EDF2F6',accent:'#66798B',bg:'#EEF6FA',nose:'#3A4652'},
+  mascot_koala:{type:'koala',base:'#BFC8CC',accent:'#8C9AA0',bg:'#EDF2F4',nose:'#58646A'},
+  mascot_koala_lavender:{type:'koala',base:'#C8C3D6',accent:'#9D95B8',bg:'#F2F0FA',nose:'#666078'}
 };
 const DEFAULT_AVATAR_ALIASES={
   dad_01:'mascot_tiger',dad_02:'mascot_dog',dad_03:'mascot_bear',dad_04:'mascot_fox',dad_05:'mascot_panda',
@@ -684,7 +711,7 @@ function renderRepeatOnlyDetailLegacy(selDate,evs=[]){
         </div>
       </div>`).join('')
     : `<div class="cal-repeat-empty">등록된 반복 일정이 없어요.</div>`;
-  return `<div class="ev-card calendar-detail-card calendar-repeat-detail" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
+  return `<div class="ev-card calendar-detail-card calendar-repeat-detail" id="selected-day-panel">
     <div class="calendar-detail-head">
       <div class="calendar-detail-title">반복 일정</div>
       <div class="calendar-detail-date">${escapeHtml(calendarSelectedDateLabel(selDate))}</div>
@@ -726,7 +753,7 @@ function calendarWWWGroupOrder(who){
 }
 function renderCalendarWWWDetailCard(selDate,rowsHtml,extraClass=''){
   const holiday=holidayName(selDate);
-  return `<div class="ev-card calendar-detail-card calendar-www-detail ${extraClass}" id="selected-day-panel" ontouchstart="startPanelSwipe(event)" ontouchmove="movePanelSwipe(event)" ontouchend="endPanelSwipe(event)">
+  return `<div class="ev-card calendar-detail-card calendar-www-detail ${extraClass}" id="selected-day-panel">
     <div class="calendar-www-detail-date">${escapeHtml(calendarSelectedDateLabel(selDate))}${holiday?` <span>${escapeHtml(holiday)}</span>`:''}</div>
     <div class="calendar-www-detail-divider"></div>
     <div class="calendar-www-detail-rows">${rowsHtml}</div>
@@ -2841,31 +2868,12 @@ function openSwipeFamilyActions(id){
 
 let panelSwipe=null;
 function startPanelSwipe(e){
-  const p=swipePoint(e);
-  panelSwipe={el:e.currentTarget,startY:p.y,dy:0};
-  panelSwipe.el.style.transition='none';
+  panelSwipe=null;
 }
 function movePanelSwipe(e){
-  if(!panelSwipe)return;
-  const p=swipePoint(e);
-  const dy=Math.max(0,p.y-panelSwipe.startY);
-  panelSwipe.dy=dy;
-  if(dy>12&&e.cancelable)e.preventDefault();
-  panelSwipe.el.style.transform=`translateY(${Math.min(120,dy)}px)`;
-  panelSwipe.el.style.opacity=String(Math.max(.55,1-dy/200));
+  panelSwipe=null;
 }
 function endPanelSwipe(e){
-  if(!panelSwipe)return;
-  const {el,dy}=panelSwipe;
-  el.style.transition='transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease';
-  if(dy>70){
-    selDate=null;
-    panelSwipe=null;
-    render({preserveScroll:true});
-    return;
-  }
-  el.style.transform='translateY(0)';
-  el.style.opacity='1';
   panelSwipe=null;
 }
 
@@ -4363,6 +4371,31 @@ function renderShiftQuickInputBar(){
         <em>입력 대상 · ${escapeHtml(user)}</em>
       </div>
       <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">변경 <span>⌄</span></button>
+    </div>
+    <div class="shift-quick-actions primary-shift-actions">
+      ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
+    </div>
+    <div class="shift-quick-sub-actions">
+      <button class="shift-quick-chip secondary clear" ${hasDate?'':'disabled'} onclick="applyQuickShift(SHIFT_NONE)">미입력</button>
+    </div>
+  </div>`;
+}
+
+function renderShiftQuickInputBar(){
+  if(!isEditMode() || calViewMode!=='work')return '';
+  const user=shiftQuickInputUser();
+  const primaryLabels=['D','E','N','OFF'];
+  const current=selDate?shiftDisplayStatusFor(selDate,user):'';
+  const currentLabel=workQuickShiftLabel(current);
+  const hasDate=!!selDate;
+  const selectedLabel=hasDate?shiftQuickDateLabel(selDate):'날짜를 선택해 주세요';
+  return `<div class="shift-quick-input-bar">
+    <div class="shift-quick-head">
+      <div class="shift-quick-title-line">
+        <b>${escapeHtml(selectedLabel)}</b>
+        <em>${escapeHtml(currentLabel||'미입력')}</em>
+      </div>
+      <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">${escapeHtml(user)}<span>⌄</span></button>
     </div>
     <div class="shift-quick-actions primary-shift-actions">
       ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
@@ -8386,8 +8419,10 @@ function editKid(i){
   const curAvatarUrl=draft.avatarUrl||'';
   const curColor=draft.color||k.color||defaultPersonColor(curName);
 
-  const quietColors=PERSON_COLOR_PALETTE.slice(0,6);
+  const quietColors=PROFILE_COLOR_PALETTE;
   const shiftStatus=shiftUsers.includes(k.name)?'근무표 표시 중':'근무표 미표시';
+  const vacationCount=(vacationPeriods||[]).length;
+  const academicSummary=vacationCount?`등록된 방학 ${vacationCount}개`:'등록된 방학 없음';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet profile-edit-sheet profile-state-sheet" onclick="event.stopPropagation()">
@@ -8396,7 +8431,7 @@ function editKid(i){
         <div id="kid-avatar-preview" class="profile-state-avatar">${avatarFrameMarkup({avatarType:curAvatarType,avatarId:curAvatar,avatarEmoji:curAvatarEmoji,avatarUrl:curAvatarUrl,color:curColor},curName,'avatarFrame profile-state-avatar-frame')}</div>
         <div class="profile-state-title-wrap">
           <div class="modal-hd">${escapeHtml(curName||'가족')}</div>
-          <div class="profile-state-sub">현재 가족 프로필</div>
+          <div class="profile-state-sub">현재 프로필</div>
         </div>
       </div>
 
@@ -8419,6 +8454,14 @@ function editKid(i){
           <span>근무 유형</span>
           <em>${escapeHtml(shiftStatus)}</em>
         </div>
+      </div>
+
+      <div class="profile-state-section profile-academic-summary">
+        <div>
+          <b>학사 일정</b>
+          <span>${escapeHtml(academicSummary)}</span>
+        </div>
+        <button type="button" onclick="openVacationPeriodModal()">추가</button>
       </div>
 
       <input type="hidden" id="k-color" value="${escapeAttr(curColor)}"/>
@@ -8444,11 +8487,7 @@ function openKidAvatarPicker(i){
   const curAvatar=resolveAvatarId(draft.avatarId||draft.avatar||defaultAvatarForName(curName));
   const curAvatarType=(draft.avatarType==='photo'&&draft.avatarUrl)?'photo':'default';
   const curColor=draft.color||k.color||defaultPersonColor(curName);
-  const groups=PERSON_AVATAR_GROUPS.map(g=>({
-    label:g.label,
-    items:g.key==='recommended'?[defaultAvatarForName(curName),...g.items]:g.items
-  }));
-  const uniqGroups=groups.map(g=>({...g,items:[...new Set(g.items.map(resolveAvatarId))].filter(Boolean)}));
+  const avatarFlow=[...new Set([defaultAvatarForName(curName),...PERSON_AVATAR_ITEMS].map(resolveAvatarId))].filter(Boolean);
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
     <div class="modal-sheet avatar-picker-sheet" onclick="event.stopPropagation()">
@@ -8463,8 +8502,8 @@ function openKidAvatarPicker(i){
       <div class="avatar-picker-current">
         ${avatarFrameMarkup({avatarType:curAvatarType,avatarId:curAvatar,avatarUrl:draft.avatarUrl,color:curColor},curName,'avatarFrame avatar-picker-current-frame')}
         <div>
-          <b>현재 아바타</b>
-          <span>선택하면 프로필 화면으로 돌아가요.</span>
+          <b>현재 사용 중</b>
+          <span>프로필 아바타</span>
         </div>
       </div>
       <div class="avatar-picker-actions">
@@ -8472,10 +8511,7 @@ function openKidAvatarPicker(i){
         <button type="button" class="avatar-clear-btn" onclick="setKidAvatarDraft(${i},{avatarType:'default',avatarId:defaultAvatarForName(${onclickArg(curName)})})">기본으로</button>
       </div>
       <div class="avatar-picker-library">
-        ${uniqGroups.map(g=>`<section class="avatar-picker-section">
-          <div class="avatar-picker-section-title">${escapeHtml(g.label)}</div>
-          <div class="avatar-picker-grid">${g.items.slice(0,8).map(ic=>`<button type="button" class="avatar-choice${curAvatarType==='default'&&resolveAvatarId(ic)===curAvatar?' on':''}" onclick="setKidAvatarDraft(${i},{avatarType:'default',avatarId:${onclickArg(ic)}})">${avatarFrameMarkup({avatarType:'default',avatarId:ic},g.label,'avatarFrame avatar-picker-frame')}</button>`).join('')}</div>
-        </section>`).join('')}
+        <div class="avatar-picker-grid avatar-picker-flow">${avatarFlow.map(ic=>`<button type="button" class="avatar-choice${curAvatarType==='default'&&resolveAvatarId(ic)===curAvatar?' on':''}" onclick="setKidAvatarDraft(${i},{avatarType:'default',avatarId:${onclickArg(ic)}})">${avatarFrameMarkup({avatarType:'default',avatarId:ic},'아바타','avatarFrame avatar-picker-frame')}</button>`).join('')}</div>
       </div>
     </div>
   </div>`;
