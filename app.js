@@ -1,5 +1,5 @@
-const APP_VERSION='v1.3.116';
-const PASS_BUILD_VERSION='v1.3.116-quick-add-compact';
+const APP_VERSION='v1.3.127';
+const PASS_BUILD_VERSION='v1.3.127-work-input-only';
 const APP_UPDATED='2026-05-17';
 const BRAND_LOGO_SRC='./assets/brand/www-logo.png';
 
@@ -116,7 +116,8 @@ const DEFAULT_DATA={
   deletedItems:[],
   customHolidays:[],
   holidayCache:{},
-  repeatItems:[]
+  repeatItems:[],
+  vacationPeriods:[]
 };
 
 const TODAY=new Date();
@@ -502,7 +503,7 @@ function holidayHiddenRoutineCount(dateKey){
     if(r.start && dateKey<r.start)return;
     if(r.repeatEnd && dateKey>r.repeatEnd)return;
     if(Array.isArray(r.skipDates) && r.skipDates.includes(dateKey))return;
-    if(r.pauseOnVacation && isPersonVacation(r.who||'공통',dateKey))return;
+    if(repeatIsInExceptionPeriod(r,dateKey))return;
     cnt++;
   });
 
@@ -693,7 +694,24 @@ function renderRepeatOnlyDetailLegacy(selDate,evs=[]){
 }
 
 function renderWorkOnlyDetail(selDate){
-  return renderCalendarWWWDetailCard(selDate,renderCalendarWWWDetailRows(selDate,{includeShift:true,hideEmpty:false}),'calendar-work-detail');
+  if(!selDate)return '';
+  normalizeShiftUsers();
+  const user=calendarWorkUser();
+  const status=shiftDisplayStatusFor(selDate,user);
+  const label=status?workCalendarShiftLabel(status):'';
+  const body=status
+    ? `<div class="calendar-www-row calendar-work-status-row">
+        <div class="www-person-avatar-col">${avatarFrameMarkup(personAvatarConfig(user),user,'avatarFrame www-avatar-frame')}</div>
+        <div class="www-person-name" style="color:${familyAccentColor(user)}">${escapeHtml(user)}</div>
+        <div class="www-chip-wrap">
+          <button type="button" class="www-chip shift-chip ${shiftBadgeClass(status)}" onclick="event.stopPropagation();openShiftPicker('${selDate}',true)" aria-label="${escapeAttr(`${user} 근무 수정`)}"><span class="www-shift-label">${escapeHtml(label)}</span></button>
+        </div>
+      </div>`
+    : `<div class="calendar-work-empty">
+        <b>등록된 근무가 없어요.</b>
+        <span>근무 상태를 입력해보세요.</span>
+      </div>`;
+  return renderCalendarWWWDetailCard(selDate,body,'calendar-work-detail');
 }
 function calendarWWWChipTime(n){
   if(isRoutineCalendarEvent(n))return calendarRepeatChipTime(n);
@@ -1007,7 +1025,8 @@ function renderMemoryOnlyDetail(selDate,mems){
       </span>
     </button>`;
   }).join('');
-  return renderCalendarWWWDetailCard(selDate,rows||'<div class="calendar-www-empty">선택한 날짜에는 기념일이 없어요.</div>','calendar-memory-detail calendar-memory-only-detail');
+  const selectedDetail=renderCalendarWWWDetailCard(selDate,rows||'<div class="calendar-www-empty">선택한 날짜에는 기념일이 없어요.</div>','calendar-memory-detail calendar-memory-only-detail');
+  return selectedDetail+renderRegisteredMemoryList();
 }
 
 function renderCalendarAvatars(people){
@@ -1251,7 +1270,7 @@ function holidayName(k){const c=(customHolidays||[]).find(x=>x.date===k);return 
 function isHolidayKey(k){return !!holidayName(k)}
 
 
-let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],shiftDefaults={},notificationEnabled=false;
+let notes=[],family=[],requests=[],memories=[],notices=[],deletedItems=[],customHolidays=[],holidayCache={},repeatItems=[],vacationPeriods=[],shiftData={},hiddenBasePersons=[],changeLogs=[],shiftUsers=[],shiftLabels=[...DEFAULT_SHIFT_LABELS],shiftDefaults={},notificationEnabled=false;
 let roomId = getRoomId();
 let unsubscribe=null;
 let remoteReady=false;
@@ -1551,7 +1570,7 @@ function familyInfoEventsOnDate(y,m,d){
     if(r.repeatEnd && date>r.repeatEnd)return;
     if(Array.isArray(r.skipDates) && r.skipDates.includes(date))return;
 
-    if(r.pauseOnVacation && isPersonVacation(r.who||'공통',date))return;
+    if(repeatIsInExceptionPeriod(r,date))return;
 
     out.push({
       id:`auto-${r.id}-${date}`,
@@ -2074,6 +2093,37 @@ function normalizeData(d){
     if(!('repeatEnd' in r))r.repeatEnd='';
     if(!Array.isArray(r.skipDates))r.skipDates=[];
     if(!('pauseOnVacation' in r))r.pauseOnVacation=false;
+    if(!Array.isArray(r.exceptionPeriodIds))r.exceptionPeriodIds=[];
+  });
+
+  vacationPeriods=Array.isArray(d.vacationPeriods)?d.vacationPeriods:[];
+  if(!vacationPeriods.length){
+    (family||[]).forEach(kid=>{
+      (kid.vacations||[]).forEach((v,idx)=>{
+        if(!v || (!v.start&&!v.end))return;
+        const id=`vac-${kid.id||kid.name||'family'}-${idx}-${v.start||''}-${v.end||''}`;
+        vacationPeriods.push({
+          id,
+          name:v.name||`${kid.name||'가족'} 방학`,
+          start:v.start||'',
+          end:v.end||'',
+          repeatIds:[]
+        });
+        (repeatItems||[]).forEach(r=>{
+          if((r.who||'')===(kid.name||'') && r.pauseOnVacation){
+            if(!Array.isArray(r.exceptionPeriodIds))r.exceptionPeriodIds=[];
+            if(!r.exceptionPeriodIds.includes(id))r.exceptionPeriodIds.push(id);
+          }
+        });
+      });
+    });
+  }
+  vacationPeriods.forEach(v=>{
+    if(!v.id)v.id=Date.now()+Math.random();
+    if(!v.name)v.name='방학';
+    if(!v.start)v.start='';
+    if(!v.end)v.end='';
+    if(!Array.isArray(v.repeatIds))v.repeatIds=[];
   });
 
   notices.forEach(n=>{if(!('important' in n))n.important=false; if(!('read' in n))n.read=false;});
@@ -2084,7 +2134,7 @@ function normalizeData(d){
   migrateShiftDataToMulti();
 }
 function currentData(){
-  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
+  return {notes,family,requests,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,vacationPeriods,shiftData,shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,hiddenBasePersons,changeLogs,updatedAt:Date.now()};
 }
 function saveLocal(){try{localStorage.setItem(SK.data,JSON.stringify(currentData()))}catch(e){console.warn('saveLocal failed',e)}}
 function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null')}catch(e){return null}}
@@ -2092,7 +2142,7 @@ function loadLocal(){try{return JSON.parse(localStorage.getItem(SK.data)||'null'
 
 function currentSettingsData(){
   return {
-    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,hiddenBasePersons,changeLogs,
+    family,memories,notices,deletedItems,customHolidays,holidayCache,repeatItems,vacationPeriods,hiddenBasePersons,changeLogs,
     shiftUsers,shiftLabels,shiftDefaults,notificationEnabled,
     storageMode:'subcollections',
     updatedAt:Date.now()
@@ -2304,6 +2354,37 @@ function addChangeLog(text,kind='change'){
   if(!Array.isArray(changeLogs))changeLogs=[];
   changeLogs.unshift({id:Date.now()+Math.random(),kind,text:String(text||''),at:Date.now()});
   changeLogs=changeLogs.slice(0,80);
+}
+function lifestyleChangeLogText(log){
+  const raw=String(log?.text||'').trim();
+  if(!raw)return '';
+  if(raw.includes('일정 삭제:')){
+    const rest=raw.split('일정 삭제:')[1]||'';
+    const who=(rest.split('·')[0]||'').trim();
+    return `${who&&who!=='공통'?`${who} `:''}일정이 바뀌었어요`;
+  }
+  if(raw.includes('대상 삭제')||raw.includes('새 대상')||raw.includes('가족 삭제')){
+    return '가족 구성이 바뀌었어요';
+  }
+  if(raw.includes('부탁 삭제')){
+    return '부탁 목록이 정리됐어요';
+  }
+  if(raw.includes('삭제')||raw.includes('수정')||raw.includes('변경')){
+    return '가족 보드가 업데이트됐어요';
+  }
+  return raw.replace(/최근 변경|대상 삭제|새 대상|삭제|수정/g,'업데이트').trim();
+}
+function lifestyleChangeLogMeta(log){
+  const age=Math.max(0,Date.now()-(log?.at||Date.now()));
+  if(age<1000*60*30)return '방금 업데이트';
+  if(age<1000*60*60*24)return '오늘 업데이트';
+  return '최근 업데이트';
+}
+function isLifestyleInboxLog(log){
+  const text=lifestyleChangeLogText(log);
+  if(!text)return false;
+  if(/완전 삭제|삭제 실패|기록을 비울|DB|audit|로그/i.test(String(log?.text||'')))return false;
+  return true;
 }
 function openChangeLog(){
   const list=Array.isArray(changeLogs)?changeLogs:[];
@@ -3957,6 +4038,74 @@ function calendarMemorySort(a,b){
   if(pa!==pb)return pa-pb;
   return String(a.name||'').localeCompare(String(b.name||''));
 }
+function calendarMemoryOccurrenceForYear(x,year=calY){
+  if(!x||!x.birth)return '';
+  const [,mm,dd]=String(x.birth).split('-').map(Number);
+  if(!mm||!dd)return '';
+  if(memoryCalendarType(x)==='lunar')return lunarToSolarDate(year,mm,dd);
+  return `${year}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+}
+function calendarMemoryRegisteredSort(a,b){
+  const today=todayKey();
+  const currentMonth=String(calM+1).padStart(2,'0');
+  const score=x=>{
+    const occ=calendarMemoryOccurrenceForYear(x,calY);
+    if(!occ)return [9,'9999-99-99',String(x?.name||'')];
+    const month=occ.slice(5,7);
+    if(month===currentMonth)return [0,occ,String(x?.name||'')];
+    if(occ>=today)return [1,occ,String(x?.name||'')];
+    return [2,occ,String(x?.name||'')];
+  };
+  const av=score(a), bv=score(b);
+  for(let i=0;i<av.length;i++){
+    if(av[i]!==bv[i])return String(av[i]).localeCompare(String(bv[i]),'ko',{numeric:true});
+  }
+  return 0;
+}
+function calendarMemoryDateLine(x){
+  if(!x||!x.birth)return '날짜 없음';
+  const [,mm,dd]=String(x.birth).split('-').map(Number);
+  if(!mm||!dd)return '날짜 없음';
+  const prefix=memoryCalendarType(x)==='lunar'?'음력 ':'';
+  const isOneOff=x.repeat===false || x.repeat==='none' || x.once===true;
+  if(isOneOff){
+    const [yy]=String(x.birth).split('-').map(Number);
+    return `${prefix}${yy}년 ${mm}월 ${dd}일`;
+  }
+  return `${prefix}매년 ${mm}월 ${dd}일`;
+}
+function renderRegisteredMemoryList(){
+  const list=[...(memories||[])].sort(calendarMemoryRegisteredSort);
+  if(!list.length){
+    return `<div class="ev-card calendar-detail-card calendar-memory-registry calendar-memory-registry-empty">
+      <div class="calendar-memory-registry-head">
+        <span class="calendar-memory-registry-title">등록된 기념일</span>
+      </div>
+      <div class="calendar-memory-registry-empty-title">등록된 기념일이 없어요.</div>
+      <div class="calendar-memory-registry-empty-sub">생일이나 가족 기념일을 추가해보세요.</div>
+    </div>`;
+  }
+  const rows=list.map(x=>{
+    const kind=memoryEventKind(x);
+    const title=x.name||kind.label||'기념일';
+    const subject=memoryDisplaySubject(x);
+    const subjectText=subject&&subject!=='공통'&&subject!==title?` · ${subject}`:'';
+    return `<button type="button" class="calendar-memory-registry-row" onclick="openMemoryModal('${x.id}')">
+      <span class="calendar-memory-registry-dot" aria-hidden="true"></span>
+      <span class="calendar-memory-registry-main">
+        <span class="calendar-memory-registry-name">${escapeHtml(title)}${escapeHtml(subjectText)}</span>
+        <span class="calendar-memory-registry-date">${escapeHtml(calendarMemoryDateLine(x))}</span>
+      </span>
+    </button>`;
+  }).join('');
+  return `<div class="ev-card calendar-detail-card calendar-memory-registry">
+    <div class="calendar-memory-registry-head">
+      <span class="calendar-memory-registry-title">등록된 기념일</span>
+      <span class="calendar-memory-registry-count">· ${list.length}</span>
+    </div>
+    <div class="calendar-memory-registry-list">${rows}</div>
+  </div>`;
+}
 function calendarMemoryItem(x,sp){
   const mp=memoryDisplaySubject(x);
   return `<div class="ev-item cal-selected-event memory-selected-event">
@@ -4084,7 +4233,7 @@ function renderC(){
     const evs=filterCalendarEventsByTarget(allEvs);
     const mems=filterCalendarMemoriesByTarget(allMems);
     if(calViewMode==='work'){
-      evHtml='';
+      evHtml=renderWorkOnlyDetail(selDate);
     }else if(calViewMode==='routine'){
       evHtml=renderRepeatOnlyDetail(selDate,evs);
     }else if(calViewMode==='memory'){
@@ -4113,8 +4262,7 @@ function renderC(){
       <div class="cal-grid">${g}</div>
       ${calViewMode==='work'?renderCalendarShiftCounts():renderCalendarPersonLegend()}
     </div>
-    ${renderShiftQuickInputBar()}
-    ${evHtml}
+    ${calViewMode==='work'?`${evHtml}${renderShiftQuickInputBar()}`:`${renderShiftQuickInputBar()}${evHtml}`}
   </div>`;
 }
 
@@ -4212,9 +4360,9 @@ function renderShiftQuickInputBar(){
       <div class="shift-quick-title-line">
         <b>${escapeHtml(selectedLabel)}</b>
         <span>·</span>
-        <em>${escapeHtml(user)}</em>
+        <em>입력 대상 · ${escapeHtml(user)}</em>
       </div>
-      <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">${escapeHtml(user)} <span>⌄</span></button>
+      <button type="button" class="shift-quick-target" onclick="openShiftTargetSheet()">변경 <span>⌄</span></button>
     </div>
     <div class="shift-quick-actions primary-shift-actions">
       ${primaryLabels.map(s=>`<button class="shift-quick-chip${currentLabel===s?' on':''}" ${hasDate?'':'disabled'} onclick="applyQuickShift(${onclickArg(s)})">${escapeHtml(s)}</button>`).join('')}
@@ -4253,7 +4401,7 @@ function chCal(d){
 function addRepeatItem(){
   if(!requireEditMode())return;
   routineOpen=true;
-  const item={id:Date.now(),who:(routineTargetFilter&&routineTargetFilter!=='all'?routineTargetFilter:(getPersons()[0]||'공통')),title:'',days:[],start:'',sT:'',eT:'',repeatEnd:'',pauseOnVacation:false};
+  const item={id:Date.now(),who:(routineTargetFilter&&routineTargetFilter!=='all'?routineTargetFilter:(getPersons()[0]||'공통')),title:'',days:[],start:'',sT:'',eT:'',repeatEnd:'',pauseOnVacation:false,exceptionPeriodIds:[]};
   repeatItems.unshift(item);
   saveSettingsOnly();
   render({preserveScroll:true});
@@ -4507,16 +4655,30 @@ function toggleRepeatModalDay(ii,di){
   const summary=document.getElementById(`repeat-days-summary-${ii}`);
   if(summary)summary.textContent=repeatDaysSummary(draft.days);
 }
-function toggleRepeatModalVacation(ii){
+function renderRepeatExceptionPicker(ii,draft){
+  const selected=new Set(repeatExceptionIds(draft));
+  if(!(vacationPeriods||[]).length){
+    return `<div class="repeat-exception-empty">등록된 방학이 없어요.</div>`;
+  }
+  return `<div class="repeat-exception-list">${(vacationPeriods||[]).map(v=>{
+    const on=selected.has(String(v.id));
+    return `<button type="button" class="repeat-exception-chip${on?' on':''}" onclick="event.stopPropagation();toggleRepeatModalException(${ii},${onclickArg(String(v.id))})">
+      <span>${escapeHtml(v.name||'방학')}</span>
+      <em>${escapeHtml(vacationPeriodRange(v))}</em>
+    </button>`;
+  }).join('')}</div>`;
+}
+function toggleRepeatModalException(ii,id){
   const item=repeatItems[ii]; if(!item)return;
   const draft=__repeatEditDrafts[ii] || deepCopy(item);
   __repeatEditDrafts[ii]=draft;
-  draft.pauseOnVacation=!draft.pauseOnVacation;
-  const btn=document.getElementById(`repeat-vacation-${ii}`);
-  if(btn){
-    btn.classList.toggle('on',!!draft.pauseOnVacation);
-    btn.textContent=draft.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF';
-  }
+  if(!Array.isArray(draft.exceptionPeriodIds))draft.exceptionPeriodIds=[];
+  const key=String(id);
+  const idx=draft.exceptionPeriodIds.map(String).indexOf(key);
+  if(idx>=0)draft.exceptionPeriodIds.splice(idx,1);
+  else draft.exceptionPeriodIds.push(key);
+  const box=document.getElementById(`repeat-exception-picker-${ii}`);
+  if(box)box.innerHTML=renderRepeatExceptionPicker(ii,draft);
 }
 function openRepeatEditModal(ii){
   if(!requireEditMode())return;
@@ -4564,10 +4726,11 @@ function openRepeatEditModal(ii){
       <details class="detail-settings">
         <summary>추가 설정</summary>
         <div class="detail-settings-panel">
-          <div class="ml">방학</div>
-          <button class="today-toggle-pill vacation-toggle modal-vacation-toggle${draft.pauseOnVacation?' on':''}" id="repeat-vacation-${ii}" onclick="event.stopPropagation();toggleRepeatModalVacation(${ii})">
-            ${draft.pauseOnVacation?'🌴 방학 쉼 ON':'🌴 방학 쉼 OFF'}
-          </button>
+          <div class="ml">예외 기간</div>
+          <div class="repeat-exception-picker" id="repeat-exception-picker-${ii}">
+            ${renderRepeatExceptionPicker(ii,draft)}
+          </div>
+          <button type="button" class="repeat-exception-add" onclick="event.stopPropagation();openVacationPeriodModal('',${ii})">방학 추가</button>
 
           <div class="ml">날짜</div>
           <div class="mi-2">
@@ -4597,7 +4760,8 @@ function saveRepeatEdit(ii){
   item.title=title.trim();
   item.who=(document.getElementById(`re-who-${ii}`)||{}).value||draft.who||'공통';
   item.days=Array.isArray(draft.days)?[...draft.days]:[];
-  item.pauseOnVacation=!!draft.pauseOnVacation;
+  item.exceptionPeriodIds=repeatExceptionIds(draft);
+  item.pauseOnVacation=false;
   item.start=getPickerVal(`rp-sd-${ii}`);
   item.repeatEnd=getPickerVal(`rp-re-${ii}`);
   item.sT=getPickerVal(`rp-st-${ii}`);
@@ -4619,13 +4783,16 @@ function repeatCompactMeta(item){
   const parts=[repeatDaysSummary(item?.days)];
   const futureStart=repeatFutureStartSummary(item);
   if(futureStart)parts.push(futureStart);
-  if(item?.pauseOnVacation)parts.push('방학 쉼');
+  const exception=repeatExceptionSummary(item);
+  if(exception)parts.push(`예외 ${exception}`);
   return parts.filter(Boolean).join(' · ');
 }
 function routineLifeMeta(item){
   const parts=[repeatDaysSummary(item?.days)];
   const time=repeatTimeSummary(item);
   if(time && time!=='시간 없음')parts.push(time);
+  const exception=repeatExceptionSummary(item);
+  if(exception)parts.push(`예외 ${exception}`);
   return parts.filter(Boolean).join(' · ');
 }
 
@@ -4786,14 +4953,15 @@ function makeReqCard(r){
   const done = isDone(r);
   const writer = r.writer || '공통';
   const avatar = `<div class="todo-compact-avatar" title="${escapeAttr(writer)}">${avatarMarkup(personAvatar(writer), writer, 'avatar-img-small')}</div>`;
-  const writerName = `<div class="todo-compact-person" style="color:${familyAccentColor(writer)}">${escapeHtml(writer)}</div>`;
-  const metaParts = [];
-  if(due) metaParts.push(escapeHtml(due));
-  if(r.comment) metaParts.push(escapeHtml(r.comment));
-  const meta = metaParts.length ? `<div class="todo-compact-meta">${metaParts.join(' · ')}</div>` : '';
-  const check = `<div class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')">
+  const requestDate = shortDateWithDow(r.requestDate || r.createdAt || todayKey());
+  const metaParts = [`<span class="todo-compact-person" style="color:${familyAccentColor(writer)}">${escapeHtml(writer)}</span>`];
+  if(requestDate) metaParts.push(`<span>${escapeHtml(requestDate)}</span>`);
+  if(due) metaParts.push(`<span>${escapeHtml(due)}</span>`);
+  const meta = `<div class="todo-compact-meta">${metaParts.join('<span class="todo-compact-dotsep">·</span>')}</div>`;
+  const memo = r.comment ? `<div class="todo-memo">${escapeHtml(r.comment)}</div>` : '';
+  const check = `<button type="button" class="chk ${done ? 'on' : ''}" onclick="event.stopPropagation(); toggleReq('${r.id}')" aria-label="${escapeAttr(done?'부탁 해결 취소':'부탁 해결')}">
         <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5L5 9L13 1" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>`;
+      </button>`;
   return `<div class="card swipe-card request-swipe-card todo-compact-card ${done ? 'done-card' : ''}" 
     ontouchstart="startItemSwipe(event,'request','${r.id}')" ontouchmove="moveItemSwipe(event)" ontouchend="endItemSwipe(event)"
     onmousedown="startItemSwipe(event,'request','${r.id}')" onmousemove="moveItemSwipe(event)" onmouseup="endItemSwipe(event)" onmouseleave="endItemSwipe(event)"
@@ -4801,13 +4969,13 @@ function makeReqCard(r){
     onclick="if(!consumeSwipeTap())openEditReq('${r.id}')" style="cursor:pointer">
     <div class="swipe-bg swipe-bg-right">해결</div><div class="swipe-bg swipe-bg-left">수정 · 삭제</div>
     <div class="todo-compact-grid ${done?'todo-done-grid':'todo-active-grid'}">
-      ${check}
       ${avatar}
-      ${writerName}
       <div class="todo-compact-main">
-        <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
         ${meta}
+        <div class="todo-compact-title ${done ? 'done' : ''}">${highlightText(r.title)}</div>
+        ${memo}
       </div>
+      ${check}
     </div>
   </div>`;
 }
@@ -4856,7 +5024,7 @@ function renderR(){
 }
 
 function setArchiveMode(mode){
-  archiveMode=['past','repeat','request'].includes(mode)?mode:'past';
+  archiveMode=['past','repeat','vacation','request'].includes(mode)?mode:'past';
   render({preserveScroll:false});
 }
 
@@ -4864,6 +5032,7 @@ function renderArchiveTabs(){
   const tabs=[
     ['past','지난 일정'],
     ['repeat','반복'],
+    ['vacation','방학'],
     ['request','해결한 부탁']
   ];
   return `<div class="archive-head">
@@ -4940,12 +5109,107 @@ function renderArchiveRequests(){
   `;
 }
 
+function renderArchiveVacations(){
+  const list=[...(vacationPeriods||[])].sort((a,b)=>(a.start||'9999').localeCompare(b.start||'9999'));
+  if(!list.length){
+    return `<div class="archive-empty">${renderEmptyState('vacation','등록된 방학이 없어요','반복 일정에서 쉬어갈 기간을 예외로 추가해보세요.')}</div>
+      <button type="button" class="archive-vacation-add primary-btn" onclick="openVacationPeriodModal()">방학 추가</button>`;
+  }
+  return `
+    ${archiveSectionHeader('방학',list.length)}
+    <div class="archive-vacation-list">
+      ${list.map(v=>{
+        const applied=vacationPeriodAppliedRepeats(v);
+        return `<button type="button" class="archive-vacation-row" onclick="openVacationPeriodModal(${onclickArg(String(v.id))})">
+          <span class="archive-vacation-dot" aria-hidden="true"></span>
+          <span class="archive-vacation-main">
+            <b>${escapeHtml(v.name||'방학')}</b>
+            <em>${escapeHtml(vacationPeriodRange(v))}</em>
+            <small>${applied.length?`적용 ${applied.length}개 · ${applied.slice(0,2).map(x=>escapeHtml(x.who||'공통')).join(', ')}`:'아직 연결된 반복 일정이 없어요'}</small>
+          </span>
+        </button>`;
+      }).join('')}
+    </div>
+    <button type="button" class="archive-vacation-add primary-btn" onclick="openVacationPeriodModal()">방학 추가</button>
+  `;
+}
+
 function renderArchive(){
-  const body=archiveMode==='repeat'?renderArchiveRepeat():archiveMode==='request'?renderArchiveRequests():renderArchivePast();
+  const body=archiveMode==='repeat'?renderArchiveRepeat():archiveMode==='vacation'?renderArchiveVacations():archiveMode==='request'?renderArchiveRequests():renderArchivePast();
   return `<div class="archive-page">
     ${renderArchiveTabs()}
     ${body}
   </div>`;
+}
+
+function openVacationPeriodModal(id='',repeatIndex=''){
+  if(!requireEditMode())return;
+  const item=id?(vacationPeriods||[]).find(v=>String(v.id)===String(id)):null;
+  const title=item?'방학 수정':'방학 추가';
+  const ri=repeatIndex===''?'':Number(repeatIndex);
+  document.getElementById('modal').innerHTML=`
+  <div class="modal-bg" onclick="closeM(event)">
+    <div class="modal-sheet vacation-edit-sheet add-flow-sheet" onclick="event.stopPropagation()">
+      <div class="modal-ind"></div>
+      <div class="add-flow-head">
+        <div>
+          <div class="modal-hd">${title}</div>
+          <p>반복 일정에 연결할 쉬어가는 기간이에요.</p>
+        </div>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>WHAT</span><b>이름</b></div>
+        <input class="mi add-title-input" id="vp-name" value="${escapeAttr(item?.name||'')}" placeholder="예: 여름방학"/>
+      </div>
+      <div class="add-flow-card">
+        <div class="add-step-head"><span>WHEN</span><b>기간</b></div>
+        <div class="mi-2">
+          <div><div class="sublabel">시작</div><input class="picker-field${item?.start?'':' empty'}" id="vp-start" readonly data-val="${item?.start||''}" value="${item?.start?dateLabel(item.start):'시작일'}" onclick="openDatePicker('vp-start')"/></div>
+          <div><div class="sublabel">종료</div><input class="picker-field${item?.end?'':' empty'}" id="vp-end" readonly data-val="${item?.end||''}" value="${item?.end?dateLabel(item.end):'종료일'}" onclick="openDatePicker('vp-end')"/></div>
+        </div>
+      </div>
+      ${ri!==''&&!Number.isNaN(ri)?`<div class="vacation-link-note">저장하면 현재 반복 일정의 예외 기간으로 연결돼요.</div>`:''}
+      <div class="edit-sheet-actions">
+        <button class="primary-btn" onclick="saveVacationPeriod(${onclickArg(String(id||''))},${ri!==''&&!Number.isNaN(ri)?ri:"''"})">저장</button>
+        ${item?`<button class="edit-danger-text" onclick="deleteVacationPeriod(${onclickArg(String(item.id))})">방학 삭제</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+function saveVacationPeriod(id='',repeatIndex=''){
+  if(!requireEditMode())return;
+  const name=(document.getElementById('vp-name')?.value||'').trim()||'방학';
+  const start=getPickerVal('vp-start');
+  const end=getPickerVal('vp-end');
+  if(!start||!end){alert('방학 시작일과 종료일을 선택해 주세요.');return;}
+  let item=(vacationPeriods||[]).find(v=>String(v.id)===String(id));
+  if(!item){
+    item={id:`vac-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name,start,end,repeatIds:[]};
+    vacationPeriods.unshift(item);
+  }else{
+    item.name=name; item.start=start; item.end=end;
+  }
+  const ri=repeatIndex===''?NaN:Number(repeatIndex);
+  if(!Number.isNaN(ri)&&repeatItems[ri]){
+    if(!Array.isArray(repeatItems[ri].exceptionPeriodIds))repeatItems[ri].exceptionPeriodIds=[];
+    if(!repeatItems[ri].exceptionPeriodIds.map(String).includes(String(item.id)))repeatItems[ri].exceptionPeriodIds.push(String(item.id));
+  }
+  saveSettingsOnly();
+  closeM();
+  render({preserveScroll:true});
+  showToast('방학을 저장했어요');
+}
+function deleteVacationPeriod(id){
+  if(!requireEditMode())return;
+  if(!confirm('방학을 삭제할까요? 연결된 반복 일정의 예외도 함께 정리돼요.'))return;
+  vacationPeriods=(vacationPeriods||[]).filter(v=>String(v.id)!==String(id));
+  (repeatItems||[]).forEach(r=>{
+    if(Array.isArray(r.exceptionPeriodIds))r.exceptionPeriodIds=r.exceptionPeriodIds.filter(x=>String(x)!==String(id));
+  });
+  saveSettingsOnly();
+  closeM();
+  render({preserveScroll:true});
+  showToast('방학을 삭제했어요');
 }
 
 function openReqModal(id){
@@ -5380,6 +5644,7 @@ function renderSearchBox(){
 
 function updateTabUI(){
   const activeMain = main==='i' ? 'set' : (main==='r'?'s':main);
+  const tabLabels={s:'홈',c:'달력',a:'보관함',set:'설정'};
   const keys=['s','c','a','set'];
   keys.forEach(k=>{
     const el=document.getElementById('tab-'+k);
@@ -5388,6 +5653,9 @@ function updateTabUI(){
     const on=k===activeMain;
     el.className=`tab ${cls} tab-item${on?' on active':''}`;
     el.setAttribute('aria-selected',on?'true':'false');
+    el.setAttribute('aria-label',tabLabels[k]);
+    const label=el.querySelector('span');
+    if(label)label.textContent=tabLabels[k];
   });
 }
 
@@ -6054,8 +6322,8 @@ function tomorrowInboxItems(baseKey){
   if(shift){
     items.push({
       type:'shift',
-      title:`내일 ${shiftUser} ${todayShiftChipLabel(shift)}`,
-      meta:'근무',
+      title:`내일 ${shiftUser} · ${todayShiftChipLabel(shift)}`,
+      meta:'근무 확인 필요',
       click:`openCalendarWorkTab('${nextKey}')`
     });
   }
@@ -6067,7 +6335,7 @@ function tomorrowInboxItems(baseKey){
       items.push({
         type:'schedule',
         title:`내일 ${time?`${time} `:''}${displayNoteTitle(n)}`,
-        meta:n.who||'가족',
+        meta:`${n.who||'가족'} 일정이에요`,
         click:`openEditNote('${n.id}')`
       });
     });
@@ -6084,8 +6352,8 @@ function inboxRows(baseKey){
     .slice(0,4)
     .forEach(n=>rows.push({
       type:'notice',
-      title:n.title||'가족 공지',
-      meta:n.important?'중요':'새 공지',
+      title:n.title||'가족이 함께 볼 소식이 있어요',
+      meta:n.important?'먼저 확인해 주세요':'새 소식',
       click:'openNoticeList()'
     }));
   (requests||[])
@@ -6095,16 +6363,16 @@ function inboxRows(baseKey){
     .forEach(r=>rows.push({
       type:'request',
       title:`새 부탁 · ${r.title||'부탁'}`,
-      meta:r.dueDate?dateLabel(r.dueDate):'마감 없음',
+      meta:`${r.writer||'가족'}이 부탁을 남겼어요`,
       click:`openEditReq('${r.id}')`
     }));
   (changeLogs||[])
-    .filter(log=>isRecentInboxItem(log,3))
-    .slice(0,4)
+    .filter(log=>isRecentInboxItem(log,3)&&isLifestyleInboxLog(log))
+    .slice(0,2)
     .forEach(log=>rows.push({
       type:'change',
-      title:log.text||'변경된 항목이 있어요',
-      meta:'최근 변경',
+      title:lifestyleChangeLogText(log),
+      meta:lifestyleChangeLogMeta(log),
       click:'closeM()'
     }));
   tomorrowInboxItems(baseKey).forEach(item=>rows.push(item));
@@ -6114,7 +6382,7 @@ function inboxRows(baseKey){
     if(seen.has(key))return false;
     seen.add(key);
     return true;
-  }).slice(0,8);
+  }).slice(0,6);
 }
 function openTodayInboxSheet(baseKey=''){
   const k=baseKey||scheduleBaseKey();
@@ -6124,7 +6392,7 @@ function openTodayInboxSheet(baseKey=''){
     <div class="modal-sheet hub-sheet today-inbox-sheet" onclick="event.stopPropagation()">
       <div class="modal-ind"></div>
       <div class="hub-sheet-title">새로 확인할 것</div>
-      <div class="hub-sheet-sub">새 알림과 최근 변경만 모았어요</div>
+      <div class="hub-sheet-sub">지금 확인하면 좋은 내용이에요</div>
       ${rows.length?`
         <div class="hub-inbox-section">
           <div class="hub-inbox-list">
@@ -7116,13 +7384,13 @@ function briefingEventLine(n){
 function brandLogoImg(cls='brand-logo-symbol', alt='WWW'){
   return `<img class="${escapeAttr(cls)}" src="${BRAND_LOGO_SRC}" alt="${escapeAttr(alt)}" loading="lazy" decoding="async"/>`;
 }
-function dashboardBrandLabel(title='WWW TODAY'){
-  const t=String(title||'').toUpperCase();
-  if(t.includes('WEEK'))return '이번주';
-  return '오늘';
-}
 function dashboardBrandHead(title='WWW TODAY'){
-  return `<div class="www-brand-heading">${brandLogoImg('brand-logo-symbol www-card-logo','WWW')}<span class="www-today-title">${escapeHtml(dashboardBrandLabel(title))}</span></div>`;
+  return `<div class="www-brand-heading">
+    ${brandLogoImg('www-card-logo','WWW')}
+    <div class="www-brand-copy">
+      <span>Who · When · What</span>
+    </div>
+  </div>`;
 }
 function shareIconSvg(){
   return `<svg class="www-share-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 12.7 15.6 16.8"/><path d="M15.6 7.2 8.4 11.3"/><circle cx="6.5" cy="12" r="2.6"/><circle cx="17.5" cy="6" r="2.6"/><circle cx="17.5" cy="18" r="2.6"/></svg>`;
@@ -7674,7 +7942,7 @@ function setupSmartFabScroll(){
 function formHasUnsavedRepeatDraft(ii){
   const draft=__repeatEditDrafts[ii];
   const item=repeatItems[ii];
-  return !!(draft&&item&&JSON.stringify({days:draft.days,pauseOnVacation:draft.pauseOnVacation,who:draft.who,title:draft.title,start:draft.start,repeatEnd:draft.repeatEnd,sT:draft.sT,eT:draft.eT})!==JSON.stringify({days:item.days,pauseOnVacation:item.pauseOnVacation,who:item.who,title:item.title,start:item.start,repeatEnd:item.repeatEnd,sT:item.sT,eT:item.eT}));
+  return !!(draft&&item&&JSON.stringify({days:draft.days,exceptionPeriodIds:repeatExceptionIds(draft),who:draft.who,title:draft.title,start:draft.start,repeatEnd:draft.repeatEnd,sT:draft.sT,eT:draft.eT})!==JSON.stringify({days:item.days,exceptionPeriodIds:repeatExceptionIds(item),who:item.who,title:item.title,start:item.start,repeatEnd:item.repeatEnd,sT:item.sT,eT:item.eT}));
 }
 
 let __renderDebounceTimer=null;
@@ -8054,6 +8322,38 @@ function vacationSummary(kid){
   return list.filter(v=>v.start||v.end).map(v=>`${v.start?dateLabel(v.start):'시작일'} ~ ${v.end?dateLabel(v.end):'종료일'}`).join(' · ');
 }
 
+function vacationPeriodRange(v){
+  if(!v)return '';
+  const start=v.start?dateLabel(v.start):'시작일';
+  const end=v.end?dateLabel(v.end):'종료일';
+  return `${start} ~ ${end}`;
+}
+function repeatExceptionIds(item){
+  const ids=[];
+  if(Array.isArray(item?.exceptionPeriodIds))item.exceptionPeriodIds.forEach(id=>{if(id!==undefined&&id!==null&&!ids.includes(String(id)))ids.push(String(id));});
+  if(Array.isArray(item?.exceptionPeriods))item.exceptionPeriods.forEach(v=>{if(v?.id&&!ids.includes(String(v.id)))ids.push(String(v.id));});
+  return ids;
+}
+function repeatVacationPeriods(item){
+  const ids=repeatExceptionIds(item);
+  return (vacationPeriods||[]).filter(v=>ids.includes(String(v.id)));
+}
+function repeatIsInExceptionPeriod(item,date){
+  if(!date)return false;
+  return repeatVacationPeriods(item).some(v=>v.start&&v.end&&date>=v.start&&date<=v.end);
+}
+function repeatExceptionSummary(item){
+  const list=repeatVacationPeriods(item);
+  if(!list.length)return '';
+  if(list.length===1)return list[0].name||'방학';
+  return `${list[0].name||'방학'} 외 ${list.length-1}개`;
+}
+function vacationPeriodAppliedRepeats(v){
+  const id=String(v?.id||'');
+  if(!id)return [];
+  return (repeatItems||[]).filter(r=>repeatExceptionIds(r).includes(id));
+}
+
 function selectKidProfileColor(color){
   const el=document.getElementById('k-color');
   if(el)el.value=color||'';
@@ -8085,24 +8385,8 @@ function editKid(i){
   const curAvatarEmoji='';
   const curAvatarUrl=draft.avatarUrl||'';
   const curColor=draft.color||k.color||defaultPersonColor(curName);
-  const vacHtml=(k.vacations||[]).map((v,vi)=>{
-    const idp=`${i}-${vi}`;
-    return `<div class="vacation-row">
-      <div class="vacation-date-field">
-        <div class="sublabel">시작일</div>
-        <input class="picker-field${v.start?'':' empty'}" id="kv-sd-${idp}" readonly data-val="${v.start||''}" value="${v.start?dateLabel(v.start):'시작일'}" onclick="openDatePicker('kv-sd-${idp}')"/>
-      </div>
-      <span class="vacation-wave">~</span>
-      <div class="vacation-date-field">
-        <div class="sublabel">개학일</div>
-        <input class="picker-field${v.end?'':' empty'}" id="kv-ed-${idp}" readonly data-val="${v.end||''}" value="${v.end?dateLabel(v.end):'종료일'}" onclick="openDatePicker('kv-ed-${idp}')"/>
-      </div>
-      <button class="vacation-del" onclick="event.stopPropagation();delKidVacation(${i},${vi})">✕</button>
-    </div>`;
-  }).join('');
 
   const quietColors=PERSON_COLOR_PALETTE.slice(0,6);
-  const vacationText=vacationSummary(k)||'등록된 방학이 없어요';
   const shiftStatus=shiftUsers.includes(k.name)?'근무표 표시 중':'근무표 미표시';
   document.getElementById('modal').innerHTML=`
   <div class="modal-bg" onclick="closeM(event)">
@@ -8144,19 +8428,6 @@ function editKid(i){
       <input type="hidden" id="k-avatar-emoji" value="${escapeAttr(curAvatarEmoji)}"/>
       <input type="hidden" id="k-avatar-url" value="${escapeAttr(curAvatarUrl)}"/>
       <input type="hidden" id="k-avatar-custom" value="${escapeAttr(draft.avatarCustom||'')}"/>
-
-      <div class="profile-state-section">
-        <div class="profile-state-section-head">
-          <div>
-            <b>학사 일정</b>
-            <span>${escapeHtml(vacationText)}</span>
-          </div>
-          <button class="cat-add" onclick="event.stopPropagation();addKidVacation(${i})">추가</button>
-        </div>
-        <div class="vacation-box profile-vacation-box">
-          ${vacHtml || '<div class="empty compact-empty">방학 기간이 없어요</div>'}
-        </div>
-      </div>
 
       <div class="profile-state-actions">
         <button class="primary-btn" onclick="saveKid(${i})">저장</button>
